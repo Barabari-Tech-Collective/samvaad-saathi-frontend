@@ -9,7 +9,7 @@ import {
   Orbitron,
 } from "next/font/google";
 import { Suspense } from "react";
-import { Toaster } from "react-hot-toast";
+import { LimitedToaster } from "@/components/providers/limited-toaster";
 import "./globals.css";
 
 const notoSansDevanagari = Noto_Sans_Devanagari({
@@ -179,7 +179,7 @@ export default function RootLayout({
                 {children}
               </Suspense>
             </AnalyticsProvider>
-            <Toaster />
+            <LimitedToaster />
           </AuthProvider>
         </AppProvider>
       </body>

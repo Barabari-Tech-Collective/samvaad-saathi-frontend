@@ -117,7 +117,7 @@ export default function SignupPage() {
 
       {/* Page Heading */}
       <h1 className="font-noto text-white text-[20px] font-[600] mb-8">
-        Create Account
+        Create Account / Login
       </h1>
 
       {/* Google Signup */}

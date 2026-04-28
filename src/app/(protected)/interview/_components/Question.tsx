@@ -19,7 +19,6 @@ const Question = ({
     totalQuestions = 0,
     onSpeakingChange,
 }: QuestionProps) => {
-    console.log('question :', question);
     // Use text-to-speech hook
     const { isSpeaking } = useTextToSpeech({
         text: question?.text,
