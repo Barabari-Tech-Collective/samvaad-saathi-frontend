@@ -214,6 +214,11 @@ export const useTextToSpeech = ({
             // First, try to get audio from backend.
             let audioBlob: Blob | null = null;
             const voice_id = resolveStoredTtsVoiceId();
+            
+            console.log("====== TTS REQUEST ======");
+            console.log("Text to speak:", processedText);
+            console.log("Voice ID:", voice_id);
+            console.log("=========================");
             try {
                 audioBlob = await convertTextToSpeech({
                     text: processedText,
