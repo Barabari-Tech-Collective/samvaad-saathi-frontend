@@ -50,6 +50,8 @@ export const ENDPOINTS = {
 export const ENDPOINTS_V2 = {
   CREATE_INTERVIEW: "v2/interviews/create",
   GENERATE_QUESTIONS: "v2/interviews/generate-questions",
+  GENERATE_NON_TECH_QUESTIONS: "v2/interviews/non-tech/generate-questions",
+  JOB_PROFILES: "v2/job-profiles",
   SUPPLEMENTS: (interviewId: string) =>
     `v2/interviews/${interviewId}/supplements`,
   SUMMARY_REPORT: "v2/summary-report",

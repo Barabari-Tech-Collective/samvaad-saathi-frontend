@@ -2,7 +2,8 @@
 
 import { ENDPOINTS } from "@/lib/api-config";
 import { createApiClient } from "@/lib/api-config/src/client";
-import { APIService } from "@/lib/api-config/src/config";
+import { APIService, APIServiceV2 } from "@/lib/api-config/src/config";
+import { ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
 import {
   EXPERIENCE_OPTIONS,
   MAX_RESUME_SIZE_MB,
@@ -17,16 +18,34 @@ interface Step2Props {
   isLoading?: boolean;
 }
 
+interface JobProfile {
+  jobProfileId: number;
+  jobName: string;
+  companyName: string;
+}
+
+interface JobProfilesResponse {
+  items: JobProfile[];
+}
+
 // Create RESUME API client
 const resumeApiClient = createApiClient(APIService.RESUME);
+const jobProfilesApiClient = createApiClient(APIServiceV2.INTERVIEWS);
 
 export default function Step2({ onNext, isLoading = false }: Step2Props) {
   const [role, setRole] = useState("");
   const [experience, setExperience] = useState("");
   const [resume, setResume] = useState<File | null>(null);
 
-  const roles = ROLE_OPTIONS;
   const experiences = EXPERIENCE_OPTIONS;
+
+  const { data: jobProfilesData, isLoading: isLoadingProfiles } =
+    jobProfilesApiClient.useQuery<JobProfilesResponse>({
+      key: [ENDPOINTS_V2.JOB_PROFILES],
+      url: ENDPOINTS_V2.JOB_PROFILES,
+    });
+
+  const jobProfiles = jobProfilesData?.items ?? [];
 
   // Set up mutation for resume extraction
   const extractResumeMutation = resumeApiClient.useMutation({
@@ -109,16 +128,29 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
+            disabled={isLoadingProfiles}
             className="select select-bordered w-full h-[60px] text-gray-800 font-noto text-[16px] rounded-xl"
           >
             <option value="" disabled>
-              Select Role
+              {isLoadingProfiles ? "Loading roles..." : "Select Role"}
             </option>
-            {roles.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
+            <optgroup label="Technical">
+              {ROLE_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </optgroup>
+            {jobProfiles.length > 0 && (
+              <optgroup label="HR & Non-Technical">
+                {jobProfiles.map((profile) => (
+                  <option key={profile.jobProfileId} value={profile.jobName}>
+                    {profile.jobName}
+                    {profile.companyName ? ` — ${profile.companyName}` : ""}
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </select>
         </div>
 
