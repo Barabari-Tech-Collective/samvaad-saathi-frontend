@@ -124,8 +124,8 @@ const InterviewPage = () => {
                         setPendingStart(false);
                     }
                 })
-                .catch((err) => {
-                    console.error("Failed to refetch resume interview:", err);
+                .catch(() => {
+                    // Handle resume interview fetch failure
                 });
             return;
         }
@@ -152,7 +152,7 @@ const InterviewPage = () => {
                 }
             }
         } catch (error) {
-            console.error("Failed to parse selectedQuestions from URL:", error);
+            // Handle URL parsing error silently
         }
     }, [selectedQuestionsParam, pendingStart, resumed, reattempt]);
 
@@ -394,7 +394,6 @@ const InterviewPage = () => {
                         Please wait while your interviewer introduces themselves...
                     </p>
                     <IntroductionSpeaker
-                        role={role || ""}
                         onFinished={() => setIsIntroducing(false)}
                         onSpeakingChange={setIsTextToSpeechSpeaking}
                     />
@@ -491,38 +490,51 @@ const InterviewPage = () => {
     );
 };
 
-const IntroductionSpeaker = ({ role, onFinished, onSpeakingChange }: { role: string, onFinished: () => void, onSpeakingChange: (s: boolean) => void }) => {
-    const [textToSpeak, setTextToSpeak] = useState("");
+const IntroductionSpeaker = ({
+    onFinished,
+    onSpeakingChange,
+}: {
+    onFinished: () => void;
+    onSpeakingChange: (s: boolean) => void;
+}) => {
     const [hasSpoken, setHasSpoken] = useState(false);
 
-    useEffect(() => {
-        const voiceId = typeof window !== "undefined" ? (localStorage.getItem(TTS_VOICE_STORAGE_KEY) || DEFAULT_TTS_VOICE_ID) : DEFAULT_TTS_VOICE_ID;
-        const selectedVoice = TTS_VOICE_OPTIONS.find((v) => v.id === voiceId) || TTS_VOICE_OPTIONS[0];
-        const nameMatch = selectedVoice.name.match(/^([^\s]+)/);
-        const voiceName = nameMatch ? nameMatch[1] : selectedVoice.name;
+    const voiceId =
+        typeof window !== "undefined"
+            ? localStorage.getItem(TTS_VOICE_STORAGE_KEY) ||
+              DEFAULT_TTS_VOICE_ID
+            : DEFAULT_TTS_VOICE_ID;
 
-        let roleText = role;
-        if (roleText.includes(" — ")) {
-            roleText = roleText.replace(" — ", " for ");
-        }
+    const selectedVoice =
+        TTS_VOICE_OPTIONS.find((v) => v.id === voiceId) ||
+        TTS_VOICE_OPTIONS[0];
 
-        setTextToSpeak(`Hi. My name is ${voiceName}. I will be taking your interview today. Let's begin. Can you tell me about yourself?`);
-    }, [role]);
+    const nameMatch = selectedVoice.name.match(/^([^\s]+)/);
+
+    const voiceName = nameMatch
+        ? nameMatch[1]
+        : selectedVoice.name;
+
+    const introductionText = `Hi. My name is ${voiceName}. I will be taking your interview today. Let's begin.`;
 
     const { isSpeaking } = useTextToSpeech({
-        text: textToSpeak,
-        disabled: !textToSpeak,
+        text: introductionText,
+        disabled: false,
     });
 
     useEffect(() => {
         onSpeakingChange(isSpeaking);
+
         if (isSpeaking) {
             setHasSpoken(true);
+            return;
         }
-        if (!isSpeaking && hasSpoken) {
+
+        if (hasSpoken) {
             const timer = setTimeout(() => {
                 onFinished();
             }, 1000);
+
             return () => clearTimeout(timer);
         }
     }, [isSpeaking, hasSpoken, onFinished, onSpeakingChange]);

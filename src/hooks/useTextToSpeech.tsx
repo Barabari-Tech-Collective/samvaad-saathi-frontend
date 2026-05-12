@@ -167,11 +167,14 @@ export const useTextToSpeech = ({
     const audioUrlRef = useRef<string | null>(null);
     const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
     const [isSpeaking, setIsSpeaking] = useState(false);
+    const speakIdRef = useRef<number>(0);
 
     // TTS is supported in any browser that can play audio
     const isSupported = typeof window !== "undefined";
 
     const stop = useCallback(() => {
+        speakIdRef.current += 1;
+
         if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current.currentTime = 0;
@@ -211,6 +214,8 @@ export const useTextToSpeech = ({
                 ? preprocessTextForNaturalSpeech(textToSpeak)
                 : textToSpeak;
 
+            const currentSpeakId = speakIdRef.current;
+
             // First, try to get audio from backend.
             let audioBlob: Blob | null = null;
             const voice_id = resolveStoredTtsVoiceId();
@@ -229,6 +234,10 @@ export const useTextToSpeech = ({
                     "TTS backend request failed, falling back to browser TTS",
                     error
                 );
+            }
+
+            if (currentSpeakId !== speakIdRef.current) {
+                return;
             }
 
             if (audioBlob) {
@@ -264,6 +273,10 @@ export const useTextToSpeech = ({
                 !("speechSynthesis" in window)
             ) {
                 setIsSpeaking(false);
+                return;
+            }
+
+            if (currentSpeakId !== speakIdRef.current) {
                 return;
             }
 
