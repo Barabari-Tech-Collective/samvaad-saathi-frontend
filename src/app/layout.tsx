@@ -57,9 +57,12 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
+  // metadataBase: new URL(
+  //   process.env.NEXT_PUBLIC_APP_URL ||
+  //     "https://samvaad-sathi.barabaricollective.org",
+  // ),
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ||
-      "https://samvaad-sathi.barabaricollective.org",
+    process.env.NEXT_PUBLIC_APP_URL || "https://samvaad-sathi.barabaricollective.org",
   ),
   alternates: {
     canonical: "/",
@@ -133,8 +136,7 @@ export default function RootLayout({
     description:
       "Master your interviews with Samvaad Saathi - India's leading AI-powered interview preparation platform. Practice with voice-based interviews, get instant feedback, and boost your confidence for job interviews.",
     url:
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "https://samvaad-sathi.barabaricollective.org",
+      process.env.NEXT_PUBLIC_APP_URL || "https://samvaad-sathi.barabaricollective.org",
     applicationCategory: "EducationalApplication",
     operatingSystem: "Web Browser",
     offers: {

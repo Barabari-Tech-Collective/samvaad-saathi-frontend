@@ -10,6 +10,8 @@ interface QuestionProps {
     currentQuestionIndex: number;
     totalQuestions: number;
     onSpeakingChange?: (isSpeaking: boolean) => void;
+    role?: string;
+    allowSpeech?: boolean;
 }
 
 const Question = ({
@@ -18,36 +20,38 @@ const Question = ({
     currentQuestionIndex = 0,
     totalQuestions = 0,
     onSpeakingChange,
+    role = "",
+    allowSpeech = true,
 }: QuestionProps) => {
-    // Use text-to-speech hook
+
+    const textToSpeak = question?.text;
+
+    // Text-to-speech
     const { isSpeaking } = useTextToSpeech({
-        text: question?.text,
-        disabled: isLoading,
+        text: textToSpeak,
+        disabled: isLoading || !question || !allowSpeech,
     });
 
-    // Notify parent when speaking state changes
+    // Notify parent about speaking state
     useEffect(() => {
         if (onSpeakingChange) {
             onSpeakingChange(isSpeaking);
         }
-    }, [isSpeaking]);
+    }, [isSpeaking, onSpeakingChange]);
 
     if (isLoading) {
         return (
             <div className="w-full py-6 animate-pulse">
-                {/* Top Row with Counter Skeleton */}
                 <div className="flex justify-end mb-2">
                     <div className="h-6 w-8 bg-slate-200 rounded"></div>
                 </div>
 
-                {/* Question Text Skeleton */}
                 <div className="mb-8 space-y-3">
                     <div className="h-6 bg-slate-200 rounded w-full"></div>
                     <div className="h-6 bg-slate-200 rounded w-5/6"></div>
                     <div className="h-6 bg-slate-200 rounded w-4/6"></div>
                 </div>
 
-                {/* Tag Skeleton */}
                 <div className="flex">
                     <div className="h-8 w-32 bg-slate-200 rounded-full"></div>
                 </div>
@@ -59,32 +63,30 @@ const Question = ({
 
     return (
         <div className="w-full py-6">
-            {/* Top Row with Counter */}
             <div className="mb-2">
                 <span className="text-lg text-slate-900 font-medium">
                     Question {currentQuestionIndex + 1}:
                 </span>
             </div>
 
-            {/* Question Text */}
             <div className="mb-4">
                 <p className="text-xl leading-[1.4] text-slate-900 font-normal">
                     {question.text}
                 </p>
             </div>
 
-            {/* Tag */}
             {!!question?.category ? (
                 <div className="flex">
                     <span
-                        className={`badge badge-sm ${question.category?.toLowerCase() === "tech"
-                            ? "badge-primary"
-                            : question.category?.toLowerCase() === "behavioral"
+                        className={`badge badge-sm ${
+                            question.category?.toLowerCase() === "tech"
+                                ? "badge-primary"
+                                : question.category?.toLowerCase() === "behavioral"
                                 ? "badge-warning"
                                 : question.category?.toLowerCase() === "tech_allied"
-                                    ? "badge-success"
-                                    : "badge-secondary"
-                            }`}
+                                ? "badge-success"
+                                : "badge-secondary"
+                        }`}
                     >
                         {question?.category?.replaceAll("_", " ")?.toUpperCase()}
                     </span>
