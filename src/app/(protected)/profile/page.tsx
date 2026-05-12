@@ -6,17 +6,13 @@ import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService } from "@/lib/api-config/src/config";
 import {
   APP_VERSION,
-  DEFAULT_TTS_VOICE_ID,
   DEGREE_OPTIONS,
   EXPERIENCE_OPTIONS,
   MAX_PROFILE_RESUME_SIZE_MB,
   RESUME_FILE_TYPES,
   ROLE_OPTIONS,
-  TTS_VOICE_OPTIONS,
-  TTS_VOICE_STORAGE_KEY,
   UNIVERSITY_OPTIONS,
 } from "@/lib/constants";
-
 import {
   trackProfileEditButtonClick,
   trackProfileFieldValueChanged,
@@ -29,29 +25,17 @@ import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 import {
   ArrowLeftStartOnRectangleIcon,
   DocumentTextIcon,
-  PencilIcon,
   QuestionMarkCircleIcon,
-  XMarkIcon,
 } from "@heroicons/react/24/solid";
-
-import { useEffect, useState } from "react";
-
-const allowedTtsVoiceIds = new Set<string>(
-  TTS_VOICE_OPTIONS.map((option) => option.id),
-);
-
-function readStoredTtsVoiceId(): string {
-  if (typeof window === "undefined") return DEFAULT_TTS_VOICE_ID;
-  const raw = localStorage.getItem(TTS_VOICE_STORAGE_KEY);
-  if (raw && allowedTtsVoiceIds.has(raw)) return raw;
-  return DEFAULT_TTS_VOICE_ID;
-}
+import { useState } from "react";
 import { z } from "zod";
 
-// Create API clients
+import { ProfileFieldRow } from "./_components/ProfileFieldRow";
+import { ProfileSkeleton } from "./_components/ProfileSkeleton";
+import { VoiceSelector } from "./_components/VoiceSelector";
+
 const usersApiClient = createApiClient(APIService.USERS);
 
-// Zod validation schema
 const profileSchema = z.object({
   targetPosition: z.string().min(1, "Target position is required"),
   yearsExperience: z.string().min(1, "Experience level is required"),
@@ -65,13 +49,7 @@ type EditableField = keyof ProfileFormData | "resume";
 export default function ProfilePage() {
   const { user, signOut } = useAuth();
   const [resumeFile, setResumeFile] = useState<File | null>(null);
-  // Separate editing states for each field
-  const [isEditingTargetPosition, setIsEditingTargetPosition] = useState(false);
-  const [isEditingYearsExperience, setIsEditingYearsExperience] =
-    useState(false);
-  const [isEditingDegree, setIsEditingDegree] = useState(false);
-  const [isEditingUniversity, setIsEditingUniversity] = useState(false);
-  const [isEditingResume, setIsEditingResume] = useState(false);
+  const [editingField, setEditingField] = useState<EditableField | null>(null);
   const [customUniversity, setCustomUniversity] = useState("");
   const [tempData, setTempData] = useState<ProfileFormData>({
     targetPosition: "",
@@ -80,22 +58,9 @@ export default function ProfilePage() {
     university: "",
   });
   const [errors, setErrors] = useState<Partial<ProfileFormData>>({});
-  const [ttsVoiceId, setTtsVoiceId] = useState<string>(DEFAULT_TTS_VOICE_ID);
 
   const userInitials = getInitials(user?.authorizedUser?.name || "User");
 
-  useEffect(() => {
-    setTtsVoiceId(readStoredTtsVoiceId());
-  }, []);
-
-  const handleTtsVoiceChange = (id: string) => {
-    setTtsVoiceId(id);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(TTS_VOICE_STORAGE_KEY, id);
-    }
-  };
-
-  // Set up mutations
   const updateProfileMutation = usersApiClient.useMutation({
     url: ENDPOINTS.USERS.PROFILE,
     method: "put",
@@ -106,69 +71,46 @@ export default function ProfilePage() {
     },
   });
 
-  // Separate edit handlers for each field
-  const handleTargetPositionEdit = () => {
-    trackProfileEditButtonClick("targetPosition");
-    setIsEditingTargetPosition(true);
-    setTempData((prev) => ({
-      ...prev,
-      targetPosition: user?.authorizedUser.targetPosition || "",
-    }));
+  const startEditing = (field: EditableField) => {
+    trackProfileEditButtonClick(field);
+    if (field === "university") {
+      const currentUniversity = user?.authorizedUser.university || "";
+      const isCustom =
+        currentUniversity &&
+        !UNIVERSITY_OPTIONS.includes(
+          currentUniversity as (typeof UNIVERSITY_OPTIONS)[number],
+        );
+      setTempData((prev) => ({
+        ...prev,
+        university: isCustom ? "Others" : currentUniversity,
+      }));
+      setCustomUniversity(isCustom ? currentUniversity : "");
+    } else if (field !== "resume") {
+      const fieldValues: Record<string, string> = {
+        targetPosition: user?.authorizedUser.targetPosition || "",
+        yearsExperience: user?.authorizedUser.yearsExperience?.toString() || "",
+        degree: user?.authorizedUser.degree || "",
+      };
+      setTempData((prev) => ({ ...prev, [field]: fieldValues[field] }));
+    }
+    setEditingField(field);
   };
 
-  const handleYearsExperienceEdit = () => {
-    trackProfileEditButtonClick("yearsExperience");
-    setIsEditingYearsExperience(true);
-    setTempData((prev) => ({
-      ...prev,
-      yearsExperience: user?.authorizedUser.yearsExperience?.toString() || "",
-    }));
-  };
-
-  const handleDegreeEdit = () => {
-    trackProfileEditButtonClick("degree");
-    setIsEditingDegree(true);
-    setTempData((prev) => ({
-      ...prev,
-      degree: user?.authorizedUser.degree || "",
-    }));
-  };
-
-  const handleUniversityEdit = () => {
-    trackProfileEditButtonClick("university");
-    setIsEditingUniversity(true);
-    const currentUniversity = user?.authorizedUser.university || "";
-    // Check if current university is in the predefined options
-    const isCustomUniversity =
-      currentUniversity &&
-      !UNIVERSITY_OPTIONS.includes(
-        currentUniversity as (typeof UNIVERSITY_OPTIONS)[number],
-      );
-
-    setTempData((prev) => ({
-      ...prev,
-      university: isCustomUniversity ? "Others" : currentUniversity,
-    }));
-    setCustomUniversity(isCustomUniversity ? currentUniversity : "");
-  };
-
-  const handleResumeEdit = () => {
-    trackProfileEditButtonClick("resume");
-    setIsEditingResume(true);
+  const cancelEditing = () => {
+    if (editingField && editingField !== "resume") {
+      setErrors((prev) => ({ ...prev, [editingField]: undefined }));
+    }
+    if (editingField === "resume") setResumeFile(null);
+    setCustomUniversity("");
+    setEditingField(null);
   };
 
   const handleFieldSave = async (field: EditableField) => {
-    // Track update button click
     trackProfileUpdateButtonClick(field);
 
-    // Clear previous errors for this field
     if (field !== "resume") {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: undefined,
-      }));
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
 
-      // Validate only the specific field
       const fieldValidation = profileSchema.pick({ [field]: true });
       const validationResult = fieldValidation.safeParse({
         [field]: tempData[field],
@@ -177,26 +119,20 @@ export default function ProfilePage() {
       if (!validationResult.success) {
         const fieldError = validationResult.error.issues[0]?.message;
         if (fieldError) {
-          setErrors((prev) => ({
-            ...prev,
-            [field]: fieldError,
-          }));
+          setErrors((prev) => ({ ...prev, [field]: fieldError }));
           return;
         }
       }
     }
 
-    // Create FormData for the API call with only the specific field
     const submitData = new FormData();
 
     if (field === "resume") {
-      if (resumeFile) {
-        submitData.append("resume", resumeFile);
-      } else {
-        // No file selected, just return
-        setIsEditingResume(false);
+      if (!resumeFile) {
+        setEditingField(null);
         return;
       }
+      submitData.append("resume", resumeFile);
     } else {
       const value =
         field === "university" && tempData.university === "Others"
@@ -215,74 +151,11 @@ export default function ProfilePage() {
 
     try {
       await updateProfileMutation.mutateAsync(submitData);
-
-      // Reset the specific field's editing state
-      if (field === "targetPosition") setIsEditingTargetPosition(false);
-      else if (field === "yearsExperience") setIsEditingYearsExperience(false);
-      else if (field === "degree") setIsEditingDegree(false);
-      else if (field === "university") setIsEditingUniversity(false);
-      else if (field === "resume") {
-        setIsEditingResume(false);
-        setResumeFile(null);
-      }
+      if (field === "resume") setResumeFile(null);
+      setEditingField(null);
     } catch (error) {
       console.error(`Field update failed for ${field}:`, error);
     }
-  };
-
-  // Separate cancel handlers for each field
-  const handleTargetPositionCancel = () => {
-    setIsEditingTargetPosition(false);
-    setErrors((prev) => ({
-      ...prev,
-      targetPosition: undefined,
-    }));
-    setTempData((prev) => ({
-      ...prev,
-      targetPosition: user?.authorizedUser.targetPosition || "",
-    }));
-  };
-
-  const handleYearsExperienceCancel = () => {
-    setIsEditingYearsExperience(false);
-    setErrors((prev) => ({
-      ...prev,
-      yearsExperience: undefined,
-    }));
-    setTempData((prev) => ({
-      ...prev,
-      yearsExperience: user?.authorizedUser.yearsExperience?.toString() || "",
-    }));
-  };
-
-  const handleDegreeCancel = () => {
-    setIsEditingDegree(false);
-    setErrors((prev) => ({
-      ...prev,
-      degree: undefined,
-    }));
-    setTempData((prev) => ({
-      ...prev,
-      degree: user?.authorizedUser.degree || "",
-    }));
-  };
-
-  const handleUniversityCancel = () => {
-    setIsEditingUniversity(false);
-    setErrors((prev) => ({
-      ...prev,
-      university: undefined,
-    }));
-    setTempData((prev) => ({
-      ...prev,
-      university: user?.authorizedUser.university || "",
-    }));
-    setCustomUniversity("");
-  };
-
-  const handleResumeCancel = () => {
-    setIsEditingResume(false);
-    setResumeFile(null);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -295,39 +168,11 @@ export default function ProfilePage() {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    // Track field value change
     trackProfileFieldValueChanged(field, value);
-
-    setTempData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-
-    // Clear error for this field when user starts typing
+    setTempData((prev) => ({ ...prev, [field]: value }));
     if (errors[field as keyof ProfileFormData]) {
-      setErrors((prev) => ({
-        ...prev,
-        [field]: undefined,
-      }));
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
-  };
-
-  // Check if any field is being edited
-  const hasAnyFieldEditing =
-    isEditingTargetPosition ||
-    isEditingYearsExperience ||
-    isEditingDegree ||
-    isEditingUniversity ||
-    isEditingResume;
-
-  // Get the currently editing field for the update button
-  const getCurrentEditingField = (): EditableField | null => {
-    if (isEditingTargetPosition) return "targetPosition";
-    if (isEditingYearsExperience) return "yearsExperience";
-    if (isEditingDegree) return "degree";
-    if (isEditingUniversity) return "university";
-    if (isEditingResume) return "resume";
-    return null;
   };
 
   const handleHelpClick = () => {
@@ -339,71 +184,14 @@ export default function ProfilePage() {
     trackProfileSupportButtonClick();
     const phoneNumber = "+918639322365";
     const message = "Hi, I need support with Samvaad Saathi app.";
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-      message,
-    )}`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
   };
 
-  if (!user) {
-    return (
-      <main className="max-w-md mx-auto">
-        <section className="card bg-base-200 shadow-xl">
-          {/* Avatar Skeleton */}
-          <div className="card-body items-center text-center">
-            <div className="avatar">
-              <div className="w-20 rounded-full">
-                <div className="skeleton w-full h-full"></div>
-              </div>
-            </div>
-            <div className="skeleton h-8 w-32 mt-4"></div>
-            <div className="skeleton h-4 w-24 mt-2"></div>
-          </div>
-
-          {/* Stats Skeleton */}
-          <div className="stats shadow">
-            <div className="stat">
-              <div className="skeleton h-3 w-24 mb-2"></div>
-              <div className="skeleton h-8 w-12"></div>
-            </div>
-          </div>
-
-          {/* Profile Information Skeleton */}
-          <div className="card-body space-y-4">
-            <div className="flex justify-between items-center">
-              <div className="skeleton h-6 w-40"></div>
-              <div className="skeleton h-10 w-10 rounded-lg"></div>
-            </div>
-
-            <div className="space-y-4">
-              {[...Array(4)].map((_, index) => (
-                <div key={index}>
-                  <div className="skeleton h-4 w-20 mb-2"></div>
-                  <div className="skeleton h-12 w-full rounded-lg"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Actions Skeleton */}
-          <div className="card-actions">
-            {[...Array(3)].map((_, index) => (
-              <div key={index} className="w-full">
-                <div className="flex items-center gap-3 p-4">
-                  <div className="skeleton h-6 w-6"></div>
-                  <div className="skeleton h-4 w-20"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      </main>
-    );
-  }
+  if (!user) return <ProfileSkeleton />;
 
   return (
     <main className="max-w-md mx-auto">
-      {/* Card */}
       <section className=" ">
         {/* Avatar */}
         <div className="card-body items-center text-center">
@@ -412,7 +200,6 @@ export default function ProfilePage() {
               <span className="text-xl">{userInitials}</span>
             </div>
           </div>
-
           <h2 className="card-title text-2xl">{user.authorizedUser.name}</h2>
           <p className="text-base-content/70">
             {user.authorizedUser.targetPosition || "No position set"}
@@ -427,15 +214,12 @@ export default function ProfilePage() {
         <div className="divider" />
 
         {/* Profile Information */}
-        <div className=" space-y-4 my-4">
-          {/* Header with Edit Button */}
+        <div className="space-y-4 my-4">
           <div className="flex justify-between items-center">
             <h3 className="card-title">Profile Information</h3>
-            {hasAnyFieldEditing && (
+            {editingField !== null && (
               <button
-                onClick={() =>
-                  handleFieldSave(getCurrentEditingField() as EditableField)
-                }
+                onClick={() => handleFieldSave(editingField)}
                 className="btn btn-xs btn-success"
                 disabled={updateProfileMutation.isPending}
               >
@@ -444,45 +228,19 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* Profile Data */}
           <div className="space-y-4">
-            <div className="form-control">
-              <label className="label flex justify-between items-center mb-2">
-                <span className="label-text">Target Position</span>
-
-                {isEditingTargetPosition ? (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleTargetPositionCancel();
-                    }}
-                    className="btn btn-xs btn-ghost"
-                    type="button"
-                  >
-                    <XMarkIcon className="size-4" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleTargetPositionEdit();
-                    }}
-                    className="btn btn-xs btn-ghost"
-                    type="button"
-                  >
-                    <PencilIcon className="size-4" />
-                  </button>
-                )}
-              </label>
+            <ProfileFieldRow
+              label="Target Position"
+              isEditing={editingField === "targetPosition"}
+              onEdit={() => startEditing("targetPosition")}
+              onCancel={cancelEditing}
+              error={errors.targetPosition}
+            >
               <select
-                disabled={!isEditingTargetPosition}
-                className={`select select-bordered w-full ${
-                  errors.targetPosition ? "select-error" : ""
-                }`}
+                disabled={editingField !== "targetPosition"}
+                className={`select select-bordered w-full ${errors.targetPosition ? "select-error" : ""}`}
                 value={
-                  isEditingTargetPosition
+                  editingField === "targetPosition"
                     ? tempData.targetPosition
                     : user.authorizedUser.targetPosition || ""
                 }
@@ -499,52 +257,20 @@ export default function ProfilePage() {
                   </option>
                 ))}
               </select>
-              {errors.targetPosition && (
-                <label className="label">
-                  <span className="label-text-alt text-error">
-                    {errors.targetPosition}
-                  </span>
-                </label>
-              )}
-            </div>
+            </ProfileFieldRow>
 
-            <div className="form-control">
-              <label className="label flex justify-between items-center mb-2">
-                <span className="label-text">Years of Experience</span>
-
-                {isEditingYearsExperience ? (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleYearsExperienceCancel();
-                    }}
-                    className="btn btn-xs btn-ghost"
-                    type="button"
-                  >
-                    <XMarkIcon className="size-4" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleYearsExperienceEdit();
-                    }}
-                    className="btn btn-xs btn-ghost"
-                    type="button"
-                  >
-                    <PencilIcon className="size-4" />
-                  </button>
-                )}
-              </label>
+            <ProfileFieldRow
+              label="Years of Experience"
+              isEditing={editingField === "yearsExperience"}
+              onEdit={() => startEditing("yearsExperience")}
+              onCancel={cancelEditing}
+              error={errors.yearsExperience}
+            >
               <select
-                disabled={!isEditingYearsExperience}
-                className={`select select-bordered w-full ${
-                  errors.yearsExperience ? "select-error" : ""
-                }`}
+                disabled={editingField !== "yearsExperience"}
+                className={`select select-bordered w-full ${errors.yearsExperience ? "select-error" : ""}`}
                 value={
-                  isEditingYearsExperience
+                  editingField === "yearsExperience"
                     ? tempData.yearsExperience
                     : user.authorizedUser.yearsExperience?.toString() || ""
                 }
@@ -563,52 +289,20 @@ export default function ProfilePage() {
                   </option>
                 ))}
               </select>
-              {errors.yearsExperience && (
-                <label className="label">
-                  <span className="label-text-alt text-error">
-                    {errors.yearsExperience}
-                  </span>
-                </label>
-              )}
-            </div>
+            </ProfileFieldRow>
 
-            <div className="form-control">
-              <label className="label flex justify-between items-center mb-2">
-                <span className="label-text">Degree</span>
-
-                {isEditingDegree ? (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleDegreeCancel();
-                    }}
-                    className="btn btn-xs btn-ghost"
-                    type="button"
-                  >
-                    <XMarkIcon className="size-4" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleDegreeEdit();
-                    }}
-                    className="btn btn-xs btn-ghost"
-                    type="button"
-                  >
-                    <PencilIcon className="size-4" />
-                  </button>
-                )}
-              </label>
+            <ProfileFieldRow
+              label="Degree"
+              isEditing={editingField === "degree"}
+              onEdit={() => startEditing("degree")}
+              onCancel={cancelEditing}
+              error={errors.degree}
+            >
               <select
-                disabled={!isEditingDegree}
-                className={`select select-bordered w-full ${
-                  errors.degree ? "select-error" : ""
-                }`}
+                disabled={editingField !== "degree"}
+                className={`select select-bordered w-full ${errors.degree ? "select-error" : ""}`}
                 value={
-                  isEditingDegree
+                  editingField === "degree"
                     ? tempData.degree
                     : user.authorizedUser.degree || ""
                 }
@@ -623,158 +317,79 @@ export default function ProfilePage() {
                   </option>
                 ))}
               </select>
-              {errors.degree && (
-                <label className="label">
-                  <span className="label-text-alt text-error">
-                    {errors.degree}
-                  </span>
-                </label>
-              )}
-            </div>
+            </ProfileFieldRow>
 
-            <div className="form-control">
-              <label className="label flex justify-between items-center mb-2">
-                <span className="label-text">University</span>
-
-                {isEditingUniversity ? (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleUniversityCancel();
-                    }}
-                    className="btn btn-xs btn-ghost"
-                    type="button"
-                  >
-                    <XMarkIcon className="size-4" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleUniversityEdit();
-                    }}
-                    className="btn btn-xs btn-ghost"
-                    type="button"
-                  >
-                    <PencilIcon className="size-4" />
-                  </button>
-                )}
-              </label>
-              <select
-                disabled={!isEditingUniversity}
-                className={`select select-bordered w-full ${
-                  errors.university ? "select-error" : ""
-                }`}
-                value={
-                  isEditingUniversity
-                    ? tempData.university
-                    : user.authorizedUser.university || ""
-                }
-                onChange={(e) => {
-                  handleInputChange("university", e.target.value);
-                  if (e.target.value !== "Others") {
-                    setCustomUniversity("");
+            <ProfileFieldRow
+              label="University"
+              isEditing={editingField === "university"}
+              onEdit={() => startEditing("university")}
+              onCancel={cancelEditing}
+              error={errors.university}
+            >
+              <>
+                <select
+                  disabled={editingField !== "university"}
+                  className={`select select-bordered w-full ${errors.university ? "select-error" : ""}`}
+                  value={
+                    editingField === "university"
+                      ? tempData.university
+                      : user.authorizedUser.university || ""
                   }
-                }}
-              >
-                <option value="" disabled>
-                  Not specified
-                </option>
-                {UNIVERSITY_OPTIONS.map((university) => (
-                  <option key={university} value={university}>
-                    {university}
+                  onChange={(e) => {
+                    handleInputChange("university", e.target.value);
+                    if (e.target.value !== "Others") setCustomUniversity("");
+                  }}
+                >
+                  <option value="" disabled>
+                    Not specified
                   </option>
-                ))}
-              </select>
-              {isEditingUniversity && tempData.university === "Others" && (
-                <input
-                  type="text"
-                  placeholder="Enter university name"
-                  className={`input input-bordered w-full mt-2 ${
-                    errors.university ? "input-error" : ""
-                  }`}
-                  value={customUniversity}
-                  onChange={(e) => setCustomUniversity(e.target.value)}
-                />
-              )}
-              {errors.university && (
-                <label className="label">
-                  <span className="label-text-alt text-error">
-                    {errors.university}
-                  </span>
-                </label>
-              )}
-            </div>
+                  {UNIVERSITY_OPTIONS.map((university) => (
+                    <option key={university} value={university}>
+                      {university}
+                    </option>
+                  ))}
+                </select>
+                {editingField === "university" &&
+                  tempData.university === "Others" && (
+                    <input
+                      type="text"
+                      placeholder="Enter university name"
+                      className={`input input-bordered w-full mt-2 ${errors.university ? "input-error" : ""}`}
+                      value={customUniversity}
+                      onChange={(e) => setCustomUniversity(e.target.value)}
+                    />
+                  )}
+              </>
+            </ProfileFieldRow>
 
-            <div className="form-control">
-              <label className="label flex justify-between items-center mb-2">
-                <span className="label-text">
-                  Resume (Optional, Max {MAX_PROFILE_RESUME_SIZE_MB}MB)
-                </span>
-
-                {isEditingResume ? (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleResumeCancel();
-                    }}
-                    className="btn btn-xs btn-ghost"
-                    type="button"
-                  >
-                    <XMarkIcon className="size-4" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      handleResumeEdit();
-                    }}
-                    className="btn btn-xs btn-ghost"
-                    type="button"
-                  >
-                    <PencilIcon className="size-4" />
-                  </button>
+            <ProfileFieldRow
+              label={`Resume (Optional, Max ${MAX_PROFILE_RESUME_SIZE_MB}MB)`}
+              isEditing={editingField === "resume"}
+              onEdit={() => startEditing("resume")}
+              onCancel={cancelEditing}
+            >
+              <>
+                <div className="w-full">
+                  <input
+                    type="file"
+                    disabled={editingField !== "resume"}
+                    className="file-input w-full"
+                    accept={RESUME_FILE_TYPES}
+                    onChange={handleFileChange}
+                  />
+                </div>
+                {editingField === "resume" && resumeFile && (
+                  <label className="label">
+                    <span className="label-text-alt text-success flex items-center gap-1">
+                      <DocumentTextIcon className="size-3" />
+                      File selected successfully
+                    </span>
+                  </label>
                 )}
-              </label>
-              <div className="w-full">
-                <input
-                  type="file"
-                  disabled={!isEditingResume}
-                  className="file-input w-full"
-                  accept={RESUME_FILE_TYPES}
-                  onChange={handleFileChange}
-                />
-              </div>
-              {isEditingResume && resumeFile && (
-                <label className="label">
-                  <span className="label-text-alt text-success flex items-center gap-1">
-                    <DocumentTextIcon className="size-3" />
-                    File selected successfully
-                  </span>
-                </label>
-              )}
-            </div>
+              </>
+            </ProfileFieldRow>
 
-            <div className="form-control">
-              <label className="label mb-2">
-                <span className="label-text">Default interview voice</span>
-              </label>
-              <select
-                className="select select-bordered w-full"
-                value={ttsVoiceId}
-                onChange={(e) => handleTtsVoiceChange(e.target.value)}
-              >
-                {TTS_VOICE_OPTIONS.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <VoiceSelector />
           </div>
         </div>
 
@@ -783,14 +398,14 @@ export default function ProfilePage() {
           <div className="flex items-center gap-10 justify-between w-full">
             <button
               onClick={handleHelpClick}
-              className="btn btn-ghost  justify-center flex-1"
+              className="btn btn-ghost justify-center flex-1"
             >
               <QuestionMarkCircleIcon className="size-6" />
               Help
             </button>
             <button
               onClick={handleSupportClick}
-              className="btn btn-ghost  justify-center  flex-1"
+              className="btn btn-ghost justify-center flex-1"
             >
               <ChatBubbleLeftRightIcon className="size-6" />
               Support
