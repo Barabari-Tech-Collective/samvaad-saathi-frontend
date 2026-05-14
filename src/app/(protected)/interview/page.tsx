@@ -1,3 +1,4 @@
+
 "use client";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MicPermissionModal, useMicPermission } from "@/hooks/useMicPermission";
@@ -43,6 +44,7 @@ const InterviewPage = () => {
 
     const [hasStarted, setHasStarted] = useState(false);
     const [isIntroducing, setIsIntroducing] = useState(false);
+    const [isUserIntroducing, setIsUserIntroducing] = useState(false);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [questions, setQuestions] = useState<
         GenerateQuestionsResponse["items"]
@@ -394,9 +396,46 @@ const InterviewPage = () => {
                         Please wait while your interviewer introduces themselves...
                     </p>
                     <IntroductionSpeaker
-                        onFinished={() => setIsIntroducing(false)}
+                        onFinished={() => {
+                            setIsIntroducing(false);
+                            setIsUserIntroducing(true);
+                        }}
                         onSpeakingChange={setIsTextToSpeechSpeaking}
                     />
+                </div>
+            ) : isUserIntroducing ? (
+                <div>
+                    <Header
+                        role={role || ""}
+                        hasStarted={hasStarted}
+                        interviewId={interviewId}
+                        onTimerExpire={handleInterviewSubmit}
+                    />
+
+                    <div className="flex flex-col items-center mt-12 max-w-4xl mx-auto px-4">
+                        <div className="w-full py-6">
+                            <div className="mb-2">
+                                <span className="text-lg text-slate-900 font-medium">
+                                    Question 0:
+                                </span>
+                            </div>
+                            <div className="mb-4">
+                                <p className="text-xl leading-[1.4] text-slate-900 font-normal">
+                                    Before we begin, please introduce yourself briefly.
+                                </p>
+                            </div>
+                        </div>
+
+                        <UserIntroductionSpeaker onSpeakingChange={setIsTextToSpeechSpeaking} />
+
+                        <div className="w-full mt-4">
+                            <Footer
+                                disabled={isTextToSpeechSpeaking}
+                                onNext={() => setIsUserIntroducing(false)}
+                                isIntroStep={true}
+                            />
+                        </div>
+                    </div>
                 </div>
             ) : (
                 <div>
@@ -538,6 +577,23 @@ const IntroductionSpeaker = ({
             return () => clearTimeout(timer);
         }
     }, [isSpeaking, hasSpoken, onFinished, onSpeakingChange]);
+
+    return null;
+};
+
+const UserIntroductionSpeaker = ({
+    onSpeakingChange,
+}: {
+    onSpeakingChange: (s: boolean) => void;
+}) => {
+    const { isSpeaking } = useTextToSpeech({
+        text: "Before we begin, please introduce yourself briefly.",
+        disabled: false,
+    });
+
+    useEffect(() => {
+        onSpeakingChange(isSpeaking);
+    }, [isSpeaking]);
 
     return null;
 };
