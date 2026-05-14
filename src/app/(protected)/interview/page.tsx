@@ -593,7 +593,7 @@ const UserIntroductionSpeaker = ({
 
     useEffect(() => {
         onSpeakingChange(isSpeaking);
-    }, [isSpeaking, onSpeakingChange]);
+    }, [isSpeaking]);
 
     return null;
 };
