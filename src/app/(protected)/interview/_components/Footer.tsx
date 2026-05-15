@@ -33,6 +33,7 @@ interface FooterProps {
   isLastQuestion?: boolean;
   onSubmit?: () => void;
   onFollowUpQuestion?: (followUpQuestion: FollowUpQuestion) => void;
+  isIntroStep?: boolean;
 }
 
 const Footer = ({
@@ -45,6 +46,7 @@ const Footer = ({
   isLastQuestion = false,
   onSubmit,
   onFollowUpQuestion,
+  isIntroStep = false,
 }: FooterProps) => {
   const [isListening, setIsListening] = useState(false);
   const [hasAnswered, setHasAnswered] = useState(false);
@@ -195,6 +197,8 @@ const Footer = ({
                   formData.append("file", file);
 
                   await uploadAudio(formData);
+                } else if (followUpStrategy === "llm_transcription_based" || isIntroStep) {
+                  setHasAnswered(true);
                 }
               } catch (error) {
                 console.error("Error processing audio:", error);
@@ -310,14 +314,14 @@ const Footer = ({
               formData.append("file", file);
 
               await uploadAudio(formData);
-            } else if (followUpStrategy === "llm_transcription_based") {
+            } else if (followUpStrategy === "llm_transcription_based" || isIntroStep) {
               // No attempt id - allow user to proceed
               setHasAnswered(true);
             }
           } catch (error) {
             console.error("Error processing audio:", error);
-            // Allow user to proceed if transcription fails for llm_transcription_based
-            if (followUpStrategy === "llm_transcription_based") {
+            // Allow user to proceed if transcription fails for llm_transcription_based or isIntroStep
+            if (followUpStrategy === "llm_transcription_based" || isIntroStep) {
               setHasAnswered(true);
             }
           }
@@ -507,7 +511,7 @@ const Footer = ({
           ) : (
             <button
               onClick={handleNextClick}
-              disabled={isWaitingForFollowUpFromTranscription}
+              disabled={isWaitingForFollowUpFromTranscription || (isIntroStep && !hasAnswered)}
               className="btn btn-outline"
             >
               {isWaitingForFollowUpFromTranscription && !isCurrentQuestionFollowUp

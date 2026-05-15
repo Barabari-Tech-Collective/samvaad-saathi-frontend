@@ -1,11 +1,11 @@
 import { AnalyticsProvider } from "@/components/providers/analytics-provider";
-import { PostHogPageView } from "@/components/providers/posthog-page-view";
 import AppProvider from "@/components/providers/app-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { LimitedToaster } from "@/components/providers/limited-toaster";
+import { PostHogPageView } from "@/components/providers/posthog-page-view";
 import type { Metadata } from "next";
 import { Anek_Devanagari, Noto_Sans_Devanagari, Orbitron } from "next/font/google";
 import { Suspense } from "react";
-import { LimitedToaster } from "@/components/providers/limited-toaster";
 import "./globals.css";
 
 const notoSansDevanagari = Noto_Sans_Devanagari({
