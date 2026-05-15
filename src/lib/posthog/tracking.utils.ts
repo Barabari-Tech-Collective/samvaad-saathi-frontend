@@ -31,10 +31,7 @@ interface ErrorProperties {
  * });
  * ```
  */
-export const trackEvent = (
-  eventName: string,
-  properties: EventProperties = {},
-): void => {
+export const trackEvent = (eventName: string, properties: EventProperties = {}): void => {
   if (typeof window !== "undefined") {
     posthog.capture(eventName, properties);
   }
@@ -55,10 +52,7 @@ export const trackEvent = (
  * });
  * ```
  */
-export const identifyUser = (
-  userId: string,
-  properties: UserProperties = {},
-): void => {
+export const identifyUser = (userId: string, properties: UserProperties = {}): void => {
   if (typeof window !== "undefined") {
     posthog.identify(userId, properties);
   }
@@ -82,10 +76,7 @@ export const identifyUser = (
  * }
  * ```
  */
-export const trackError = (
-  error: Error,
-  additionalProperties: ErrorProperties = {},
-): void => {
+export const trackError = (error: Error, additionalProperties: ErrorProperties = {}): void => {
   if (typeof window !== "undefined") {
     posthog.captureException(error, additionalProperties);
   }
@@ -123,7 +114,7 @@ export const trackApiError = (
     status_code?: number;
     request_id?: string;
     user_id?: string;
-  } = {},
+  } = {}
 ): void => {
   if (typeof window !== "undefined") {
     const errorProperties = {
@@ -155,7 +146,7 @@ export const trackApiError = (
 export const trackButtonClick = (
   buttonName: string,
   location: string,
-  properties: EventProperties = {},
+  properties: EventProperties = {}
 ): void => {
   trackEvent("button_clicked", {
     button_name: buttonName,
@@ -193,10 +184,7 @@ export const resetUser = (): void => {
  * trackLoginAttempt("Apple", "create_account");
  * ```
  */
-export const trackLoginAttempt = (
-  loginMethod: string,
-  screenSource: string,
-): void => {
+export const trackLoginAttempt = (loginMethod: string, screenSource: string): void => {
   trackEvent(EVENTS.LOGIN_ATTEMPT, {
     login_method: loginMethod,
     screen_source: screenSource,
@@ -351,7 +339,7 @@ export const trackResumeToggleClick = (toggleState: boolean): void => {
 export const trackStartInterviewButtonClick = (
   selectedRole: string,
   difficultyLevel: string,
-  useResume: boolean,
+  useResume: boolean
 ): void => {
   trackEvent(EVENTS.START_INTERVIEW_BUTTON_CLICK, {
     selected_role: selectedRole,
@@ -379,7 +367,7 @@ export const trackInterviewQuestionView = (
   questionId: string,
   questionNumber: number,
   questionType: string,
-  interviewSessionId: string,
+  interviewSessionId: string
 ): void => {
   trackEvent(EVENTS.INTERVIEW_QUESTION_VIEW, {
     question_id: questionId,
@@ -430,10 +418,7 @@ export const trackAnswerRecorded = (timeToAnswer: number): void => {
  * trackRedoButtonClick("q_001", 2); // Second redo attempt
  * ```
  */
-export const trackRedoButtonClick = (
-  questionId: string,
-  attemptNumber: number,
-): void => {
+export const trackRedoButtonClick = (questionId: string, attemptNumber: number): void => {
   trackEvent(EVENTS.REDO_BUTTON_CLICK, {
     question_id: questionId,
     attempt_number: attemptNumber,
@@ -478,10 +463,7 @@ export const trackSubmitInterviewClick = (): void => {
  * trackScreenView("dashboard");
  * ```
  */
-export const trackScreenView = (
-  screenName: string,
-  interviewSessionId?: string,
-): void => {
+export const trackScreenView = (screenName: string, interviewSessionId?: string): void => {
   trackEvent(EVENTS.SCREEN_VIEW, {
     screen_name: screenName,
     interview_session_id: interviewSessionId,
@@ -548,10 +530,7 @@ export const trackProfileEditButtonClick = (fieldName: string): void => {
  * trackProfileFieldValueChanged("degree", "Bachelor of Technology");
  * ```
  */
-export const trackProfileFieldValueChanged = (
-  fieldName: string,
-  newValue: string,
-): void => {
+export const trackProfileFieldValueChanged = (fieldName: string, newValue: string): void => {
   trackEvent(EVENTS.PROFILE_FIELD_VALUE_CHANGED, {
     field_name: fieldName,
     new_value: newValue,

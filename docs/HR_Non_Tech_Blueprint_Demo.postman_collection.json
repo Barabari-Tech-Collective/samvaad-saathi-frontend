@@ -51,12 +51,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}{{apiPrefix}}/users",
-          "host": [
-            "{{baseUrl}}{{apiPrefix}}"
-          ],
-          "path": [
-            "users"
-          ]
+          "host": ["{{baseUrl}}{{apiPrefix}}"],
+          "path": ["users"]
         }
       },
       "event": [
@@ -94,12 +90,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}{{apiPrefix}}/login",
-          "host": [
-            "{{baseUrl}}{{apiPrefix}}"
-          ],
-          "path": [
-            "login"
-          ]
+          "host": ["{{baseUrl}}{{apiPrefix}}"],
+          "path": ["login"]
         }
       },
       "event": [
@@ -135,12 +127,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}{{apiPrefix}}/extract-resume",
-          "host": [
-            "{{baseUrl}}{{apiPrefix}}"
-          ],
-          "path": [
-            "extract-resume"
-          ]
+          "host": ["{{baseUrl}}{{apiPrefix}}"],
+          "path": ["extract-resume"]
         }
       },
       "event": [
@@ -171,13 +159,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}{{apiPrefix}}/v2/job-profiles",
-          "host": [
-            "{{baseUrl}}{{apiPrefix}}"
-          ],
-          "path": [
-            "v2",
-            "job-profiles"
-          ]
+          "host": ["{{baseUrl}}{{apiPrefix}}"],
+          "path": ["v2", "job-profiles"]
         }
       },
       "event": [
@@ -203,13 +186,8 @@
         "header": [],
         "url": {
           "raw": "{{baseUrl}}{{apiPrefix}}/v2/job-profiles",
-          "host": [
-            "{{baseUrl}}{{apiPrefix}}"
-          ],
-          "path": [
-            "v2",
-            "job-profiles"
-          ]
+          "host": ["{{baseUrl}}{{apiPrefix}}"],
+          "path": ["v2", "job-profiles"]
         }
       },
       "event": [
@@ -244,15 +222,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}{{apiPrefix}}/v2/interviews/non-tech/generate-questions",
-          "host": [
-            "{{baseUrl}}{{apiPrefix}}"
-          ],
-          "path": [
-            "v2",
-            "interviews",
-            "non-tech",
-            "generate-questions"
-          ]
+          "host": ["{{baseUrl}}{{apiPrefix}}"],
+          "path": ["v2", "interviews", "non-tech", "generate-questions"]
         }
       },
       "event": [
@@ -298,13 +269,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}{{apiPrefix}}/interviews/question-attempts",
-          "host": [
-            "{{baseUrl}}{{apiPrefix}}"
-          ],
-          "path": [
-            "interviews",
-            "question-attempts"
-          ]
+          "host": ["{{baseUrl}}{{apiPrefix}}"],
+          "path": ["interviews", "question-attempts"]
         }
       },
       "event": [
@@ -350,12 +316,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}{{apiPrefix}}/transcribe-whisper",
-          "host": [
-            "{{baseUrl}}{{apiPrefix}}"
-          ],
-          "path": [
-            "transcribe-whisper"
-          ]
+          "host": ["{{baseUrl}}{{apiPrefix}}"],
+          "path": ["transcribe-whisper"]
         }
       },
       "event": [
@@ -394,12 +356,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}{{apiPrefix}}/complete-analysis",
-          "host": [
-            "{{baseUrl}}{{apiPrefix}}"
-          ],
-          "path": [
-            "complete-analysis"
-          ]
+          "host": ["{{baseUrl}}{{apiPrefix}}"],
+          "path": ["complete-analysis"]
         }
       },
       "event": [
@@ -438,13 +396,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}{{apiPrefix}}/interviews/complete",
-          "host": [
-            "{{baseUrl}}{{apiPrefix}}"
-          ],
-          "path": [
-            "interviews",
-            "complete"
-          ]
+          "host": ["{{baseUrl}}{{apiPrefix}}"],
+          "path": ["interviews", "complete"]
         }
       },
       "event": [
@@ -477,12 +430,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}{{apiPrefix}}/summary-report",
-          "host": [
-            "{{baseUrl}}{{apiPrefix}}"
-          ],
-          "path": [
-            "summary-report"
-          ]
+          "host": ["{{baseUrl}}{{apiPrefix}}"],
+          "path": ["summary-report"]
         }
       },
       "event": [
@@ -517,13 +466,8 @@
         },
         "url": {
           "raw": "{{baseUrl}}{{apiPrefix}}/v2/summary-report",
-          "host": [
-            "{{baseUrl}}{{apiPrefix}}"
-          ],
-          "path": [
-            "v2",
-            "summary-report"
-          ]
+          "host": ["{{baseUrl}}{{apiPrefix}}"],
+          "path": ["v2", "summary-report"]
         }
       },
       "event": [
@@ -557,14 +501,8 @@
         "header": [],
         "url": {
           "raw": "{{baseUrl}}{{apiPrefix}}/v2/summary-report/{{interviewId}}",
-          "host": [
-            "{{baseUrl}}{{apiPrefix}}"
-          ],
-          "path": [
-            "v2",
-            "summary-report",
-            "{{interviewId}}"
-          ]
+          "host": ["{{baseUrl}}{{apiPrefix}}"],
+          "path": ["v2", "summary-report", "{{interviewId}}"]
         }
       },
       "event": [
@@ -586,14 +524,8 @@
         "header": [],
         "url": {
           "raw": "{{baseUrl}}{{apiPrefix}}/v2/job-profiles/{{jobProfileId}}",
-          "host": [
-            "{{baseUrl}}{{apiPrefix}}"
-          ],
-          "path": [
-            "v2",
-            "job-profiles",
-            "{{jobProfileId}}"
-          ]
+          "host": ["{{baseUrl}}{{apiPrefix}}"],
+          "path": ["v2", "job-profiles", "{{jobProfileId}}"]
         }
       },
       "event": [

@@ -9,9 +9,7 @@ interface CompletedInterviewCardProps {
   item: InterviewItem;
 }
 
-export default function CompletedInterviewCard({
-  item,
-}: CompletedInterviewCardProps) {
+export default function CompletedInterviewCard({ item }: CompletedInterviewCardProps) {
   return (
     <div className="bg-white rounded-xl shadow-lg p-4 relative">
       {/* Role Title - Top Left */}
@@ -28,8 +26,7 @@ export default function CompletedInterviewCard({
       </div>
 
       {/* Progress indicators */}
-      {(item?.knowledgePercentage !== undefined ||
-        item?.speechFluencyPercentage !== undefined) && (
+      {(item?.knowledgePercentage !== undefined || item?.speechFluencyPercentage !== undefined) && (
         <div className="flex items-center gap-4 mb-4">
           <ConcentricRadialProgress
             size={150}
@@ -60,9 +57,7 @@ export default function CompletedInterviewCard({
           />
           <div className="flex-1">
             <p className="text-sm text-gray-600 mb-2">Total Average Score</p>
-            <p className="text-sm text-gray-600 mb-3">
-              Total no. of attempts - 1
-            </p>
+            <p className="text-sm text-gray-600 mb-3">Total no. of attempts - 1</p>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <div className="p-2">
@@ -70,9 +65,7 @@ export default function CompletedInterviewCard({
                     <circle cx="4" cy="4" r="4" fill="#3b82f6" />
                   </svg>
                 </div>
-                <span className="text-sm text-gray-700">
-                  Technical Knowledge
-                </span>
+                <span className="text-sm text-gray-700">Technical Knowledge</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="p-2">

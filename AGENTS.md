@@ -1,6 +1,7 @@
 # AGENTS.md - Samvaad Saathi Frontend
 
 ## Project Overview
+
 Next.js 16 app with React 19, TypeScript, and Tailwind CSS 4. A mobile-first AI-powered interview preparation platform.
 
 ---
@@ -64,19 +65,19 @@ import BottomNav from "./BottomNav";
 
 ### Naming Conventions
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Components | PascalCase | `BottomNav.tsx` |
-| Hooks | `use` + PascalCase | `useAuth.tsx` |
-| Utilities | camelCase | `formatDate()` |
-| Constants | SCREAMING_SNAKE_CASE | `MAX_RESUME_SIZE_MB` |
-| Types/Interfaces | PascalCase | `UserProfile` |
-| CSS classes | kebab-case | Tailwind classes |
+| Type             | Convention           | Example              |
+| ---------------- | -------------------- | -------------------- |
+| Components       | PascalCase           | `BottomNav.tsx`      |
+| Hooks            | `use` + PascalCase   | `useAuth.tsx`        |
+| Utilities        | camelCase            | `formatDate()`       |
+| Constants        | SCREAMING_SNAKE_CASE | `MAX_RESUME_SIZE_MB` |
+| Types/Interfaces | PascalCase           | `UserProfile`        |
+| CSS classes      | kebab-case           | Tailwind classes     |
 
 ### Component Structure
 
 ```tsx
-"use client";  // Include for any browser APIs or hooks
+"use client"; // Include for any browser APIs or hooks
 
 import { useEffect } from "react";
 
@@ -95,11 +96,7 @@ export default function Component({ title, className = "" }: ComponentProps) {
   // Early returns for loading/error states
   if (!data) return <Skeleton />;
 
-  return (
-    <div className={cn("base-classes", className)}>
-      {title}
-    </div>
-  );
+  return <div className={cn("base-classes", className)}>{title}</div>;
 }
 ```
 
@@ -177,7 +174,7 @@ export default async function Page() {
 }
 
 // Client Components: add "use client" at top
-"use client";
+("use client");
 
 // Server Actions: add "use server" at function level
 async function submitAction(formData: FormData) {
@@ -201,7 +198,9 @@ const Context = createContext<ContextType | undefined>(undefined);
 
 export function Provider({ children }: { children: React.ReactNode }) {
   // Provider logic with hooks
-  const value = { /* ... */ };
+  const value = {
+    /* ... */
+  };
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
 
@@ -219,6 +218,7 @@ export function useContext() {
 ## Environment Variables
 
 Required `.env` variables (see `.env.example` or existing `.env`):
+
 - `NEXT_PUBLIC_APP_URL` - Application URL
 - `NEXT_PUBLIC_POSTHOG_KEY` - PostHog API key
 - `AUTH_BASE_URL` - Backend authentication service URL
@@ -227,16 +227,16 @@ Required `.env` variables (see `.env.example` or existing `.env`):
 
 ## Key Libraries Reference
 
-| Library | Usage | Import |
-|---------|-------|--------|
-| `@tanstack/react-query` | Server state | `useQuery`, `useMutation` |
-| `react-cookie` | Cookie access | `useCookies(["token"])` |
-| `react-hot-toast` | Notifications | `toast.success()`, `toast.error()` |
-| `zod` | Validation | `z.object({})` |
-| `axios` | HTTP (via api-config) | `createApiClient()` |
-| `@heroicons/react` | Icons | `import { XIcon } from "@heroicons/react/24/solid"` |
-| `clsx` + `tailwind-merge` | ClassName utility | `cn()` from `@/lib/utils` |
-| `dayjs` | Date formatting | `dayjs().format("DD MMM, YYYY")` |
+| Library                   | Usage                 | Import                                              |
+| ------------------------- | --------------------- | --------------------------------------------------- |
+| `@tanstack/react-query`   | Server state          | `useQuery`, `useMutation`                           |
+| `react-cookie`            | Cookie access         | `useCookies(["token"])`                             |
+| `react-hot-toast`         | Notifications         | `toast.success()`, `toast.error()`                  |
+| `zod`                     | Validation            | `z.object({})`                                      |
+| `axios`                   | HTTP (via api-config) | `createApiClient()`                                 |
+| `@heroicons/react`        | Icons                 | `import { XIcon } from "@heroicons/react/24/solid"` |
+| `clsx` + `tailwind-merge` | ClassName utility     | `cn()` from `@/lib/utils`                           |
+| `dayjs`                   | Date formatting       | `dayjs().format("DD MMM, YYYY")`                    |
 
 ---
 

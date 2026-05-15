@@ -61,11 +61,7 @@ export default function SignupPage() {
         setCookie("refresh_token", refreshToken, cookieOptions);
 
         // Clear the query parameters from URL
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname,
-        );
+        window.history.replaceState({}, document.title, window.location.pathname);
 
         // Redirect to root page to let the main routing logic handle the redirect
         setTimeout(() => {
@@ -116,9 +112,7 @@ export default function SignupPage() {
       </h2>
 
       {/* Page Heading */}
-      <h1 className="font-noto text-white text-[20px] font-[600] mb-8">
-        Create Account / Login
-      </h1>
+      <h1 className="font-noto text-white text-[20px] font-[600] mb-8">Create Account / Login</h1>
 
       {/* Google Signup */}
       <Link

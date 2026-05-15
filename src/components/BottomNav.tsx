@@ -39,9 +39,7 @@ export default function BottomNav({ className = "" }: { className?: string }) {
     >
       <Link
         href="/home"
-        className={`${baseItemClass} ${
-          isActive("home") ? "text-white" : "text-gray-400"
-        }`}
+        className={`${baseItemClass} ${isActive("home") ? "text-white" : "text-gray-400"}`}
         onClick={() => handleClick("home")}
         aria-label="Go to home"
       >
@@ -50,9 +48,7 @@ export default function BottomNav({ className = "" }: { className?: string }) {
 
       <Link
         href="/history"
-        className={`${baseItemClass} ${
-          isActive("history") ? "text-white" : "text-gray-400"
-        }`}
+        className={`${baseItemClass} ${isActive("history") ? "text-white" : "text-gray-400"}`}
         onClick={() => handleClick("history")}
         aria-label="Go to history"
       >
@@ -61,9 +57,7 @@ export default function BottomNav({ className = "" }: { className?: string }) {
 
       <Link
         href="/practice"
-        className={`${baseItemClass} ${
-          isActive("practice") ? "text-white" : "text-gray-400"
-        }`}
+        className={`${baseItemClass} ${isActive("practice") ? "text-white" : "text-gray-400"}`}
         onClick={() => handleClick("practice")}
         aria-label="Go to target practice"
       >
@@ -72,9 +66,7 @@ export default function BottomNav({ className = "" }: { className?: string }) {
 
       <Link
         href="/profile"
-        className={`${baseItemClass} ${
-          isActive("profile") ? "text-white" : "text-gray-400"
-        }`}
+        className={`${baseItemClass} ${isActive("profile") ? "text-white" : "text-gray-400"}`}
         onClick={() => handleClick("profile")}
         aria-label="Go to profile"
       >

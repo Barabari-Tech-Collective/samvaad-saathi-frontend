@@ -45,10 +45,7 @@ export default function Onboarding() {
     setStep((prev) => prev + 1);
   };
 
-  const handleSubmit = async (data: {
-    target_position: string;
-    years_experience: string;
-  }) => {
+  const handleSubmit = async (data: { target_position: string; years_experience: string }) => {
     setFormData((prev) => ({ ...prev, ...data }));
 
     // Create object for the PROFILE API call (no file upload here)
@@ -102,9 +99,7 @@ export default function Onboarding() {
               {steps.map((stepItem) => {
                 const isActive = step === stepItem.id;
                 const isCompleted = step > stepItem.id;
-                const IconComponent = isCompleted
-                  ? stepItem.iconSolid
-                  : stepItem.icon;
+                const IconComponent = isCompleted ? stepItem.iconSolid : stepItem.icon;
 
                 return (
                   <div
@@ -113,8 +108,8 @@ export default function Onboarding() {
                       isCompleted
                         ? "bg-primary border-primary text-white"
                         : isActive
-                        ? "bg-primary border-primary text-white"
-                        : "bg-white border-gray-300 text-gray-400"
+                          ? "bg-primary border-primary text-white"
+                          : "bg-white border-gray-300 text-gray-400"
                     }`}
                   >
                     <IconComponent className="w-6 h-6" />
@@ -129,12 +124,7 @@ export default function Onboarding() {
       {/* Step Content */}
       <div className="flex-1">
         {step === 1 && <Step1 onNext={handleNext} />}
-        {step === 2 && (
-          <Step2
-            onNext={handleSubmit}
-            isLoading={updateProfileMutation.isPending}
-          />
-        )}
+        {step === 2 && <Step2 onNext={handleSubmit} isLoading={updateProfileMutation.isPending} />}
       </div>
     </div>
   );

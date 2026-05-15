@@ -1,4 +1,4 @@
- function Loading() {
+function Loading() {
   return (
     <div className="flex flex-col py-6">
       {/* Header skeleton - greeting and avatar */}

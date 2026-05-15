@@ -28,20 +28,16 @@ export const resampleAudioTo16kHz = async (audioBlob: Blob): Promise<Blob> => {
         // Create a new audio buffer with 16kHz sample rate
         const targetSampleRate = 16000;
         const targetLength = Math.floor(
-          (audioBuffer.length * targetSampleRate) / audioBuffer.sampleRate,
+          (audioBuffer.length * targetSampleRate) / audioBuffer.sampleRate
         );
         const resampledBuffer = audioContext.createBuffer(
           audioBuffer.numberOfChannels,
           targetLength,
-          targetSampleRate,
+          targetSampleRate
         );
 
         // Simple linear interpolation resampling
-        for (
-          let channel = 0;
-          channel < audioBuffer.numberOfChannels;
-          channel++
-        ) {
+        for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
           const inputData = audioBuffer.getChannelData(channel);
           const outputData = resampledBuffer.getChannelData(channel);
 
@@ -51,9 +47,7 @@ export const resampleAudioTo16kHz = async (audioBlob: Blob): Promise<Blob> => {
             const fraction = inputIndex - index;
 
             if (index + 1 < inputData.length) {
-              outputData[i] =
-                inputData[index] * (1 - fraction) +
-                inputData[index + 1] * fraction;
+              outputData[i] = inputData[index] * (1 - fraction) + inputData[index + 1] * fraction;
             } else {
               outputData[i] = inputData[index];
             }
@@ -110,15 +104,8 @@ const audioBufferToWav = (audioBuffer: AudioBuffer): Blob => {
   let offset = 44;
   for (let i = 0; i < length; i++) {
     for (let channel = 0; channel < numberOfChannels; channel++) {
-      const sample = Math.max(
-        -1,
-        Math.min(1, audioBuffer.getChannelData(channel)[i]),
-      );
-      view.setInt16(
-        offset,
-        sample < 0 ? sample * 0x8000 : sample * 0x7fff,
-        true,
-      );
+      const sample = Math.max(-1, Math.min(1, audioBuffer.getChannelData(channel)[i]));
+      view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
       offset += 2;
     }
   }
@@ -151,9 +138,7 @@ export interface AudioAnalysisContext {
  * @param stream - The media stream to analyze
  * @returns AudioAnalysisContext with audioContext, analyser, and stream
  */
-export const createAudioAnalysisContext = (
-  stream: MediaStream,
-): AudioAnalysisContext => {
+export const createAudioAnalysisContext = (stream: MediaStream): AudioAnalysisContext => {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) {
     throw new Error("AudioContext is not supported in this browser");
@@ -181,10 +166,7 @@ export const createAudioAnalysisContext = (
  * @param barCount - Number of bars to generate (default: 20)
  * @returns Array of bar heights (0-100)
  */
-const getSmoothedWaveformData = (
-  analyser: AnalyserNode,
-  barCount: number = 20,
-): number[] => {
+const getSmoothedWaveformData = (analyser: AnalyserNode, barCount: number = 20): number[] => {
   const bufferLength = analyser.frequencyBinCount;
   const dataArray = new Uint8Array(bufferLength);
 
@@ -227,7 +209,7 @@ const getSmoothedWaveformData = (
  */
 export const startWaveformAnimation = (
   analyser: AnalyserNode,
-  onUpdate: (bars: number[]) => void,
+  onUpdate: (bars: number[]) => void
 ): (() => void) => {
   let animationFrameId: number | undefined;
   let isRunning = true;
@@ -256,9 +238,7 @@ export const startWaveformAnimation = (
  * Cleans up audio analysis resources
  * @param context - The AudioAnalysisContext to clean up
  */
-export const cleanupAudioAnalysis = (
-  context: AudioAnalysisContext | null,
-): void => {
+export const cleanupAudioAnalysis = (context: AudioAnalysisContext | null): void => {
   if (!context) return;
 
   try {

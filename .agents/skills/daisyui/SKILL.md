@@ -14,9 +14,11 @@ progressive_disclosure:
 # DaisyUI Component Library
 
 ## Summary
+
 DaisyUI is the most popular Tailwind CSS component library providing semantic class names for 50+ components with built-in themes, dark mode, and customization. Framework-agnostic and production-ready.
 
 ## When to Use
+
 - Building UI with Tailwind CSS and need pre-styled components
 - Want semantic class names (`btn`, `card`) instead of utility-only approach
 - Need built-in theming system with 30+ themes and dark mode
@@ -48,7 +50,7 @@ module.exports = {
     styled: true, // Component styles
     utils: true, // Utility classes
   },
-}
+};
 ```
 
 ### Basic Usage
@@ -121,7 +123,7 @@ module.exports = {
 ```html
 <!-- Basic card -->
 <div class="card w-96 bg-base-100 shadow-xl">
-  <figure><img src="image.jpg" alt="Album"/></figure>
+  <figure><img src="image.jpg" alt="Album" /></figure>
   <div class="card-body">
     <h2 class="card-title">Card Title</h2>
     <p>Description text</p>
@@ -152,7 +154,7 @@ module.exports = {
 
 <!-- Image overlay card -->
 <div class="card card-compact w-96 image-full bg-base-100 shadow-xl">
-  <figure><img src="image.jpg" alt="Album"/></figure>
+  <figure><img src="image.jpg" alt="Album" /></figure>
   <div class="card-body">
     <h2 class="card-title">Overlay Text</h2>
     <p>Text appears on top of image</p>
@@ -207,7 +209,11 @@ module.exports = {
 ```html
 <!-- Input fields -->
 <input type="text" placeholder="Default" class="input input-bordered w-full max-w-xs" />
-<input type="text" placeholder="Primary" class="input input-bordered input-primary w-full max-w-xs" />
+<input
+  type="text"
+  placeholder="Primary"
+  class="input input-bordered input-primary w-full max-w-xs"
+/>
 <input type="text" placeholder="Disabled" class="input input-bordered w-full max-w-xs" disabled />
 
 <!-- Input sizes -->
@@ -414,9 +420,15 @@ module.exports = {
 </div>
 
 <!-- Table variants -->
-<table class="table table-zebra"><!-- Striped rows --></table>
-<table class="table table-pin-rows"><!-- Pin header --></table>
-<table class="table table-pin-cols"><!-- Pin columns --></table>
+<table class="table table-zebra">
+  <!-- Striped rows -->
+</table>
+<table class="table table-pin-rows">
+  <!-- Pin header -->
+</table>
+<table class="table table-pin-cols">
+  <!-- Pin columns -->
+</table>
 
 <!-- Badge -->
 <div class="badge">default</div>
@@ -440,19 +452,41 @@ module.exports = {
   <li>
     <div class="timeline-start">1984</div>
     <div class="timeline-middle">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        class="w-5 h-5"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+          clip-rule="evenodd"
+        />
+      </svg>
     </div>
     <div class="timeline-end timeline-box">First Macintosh computer</div>
-    <hr/>
+    <hr />
   </li>
   <li>
-    <hr/>
+    <hr />
     <div class="timeline-start">1998</div>
     <div class="timeline-middle">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        class="w-5 h-5"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+          clip-rule="evenodd"
+        />
+      </svg>
     </div>
     <div class="timeline-end timeline-box">iMac</div>
-    <hr/>
+    <hr />
   </li>
 </ul>
 
@@ -489,22 +523,70 @@ module.exports = {
 ```html
 <!-- Alert -->
 <div class="alert">
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-info shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    class="stroke-info shrink-0 w-6 h-6"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+    ></path>
+  </svg>
   <span>Info alert</span>
 </div>
 
 <div class="alert alert-success">
-  <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="stroke-current shrink-0 h-6 w-6"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </svg>
   <span>Success alert!</span>
 </div>
 
 <div class="alert alert-warning">
-  <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="stroke-current shrink-0 h-6 w-6"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+    />
+  </svg>
   <span>Warning alert!</span>
 </div>
 
 <div class="alert alert-error">
-  <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="stroke-current shrink-0 h-6 w-6"
+    fill="none"
+    viewBox="0 0 24 24"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+    />
+  </svg>
   <span>Error alert!</span>
 </div>
 
@@ -559,41 +641,41 @@ DaisyUI includes 30+ pre-built themes:
 module.exports = {
   daisyui: {
     themes: [
-      "light",      // Default light theme
-      "dark",       // Default dark theme
-      "cupcake",    // Pink/pastel theme
-      "bumblebee",  // Yellow theme
-      "emerald",    // Green theme
-      "corporate",  // Professional blue
-      "synthwave",  // Retro neon
-      "retro",      // Vintage brown
-      "cyberpunk",  // Neon yellow/pink
-      "valentine",  // Pink/red romantic
-      "halloween",  // Orange/purple spooky
-      "garden",     // Green nature
-      "forest",     // Dark green
-      "aqua",       // Blue ocean
-      "lofi",       // Low contrast
-      "pastel",     // Soft colors
-      "fantasy",    // Purple/pink fantasy
-      "wireframe",  // Minimal black/white
-      "black",      // Dark minimal
-      "luxury",     // Gold/black elegant
-      "dracula",    // Purple dark theme
-      "cmyk",       // Print colors
-      "autumn",     // Orange/brown
-      "business",   // Professional dark
-      "acid",       // Neon green
-      "lemonade",   // Yellow/green fresh
-      "night",      // Deep blue dark
-      "coffee",     // Brown coffee shop
-      "winter",     // Blue/white cold
-      "dim",        // Low light dark
-      "nord",       // Nordic blue/gray
-      "sunset",     // Orange/purple gradient
+      "light", // Default light theme
+      "dark", // Default dark theme
+      "cupcake", // Pink/pastel theme
+      "bumblebee", // Yellow theme
+      "emerald", // Green theme
+      "corporate", // Professional blue
+      "synthwave", // Retro neon
+      "retro", // Vintage brown
+      "cyberpunk", // Neon yellow/pink
+      "valentine", // Pink/red romantic
+      "halloween", // Orange/purple spooky
+      "garden", // Green nature
+      "forest", // Dark green
+      "aqua", // Blue ocean
+      "lofi", // Low contrast
+      "pastel", // Soft colors
+      "fantasy", // Purple/pink fantasy
+      "wireframe", // Minimal black/white
+      "black", // Dark minimal
+      "luxury", // Gold/black elegant
+      "dracula", // Purple dark theme
+      "cmyk", // Print colors
+      "autumn", // Orange/brown
+      "business", // Professional dark
+      "acid", // Neon green
+      "lemonade", // Yellow/green fresh
+      "night", // Deep blue dark
+      "coffee", // Brown coffee shop
+      "winter", // Blue/white cold
+      "dim", // Low light dark
+      "nord", // Nordic blue/gray
+      "sunset", // Orange/purple gradient
     ],
   },
-}
+};
 ```
 
 ### Theme Switching
@@ -607,12 +689,12 @@ module.exports = {
 <!-- JavaScript theme switcher -->
 <script>
   function setTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
   }
 
   // Load saved theme
-  const savedTheme = localStorage.getItem('theme') || 'light';
+  const savedTheme = localStorage.getItem("theme") || "light";
   setTheme(savedTheme);
 </script>
 
@@ -634,16 +716,16 @@ module.exports = {
     themes: ["light", "dark"],
     darkTheme: "dark",
   },
-}
+};
 ```
 
 ```html
 <!-- Detect system preference -->
 <script>
-  if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    document.documentElement.setAttribute('data-theme', 'dark');
+  if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    document.documentElement.setAttribute("data-theme", "dark");
   } else {
-    document.documentElement.setAttribute('data-theme', 'light');
+    document.documentElement.setAttribute("data-theme", "light");
   }
 </script>
 ```
@@ -657,20 +739,20 @@ module.exports = {
     themes: [
       {
         mytheme: {
-          "primary": "#a991f7",
-          "secondary": "#f6d860",
-          "accent": "#37cdbe",
-          "neutral": "#3d4451",
+          primary: "#a991f7",
+          secondary: "#f6d860",
+          accent: "#37cdbe",
+          neutral: "#3d4451",
           "base-100": "#ffffff",
-          "info": "#3abff8",
-          "success": "#36d399",
-          "warning": "#fbbd23",
-          "error": "#f87272",
+          info: "#3abff8",
+          success: "#36d399",
+          warning: "#fbbd23",
+          error: "#f87272",
         },
       },
     ],
   },
-}
+};
 ```
 
 ### Extending Existing Themes
@@ -682,8 +764,9 @@ module.exports = {
       {
         light: {
           ...require("daisyui/src/theming/themes")["light"],
-          primary: "#0000ff",      // Override primary color
-          ".btn-twitter": {        // Custom component
+          primary: "#0000ff", // Override primary color
+          ".btn-twitter": {
+            // Custom component
             "background-color": "#1da1f2",
             "border-color": "#1da1f2",
           },
@@ -691,7 +774,7 @@ module.exports = {
       },
     ],
   },
-}
+};
 ```
 
 ### CSS Variable Customization
@@ -770,7 +853,7 @@ DaisyUI uses semantic color names that adapt to themes:
 ### React
 
 ```jsx
-import React from 'react';
+import React from "react";
 
 // DaisyUI works with plain HTML classes
 function App() {
@@ -807,8 +890,7 @@ function Modal({ children, id }) {
 function App() {
   return (
     <>
-      <button onClick={() => document.getElementById('my_modal').showModal()}
-              className="btn">
+      <button onClick={() => document.getElementById("my_modal").showModal()} className="btn">
         Open Modal
       </button>
       <Modal id="my_modal">
@@ -848,7 +930,7 @@ function App() {
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 
 const modal = ref(null);
 
@@ -911,9 +993,7 @@ defineExpose({ open, close });
 
 ```html
 <!-- Responsive modifiers (Tailwind breakpoints) -->
-<button class="btn btn-sm md:btn-md lg:btn-lg">
-  Responsive size button
-</button>
+<button class="btn btn-sm md:btn-md lg:btn-lg">Responsive size button</button>
 
 <div class="drawer drawer-mobile">
   <input type="checkbox" class="drawer-toggle" />
@@ -937,9 +1017,25 @@ defineExpose({ open, close });
   <div class="navbar-start">
     <div class="dropdown">
       <label tabindex="0" class="btn btn-ghost lg:hidden">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" /></svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h8m-8 6h16"
+          />
+        </svg>
       </label>
-      <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+      <ul
+        tabindex="0"
+        class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+      >
         <li><a>Item 1</a></li>
         <li><a>Item 2</a></li>
       </ul>
@@ -1008,7 +1104,7 @@ module.exports = {
     logs: true,
     themeRoot: ":root",
   },
-}
+};
 ```
 
 ### Configuration Options
@@ -1028,11 +1124,11 @@ module.exports = {
 // Only use components, not base styles
 module.exports = {
   daisyui: {
-    base: false,  // Don't apply base HTML styles
+    base: false, // Don't apply base HTML styles
     styled: true,
     utils: true,
   },
-}
+};
 ```
 
 ### Class Prefix
@@ -1043,7 +1139,7 @@ module.exports = {
   daisyui: {
     prefix: "daisy-",
   },
-}
+};
 ```
 
 ```html
@@ -1060,41 +1156,38 @@ module.exports = {
 ```jsx
 // Create reusable component library
 // components/Button.jsx
-export function Button({ variant = 'primary', size = 'md', children, ...props }) {
+export function Button({ variant = "primary", size = "md", children, ...props }) {
   return (
-    <button
-      className={`btn btn-${variant} btn-${size}`}
-      {...props}
-    >
+    <button className={`btn btn-${variant} btn-${size}`} {...props}>
       {children}
     </button>
   );
 }
 
 // Usage
-<Button variant="primary" size="lg">Click me</Button>
+<Button variant="primary" size="lg">
+  Click me
+</Button>;
 ```
 
 ### Theme Management
 
 ```javascript
 // utils/theme.js
-export const THEMES = [
-  'light', 'dark', 'cupcake', 'bumblebee', 'emerald', 'corporate'
-];
+export const THEMES = ["light", "dark", "cupcake", "bumblebee", "emerald", "corporate"];
 
 export function getTheme() {
-  return localStorage.getItem('theme') || 'light';
+  return localStorage.getItem("theme") || "light";
 }
 
 export function setTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('theme', theme);
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
 }
 
 export function toggleDarkMode() {
   const current = getTheme();
-  const next = current === 'light' ? 'dark' : 'light';
+  const next = current === "light" ? "dark" : "light";
   setTheme(next);
 }
 ```
@@ -1112,12 +1205,7 @@ export function toggleDarkMode() {
   <label class="label" for="email-input">
     <span class="label-text">Email</span>
   </label>
-  <input
-    id="email-input"
-    type="email"
-    class="input input-bordered"
-    aria-describedby="email-help"
-  />
+  <input id="email-input" type="email" class="input input-bordered" aria-describedby="email-help" />
   <label class="label">
     <span id="email-help" class="label-text-alt">We'll never share your email</span>
   </label>
@@ -1138,19 +1226,23 @@ module.exports = {
   daisyui: {
     themes: ["light", "dark"], // Only these 2 themes
   },
-}
+};
 
 // Or use custom themes only
 module.exports = {
   daisyui: {
     themes: [
       {
-        light: { /* custom light */ },
-        dark: { /* custom dark */ },
+        light: {
+          /* custom light */
+        },
+        dark: {
+          /* custom dark */
+        },
       },
     ],
   },
-}
+};
 ```
 
 ### Combining with Tailwind
@@ -1207,7 +1299,7 @@ function LoginForm() {
         </label>
         <input
           type="email"
-          className={`input input-bordered ${errors.email ? 'input-error' : ''}`}
+          className={`input input-bordered ${errors.email ? "input-error" : ""}`}
         />
         {errors.email && (
           <label className="label">
@@ -1228,9 +1320,7 @@ function LoginForm() {
 
 ```html
 <div class="dropdown dropdown-end">
-  <label tabindex="0" class="btn btn-ghost">
-    Click
-  </label>
+  <label tabindex="0" class="btn btn-ghost"> Click </label>
   <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
     <li><a>Item 1</a></li>
     <li><a>Item 2</a></li>
@@ -1241,9 +1331,9 @@ function LoginForm() {
 ### Notification Toast
 
 ```jsx
-function showToast(message, type = 'info') {
-  const toast = document.createElement('div');
-  toast.className = 'toast toast-top toast-end';
+function showToast(message, type = "info") {
+  const toast = document.createElement("div");
+  toast.className = "toast toast-top toast-end";
   toast.innerHTML = `
     <div class="alert alert-${type}">
       <span>${message}</span>
@@ -1255,8 +1345,8 @@ function showToast(message, type = 'info') {
 }
 
 // Usage
-showToast('Operation successful!', 'success');
-showToast('An error occurred', 'error');
+showToast("Operation successful!", "success");
+showToast("An error occurred", "error");
 ```
 
 ---
@@ -1269,15 +1359,12 @@ showToast('An error occurred', 'error');
 // Ensure DaisyUI is in Tailwind plugins
 module.exports = {
   plugins: [require("daisyui")],
-}
+};
 
 // Check content paths include your files
 module.exports = {
-  content: [
-    "./src/**/*.{html,js,jsx,ts,tsx}",
-    "./pages/**/*.{html,js,jsx,ts,tsx}",
-  ],
-}
+  content: ["./src/**/*.{html,js,jsx,ts,tsx}", "./pages/**/*.{html,js,jsx,ts,tsx}"],
+};
 ```
 
 ### Theme Not Changing
@@ -1285,20 +1372,20 @@ module.exports = {
 ```html
 <!-- Verify data-theme attribute is set -->
 <html data-theme="dark">
-
-<!-- Check JavaScript is running -->
-<script>
-  console.log(document.documentElement.getAttribute('data-theme'));
-</script>
+  <!-- Check JavaScript is running -->
+  <script>
+    console.log(document.documentElement.getAttribute("data-theme"));
+  </script>
+</html>
 ```
 
 ### Modal Not Opening
 
 ```javascript
 // Use native dialog API
-const modal = document.getElementById('my_modal');
+const modal = document.getElementById("my_modal");
 modal.showModal(); // Opens modal
-modal.close();     // Closes modal
+modal.close(); // Closes modal
 
 // Or use checkbox for non-dialog implementation
 ```
@@ -1311,7 +1398,7 @@ module.exports = {
   daisyui: {
     prefix: "d-",
   },
-}
+};
 ```
 
 ---
@@ -1334,14 +1421,10 @@ module.exports = {
 
 ```html
 <!-- Before (Tailwind only) -->
-<button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-  Button
-</button>
+<button class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Button</button>
 
 <!-- After (DaisyUI) -->
-<button class="btn btn-primary">
-  Button
-</button>
+<button class="btn btn-primary">Button</button>
 ```
 
 ### From Bootstrap

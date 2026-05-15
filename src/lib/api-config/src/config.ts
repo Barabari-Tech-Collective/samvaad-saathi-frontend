@@ -1,8 +1,4 @@
-import {
-  getRefreshTokenFromCookies,
-  logoutUser,
-  setTokensInCookies,
-} from "@/lib/token-utils";
+import { getRefreshTokenFromCookies, logoutUser, setTokensInCookies } from "@/lib/token-utils";
 import axios, { AxiosError } from "axios";
 import { ENDPOINTS } from "./endpoints";
 
@@ -27,7 +23,7 @@ export enum APIService {
 }
 
 export enum APIServiceV2 {
-    INTERVIEWS = "INTERVIEWS",
+  INTERVIEWS = "INTERVIEWS",
 }
 
 export const createAxiosInstance = (baseURL: string) => {
@@ -71,14 +67,8 @@ export const createAxiosInstance = (baseURL: string) => {
           );
 
           // Update tokens in cookies
-          if (
-            refreshResponse.data?.token &&
-            refreshResponse.data?.refresh_token
-          ) {
-            setTokensInCookies(
-              refreshResponse.data.token,
-              refreshResponse.data.refresh_token
-            );
+          if (refreshResponse.data?.token && refreshResponse.data?.refresh_token) {
+            setTokensInCookies(refreshResponse.data.token, refreshResponse.data.refresh_token);
 
             // Update the original request with the new token
             if (originalRequest.headers) {
@@ -103,14 +93,10 @@ export const createAxiosInstance = (baseURL: string) => {
             ) {
               console.log("Refresh token has expired, logging out user");
             } else {
-              console.log(
-                "Unknown refresh token error, logging out user for security"
-              );
+              console.log("Unknown refresh token error, logging out user for security");
             }
           } else {
-            console.log(
-              "Non-axios error during token refresh, logging out user for security"
-            );
+            console.log("Non-axios error during token refresh, logging out user for security");
           }
 
           // Logout user and clear all tokens

@@ -4,11 +4,7 @@ import { ENDPOINTS } from "@/lib/api-config";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService, APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
-import {
-  EXPERIENCE_OPTIONS,
-  MAX_RESUME_SIZE_MB,
-  ROLE_OPTIONS,
-} from "@/lib/constants";
+import { EXPERIENCE_OPTIONS, MAX_RESUME_SIZE_MB, ROLE_OPTIONS } from "@/lib/constants";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import toast from "react-hot-toast";
@@ -102,9 +98,7 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
   const handleRemoveResume = () => {
     setResume(null);
     // Reset the file input
-    const fileInput = document.querySelector(
-      'input[type="file"]'
-    ) as HTMLInputElement;
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
     if (fileInput) {
       fileInput.value = "";
     }
@@ -114,9 +108,7 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
     <div className="relative w-full bg-gradient-to-br from-purple-50 to-blue-50 px-4 pt-10 font-inter">
       {/* Heading */}
       <div className="text-center">
-        <h2 className="text-[36px] font-[700] font-noto text-gray-800">
-          Career Setup
-        </h2>
+        <h2 className="text-[36px] font-[700] font-noto text-gray-800">Career Setup</h2>
       </div>
       {/* Form Container */}
       <div className="max-w-md mx-auto  p-8 ">
@@ -169,9 +161,7 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
             </option>
             {experiences.map((opt) => (
               <option key={opt} value={opt}>
-                {opt === "0"
-                  ? "0 (Fresher)"
-                  : `${opt} year${opt === "1" ? "" : "s"}`}
+                {opt === "0" ? "0 (Fresher)" : `${opt} year${opt === "1" ? "" : "s"}`}
               </option>
             ))}
           </select>
@@ -208,9 +198,7 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
 
         <button
           onClick={handleSubmit}
-          disabled={
-            !role || !experience || isLoading || extractResumeMutation.isPending
-          }
+          disabled={!role || !experience || isLoading || extractResumeMutation.isPending}
           className={`flex-1 py-6 rounded-xl btn btn-neutral btn-block mt-6 ${
             role && experience && !isLoading && !extractResumeMutation.isPending
               ? " hover:shadow-lg"
@@ -220,9 +208,7 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
           {isLoading || extractResumeMutation.isPending ? (
             <span className="flex items-center gap-2">
               <span className="loading loading-spinner loading-md"></span>
-              {extractResumeMutation.isPending
-                ? "Processing Resume..."
-                : "Creating Profile..."}
+              {extractResumeMutation.isPending ? "Processing Resume..." : "Creating Profile..."}
             </span>
           ) : (
             "Complete Setup"

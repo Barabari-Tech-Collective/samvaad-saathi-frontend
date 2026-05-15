@@ -3,11 +3,7 @@ import { PostHogPageView } from "@/components/providers/posthog-page-view";
 import AppProvider from "@/components/providers/app-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import type { Metadata } from "next";
-import {
-  Anek_Devanagari,
-  Noto_Sans_Devanagari,
-  Orbitron,
-} from "next/font/google";
+import { Anek_Devanagari, Noto_Sans_Devanagari, Orbitron } from "next/font/google";
 import { Suspense } from "react";
 import { LimitedToaster } from "@/components/providers/limited-toaster";
 import "./globals.css";
@@ -58,8 +54,7 @@ export const metadata: Metadata = {
     telephone: false,
   },
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ||
-      "https://samvaad-sathi.barabaricollective.org",
+    process.env.NEXT_PUBLIC_APP_URL || "https://samvaad-sathi.barabaricollective.org"
   ),
   alternates: {
     canonical: "/",
@@ -132,9 +127,7 @@ export default function RootLayout({
     alternateName: "Samvaad Saathi - AI Interview Preparation Platform",
     description:
       "Master your interviews with Samvaad Saathi - India's leading AI-powered interview preparation platform. Practice with voice-based interviews, get instant feedback, and boost your confidence for job interviews.",
-    url:
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "https://samvaad-sathi.barabaricollective.org",
+    url: process.env.NEXT_PUBLIC_APP_URL || "https://samvaad-sathi.barabaricollective.org",
     applicationCategory: "EducationalApplication",
     operatingSystem: "Web Browser",
     offers: {

@@ -1,15 +1,9 @@
 "use client";
 
-import {
-  DEFAULT_TTS_VOICE_ID,
-  TTS_VOICE_OPTIONS,
-  TTS_VOICE_STORAGE_KEY,
-} from "@/lib/constants";
+import { DEFAULT_TTS_VOICE_ID, TTS_VOICE_OPTIONS, TTS_VOICE_STORAGE_KEY } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
-const allowedTtsVoiceIds = new Set<string>(
-  TTS_VOICE_OPTIONS.map((option) => option.id),
-);
+const allowedTtsVoiceIds = new Set<string>(TTS_VOICE_OPTIONS.map((option) => option.id));
 
 function readStoredTtsVoiceId(): string {
   if (typeof window === "undefined") return DEFAULT_TTS_VOICE_ID;

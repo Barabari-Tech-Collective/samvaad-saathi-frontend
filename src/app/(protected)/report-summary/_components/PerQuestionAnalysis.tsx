@@ -1,9 +1,7 @@
 import React from "react";
 import { PerQuestionAnalysisProps } from "./types";
 
-const PerQuestionAnalysis: React.FC<PerQuestionAnalysisProps> = ({
-  questionAnalysis,
-}) => {
+const PerQuestionAnalysis: React.FC<PerQuestionAnalysisProps> = ({ questionAnalysis }) => {
   const getQuestionTypeBadgeColor = (type: string) => {
     const lowerType = type.toLowerCase();
     if (lowerType.includes("technical question")) {
@@ -51,9 +49,7 @@ const PerQuestionAnalysis: React.FC<PerQuestionAnalysisProps> = ({
                 <div className="space-y-6">
                   {question.feedback!.strengths && (
                     <section className="space-y-3">
-                      <h4 className="text-base font-semibold text-emerald-600">
-                        Strengths
-                      </h4>
+                      <h4 className="text-base font-semibold text-emerald-600">Strengths</h4>
                       <p className="text-sm leading-relaxed whitespace-pre-line">
                         {question.feedback!.strengths}
                       </p>
@@ -61,9 +57,7 @@ const PerQuestionAnalysis: React.FC<PerQuestionAnalysisProps> = ({
                   )}
                   {question.feedback!.areasOfImprovement && (
                     <section className="space-y-3">
-                      <h4 className="text-base font-semibold text-red-600">
-                        Areas of Improvement
-                      </h4>
+                      <h4 className="text-base font-semibold text-red-600">Areas of Improvement</h4>
                       <p className="text-sm leading-relaxed whitespace-pre-line">
                         {question.feedback!.areasOfImprovement}
                       </p>
@@ -72,9 +66,7 @@ const PerQuestionAnalysis: React.FC<PerQuestionAnalysisProps> = ({
                 </div>
               ) : (
                 <div className="text-center text-muted-foreground py-4">
-                  <p className="text-sm">
-                    No report available — question not attempted.
-                  </p>
+                  <p className="text-sm">No report available — question not attempted.</p>
                 </div>
               )}
             </div>
