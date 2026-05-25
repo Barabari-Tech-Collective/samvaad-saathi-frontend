@@ -541,7 +541,7 @@ const IntroductionSpeaker = ({
     const voiceId =
         typeof window !== "undefined"
             ? localStorage.getItem(TTS_VOICE_STORAGE_KEY) ||
-              DEFAULT_TTS_VOICE_ID
+            DEFAULT_TTS_VOICE_ID
             : DEFAULT_TTS_VOICE_ID;
 
     const selectedVoice =

@@ -1,7 +1,7 @@
 "use client";
 
 import { trackBottomNavClick } from "@/lib/posthog/tracking.utils";
-import { HomeIcon, ListBulletIcon, UserIcon } from "@heroicons/react/24/solid";
+import { HomeIcon, ListBulletIcon, UserIcon, DocumentTextIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { TargetPracticeIcon } from "./icons";
@@ -18,6 +18,7 @@ export default function BottomNav({ className = "" }: { className?: string }) {
     if (pathname.startsWith("/home")) return "home";
     if (pathname.startsWith("/history")) return "history";
     if (pathname.startsWith("/practice")) return "practice";
+    if (pathname.startsWith("/ai-resume")) return "ai-resume";
     if (pathname.startsWith("/profile")) return "profile";
     return undefined;
   };
@@ -68,6 +69,17 @@ export default function BottomNav({ className = "" }: { className?: string }) {
         aria-label="Go to target practice"
       >
         <TargetPracticeIcon className="size-10" />
+      </Link>
+
+      <Link
+        href="/ai-resume"
+        className={`${baseItemClass} ${
+          isActive("ai-resume") ? "text-white" : "text-gray-400"
+        }`}
+        onClick={() => handleClick("ai-resume")}
+        aria-label="Go to AI Resume"
+      >
+        <DocumentTextIcon className="size-7" />
       </Link>
 
       <Link
