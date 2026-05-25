@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FileDragDropZone } from "./FileDragDropZone";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 
-export function ResumeInputForm({ onNext }: { onNext: () => void }) {
+export function ResumeInputForm({ onNext, onFileUploaded }: { onNext: () => void, onFileUploaded: (f: File) => void }) {
     const [role, setRole] = useState("");
     const [experience, setExperience] = useState("Entry Level");
     const [jd, setJd] = useState("");
@@ -13,6 +13,7 @@ export function ResumeInputForm({ onNext }: { onNext: () => void }) {
         // In a real app, you'd upload the file and data here.
         // For now, we simulate the upload and move to the next step.
         if (file && role) {
+            onFileUploaded(file);
             onNext();
         }
     };

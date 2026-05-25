@@ -4,7 +4,7 @@ import { SkillsAnalysisGroup } from "./SkillsAnalysisGroup";
 import { ProjectEvaluationList } from "./ProjectEvaluationList";
 import { SuggestedProjectsWidget } from "./SuggestedProjectsWidget";
 
-export function SkillsFeedbackScreen({ onBack }: { onBack: () => void }) {
+export function SkillsFeedbackScreen({ onBack, onNext }: { onBack: () => void, onNext: () => void }) {
     return (
         <div className="flex flex-col gap-6 relative animate-in fade-in slide-in-from-right-4 duration-500 pt-4">
             {/* Header */}
@@ -35,6 +35,7 @@ export function SkillsFeedbackScreen({ onBack }: { onBack: () => void }) {
             </div>
 
             <button 
+                onClick={onNext}
                 className="mt-2 w-full py-4 bg-[#1e58f1] hover:bg-blue-700 text-white rounded-2xl font-medium transition-colors shadow-sm active:scale-[0.98]"
             >
                 Continue
