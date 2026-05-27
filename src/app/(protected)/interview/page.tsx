@@ -34,6 +34,7 @@ const InterviewPage = () => {
   const [isIntroducing, setIsIntroducing] = useState(false);
   const [isUserIntroducing, setIsUserIntroducing] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentAttemptId, setCurrentAttemptId] = useState<number | undefined>();
   const [questions, setQuestions] = useState<GenerateQuestionsResponse["items"]>([]);
   const [isTextToSpeechSpeaking, setIsTextToSpeechSpeaking] = useState(false);
   const [pendingStart, setPendingStart] = useState(false);
@@ -56,14 +57,16 @@ const InterviewPage = () => {
     method: "post",
   });
 
-  const {
-    mutateAsync: startQuestionAttempt,
-    isPending: isStartingAttempt,
-    data: questionAttemptResponse,
-  } = apiClient.useMutation<StartQuestionAttemptResponse>({
-    url: ENDPOINTS.INTERVIEWS.START_QUESTION_ATTEMPT,
-    method: "post",
-  });
+  const { mutateAsync: startQuestionAttempt, isPending: isStartingAttempt } =
+    apiClient.useMutation<StartQuestionAttemptResponse>({
+      url: ENDPOINTS.INTERVIEWS.START_QUESTION_ATTEMPT,
+      method: "post",
+      options: {
+        onSuccess: (data) => {
+          setCurrentAttemptId(data.questionAttemptId);
+        },
+      },
+    });
 
   interface ResumeInterviewResponse {
     interviewId: number;
@@ -157,6 +160,7 @@ const InterviewPage = () => {
 
   useEffect(() => {
     if (currentQuestionId && interviewId) {
+      setCurrentAttemptId(undefined);
       startQuestionAttempt({
         interviewId: Number(interviewId),
         questionId: currentQuestionId,
@@ -175,7 +179,7 @@ const InterviewPage = () => {
     }
     // Reset text-to-speech speaking state when question changes
     setIsTextToSpeechSpeaking(false);
-  }, [interviewId, currentQuestionIndex, currentQuestionId, startQuestionAttempt, isIntroducing]);
+  }, [interviewId, currentQuestionIndex, currentQuestionId, startQuestionAttempt]);
 
   // Track time taken for each question
   useEffect(() => {
@@ -462,8 +466,8 @@ const InterviewPage = () => {
 
           <Footer
             isLoading={isGeneratingQuestions}
-            disabled={isStartingAttempt || isTextToSpeechSpeaking}
-            question_attempt_id={questionAttemptResponse?.questionAttemptId}
+            disabled={isStartingAttempt || isTextToSpeechSpeaking || !currentAttemptId}
+            question_attempt_id={currentAttemptId}
             followUpStrategy={questions?.[currentQuestionIndex]?.followUpStrategy ?? null}
             isCurrentQuestionFollowUp={questions?.[currentQuestionIndex]?.isFollowUp ?? false}
             onNext={handleNextQuestion}

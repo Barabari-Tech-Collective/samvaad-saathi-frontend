@@ -151,11 +151,16 @@ const Footer = ({
       },
     },
     options: {
-      onSuccess: (response: TranscribeResponse) => {
-        completeAnalysis({
-          question_attempt_id: question_attempt_id,
-          analysisTypes: ["domain", "communication", "pace", "pause"],
-        });
+      onSuccess: (response: TranscribeResponse, variables: FormData) => {
+        const attemptId = variables.get("question_attempt_id");
+        if (attemptId) {
+          completeAnalysis({
+            question_attempt_id: Number(attemptId),
+            analysisTypes: ["domain", "communication", "pace", "pause"],
+          });
+        } else {
+          console.error("Missing question_attempt_id in Footer upload variables");
+        }
         setHasAnswered(true);
 
         // Track answer recorded
@@ -511,7 +516,12 @@ const Footer = ({
           ) : (
             <button
               onClick={handleNextClick}
-              disabled={isWaitingForFollowUpFromTranscription || (isIntroStep && !hasAnswered)}
+              disabled={
+                isWaitingForFollowUpFromTranscription ||
+                isUploading ||
+                isCompletingAnalysis ||
+                (isIntroStep && !hasAnswered)
+              }
               className="btn btn-outline"
             >
               {isWaitingForFollowUpFromTranscription && !isCurrentQuestionFollowUp
