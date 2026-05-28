@@ -1,6 +1,6 @@
 import { ChevronLeftIcon, ShieldCheckIcon, DocumentTextIcon, ArrowDownTrayIcon, CheckIcon } from "@heroicons/react/24/solid";
 
-export function ResumeTemplateFullViewScreen({ onBack }: { onBack: () => void }) {
+export function ResumeTemplateFullViewScreen({ onBack, file }: { onBack: () => void, file: File | null }) {
     return (
         <div className="flex flex-col gap-6 relative animate-in fade-in slide-in-from-right-4 duration-500 pt-4">
             {/* Header */}
