@@ -77,9 +77,7 @@ export default function ProfilePage() {
       const currentUniversity = user?.authorizedUser.university || "";
       const isCustom =
         currentUniversity &&
-        !UNIVERSITY_OPTIONS.includes(
-          currentUniversity as (typeof UNIVERSITY_OPTIONS)[number],
-        );
+        !UNIVERSITY_OPTIONS.includes(currentUniversity as (typeof UNIVERSITY_OPTIONS)[number]);
       setTempData((prev) => ({
         ...prev,
         university: isCustom ? "Others" : currentUniversity,
@@ -145,7 +143,7 @@ export default function ProfilePage() {
           : field === "yearsExperience"
             ? "years_experience"
             : field,
-        value,
+        value
       );
     }
 
@@ -244,9 +242,7 @@ export default function ProfilePage() {
                     ? tempData.targetPosition
                     : user.authorizedUser.targetPosition || ""
                 }
-                onChange={(e) =>
-                  handleInputChange("targetPosition", e.target.value)
-                }
+                onChange={(e) => handleInputChange("targetPosition", e.target.value)}
               >
                 <option value="" disabled>
                   Not specified
@@ -274,18 +270,14 @@ export default function ProfilePage() {
                     ? tempData.yearsExperience
                     : user.authorizedUser.yearsExperience?.toString() || ""
                 }
-                onChange={(e) =>
-                  handleInputChange("yearsExperience", e.target.value)
-                }
+                onChange={(e) => handleInputChange("yearsExperience", e.target.value)}
               >
                 <option value="" disabled>
                   Not specified
                 </option>
                 {EXPERIENCE_OPTIONS.map((exp) => (
                   <option key={exp} value={exp}>
-                    {exp === "0"
-                      ? "0 (Fresher)"
-                      : `${exp} year${exp === "1" ? "" : "s"}`}
+                    {exp === "0" ? "0 (Fresher)" : `${exp} year${exp === "1" ? "" : "s"}`}
                   </option>
                 ))}
               </select>
@@ -302,9 +294,7 @@ export default function ProfilePage() {
                 disabled={editingField !== "degree"}
                 className={`select select-bordered w-full ${errors.degree ? "select-error" : ""}`}
                 value={
-                  editingField === "degree"
-                    ? tempData.degree
-                    : user.authorizedUser.degree || ""
+                  editingField === "degree" ? tempData.degree : user.authorizedUser.degree || ""
                 }
                 onChange={(e) => handleInputChange("degree", e.target.value)}
               >
@@ -349,16 +339,15 @@ export default function ProfilePage() {
                     </option>
                   ))}
                 </select>
-                {editingField === "university" &&
-                  tempData.university === "Others" && (
-                    <input
-                      type="text"
-                      placeholder="Enter university name"
-                      className={`input input-bordered w-full mt-2 ${errors.university ? "input-error" : ""}`}
-                      value={customUniversity}
-                      onChange={(e) => setCustomUniversity(e.target.value)}
-                    />
-                  )}
+                {editingField === "university" && tempData.university === "Others" && (
+                  <input
+                    type="text"
+                    placeholder="Enter university name"
+                    className={`input input-bordered w-full mt-2 ${errors.university ? "input-error" : ""}`}
+                    value={customUniversity}
+                    onChange={(e) => setCustomUniversity(e.target.value)}
+                  />
+                )}
               </>
             </ProfileFieldRow>
 
@@ -396,34 +385,23 @@ export default function ProfilePage() {
         {/* Actions */}
         <div className="card-actions flex-col space-y-2 pb-6">
           <div className="flex items-center gap-10 justify-between w-full">
-            <button
-              onClick={handleHelpClick}
-              className="btn btn-ghost justify-center flex-1"
-            >
+            <button onClick={handleHelpClick} className="btn btn-ghost justify-center flex-1">
               <QuestionMarkCircleIcon className="size-6" />
               Help
             </button>
-            <button
-              onClick={handleSupportClick}
-              className="btn btn-ghost justify-center flex-1"
-            >
+            <button onClick={handleSupportClick} className="btn btn-ghost justify-center flex-1">
               <ChatBubbleLeftRightIcon className="size-6" />
               Support
             </button>
           </div>
 
-          <button
-            onClick={signOut}
-            className="btn btn-soft btn-error w-full justify-start"
-          >
+          <button onClick={signOut} className="btn btn-soft btn-error w-full justify-start">
             <ArrowLeftStartOnRectangleIcon className="size-6" />
             Log Out
           </button>
         </div>
 
-        <p className="text-center text-sm text-gray-500">
-          Samvaad Saathi v{APP_VERSION}
-        </p>
+        <p className="text-center text-sm text-gray-500">Samvaad Saathi v{APP_VERSION}</p>
       </section>
     </main>
   );

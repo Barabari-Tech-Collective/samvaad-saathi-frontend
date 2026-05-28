@@ -29,11 +29,11 @@ This app helps students prepare for interviews with a guided signup → onboardi
 
 ## 🛠 Tech Stack
 
-- **Frontend**: [Next.js](https://nextjs.org/), [React](https://react.dev/)  
-- **Styling**: [TailwindCSS](https://tailwindcss.com/), custom CSS  
-- **UI Components**: [shadcn/ui](https://ui.shadcn.com/)  
-- **State Management**: React hooks (`useState`, `useRouter` for navigation)  
-- **Image Handling**: Next.js `<Image>` component + `public/` assets  
+- **Frontend**: [Next.js](https://nextjs.org/), [React](https://react.dev/)
+- **Styling**: [TailwindCSS](https://tailwindcss.com/), custom CSS
+- **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
+- **State Management**: React hooks (`useState`, `useRouter` for navigation)
+- **Image Handling**: Next.js `<Image>` component + `public/` assets
 
 ---
 
@@ -76,7 +76,7 @@ This app helps students prepare for interviews with a guided signup → onboardi
 
 ## Getting Started
 
-```bash 
+```bash
 
 Clone the repo and install dependencies:
 
@@ -85,6 +85,7 @@ cd <repo-name>
 npm install
 
 ```
+
 ## Run locally:
 
 ```bash

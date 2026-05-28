@@ -5,7 +5,14 @@
       "Bash(Get-ChildItem -Path \"E:\\\\Workspace\\\\Samvaad-Saathi-Frontend\\\\src\\\\components\" -Recurse)",
       "Bash(Select-Object FullName)",
       "Bash(Format-Table -AutoSize)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(Get-ChildItem -Path \"e:\\\\Workspace\\\\samvaad-saathi-frontend\" -Force)",
+      "Bash(Select-Object Name, Mode)",
+      "PowerShell(Test-Path \"e:\\\\Workspace\\\\samvaad-saathi-frontend\\\\.github\" | ForEach-Object { if \\($_\\) { Get-ChildItem -Path \"e:\\\\Workspace\\\\samvaad-saathi-frontend\\\\.github\" -Force | Select-Object Name, Mode } else { Write-Output \".github folder does not exist\" } })",
+      "Bash([ -f \"e:\\\\Workspace\\\\samvaad-saathi-frontend/$file\" ])",
+      "PowerShell(Get-ChildItem -Path \"e:\\\\Workspace\\\\samvaad-saathi-frontend\" -Force | Where-Object { $_.Name -notmatch '^node_modules' } | Select-Object Name)",
+      "Bash(npm install *)",
+      "Bash(npx husky *)"
     ]
   }
 }

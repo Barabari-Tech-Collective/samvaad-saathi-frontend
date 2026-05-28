@@ -20,30 +20,27 @@ const InterviewCompleted = () => {
   const apiClient = createApiClient(APIServiceV2.INTERVIEWS);
 
   // Generate final report mutation
-  const { mutateAsync: generateFinalReport, isPending: isGeneratingReport } =
-    apiClient.useMutation<unknown, { interviewId: number }>({
-      url: ENDPOINTS_V2.SUMMARY_REPORT,
-      method: "post",
-      successMessage: "Report generated successfully!",
-      errorMessage: "Failed to generate report. Please try again.",
-      options: {
-        onSuccess: () => {
-          router.push(`/report-summary?interviewId=${interviewId}`);
-        },
-        onError: (error) => {
-          // Track report generation error
-          trackReportGenerationError(
-            error?.message || "Unknown error occurred",
-          );
-        },
+  const { mutateAsync: generateFinalReport, isPending: isGeneratingReport } = apiClient.useMutation<
+    unknown,
+    { interviewId: number }
+  >({
+    url: ENDPOINTS_V2.SUMMARY_REPORT,
+    method: "post",
+    successMessage: "Report generated successfully!",
+    errorMessage: "Failed to generate report. Please try again.",
+    options: {
+      onSuccess: () => {
+        router.push(`/report-summary?interviewId=${interviewId}`);
       },
-      keyToInvalidate: {
-        queryKey: [
-          ENDPOINTS.INTERVIEWS.LIST,
-          ENDPOINTS.INTERVIEWS.WITH_SUMMARY,
-        ],
+      onError: (error) => {
+        // Track report generation error
+        trackReportGenerationError(error?.message || "Unknown error occurred");
       },
-    });
+    },
+    keyToInvalidate: {
+      queryKey: [ENDPOINTS.INTERVIEWS.LIST, ENDPOINTS.INTERVIEWS.WITH_SUMMARY],
+    },
+  });
 
   const generateReport = async () => {
     try {

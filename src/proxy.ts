@@ -9,9 +9,7 @@ export function proxy(request: NextRequest) {
 
   // Define static/internal routes to exclude from middleware
   const isInternalRoute =
-    pathname.includes("_next") ||
-    pathname.includes("api") ||
-    pathname.includes("favicon.ico");
+    pathname.includes("_next") || pathname.includes("api") || pathname.includes("favicon.ico");
 
   if (isInternalRoute) {
     return NextResponse.next();

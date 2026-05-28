@@ -13,12 +13,7 @@ import {
 import { AxiosError, AxiosRequestConfig } from "axios";
 import { useCookies } from "react-cookie";
 import toast from "react-hot-toast";
-import {
-  APIService,
-  APIServiceV2,
-  AUTH_BASE_URL,
-  createAxiosInstance,
-} from "./config";
+import { APIService, APIServiceV2, AUTH_BASE_URL, createAxiosInstance } from "./config";
 
 interface UseQueryApiProps<TData> {
   key: unknown[];
@@ -41,10 +36,7 @@ interface UseMutationApiProps<TData, TParams> {
   url: string;
   method?: "get" | "post" | "put" | "patch" | "delete";
   config?: AxiosRequestConfig;
-  options?: Omit<
-    UseMutationOptions<TData, AxiosError<APIError>, TParams>,
-    "mutationFn"
-  >;
+  options?: Omit<UseMutationOptions<TData, AxiosError<APIError>, TParams>, "mutationFn">;
   successMessage?: string;
   errorMessage?: string;
 }
@@ -106,9 +98,7 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
         const detail = err.response?.data?.detail ?? err.message;
         console.error(
           "API error:",
-          typeof detail === "string"
-            ? detail
-            : JSON.stringify(err.response?.data ?? err),
+          typeof detail === "string" ? detail : JSON.stringify(err.response?.data ?? err)
         );
         throw error;
       }
@@ -140,8 +130,7 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
           method: method.toUpperCase(),
           status_code: error.response?.status,
           request_id:
-            error.response?.headers?.["x-request-id"] ||
-            error.config?.headers?.["x-request-id"],
+            error.response?.headers?.["x-request-id"] || error.config?.headers?.["x-request-id"],
         });
 
         if (errorMessage) toast.error(errorMessage);

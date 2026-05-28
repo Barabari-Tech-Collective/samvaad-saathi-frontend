@@ -18,9 +18,7 @@ export default function Step1({ onNext }: Step1Props) {
     <div className="relative w-full bg-gradient-to-br from-blue-50 to-purple-50 px-4 pt-10 text-left font-inter">
       {/* Heading */}
       <div className="text-center">
-        <h2 className="text-[36px] font-[700] font-noto text-gray-800">
-          Education Details
-        </h2>
+        <h2 className="text-[36px] font-[700] font-noto text-gray-800">Education Details</h2>
       </div>
 
       {/* Form Container */}
@@ -85,15 +83,10 @@ export default function Step1({ onNext }: Step1Props) {
           onClick={() =>
             onNext({
               degree,
-              university:
-                university === "Others" ? customUniversity : university,
+              university: university === "Others" ? customUniversity : university,
             })
           }
-          disabled={
-            !degree ||
-            !university ||
-            (university === "Others" && !customUniversity.trim())
-          }
+          disabled={!degree || !university || (university === "Others" && !customUniversity.trim())}
           className="btn btn-neutral btn-block p-6 rounded-xl mt-6"
         >
           Continue to Next Step

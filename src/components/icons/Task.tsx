@@ -10,12 +10,7 @@ const TaskIcon = ({ className }: { className?: string }) => (
     className={className}
   >
     <defs>
-      <pattern
-        id="pattern0_259_840"
-        patternContentUnits="objectBoundingBox"
-        width="1"
-        height="1"
-      >
+      <pattern id="pattern0_259_840" patternContentUnits="objectBoundingBox" width="1" height="1">
         <use xlinkHref="#image0_259_840" transform="scale(0.0111111)" />
       </pattern>
       <image

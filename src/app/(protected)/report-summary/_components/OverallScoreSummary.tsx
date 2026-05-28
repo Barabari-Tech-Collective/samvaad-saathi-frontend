@@ -25,9 +25,7 @@ const OverallScoreSummary: React.FC<OverallScoreSummaryProps> = ({
                     unoptimized
                   />
                 </div>
-                <h3 className="font-semibold text-black">
-                  Knowledge Competence
-                </h3>
+                <h3 className="font-semibold text-black">Knowledge Competence</h3>
               </div>
               <span className="badge badge-ghost bg-stone-300">
                 {knowledgeCompetence.score}/{knowledgeCompetence.maxScore}
@@ -43,20 +41,17 @@ const OverallScoreSummary: React.FC<OverallScoreSummaryProps> = ({
 
             {/* Criteria Breakdown - Horizontal */}
             <div className="flex gap-4 text-sm text-gray-600 flex-wrap">
-              {Object.entries(knowledgeCompetence.criteria).map(
-                ([key, value]) => (
-                  <span key={key} className="capitalize">
-                    {key} ({value})
-                  </span>
-                ),
-              )}
+              {Object.entries(knowledgeCompetence.criteria).map(([key, value]) => (
+                <span key={key} className="capitalize">
+                  {key} ({value})
+                </span>
+              ))}
             </div>
 
             {/* Summary Scores */}
             <div className="flex justify-between items-center">
               <span className="text-black">
-                Average: {knowledgeCompetence.average}/
-                {knowledgeCompetence.maxAverage}
+                Average: {knowledgeCompetence.average}/{knowledgeCompetence.maxAverage}
               </span>
               <span className="text-green-600 font-semibold text-lg">
                 {knowledgeCompetence.percentage}%
@@ -106,8 +101,7 @@ const OverallScoreSummary: React.FC<OverallScoreSummaryProps> = ({
           {/* Summary Scores */}
           <div className="flex justify-between items-center">
             <span className="text-black">
-              Average: {speechAndStructure.average}/
-              {speechAndStructure.maxAverage}
+              Average: {speechAndStructure.average}/{speechAndStructure.maxAverage}
             </span>
             <span className="text-green-600 font-semibold text-lg">
               {speechAndStructure.percentage}%

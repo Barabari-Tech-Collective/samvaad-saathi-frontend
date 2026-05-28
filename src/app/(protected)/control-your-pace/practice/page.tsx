@@ -1,11 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import {
-  MicrophoneIcon,
-  ArrowPathIcon,
-  SpeakerWaveIcon,
-} from "@heroicons/react/24/outline";
+import { MicrophoneIcon, ArrowPathIcon, SpeakerWaveIcon } from "@heroicons/react/24/outline";
 import { useMicPermission, MicPermissionModal } from "@/hooks/useMicPermission";
 import { useRouter, useSearchParams } from "next/navigation";
 import clsx from "clsx";
@@ -23,58 +19,48 @@ const PracticePage = () => {
   const levelParam = searchParams.get("level");
   const level = levelParam ? Number(levelParam) : 1;
 
-  const [recordingStatus, setRecordingStatus] = useState<
-    "idle" | "recording" | "stopped"
-  >("idle");
+  const [recordingStatus, setRecordingStatus] = useState<"idle" | "recording" | "stopped">("idle");
   const [timer, setTimer] = useState(0);
-  const [session, setSession] = useState<CreatePacingSessionResponse | null>(
-    null
-  );
+  const [session, setSession] = useState<CreatePacingSessionResponse | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const {
-    hasPermission,
-    showModal,
-    requestPermission,
-    showPermissionModal,
-    hidePermissionModal,
-  } = useMicPermission();
+  const { hasPermission, showModal, requestPermission, showPermissionModal, hidePermissionModal } =
+    useMicPermission();
 
   const apiClient = createApiClient(APIService.PACING);
 
-  const { mutateAsync: createSession, isPending: isCreatingSession } =
-    apiClient.useMutation<
-      CreatePacingSessionResponse,
-      { level: number }
-    >({
-      url: ENDPOINTS.PACING.SESSION_CREATE,
-      method: "post",
-      errorMessage: "Failed to start practice session. Please try again.",
-    });
+  const { mutateAsync: createSession, isPending: isCreatingSession } = apiClient.useMutation<
+    CreatePacingSessionResponse,
+    { level: number }
+  >({
+    url: ENDPOINTS.PACING.SESSION_CREATE,
+    method: "post",
+    errorMessage: "Failed to start practice session. Please try again.",
+  });
 
-  const { mutateAsync: submitAudio, isPending: isSubmitting } =
-    apiClient.useMutation<SubmitPacingSessionResponse, FormData>({
-      url: session ? ENDPOINTS.PACING.SESSION_SUBMIT(String(session.sessionId)) : "",
-      method: "post",
-      config: {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+  const { mutateAsync: submitAudio, isPending: isSubmitting } = apiClient.useMutation<
+    SubmitPacingSessionResponse,
+    FormData
+  >({
+    url: session ? ENDPOINTS.PACING.SESSION_SUBMIT(String(session.sessionId)) : "",
+    method: "post",
+    config: {
+      headers: {
+        "Content-Type": "multipart/form-data",
       },
-      keyToInvalidate: { queryKey: ["pacing-levels"] },
-      options: {
-        onSuccess: (_data) => {
-          if (session) {
-            router.push(
-              `/control-your-pace/report?sessionId=${session.sessionId}`
-            );
-          }
-        },
+    },
+    keyToInvalidate: { queryKey: ["pacing-levels"] },
+    options: {
+      onSuccess: (_data) => {
+        if (session) {
+          router.push(`/control-your-pace/report?sessionId=${session.sessionId}`);
+        }
       },
-    });
+    },
+  });
 
   // Redirect if no level
   useEffect(() => {

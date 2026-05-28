@@ -71,6 +71,7 @@ Custom API client built on Axios + TanStack Query:
 - **`index.ts`**: Exports `apiClient` configured for `APIService.AUTH`
 
 **Key Features**:
+
 - Automatic token injection from cookies
 - Built-in error tracking via PostHog (`trackApiError`)
 - Success/error toast notifications
@@ -78,6 +79,7 @@ Custom API client built on Axios + TanStack Query:
 - Request cancellation support
 
 **Usage Pattern**:
+
 ```typescript
 const apiClient = createApiClient(APIService.INTERVIEWS);
 const { data, isLoading } = apiClient.useQuery({ key: [...], url: "..." });
@@ -150,30 +152,36 @@ const { mutate, loading } = apiClient.useMutation({ url: "...", method: "post" }
 ## Code Conventions
 
 ### File Structure
+
 - Use `page.tsx` for route pages
 - Co-locate components in `_components/` subdirectories within route folders
 - Shared components live in `src/components/`
 - All TypeScript (`.tsx`/`.ts`), no JavaScript files
 
 ### Import Aliases
+
 - Use `@/` alias for imports from `src/` (configured in `tsconfig.json`)
 - Example: `import { useAuth } from "@/components/providers/auth-provider"`
 
 ### API Endpoints
+
 - Always use constants from `ENDPOINTS` or `ENDPOINTS_V2` (never hardcode URLs)
 - V2 endpoints are newer and preferred for new features
 
 ### Analytics
+
 - Track all user interactions using PostHog utilities
 - Use event constants from `src/lib/posthog/events.ts`
 - API errors are automatically tracked
 
 ### Component Patterns
+
 - Prefer `"use client"` directives for interactive components
 - Use DaisyUI classes for UI components (buttons, cards, modals)
 - Mobile-first responsive design
 
 ### Error Handling
+
 - API errors show toast notifications via `react-hot-toast`
 - Use `successMessage` and `errorMessage` in `useMutation` options
 - PostHog tracks all errors automatically
@@ -181,6 +189,7 @@ const { mutate, loading } = apiClient.useMutation({ url: "...", method: "post" }
 ## Environment Variables
 
 Required environment variables (not in repo):
+
 - `NEXT_PUBLIC_APP_URL` - App base URL (defaults to production URL)
 - `GOOGLE_SITE_VERIFICATION` - Google Search Console verification
 - PostHog configuration (injected via `AnalyticsProvider`)
@@ -198,6 +207,7 @@ Required environment variables (not in repo):
 ## Testing User Flows
 
 When testing features:
+
 1. Ensure user is authenticated (check for `token` cookie)
 2. Verify PostHog events are firing correctly
 3. Test mobile viewport (primary target)
