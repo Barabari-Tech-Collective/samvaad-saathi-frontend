@@ -7,7 +7,7 @@ export function ATSScoreCircle({ score }: { score: number }) {
     const strokeDashoffset = circumference - (score / 100) * circumference;
 
     return (
-        <div className="w-full rounded-3xl bg-gradient-to-br from-[#1e58f1] to-[#4b31e3] p-6 text-white shadow-lg overflow-hidden relative">
+        <div className="w-full rounded-3xl bg-gradient-to-br from-primary to-primary/80 p-6 text-white shadow-lg overflow-hidden relative">
             <div className="flex items-center gap-2 mb-6 opacity-90 relative z-10">
                 <SparklesIcon className="size-5" />
                 <span className="font-semibold text-sm">ATS Compatibility Score</span>

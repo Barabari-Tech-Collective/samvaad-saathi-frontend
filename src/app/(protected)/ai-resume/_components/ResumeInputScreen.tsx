@@ -16,7 +16,7 @@ export function ResumeInputScreen({ onNext }: { onNext: () => void }) {
                 >
                     <ChevronLeftIcon className="size-5 text-slate-700" />
                 </button>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full text-sm font-medium">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/5 text-primary rounded-full text-sm font-medium">
                     <SparklesIcon className="size-4" />
                     <span>AI Powered</span>
                 </div>

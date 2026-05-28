@@ -15,7 +15,7 @@ export function ATSDashboardScreen({ onNext, onBack }: { onNext: () => void, onB
                 >
                     <ChevronLeftIcon className="size-5 text-slate-700" />
                 </button>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full text-sm font-medium">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/5 text-primary rounded-full text-sm font-medium">
                     <SparklesIcon className="size-4" />
                     <span>AI Powered</span>
                 </div>
@@ -36,7 +36,7 @@ export function ATSDashboardScreen({ onNext, onBack }: { onNext: () => void, onB
 
             <button 
                 onClick={onNext}
-                className="mt-2 w-full py-4 bg-[#1e58f1] hover:bg-blue-700 text-white rounded-2xl font-medium transition-colors shadow-sm active:scale-[0.98]"
+                className="mt-2 w-full py-4 bg-primary hover:opacity-90 text-white rounded-2xl font-medium transition-colors shadow-sm active:scale-[0.98]"
             >
                 View Detailed Feedback
             </button>

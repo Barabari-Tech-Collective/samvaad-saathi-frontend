@@ -8,9 +8,9 @@ export function SuggestedProjectsWidget() {
                 <span className="text-xs font-semibold text-slate-400">AI recommended</span>
             </div>
             
-            <div className="p-5 rounded-3xl bg-[#f2f6ff] border border-blue-100">
+            <div className="p-5 rounded-3xl bg-[#f2f6ff] border border-primary/10">
                 <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 shrink-0 rounded-2xl bg-[#1e58f1] flex items-center justify-center shadow-lg shadow-blue-200">
+                    <div className="w-10 h-10 shrink-0 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
                         <LightBulbIcon className="size-5 text-white" />
                     </div>
                     <div className="space-y-2">
@@ -22,8 +22,8 @@ export function SuggestedProjectsWidget() {
                         </p>
                         
                         <div className="flex flex-wrap gap-2 pt-3">
-                            <span className="px-3 py-1.5 bg-white text-[#1e58f1] rounded-full text-xs font-bold border border-blue-100 shadow-sm">React</span>
-                            <span className="px-3 py-1.5 bg-white text-[#1e58f1] rounded-full text-xs font-bold border border-blue-100 shadow-sm">WebSockets</span>
+                            <span className="px-3 py-1.5 bg-white text-primary rounded-full text-xs font-bold border border-primary/10 shadow-sm">React</span>
+                            <span className="px-3 py-1.5 bg-white text-primary rounded-full text-xs font-bold border border-primary/10 shadow-sm">WebSockets</span>
                             <span className="px-3 py-1.5 bg-white text-slate-600 rounded-full text-xs font-bold border border-slate-200 shadow-sm">Intermediate</span>
                             <span className="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-xs font-bold border border-emerald-100">High demand</span>
                         </div>

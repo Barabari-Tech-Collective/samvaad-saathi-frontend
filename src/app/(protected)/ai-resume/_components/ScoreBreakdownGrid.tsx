@@ -1,6 +1,6 @@
 export function ScoreBreakdownGrid() {
     const scores = [
-        { label: "Skills Match", score: 68, color: "bg-[#1e58f1]", track: "bg-blue-100" },
+        { label: "Skills Match", score: 68, color: "bg-primary", track: "bg-blue-100" },
         { label: "Experience", score: 74, color: "bg-emerald-500", track: "bg-emerald-100" },
         { label: "Formatting", score: 88, color: "bg-emerald-500", track: "bg-emerald-100" },
         { label: "Keywords", score: 54, color: "bg-orange-500", track: "bg-orange-100" },
