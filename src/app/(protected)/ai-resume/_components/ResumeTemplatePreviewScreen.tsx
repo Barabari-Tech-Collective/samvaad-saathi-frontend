@@ -11,7 +11,7 @@ export function ResumeTemplatePreviewScreen({ onBack, onNext }: { onBack: () => 
                 >
                     <ChevronLeftIcon className="size-5 text-slate-700" />
                 </button>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full text-sm font-medium">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/5 text-primary rounded-full text-sm font-medium">
                     <ShieldCheckIcon className="size-4" />
                     <span>ATS Optimized</span>
                 </div>
@@ -31,7 +31,7 @@ export function ResumeTemplatePreviewScreen({ onBack, onNext }: { onBack: () => 
                     {/* The resume paper */}
                     <div className="bg-white shadow-md rounded-lg w-48 h-64 p-4 flex flex-col gap-3 relative z-10">
                         {/* Fake ATS Badge on the paper */}
-                        <div className="absolute -right-3 top-4 bg-[#1e58f1] text-white text-[9px] font-bold px-2 py-1 rounded-full shadow-sm">
+                        <div className="absolute -right-3 top-4 bg-primary text-white text-[9px] font-bold px-2 py-1 rounded-full shadow-sm">
                             ATS Optimized
                         </div>
 
@@ -39,17 +39,17 @@ export function ResumeTemplatePreviewScreen({ onBack, onNext }: { onBack: () => 
                         <div className="h-3 w-4/5 bg-slate-800 rounded-full mb-1"></div>
                         <div className="h-1.5 w-1/2 bg-slate-300 rounded-full"></div>
                         
-                        <div className="h-2 w-1/3 bg-[#1e58f1] rounded-full mt-3"></div>
+                        <div className="h-2 w-1/3 bg-primary/60 rounded-full mt-3"></div>
                         <div className="h-1 w-full bg-slate-200 rounded-full"></div>
                         <div className="h-1 w-full bg-slate-200 rounded-full"></div>
                         <div className="h-1 w-5/6 bg-slate-200 rounded-full"></div>
 
-                        <div className="h-2 w-1/3 bg-[#1e58f1] rounded-full mt-2"></div>
+                        <div className="h-2 w-1/3 bg-primary/60 rounded-full mt-2"></div>
                         <div className="h-1 w-full bg-slate-200 rounded-full"></div>
                         <div className="h-1 w-11/12 bg-slate-200 rounded-full"></div>
                         <div className="h-1 w-4/5 bg-slate-200 rounded-full"></div>
 
-                        <div className="h-2 w-1/3 bg-[#1e58f1] rounded-full mt-2"></div>
+                        <div className="h-2 w-1/3 bg-primary/60 rounded-full mt-2"></div>
                         <div className="h-1 w-full bg-slate-200 rounded-full"></div>
                         <div className="h-1 w-full bg-slate-200 rounded-full"></div>
                     </div>
@@ -58,19 +58,19 @@ export function ResumeTemplatePreviewScreen({ onBack, onNext }: { onBack: () => 
                 {/* Features Grid */}
                 <div className="grid grid-cols-2 gap-3">
                     <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3">
-                        <ShieldCheckIcon className="size-4 text-blue-500" />
+                        <ShieldCheckIcon className="size-4 text-primary" />
                         <span className="text-xs font-medium text-slate-700">ATS Friendly</span>
                     </div>
                     <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3">
-                        <UserGroupIcon className="size-4 text-blue-500" />
+                        <UserGroupIcon className="size-4 text-primary" />
                         <span className="text-xs font-medium text-slate-700 leading-tight">Recruiter<br/>Approved</span>
                     </div>
                     <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3">
-                        <Squares2X2Icon className="size-4 text-blue-500" />
+                        <Squares2X2Icon className="size-4 text-primary" />
                         <span className="text-xs font-medium text-slate-700">Clean Structure</span>
                     </div>
                     <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3">
-                        <AcademicCapIcon className="size-4 text-blue-500" />
+                        <AcademicCapIcon className="size-4 text-primary" />
                         <span className="text-xs font-medium text-slate-700 leading-tight">Optimized for<br/>Freshers</span>
                     </div>
                 </div>
@@ -78,7 +78,7 @@ export function ResumeTemplatePreviewScreen({ onBack, onNext }: { onBack: () => 
 
             {/* Actions */}
             <div className="flex flex-col gap-3 mt-2">
-                <button onClick={onNext} className="w-full flex items-center justify-center gap-2 py-4 bg-[#1e58f1] hover:bg-blue-700 text-white rounded-2xl font-medium transition-colors shadow-sm active:scale-[0.98]">
+                <button onClick={onNext} className="w-full flex items-center justify-center gap-2 py-4 bg-primary hover:opacity-90 text-white rounded-2xl font-medium transition-colors shadow-sm active:scale-[0.98]">
                     <CheckIcon className="size-4" strokeWidth={3} />
                     <span>Use This Template</span>
                     <ArrowRightIcon className="size-4 ml-1" />

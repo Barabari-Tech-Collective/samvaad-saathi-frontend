@@ -12,7 +12,7 @@ export function HygieneAndTemplateScreen({ onBack, onNext }: { onBack: () => voi
                 >
                     <ChevronLeftIcon className="size-5 text-slate-700" />
                 </button>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full text-sm font-medium">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/5 text-primary rounded-full text-sm font-medium">
                     <SparklesIcon className="size-4" />
                     <span>AI Powered</span>
                 </div>
@@ -80,8 +80,8 @@ export function HygieneAndTemplateScreen({ onBack, onNext }: { onBack: () => voi
                             "Add a personal portfolio website"
                         ].map((rec, idx) => (
                             <div key={idx} className="flex gap-3 text-sm text-slate-600">
-                                <div className="mt-0.5 size-4 rounded-full bg-blue-50 flex-shrink-0 flex items-center justify-center">
-                                    <CheckIcon className="size-2.5 text-blue-500" strokeWidth={3} />
+                                <div className="mt-0.5 size-4 rounded-full bg-primary/5 flex-shrink-0 flex items-center justify-center">
+                                    <CheckIcon className="size-2.5 text-primary" strokeWidth={3} />
                                 </div>
                                 <span>{rec}</span>
                             </div>
@@ -90,16 +90,16 @@ export function HygieneAndTemplateScreen({ onBack, onNext }: { onBack: () => voi
                 </div>
 
                 {/* ATS Template Card */}
-                <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl p-5 shadow-md flex flex-col sm:flex-row gap-5 items-start">
+                <div className="bg-primary rounded-2xl p-5 shadow-md flex flex-col sm:flex-row gap-5 items-start">
                     {/* Resume Visual */}
                     <div className="bg-white rounded-lg p-3 w-24 h-32 flex-shrink-0 flex flex-col gap-2 shadow-sm mx-auto sm:mx-0">
                         <div className="h-2 w-3/4 bg-slate-200 rounded-full mx-auto mb-1"></div>
                         <div className="h-1 w-full bg-slate-100 rounded-full"></div>
                         <div className="h-1 w-5/6 bg-slate-100 rounded-full"></div>
-                        <div className="h-1.5 w-1/2 bg-blue-400 rounded-full mt-2"></div>
+                        <div className="h-1.5 w-1/2 bg-slate-300 rounded-full mt-2"></div>
                         <div className="h-1 w-full bg-slate-100 rounded-full"></div>
                         <div className="h-1 w-4/5 bg-slate-100 rounded-full"></div>
-                        <div className="h-1.5 w-1/2 bg-blue-400 rounded-full mt-1"></div>
+                        <div className="h-1.5 w-1/2 bg-slate-300 rounded-full mt-1"></div>
                         <div className="h-1 w-full bg-slate-100 rounded-full"></div>
                         <div className="h-1 w-full bg-slate-100 rounded-full"></div>
                     </div>
@@ -112,7 +112,7 @@ export function HygieneAndTemplateScreen({ onBack, onNext }: { onBack: () => voi
                         </div>
                         <div>
                             <h3 className="text-white font-bold leading-tight">Use ATS-friendly resume template</h3>
-                            <p className="text-blue-100 text-xs mt-1">Professionally structured for ATS systems and modern recruiters.</p>
+                            <p className="text-white/70 text-xs mt-1">Professionally structured for ATS systems and modern recruiters.</p>
                         </div>
                         <div className="flex flex-wrap gap-2 mt-1">
                             <button className="flex items-center gap-1 px-3 py-1.5 bg-white/10 hover:bg-white/20 transition-colors rounded-lg text-white text-xs font-medium">
@@ -123,7 +123,7 @@ export function HygieneAndTemplateScreen({ onBack, onNext }: { onBack: () => voi
                                 <ArrowDownTrayIcon className="size-3.5" />
                                 Download
                             </button>
-                            <button onClick={onNext} className="flex items-center gap-1 px-4 py-1.5 bg-white hover:bg-slate-50 transition-colors rounded-lg text-blue-600 text-xs font-semibold ml-auto">
+                            <button onClick={onNext} className="flex items-center gap-1 px-4 py-1.5 bg-white hover:bg-slate-50 transition-colors rounded-lg text-primary text-xs font-semibold ml-auto">
                                 Use
                                 <ArrowRightIcon className="size-3" />
                             </button>
@@ -138,7 +138,7 @@ export function HygieneAndTemplateScreen({ onBack, onNext }: { onBack: () => voi
                     <ArrowPathIcon className="size-4" />
                     Re-Analyze
                 </button>
-                <button className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#1e58f1] hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-sm">
+                <button className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-primary hover:opacity-90 text-white rounded-xl font-medium transition-colors shadow-sm">
                     <DocumentTextIcon className="size-4" />
                     Download Report
                 </button>

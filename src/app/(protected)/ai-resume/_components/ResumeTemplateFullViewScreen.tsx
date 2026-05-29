@@ -11,7 +11,7 @@ export function ResumeTemplateFullViewScreen({ onBack, file }: { onBack: () => v
                 >
                     <ChevronLeftIcon className="size-5 text-slate-700" />
                 </button>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full text-sm font-medium">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/5 text-primary rounded-full text-sm font-medium">
                     <ShieldCheckIcon className="size-4" />
                     <span>ATS Optimized</span>
                 </div>
@@ -28,7 +28,7 @@ export function ResumeTemplateFullViewScreen({ onBack, file }: { onBack: () => v
                 {/* Preview Header */}
                 <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                     <div className="flex items-center gap-2">
-                        <DocumentTextIcon className="size-4 text-blue-500" />
+                        <DocumentTextIcon className="size-4 text-primary" />
                         <span className="text-sm font-semibold text-slate-700">Full resume preview</span>
                     </div>
                     <span className="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded-md font-medium">
@@ -141,7 +141,7 @@ export function ResumeTemplateFullViewScreen({ onBack, file }: { onBack: () => v
                     <ArrowDownTrayIcon className="size-4" />
                     Download PDF
                 </button>
-                <button className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-[#1e58f1] hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-sm">
+                <button className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-primary hover:opacity-90 text-white rounded-xl font-medium transition-colors shadow-sm">
                     <CheckIcon className="size-4" strokeWidth={3} />
                     Use Template
                 </button>
