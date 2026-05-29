@@ -109,7 +109,7 @@ export default function ProfilePage() {
     if (field !== "resume") {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
 
-      const fieldValidation = profileSchema.pick({ [field]: true });
+      const fieldValidation = profileSchema.pick({ [field]: true } as any);
       const validationResult = fieldValidation.safeParse({
         [field]: tempData[field],
       });

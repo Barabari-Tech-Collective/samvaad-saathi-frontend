@@ -1,4 +1,4 @@
-import { AIResumeWizard } from "@/features/ai-resume/components/AIResumeWizard";
+import { AIResumeWizard } from "./_components/AIResumeWizard";
 
 export default function AIResumePage() {
     return <AIResumeWizard />;
