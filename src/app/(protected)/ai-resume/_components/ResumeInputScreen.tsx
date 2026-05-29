@@ -3,7 +3,7 @@ import { SparklesIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { ResumeInputForm } from "./ResumeInputForm";
 
-export function ResumeInputScreen({ onNext, onFileUploaded }: { onNext: () => void, onFileUploaded: (f: File) => void }) {
+export function ResumeInputScreen({ onNext, onFileChange }: { onNext: () => void, onFileChange: (file: File | null) => void }) {
     const router = useRouter();
 
     return (
@@ -29,7 +29,7 @@ export function ResumeInputScreen({ onNext, onFileUploaded }: { onNext: () => vo
             </div>
 
             {/* Form */}
-            <ResumeInputForm onNext={onNext} onFileUploaded={onFileUploaded} />
+            <ResumeInputForm onNext={onNext} onFileChange={onFileChange} />
         </div>
     );
 }

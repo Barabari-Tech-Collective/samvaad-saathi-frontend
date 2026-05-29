@@ -16,7 +16,7 @@ export function AIResumeWizard() {
 
     return (
         <div className="w-full max-w-2xl mx-auto pb-20">
-            {step === "input" && <ResumeInputScreen onNext={() => setStep("ats-dashboard")} onFileUploaded={setUploadedFile} />}
+            {step === "input" && <ResumeInputScreen onNext={() => setStep("ats-dashboard")} onFileChange={setUploadedFile} />}
             {step === "ats-dashboard" && <ATSDashboardScreen onNext={() => setStep("skills-feedback")} onBack={() => setStep("input")} />}
             {step === "skills-feedback" && <SkillsFeedbackScreen onNext={() => setStep("hygiene-template")} onBack={() => setStep("ats-dashboard")} />}
             {step === "hygiene-template" && <HygieneAndTemplateScreen onNext={() => setStep("template-preview")} onBack={() => setStep("skills-feedback")} />}
