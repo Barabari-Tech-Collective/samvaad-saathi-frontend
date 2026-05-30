@@ -15,13 +15,15 @@ interface Step2Props {
 }
 
 interface JobProfile {
-  jobProfileId: number;
-  jobName: string;
-  companyName: string;
+  id: number;
+  title: string;
+  description: string;
+  created_at: string;
 }
 
 interface JobProfilesResponse {
   items: JobProfile[];
+  total: number;
 }
 
 // Create RESUME API client
@@ -104,6 +106,8 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
     }
   };
 
+  console.log("jobProfiles :", jobProfiles);
+
   return (
     <div className="relative w-full bg-gradient-to-br from-purple-50 to-blue-50 px-4 pt-10 font-inter">
       {/* Heading */}
@@ -136,9 +140,8 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
             {jobProfiles.length > 0 && (
               <optgroup label="HR & Non-Technical">
                 {jobProfiles.map((profile) => (
-                  <option key={profile.jobProfileId} value={profile.jobName}>
-                    {profile.jobName}
-                    {profile.companyName ? ` — ${profile.companyName}` : ""}
+                  <option key={profile.id} value={profile.title}>
+                    {profile.title}
                   </option>
                 ))}
               </optgroup>

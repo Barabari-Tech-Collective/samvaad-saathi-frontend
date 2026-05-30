@@ -25,13 +25,15 @@ interface CreateInterviewResponse {
 }
 
 interface JobProfile {
-  jobProfileId: number;
-  jobName: string;
-  companyName: string;
+  id: number;
+  title: string;
+  description: string;
+  created_at: string;
 }
 
 interface JobProfilesResponse {
   items: JobProfile[];
+  total: number;
 }
 
 interface GenerateNonTechRequest {
@@ -203,11 +205,10 @@ export default function InterviewStartPage() {
             <optgroup label="HR & Non-Technical">
               {jobProfiles.map((profile) => (
                 <option
-                  key={profile.jobProfileId}
-                  value={`${HR_SELECT_PREFIX}${profile.jobProfileId}::${profile.jobName}`}
+                  key={profile.id}
+                  value={`${HR_SELECT_PREFIX}${profile.id}::${profile.title}`}
                 >
-                  {profile.jobName}
-                  {profile.companyName ? ` — ${profile.companyName}` : ""}
+                  {profile.title}
                 </option>
               ))}
             </optgroup>
