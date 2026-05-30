@@ -3,9 +3,9 @@
 import { ChevronLeftIcon } from "@heroicons/react/24/solid";
 import { SparklesIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { ATSScoreCircle } from "../_components/ATSScoreCircle";
-import { ScoreBreakdownGrid } from "../_components/ScoreBreakdownGrid";
-import { TopRecommendationsCard } from "../_components/TopRecommendationsCard";
+import { ATSScoreCircle } from "./_components/ATSScoreCircle";
+import { ScoreBreakdownGrid } from "./_components/ScoreBreakdownGrid";
+import { TopRecommendationsCard } from "./_components/TopRecommendationsCard";
 
 export default function ATSDashboardPage() {
     const router = useRouter();

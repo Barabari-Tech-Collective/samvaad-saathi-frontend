@@ -3,9 +3,9 @@
 import { ChevronLeftIcon } from "@heroicons/react/24/solid";
 import { SparklesIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
-import { SkillsAnalysisGroup } from "../_components/SkillsAnalysisGroup";
-import { ProjectEvaluationList } from "../_components/ProjectEvaluationList";
-import { SuggestedProjectsWidget } from "../_components/SuggestedProjectsWidget";
+import { SkillsAnalysisGroup } from "./_components/SkillsAnalysisGroup";
+import { ProjectEvaluationList } from "./_components/ProjectEvaluationList";
+import { SuggestedProjectsWidget } from "./_components/SuggestedProjectsWidget";
 
 export default function SkillsFeedbackPage() {
     const router = useRouter();
