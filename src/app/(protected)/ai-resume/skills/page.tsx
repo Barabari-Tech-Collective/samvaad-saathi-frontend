@@ -5,10 +5,13 @@ import { SparklesIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { SkillsAnalysisGroup } from "./_components/SkillsAnalysisGroup";
 import { ProjectEvaluationList } from "./_components/ProjectEvaluationList";
+import { ExperienceEvaluationList } from "./_components/ExperienceEvaluationList";
 import { SuggestedProjectsWidget } from "./_components/SuggestedProjectsWidget";
+import { useAIResumeContext } from "../_components/AIResumeContext";
 
 export default function SkillsFeedbackPage() {
     const router = useRouter();
+    const { hasExperience } = useAIResumeContext();
 
     return (
         <div className="w-full max-w-2xl mx-auto pb-20">
@@ -37,6 +40,7 @@ export default function SkillsFeedbackPage() {
                 <div className="flex flex-col gap-8">
                     <SkillsAnalysisGroup />
                     <ProjectEvaluationList />
+                    {hasExperience && <ExperienceEvaluationList />}
                     <SuggestedProjectsWidget />
                 </div>
 

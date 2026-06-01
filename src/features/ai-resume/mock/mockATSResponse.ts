@@ -17,6 +17,19 @@ export const mockATSResponse = {
         missing: ["TypeScript", "Unit Testing", "Performance Opt.", "GraphQL"],
         deprioritize: ["Basic C", "MS Office", "Typing Speed"]
     },
+    hasExperience: true,
+    experience: [
+        {
+            title: "Frontend Developer at TechCorp",
+            status: "Good",
+            description: "Strong experience with modern React patterns. Add more emphasis on leadership or mentoring to stand out.",
+        },
+        {
+            title: "Junior Developer at StartupXYZ",
+            status: "Average",
+            description: "Demonstrates foundational web development skills. Highlight specific achievements with metrics and impact.",
+        }
+    ],
     projects: [
         {
             title: "E-commerce React App",

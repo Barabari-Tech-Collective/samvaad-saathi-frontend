@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { FileDragDropZone } from "./FileDragDropZone";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
+import { useAIResumeContext } from "./AIResumeContext";
 
 const formSchema = z.object({
   targetRole: z.string().min(1, "Target role is required"),
@@ -20,11 +21,13 @@ export function ResumeInputForm({
   onNext: () => void;
   onFileChange: (file: File | null) => void;
 }) {
+  const { setHasExperience } = useAIResumeContext();
   const {
     register,
     handleSubmit,
     control,
     formState: { errors, isValid },
+    watch,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -36,7 +39,14 @@ export function ResumeInputForm({
     mode: "onChange",
   });
 
+  const experienceLevel = watch("experienceLevel");
+
   const onSubmit = (data: FormData) => {
+    // Determine if resume has experience based on experience level
+    // "Entry Level" or "Fresher" = no experience, others = has experience
+    const hasExp = data.experienceLevel !== "Entry Level";
+    setHasExperience(hasExp);
+    
     // In a real app, you'd upload the file and data here.
     // For now, we simulate the upload and move to the next step.
     onNext();
