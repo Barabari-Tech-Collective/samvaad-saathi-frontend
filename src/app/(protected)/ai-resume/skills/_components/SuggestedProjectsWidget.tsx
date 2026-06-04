@@ -1,6 +1,14 @@
 import { LightBulbIcon } from "@heroicons/react/24/solid";
+import { useAIResumeContext } from "../../_components/AIResumeContext";
 
 export function SuggestedProjectsWidget() {
+    const { analysisResult } = useAIResumeContext();
+    const suggestedProject = analysisResult?.suggestedProject;
+
+    if (!suggestedProject) {
+        return null;
+    }
+
     return (
         <div className="space-y-4 pb-4">
             <div className="flex items-center justify-between">
@@ -15,17 +23,32 @@ export function SuggestedProjectsWidget() {
                     </div>
                     <div className="space-y-2">
                         <h3 className="font-bold text-[15px] text-slate-800 leading-snug pr-2">
-                            Real-time collaborative dashboard with React + WebSockets
+                            {suggestedProject.title}
                         </h3>
                         <p className="text-[13px] text-slate-500 font-medium leading-relaxed">
-                            Aligns with modern frontend engineering expectations and shows scalable state handling.
+                            {suggestedProject.description}
                         </p>
                         
                         <div className="flex flex-wrap gap-2 pt-3">
-                            <span className="px-3 py-1.5 bg-white text-primary rounded-full text-xs font-bold border border-primary/10 shadow-sm">React</span>
-                            <span className="px-3 py-1.5 bg-white text-primary rounded-full text-xs font-bold border border-primary/10 shadow-sm">WebSockets</span>
-                            <span className="px-3 py-1.5 bg-white text-slate-600 rounded-full text-xs font-bold border border-slate-200 shadow-sm">Intermediate</span>
-                            <span className="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-xs font-bold border border-emerald-100">High demand</span>
+                            {suggestedProject.tags && suggestedProject.tags.map((tag, i) => {
+                                const isHighDemand = tag.toLowerCase().includes("demand");
+                                const isPrimaryTag = ["React", "TypeScript", "Node.js", "WebSockets"].some(t => tag.includes(t));
+                                
+                                return (
+                                    <span
+                                        key={i}
+                                        className={`px-3 py-1.5 rounded-full text-xs font-bold border shadow-sm ${
+                                            isHighDemand
+                                                ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                                : isPrimaryTag
+                                                ? "bg-white text-primary border-primary/10"
+                                                : "bg-white text-slate-600 border-slate-200"
+                                        }`}
+                                    >
+                                        {tag}
+                                    </span>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

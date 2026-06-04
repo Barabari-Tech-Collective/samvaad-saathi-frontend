@@ -1,10 +1,34 @@
+import { useAIResumeContext } from "../../_components/AIResumeContext";
+
 export function ScoreBreakdownGrid() {
-    const scores = [
-        { label: "Skills Match", score: 68, color: "bg-primary", track: "bg-blue-100" },
-        { label: "Experience", score: 74, color: "bg-emerald-500", track: "bg-emerald-100" },
-        { label: "Formatting", score: 88, color: "bg-emerald-500", track: "bg-emerald-100" },
-        { label: "Keywords", score: 54, color: "bg-orange-500", track: "bg-orange-100" },
-    ];
+    const { analysisResult } = useAIResumeContext();
+    
+    // Map API breakdown fields to display labels with colors
+    const getScoreItems = () => {
+        if (!analysisResult?.breakdown) {
+            return [];
+        }
+
+        const breakdown = analysisResult.breakdown;
+        const scoreMap = [
+            { key: "skills", label: "Skills Match", color: "bg-primary", track: "bg-blue-100" },
+            { key: "experience", label: "Experience", color: "bg-emerald-500", track: "bg-emerald-100" },
+            { key: "formatting", label: "Formatting", color: "bg-emerald-500", track: "bg-emerald-100" },
+            { key: "keywords", label: "Keywords", color: "bg-orange-500", track: "bg-orange-100" },
+        ];
+
+        return scoreMap
+            .filter(item => breakdown[item.key] !== undefined)
+            .map(item => ({
+                label: item.label,
+                score: breakdown[item.key],
+                color: item.color,
+                track: item.track,
+            }))
+            .slice(0, 4); // Limit to 4 items max
+    };
+
+    const scores = getScoreItems();
 
     return (
         <div className="space-y-4">

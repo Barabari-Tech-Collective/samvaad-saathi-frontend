@@ -1,10 +1,30 @@
 import { SparklesIcon } from "@heroicons/react/24/solid";
+import { useAIResumeContext } from "../../_components/AIResumeContext";
 
-export function ATSScoreCircle({ score }: { score: number }) {
+export function ATSScoreCircle() {
+    const { analysisResult } = useAIResumeContext();
+    const score = analysisResult?.score ?? 0;
+    
     // Math for SVG circle
     const radius = 45;
     const circumference = 2 * Math.PI * radius;
     const strokeDashoffset = circumference - (score / 100) * circumference;
+
+    // Determine status text based on score
+    const getStatusText = (score: number) => {
+        if (score >= 80) return "Excellent match";
+        if (score >= 60) return "Good match";
+        if (score >= 40) return "Moderate match";
+        return "Needs improvement";
+    };
+
+    // Determine status description based on score
+    const getStatusDescription = (score: number) => {
+        if (score >= 80) return "Your resume is well-optimized for this role and experience level.";
+        if (score >= 60) return "Your resume matches well but has room for optimization.";
+        if (score >= 40) return "Your resume could use some improvements to better match this role.";
+        return "Consider updating your resume to better align with the target position.";
+    };
 
     return (
         <div className="w-full rounded-3xl bg-gradient-to-br from-primary to-primary/80 p-6 text-white shadow-lg overflow-hidden relative">
@@ -51,10 +71,10 @@ export function ATSScoreCircle({ score }: { score: number }) {
                         <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                         </svg>
-                        Moderate match
+                        {getStatusText(score)}
                     </div>
                     <p className="text-sm text-white/90 leading-relaxed font-medium">
-                        Matches the role moderately well but lacks frontend optimization and testing keywords.
+                        {getStatusDescription(score)}
                     </p>
                 </div>
             </div>

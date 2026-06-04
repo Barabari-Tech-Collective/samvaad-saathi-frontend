@@ -1,9 +1,14 @@
+"use client";
+
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { FileDragDropZone } from "./FileDragDropZone";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { useAIResumeContext } from "./AIResumeContext";
+import { aiResumeService } from "@/features/ai-resume/services/aiResumeService";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 const formSchema = z.object({
   targetRole: z.string().min(1, "Target role is required"),
@@ -21,7 +26,9 @@ export function ResumeInputForm({
   onNext: () => void;
   onFileChange: (file: File | null) => void;
 }) {
-  const { setHasExperience } = useAIResumeContext();
+  const { setHasExperience, setAnalysisResult, setAnalysisId, setIsAnalyzing, setAnalysisError } = useAIResumeContext();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const {
     register,
     handleSubmit,
@@ -41,15 +48,43 @@ export function ResumeInputForm({
 
   const experienceLevel = watch("experienceLevel");
 
-  const onSubmit = (data: FormData) => {
-    // Determine if resume has experience based on experience level
-    // "Entry Level" or "Fresher" = no experience, others = has experience
-    const hasExp = data.experienceLevel !== "Entry Level";
-    setHasExperience(hasExp);
-    
-    // In a real app, you'd upload the file and data here.
-    // For now, we simulate the upload and move to the next step.
-    onNext();
+  const onSubmit = async (data: FormData) => {
+    try {
+      setIsSubmitting(true);
+      setIsAnalyzing(true);
+      setAnalysisError(null);
+
+      // Determine if resume has experience based on experience level
+      const hasExp = data.experienceLevel !== "Entry Level";
+      setHasExperience(hasExp);
+
+      // Call AI Resume API to analyze the resume
+      const analysisResult = await aiResumeService.analyzeResume(
+        data.resume,
+        data.targetRole,
+        data.experienceLevel,
+        data.jobDescription
+      );
+
+      // Store analysis result and ID in context
+      setAnalysisResult(analysisResult);
+      if (analysisResult.id) {
+        setAnalysisId(analysisResult.id);
+      }
+
+      toast.success("Resume analyzed successfully!");
+      
+      // Navigate to next step
+      onNext();
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to analyze resume. Please try again.";
+      setAnalysisError(errorMessage);
+      toast.error(errorMessage);
+      console.error("Resume analysis error:", error);
+    } finally {
+      setIsSubmitting(false);
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -126,10 +161,10 @@ export function ResumeInputForm({
 
       <button
         type="submit"
-        disabled={!isValid}
+        disabled={!isValid || isSubmitting}
         className="mt-4 w-full py-4 bg-primary hover:opacity-90 disabled:opacity-50 disabled:bg-primary text-white rounded-2xl font-medium transition-all shadow-sm active:scale-[0.98]"
       >
-        Analyze My Resume
+        {isSubmitting ? "Analyzing..." : "Analyze My Resume"}
       </button>
     </form>
   );

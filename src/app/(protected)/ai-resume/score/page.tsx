@@ -35,7 +35,7 @@ export default function ATSDashboardPage() {
 
                 {/* Content */}
                 <div className="flex flex-col gap-6">
-                    <ATSScoreCircle score={72} />
+                    <ATSScoreCircle />
                     <ScoreBreakdownGrid />
                     <TopRecommendationsCard />
                 </div>
