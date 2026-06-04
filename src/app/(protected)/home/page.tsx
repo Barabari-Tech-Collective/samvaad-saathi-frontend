@@ -8,6 +8,7 @@ import { ENDPOINTS } from "@/lib/api-config/src/endpoints";
 import { setInterviewQuestions } from "@/lib/interview-session-storage";
 import { trackButtonClick, trackGetStartedButtonClick } from "@/lib/posthog/tracking.utils";
 import { getInitials } from "@/lib/utils";
+import { getMetricLabels } from "@/lib/interview-metrics";
 import { ClockIcon } from "@heroicons/react/24/outline";
 import dayjs from "dayjs";
 import useEmblaCarousel from "embla-carousel-react";
@@ -175,7 +176,9 @@ export default function HomePage() {
             {/* Embla Carousel */}
             <div className="embla overflow-hidden" ref={emblaRef}>
               <div className="embla__container flex p-4">
-                {interviewsData.items.map((interview) => (
+                {interviewsData.items.map((interview) => {
+                  const metricLabels = getMetricLabels(interview.track);
+                  return (
                   <div key={interview.interviewId} className="embla__slide flex-[0_0_100%] min-w-0">
                     <div className="card bg-base-100 w-full shadow-lg ">
                       <div className="card-body">
@@ -222,14 +225,14 @@ export default function HomePage() {
                                   {
                                     value: interview.knowledgePercentage ?? 0,
                                     color: "#3b82f6",
-                                    ariaLabel: "Technical Knowledge progress",
+                                    ariaLabel: `${metricLabels.firstMetric} progress`,
                                     trackColor: "#e5e5e5",
                                     thickness: 10,
                                   },
                                   {
                                     value: interview.speechFluencyPercentage ?? 0,
                                     color: "#6b7280",
-                                    ariaLabel: "Speech Fluency progress",
+                                    ariaLabel: `${metricLabels.secondMetric} progress`,
                                     trackColor: "#bedbff",
                                     thickness: 8,
                                   },
@@ -257,7 +260,7 @@ export default function HomePage() {
                                       </svg>
                                     </div>
                                     <span className="text-sm text-gray-700">
-                                      Technical Knowledge
+                                      {metricLabels.firstMetric}
                                     </span>
                                   </div>
                                   <div className="flex items-center">
@@ -266,7 +269,7 @@ export default function HomePage() {
                                         <circle cx="4" cy="4" r="4" fill="#6b7280" />
                                       </svg>
                                     </div>
-                                    <span className="text-sm text-gray-700">Speech Fluency</span>
+                                    <span className="text-sm text-gray-700">{metricLabels.secondMetric}</span>
                                   </div>
                                 </div>
                               </div>
@@ -348,7 +351,8 @@ export default function HomePage() {
                       </div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

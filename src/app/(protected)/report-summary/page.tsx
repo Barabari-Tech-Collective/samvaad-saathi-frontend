@@ -86,6 +86,7 @@ const ReportSummaryPage: React.FC = () => {
       <OverallScoreSummary
         knowledgeCompetence={reportData.scoreSummary.knowledgeCompetence}
         speechAndStructure={reportData.scoreSummary.speechAndStructure}
+        track={reportData.candidateInfo.roleTopic}
       />
 
       <div role="tablist" className="tabs tabs-box mb-3 w-full bg-gray-200 p-2 font-bold text-2xl">

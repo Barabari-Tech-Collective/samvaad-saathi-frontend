@@ -3,6 +3,7 @@ import DifficultyTag from "@/components/DifficultyTag";
 import Link from "next/link";
 
 import { formatDate } from "@/lib/utils";
+import { getMetricLabels } from "@/lib/interview-metrics";
 import { InterviewItem } from "./types";
 
 interface CompletedInterviewCardProps {
@@ -10,6 +11,8 @@ interface CompletedInterviewCardProps {
 }
 
 export default function CompletedInterviewCard({ item }: CompletedInterviewCardProps) {
+  const metricLabels = getMetricLabels(item?.track);
+
   return (
     <div className="bg-white rounded-xl shadow-lg p-4 relative">
       {/* Role Title - Top Left */}
@@ -34,13 +37,13 @@ export default function CompletedInterviewCard({ item }: CompletedInterviewCardP
               {
                 value: item.knowledgePercentage ?? 0,
                 color: "#3b82f6",
-                ariaLabel: "Technical Knowledge progress",
+                ariaLabel: `${metricLabels.firstMetric} progress`,
                 trackColor: "#e5e5e5",
               },
               {
                 value: item.speechFluencyPercentage ?? 0,
                 color: "#6b7280",
-                ariaLabel: "Speech Fluency progress",
+                ariaLabel: `${metricLabels.secondMetric} progress`,
                 trackColor: "#bedbff",
               },
             ]}
@@ -65,7 +68,7 @@ export default function CompletedInterviewCard({ item }: CompletedInterviewCardP
                     <circle cx="4" cy="4" r="4" fill="#3b82f6" />
                   </svg>
                 </div>
-                <span className="text-sm text-gray-700">Technical Knowledge</span>
+                <span className="text-sm text-gray-700">{metricLabels.firstMetric}</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="p-2">
@@ -73,7 +76,7 @@ export default function CompletedInterviewCard({ item }: CompletedInterviewCardP
                     <circle cx="4" cy="4" r="4" fill="#6b7280" />
                   </svg>
                 </div>
-                <span className="text-sm text-gray-700">Speech Fluency</span>
+                <span className="text-sm text-gray-700">{metricLabels.secondMetric}</span>
               </div>
             </div>
           </div>

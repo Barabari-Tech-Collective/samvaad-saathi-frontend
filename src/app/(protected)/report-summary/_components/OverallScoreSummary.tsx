@@ -2,15 +2,19 @@ import Image from "next/image";
 import React from "react";
 import SectionCard from "./SectionCard";
 import { OverallScoreSummaryProps } from "./types";
+import { getReportMetricLabels } from "@/lib/interview-metrics";
 
 const OverallScoreSummary: React.FC<OverallScoreSummaryProps> = ({
   knowledgeCompetence,
   speechAndStructure,
+  track,
 }) => {
+  const metricLabels = getReportMetricLabels(track);
+
   return (
     <SectionCard title="Overall Score Summary">
       <div className="space-y-8">
-        {/* Knowledge Competence */}
+        {/* Knowledge Competence / Communication Effectiveness */}
         {!!knowledgeCompetence ? (
           <div className="space-y-4">
             {/* Header */}
@@ -19,13 +23,13 @@ const OverallScoreSummary: React.FC<OverallScoreSummaryProps> = ({
                 <div className="w-6 h-6 flex items-center justify-center">
                   <Image
                     src="/brain.png"
-                    alt="Knowledge Competence"
+                    alt={metricLabels.firstMetricLabel}
                     width={20}
                     height={20}
                     unoptimized
                   />
                 </div>
-                <h3 className="font-semibold text-black">Knowledge Competence</h3>
+                <h3 className="font-semibold text-black">{metricLabels.firstMetricLabel}</h3>
               </div>
               <span className="badge badge-ghost bg-stone-300">
                 {knowledgeCompetence.score}/{knowledgeCompetence.maxScore}
@@ -69,13 +73,13 @@ const OverallScoreSummary: React.FC<OverallScoreSummaryProps> = ({
               <div className="w-6 h-6 flex items-center justify-center">
                 <Image
                   src="/text-to-speech.png"
-                  alt="Speech & Structure"
+                  alt={metricLabels.secondMetricLabel}
                   width={20}
                   height={20}
                   unoptimized
                 />
               </div>
-              <h3 className="font-semibold text-black">Speech & Structure</h3>
+              <h3 className="font-semibold text-black">{metricLabels.secondMetricLabel}</h3>
             </div>
             <span className="badge badge-ghost bg-stone-300">
               {speechAndStructure.score}/{speechAndStructure.maxScore}

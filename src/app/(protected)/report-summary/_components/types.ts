@@ -70,6 +70,7 @@ export interface ReportResponse {
 export type OverallScoreSummaryProps = {
   knowledgeCompetence: ReportResponse["scoreSummary"]["knowledgeCompetence"];
   speechAndStructure: ReportResponse["scoreSummary"]["speechAndStructure"];
+  track?: string;
 };
 
 export type FinalSummaryProps = {
