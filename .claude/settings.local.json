@@ -12,7 +12,11 @@
       "Bash([ -f \"e:\\\\Workspace\\\\samvaad-saathi-frontend/$file\" ])",
       "PowerShell(Get-ChildItem -Path \"e:\\\\Workspace\\\\samvaad-saathi-frontend\" -Force | Where-Object { $_.Name -notmatch '^node_modules' } | Select-Object Name)",
       "Bash(npm install *)",
-      "Bash(npx husky *)"
+      "Bash(npx husky *)",
+      "Bash(Start-Sleep -Seconds 8)",
+      "Bash(Write-Host \"Dev server should be running on http://localhost:3000\")",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(pkill -f \"npm run dev\")"
     ]
   }
 }
