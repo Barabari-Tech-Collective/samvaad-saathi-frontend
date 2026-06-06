@@ -11,10 +11,10 @@ export const aiResumeService = {
     async analyzeResume(file: File, role: string, experience: string, jd: string) {
         try {
             const formData = new FormData();
-            formData.append("file", file);
-            formData.append("role", role);
-            formData.append("experience", experience);
-            formData.append("jd", jd);
+            formData.append("resumeFile", file);
+            formData.append("targetRole", role);
+            formData.append("experienceLevel", experience);
+            formData.append("jobDescription", jd);
 
             const token = getTokenFromCookies();
             const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
