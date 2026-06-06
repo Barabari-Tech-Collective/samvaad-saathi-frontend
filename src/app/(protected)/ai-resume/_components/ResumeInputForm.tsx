@@ -26,7 +26,7 @@ export function ResumeInputForm({
   onNext: () => void;
   onFileChange: (file: File | null) => void;
 }) {
-  const { setHasExperience, setAnalysisResult, setAnalysisId, setIsAnalyzing, setAnalysisError } = useAIResumeContext();
+  const { formData, setFormData, setHasExperience, setAnalysisResult, setAnalysisId, setIsAnalyzing, setAnalysisError } = useAIResumeContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const {
@@ -38,9 +38,9 @@ export function ResumeInputForm({
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      targetRole: "",
-      experienceLevel: "Entry Level",
-      jobDescription: "",
+      targetRole: formData.targetRole || "",
+      experienceLevel: formData.experienceLevel || "Entry Level",
+      jobDescription: formData.jobDescription || "",
       resume: undefined,
     },
     mode: "onChange",
@@ -57,6 +57,13 @@ export function ResumeInputForm({
       // Determine if resume has experience based on experience level
       const hasExp = data.experienceLevel !== "Entry Level";
       setHasExperience(hasExp);
+
+      // Save form data to context so it survives navigation
+      setFormData({
+        targetRole: data.targetRole,
+        experienceLevel: data.experienceLevel,
+        jobDescription: data.jobDescription,
+      });
 
       // Call AI Resume API to analyze the resume
       const analysisResult = await aiResumeService.analyzeResume(

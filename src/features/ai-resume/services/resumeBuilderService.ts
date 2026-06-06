@@ -24,8 +24,8 @@ export const useCreateFromTemplate = () => {
 };
 
 export const useUpdateResume = (resumeId: string) => {
-  return apiClient.useMutation<{ resumeId: string; status: string }, { content: Record<string, unknown> }>({
-    url: `${ENDPOINTS.RESUME_BUILDER.UPDATE(resumeId)}?resume_id=${resumeId}`,
+  return apiClient.useMutation<{ resumeId: string; status: string }, { data: Record<string, unknown> }>({
+    url: ENDPOINTS.RESUME_BUILDER.UPDATE(resumeId),
     method: "put",
   });
 };

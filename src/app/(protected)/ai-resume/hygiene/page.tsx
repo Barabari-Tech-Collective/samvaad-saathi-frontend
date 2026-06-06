@@ -5,10 +5,21 @@ import { SparklesIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useAIResumeContext } from "../_components/resume-provider";
 import { useGetTemplates } from "@/features/ai-resume/services/resumeBuilderService";
+import { aiResumeService } from "@/features/ai-resume/services/aiResumeService";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 export default function HygieneAndTemplatePage() {
-    const { analysisResult } = useAIResumeContext();
+    const router = useRouter();
+    const { 
+        analysisResult, 
+        uploadedFile, 
+        formData, 
+        setAnalysisResult, 
+        setAnalysisId, 
+        setIsAnalyzing, 
+        setAnalysisError 
+    } = useAIResumeContext();
     const { data: templates, isLoading: templatesLoading } = useGetTemplates();
 
     const hygiene = analysisResult?.hygieneCheck;
@@ -26,23 +37,127 @@ export default function HygieneAndTemplatePage() {
     const firstTemplate = templates?.[0];
 
     const handleDownloadReport = () => {
-        // Download report mock/handler as blob or simple JSON text file
         try {
             if (!analysisResult) {
                 toast.error("No analysis report data available");
                 return;
             }
-            const blob = new Blob([JSON.stringify(analysisResult, null, 2)], { type: "application/json" });
+
+            const htmlContent = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>AI Resume Analysis Report</title>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #334155; max-width: 800px; margin: 40px auto; padding: 30px; background: #f8fafc; }
+                    .container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+                    h1 { color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; }
+                    h2 { color: #1e293b; margin-top: 30px; font-size: 1.25rem; }
+                    .score-box { background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; border-radius: 12px; font-size: 1.5rem; font-weight: bold; color: #166534; text-align: center; margin: 25px 0; }
+                    .summary { background-color: #f1f5f9; padding: 20px; border-left: 4px solid #64748b; font-style: italic; border-radius: 0 8px 8px 0; }
+                    .card { border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; margin-top: 15px; }
+                    .tag { display: inline-block; padding: 6px 12px; border-radius: 9999px; font-size: 0.85em; font-weight: 600; margin: 4px; }
+                    .strong { background-color: #dcfce7; color: #166534; }
+                    .missing { background-color: #fee2e2; color: #991b1b; }
+                    .deprioritize { background-color: #ffedd5; color: #9a3412; }
+                    .project-item { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; }
+                    .project-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+                    .rating-badge { font-size: 0.7em; padding: 4px 10px; background: #e0f2fe; color: #0369a1; border-radius: 12px; vertical-align: middle; margin-left: 10px; }
+                    ul { padding-left: 20px; }
+                    li { margin-bottom: 8px; color: #475569; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <h1>AI Resume Analysis Report</h1>
+                    
+                    <div class="score-box">
+                        ATS Match Score: ${analysisResult.atsScore}/100
+                    </div>
+
+                    <div class="summary">
+                        ${analysisResult.summary}
+                    </div>
+
+                    <h2>Skills Analysis</h2>
+                    <div class="card">
+                        <p style="margin-top:0; font-weight:bold;">Strong Skills:</p>
+                        <div>${(analysisResult.skillsAnalysis?.strongSkills || []).map((s: string) => `<span class="tag strong">${s}</span>`).join('') || 'None identified'}</div>
+                        
+                        <p style="margin-top: 20px; font-weight:bold;">Missing / Suggested Skills:</p>
+                        <div>${(analysisResult.skillsAnalysis?.missingSkills || []).map((s: string) => `<span class="tag missing">${s}</span>`).join('') || 'None identified'}</div>
+                    </div>
+
+                    <h2>Project Evaluation</h2>
+                    <div class="card">
+                        ${(analysisResult.projectEvaluation || []).map((p: any) => `
+                            <div class="project-item">
+                                <h3 style="margin:0 0 8px 0;">${p.projectName} <span class="rating-badge">${p.rating || 'Evaluated'}</span></h3>
+                                <p style="margin:0; font-size:0.95em; color:#475569;">${p.feedback}</p>
+                            </div>
+                        `).join('') || '<p style="margin:0; color:#64748b;">No projects evaluated</p>'}
+                    </div>
+
+                    <h2>Final Recommendations</h2>
+                    <div class="card">
+                        <ul style="margin:0;">
+                            ${(analysisResult.finalRecommendations || []).map((r: string) => `<li>${r}</li>`).join('') || '<li>No recommendations</li>'}
+                        </ul>
+                    </div>
+                </div>
+            </body>
+            </html>
+            `;
+
+            const blob = new Blob([htmlContent], { type: "text/html" });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `resume-analysis-report-${analysisResult.analysisId || "export"}.json`;
+            a.download = `resume-analysis-report-${analysisResult.analysisId || "export"}.html`;
             a.click();
             window.URL.revokeObjectURL(url);
             toast.success("Analysis report downloaded successfully!");
         } catch (err) {
             console.error(err);
             toast.error("Failed to download report");
+        }
+    };
+
+    const handleReAnalyze = async () => {
+        if (!uploadedFile) {
+            toast.error("No resume file found. Please upload again.");
+            router.push("/ai-resume");
+            return;
+        }
+
+        try {
+            setIsAnalyzing(true);
+            setAnalysisError(null);
+            
+            // Navigate to score page immediately to show loading state
+            router.push("/ai-resume/score");
+
+            const result = await aiResumeService.analyzeResume(
+                uploadedFile,
+                formData.targetRole,
+                formData.experienceLevel,
+                formData.jobDescription
+            );
+
+            setAnalysisResult(result);
+            if (result.analysisId) {
+                setAnalysisId(result.analysisId);
+            }
+            toast.success("Resume re-analyzed successfully!");
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "Failed to re-analyze resume.";
+            setAnalysisError(errorMessage);
+            toast.error(errorMessage);
+            console.error("Re-analyze error:", error);
+        } finally {
+            setIsAnalyzing(false);
         }
     };
 
@@ -171,7 +286,7 @@ export default function HygieneAndTemplatePage() {
                                     Preview
                                 </Link>
                                 <Link 
-                                    href={`/ai-resume/preview?templateId=${firstTemplate?.templateId || "default"}`}
+                                    href={`/ai-resume/final?templateId=${firstTemplate?.templateId || "default"}`}
                                     className="flex items-center gap-1 px-4 py-1.5 bg-white hover:bg-slate-50 transition-colors rounded-lg text-primary text-xs font-semibold ml-auto"
                                 >
                                     Use
@@ -184,13 +299,13 @@ export default function HygieneAndTemplatePage() {
 
                 {/* Bottom Actions */}
                 <div className="flex gap-3 mt-4">
-                    <Link 
-                        href="/ai-resume"
+                    <button 
+                        onClick={handleReAnalyze}
                         className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-colors"
                     >
                         <ArrowPathIcon className="size-4" />
                         Re-Analyze
-                    </Link>
+                    </button>
                     <button 
                         onClick={handleDownloadReport}
                         className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-primary hover:opacity-90 text-white rounded-xl font-medium transition-colors shadow-sm"

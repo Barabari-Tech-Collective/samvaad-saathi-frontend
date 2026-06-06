@@ -44,7 +44,7 @@ export function ProjectEvaluationList() {
                                  </span>
                              </div>
                              <p className="text-[13px] leading-relaxed text-slate-500 font-medium mb-2">{proj.feedback}</p>
-                             {proj.projectUrl && (
+                             {proj.projectUrl && proj.projectUrl.trim() !== "" && proj.projectUrl !== "EXTRACTED_URL_OR_EMPTY_STRING" && !proj.projectUrl.includes("github.com/user/project") && (
                                  <a 
                                      href={proj.projectUrl} 
                                      target="_blank" 

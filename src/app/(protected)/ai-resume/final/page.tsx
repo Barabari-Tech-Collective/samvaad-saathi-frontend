@@ -1,15 +1,16 @@
 "use client";
 
-import { ChevronLeftIcon, ShieldCheckIcon, DocumentTextIcon, ArrowDownTrayIcon, CheckIcon } from "@heroicons/react/24/solid";
+import { ChevronLeftIcon, ShieldCheckIcon, DocumentTextIcon, ArrowDownTrayIcon, PencilSquareIcon } from "@heroicons/react/24/solid";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAIResumeContext } from "../_components/resume-provider";
 import { useEffect, useState, Suspense } from "react";
-import { useCreateFromTemplate } from "@/features/ai-resume/services/resumeBuilderService";
+import { useCreateFromTemplate, useUpdateResume } from "@/features/ai-resume/services/resumeBuilderService";
 import { getTokenFromCookies } from "@/lib/token-utils";
 import axios from "axios";
 import { ENDPOINTS } from "@/lib/api-config";
 import toast from "react-hot-toast";
+import ResumeEditorForm from "./_components/ResumeEditorForm";
 
 function ResumeTemplateFullViewContent() {
     const router = useRouter();
@@ -23,6 +24,9 @@ function ResumeTemplateFullViewContent() {
     const [resumeData, setResumeData] = useState<any>(null);
     const [createError, setCreateError] = useState<string | null>(null);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+
+    const updateResumeMutation = useUpdateResume(resumeId || "");
 
     useEffect(() => {
         // Redirect if someone visits this URL directly without uploading
@@ -175,7 +179,7 @@ function ResumeTemplateFullViewContent() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <Link 
-                        href={`/ai-resume/preview?templateId=${templateId}`}
+                        href="/ai-resume/hygiene"
                         className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
                     >
                         <ChevronLeftIcon className="size-5 text-slate-700" />
@@ -192,9 +196,30 @@ function ResumeTemplateFullViewContent() {
                     <p className="text-slate-500 text-sm">Professional ATS-friendly resume format.</p>
                 </div>
 
-                {/* Resume Preview Card */}
-                <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col gap-4">
-                    {/* Preview Header */}
+                {isEditing ? (
+                    <ResumeEditorForm 
+                        initialData={resumeData}
+                        isSaving={updateResumeMutation.isPending}
+                        onCancel={() => setIsEditing(false)}
+                        onSave={(newData) => {
+                            if (!resumeId) return;
+                            updateResumeMutation.mutate({ data: newData }, {
+                                onSuccess: () => {
+                                    setResumeData(newData);
+                                    setIsEditing(false);
+                                    toast.success("Resume updated successfully!");
+                                },
+                                onError: () => {
+                                    toast.error("Failed to save changes.");
+                                }
+                            });
+                        }}
+                    />
+                ) : (
+                    <>
+                        {/* Resume Preview Card */}
+                        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col gap-4">
+                            {/* Preview Header */}
                     <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                         <div className="flex items-center gap-2">
                             <DocumentTextIcon className="size-4 text-primary" />
@@ -206,90 +231,85 @@ function ResumeTemplateFullViewContent() {
                     </div>
 
                     {/* Actual Resume Content Mockup */}
-                    <div className="flex flex-col gap-4 text-[10px] leading-relaxed text-slate-800 font-sans">
+                    <div className="flex flex-col text-[11px] leading-relaxed text-slate-800 font-sans px-2">
                         {/* Header */}
-                        <div className="text-center space-y-1 border-b border-slate-300 pb-4">
-                            <h2 className="text-lg font-bold text-slate-900 tracking-wider uppercase">{header.name}</h2>
-                            <p className="text-xs text-slate-600">{header.title}</p>
-                            <div className="flex flex-wrap justify-center gap-2 text-slate-500 mt-2">
-                                {header.email && <span>✉ {header.email}</span>}
-                                {header.phone && (
-                                    <>
-                                        <span>|</span>
-                                        <span>📞 {header.phone}</span>
-                                    </>
-                                )}
-                                {header.location && (
-                                    <>
-                                        <span>|</span>
-                                        <span>📍 {header.location}</span>
-                                    </>
-                                )}
-                                {header.linkedin && (
-                                    <>
-                                        <span>|</span>
-                                        <span className="w-full text-center">🔗 {header.linkedin}</span>
-                                    </>
-                                )}
+                        <div className="text-center pb-3">
+                            <h2 className="text-2xl font-bold text-slate-900 tracking-wide uppercase">{header.fullName || header.name}</h2>
+                            {header.title && <p className="text-sm text-slate-700 mt-1">{header.title}</p>}
+                            <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-slate-500 mt-2 text-[10px]">
+                                {header.email && <span className="flex items-center gap-1">✉ {header.email}</span>}
+                                {header.phone && <span className="flex items-center gap-1">📞 {header.phone}</span>}
+                                {header.location && <span className="flex items-center gap-1">📍 {header.location}</span>}
+                                {header.linkedin && <span className="flex items-center gap-1">🔗 {header.linkedin}</span>}
+                                {header.github && <span className="flex items-center gap-1">💻 {header.github}</span>}
                             </div>
                         </div>
 
                         {/* Objective */}
-                        <div className="space-y-1.5">
-                            <h3 className="font-bold text-xs tracking-widest text-slate-900 uppercase">Career Objective</h3>
-                            <p className="text-slate-600">{summary}</p>
-                        </div>
+                        {summary && (
+                            <div className="mb-3">
+                                <h3 className="font-bold text-[11px] tracking-wider text-slate-900 uppercase border-b border-slate-300 pb-1 mb-2">Career Objective</h3>
+                                <p className="text-slate-700 leading-relaxed text-[11px] text-justify">{summary}</p>
+                            </div>
+                        )}
 
                         {/* Experience */}
                         {experience.length > 0 && (
-                            <div className="space-y-2">
-                                <h3 className="font-bold text-xs tracking-widest text-slate-900 uppercase">Work Experience</h3>
-                                {experience.map((exp: any, idx: number) => (
-                                    <div key={idx} className={idx > 0 ? "mt-2" : ""}>
-                                        <div className="flex justify-between font-semibold">
-                                            <span>{exp.title}</span>
-                                            <span>{exp.duration}</span>
+                            <div className="mb-3">
+                                <h3 className="font-bold text-[11px] tracking-wider text-slate-900 uppercase border-b border-slate-300 pb-1 mb-2">Work Experience</h3>
+                                <div className="space-y-3">
+                                    {experience.map((exp: any, idx: number) => (
+                                        <div key={idx}>
+                                            <div className="flex justify-between font-bold text-slate-900 text-[11px]">
+                                                <span>{exp.role || exp.title}</span>
+                                                <span className="font-normal text-slate-600">{exp.duration}</span>
+                                            </div>
+                                            {exp.company && <div className="text-slate-700 italic text-[11px] mb-1">{exp.company}</div>}
+                                            {(exp.highlights || exp.bullets || []).length > 0 && (
+                                                <ul className="list-disc text-slate-700 text-[11px] ml-4 space-y-1 text-justify">
+                                                    {(exp.highlights || exp.bullets).map((bullet: string, bIdx: number) => (
+                                                        <li key={bIdx} className="pl-1">{bullet}</li>
+                                                    ))}
+                                                </ul>
+                                            )}
                                         </div>
-                                        {exp.company && <div className="text-slate-500 italic mb-1">{exp.company}</div>}
-                                        {exp.bullets && exp.bullets.length > 0 && (
-                                            <ul className="list-disc list-inside space-y-0.5 text-slate-600 ml-1">
-                                                {exp.bullets.map((bullet: string, bIdx: number) => (
-                                                    <li key={bIdx}>{bullet}</li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         )}
 
                         {/* Projects */}
                         {projects.length > 0 && (
-                            <div className="space-y-2">
-                                <h3 className="font-bold text-xs tracking-widest text-slate-900 uppercase">Projects</h3>
-                                {projects.map((proj: any, idx: number) => (
-                                    <div key={idx} className={idx > 0 ? "mt-2" : ""}>
-                                        <div className="flex justify-between font-semibold">
-                                            <span>{proj.title}</span>
-                                            <span>{proj.duration}</span>
+                            <div className="mb-3">
+                                <h3 className="font-bold text-[11px] tracking-wider text-slate-900 uppercase border-b border-slate-300 pb-1 mb-2">Projects</h3>
+                                <div className="space-y-3">
+                                    {projects.map((proj: any, idx: number) => (
+                                        <div key={idx}>
+                                            <div className="flex justify-between font-bold text-slate-900 text-[11px]">
+                                                <span>{proj.title}</span>
+                                                <span className="font-normal text-slate-600">{proj.duration || ""}</span>
+                                            </div>
+                                            {(proj.highlights || proj.bullets || []).length > 0 && (
+                                                <ul className="list-disc text-slate-700 text-[11px] ml-4 space-y-1 text-justify mt-1">
+                                                    {(proj.highlights || proj.bullets).map((bullet: string, bIdx: number) => (
+                                                        <li key={bIdx} className="pl-1">{bullet}</li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                            {(!proj.highlights && !proj.bullets && proj.description) && (
+                                                <p className="text-slate-700 text-[11px] text-justify mt-1">{proj.description}</p>
+                                            )}
                                         </div>
-                                        {proj.bullets && proj.bullets.length > 0 && (
-                                            <ul className="list-disc list-inside space-y-0.5 text-slate-600 ml-1">
-                                                {proj.bullets.map((bullet: string, bIdx: number) => (
-                                                    <li key={bIdx}>{bullet}</li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         )}
 
                         {/* Skills */}
                         {skills.length > 0 && (
-                            <div className="space-y-1.5">
-                                <h3 className="font-bold text-xs tracking-widest text-slate-900 uppercase">Skills</h3>
-                                <p className="text-slate-600">
+                            <div className="mb-3">
+                                <h3 className="font-bold text-[11px] tracking-wider text-slate-900 uppercase border-b border-slate-300 pb-1 mb-2">Skills</h3>
+                                <p className="text-slate-700 text-[11px] leading-relaxed">
                                     {skills.join(" • ")}
                                 </p>
                             </div>
@@ -297,14 +317,19 @@ function ResumeTemplateFullViewContent() {
 
                         {/* Education */}
                         {education.length > 0 && (
-                            <div className="space-y-1.5">
-                                <h3 className="font-bold text-xs tracking-widest text-slate-900 uppercase">Education</h3>
-                                {education.map((edu: any, idx: number) => (
-                                    <div key={idx} className="flex justify-between font-semibold">
-                                        <span>{edu.degree}</span>
-                                        <span>{edu.institution} {edu.duration && `(${edu.duration})`}</span>
-                                    </div>
-                                ))}
+                            <div className="mb-2">
+                                <h3 className="font-bold text-[11px] tracking-wider text-slate-900 uppercase border-b border-slate-300 pb-1 mb-2">Education</h3>
+                                <div className="space-y-2">
+                                    {education.map((edu: any, idx: number) => (
+                                        <div key={idx} className="flex justify-between items-start">
+                                            <div>
+                                                <div className="font-bold text-slate-900 text-[11px]">{edu.degree}</div>
+                                                <div className="text-slate-600 text-[11px]">{edu.year || edu.duration}</div>
+                                            </div>
+                                            <span className="font-normal text-slate-600 text-[11px] text-right">{edu.institution}</span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>
@@ -321,13 +346,15 @@ function ResumeTemplateFullViewContent() {
                         {isDownloading ? "Downloading..." : "Download PDF"}
                     </button>
                     <button 
-                        onClick={() => toast.success("Template selected!")}
+                        onClick={() => setIsEditing(true)}
                         className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-primary hover:opacity-90 text-white rounded-xl font-medium transition-colors shadow-sm"
                     >
-                        <CheckIcon className="size-4" strokeWidth={3} />
-                        Use Template
+                        <PencilSquareIcon className="size-4" strokeWidth={3} />
+                        Edit Resume
                     </button>
                 </div>
+                </>
+                )}
             </div>
         </div>
     );
