@@ -3,7 +3,7 @@ import { useAIResumeContext } from "../../_components/resume-provider";
 
 export function ATSScoreCircle() {
     const { analysisResult } = useAIResumeContext();
-    const score = analysisResult?.score ?? 0;
+    const score = analysisResult?.atsScore ?? 0;
     
     // Determine status text based on score
     const getStatusText = (score: number) => {

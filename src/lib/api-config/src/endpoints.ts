@@ -44,7 +44,7 @@ export const ENDPOINTS = {
   },
   AI_RESUME: {
     ANALYZE: "ai-resume/analyze",
-    GET_ANALYSIS: (analysisId: string) => `ai-resume/analysis/${analysisId}`,
+    GET_ANALYSIS: (analysisId: string) => `ai-resume/analyze/${analysisId}`,
   },
   RESUME_BUILDER: {
     GET_TEMPLATES: "resume-builder/templates",

@@ -68,8 +68,8 @@ export function ResumeInputForm({
 
       // Store analysis result and ID in context
       setAnalysisResult(analysisResult);
-      if (analysisResult.id) {
-        setAnalysisId(analysisResult.id);
+      if (analysisResult.analysisId) {
+        setAnalysisId(analysisResult.analysisId);
       }
 
       toast.success("Resume analyzed successfully!");

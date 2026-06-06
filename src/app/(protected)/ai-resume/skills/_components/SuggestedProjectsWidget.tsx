@@ -30,6 +30,11 @@ export function SuggestedProjectsWidget() {
                         </p>
                         
                         <div className="flex flex-wrap gap-2 pt-3">
+                            {suggestedProject.difficulty && (
+                                <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                                    Difficulty: {suggestedProject.difficulty}
+                                </span>
+                            )}
                             {suggestedProject.tags && suggestedProject.tags.map((tag, i) => {
                                 const isHighDemand = tag.toLowerCase().includes("demand");
                                 const isPrimaryTag = ["React", "TypeScript", "Node.js", "WebSockets"].some(t => tag.includes(t));
