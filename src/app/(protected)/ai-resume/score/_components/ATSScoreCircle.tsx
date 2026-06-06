@@ -1,0 +1,68 @@
+import { SparklesIcon } from "@heroicons/react/24/solid";
+import { useAIResumeContext } from "../../_components/resume-provider";
+
+export function ATSScoreCircle() {
+    const { analysisResult } = useAIResumeContext();
+    const score = analysisResult?.score ?? 0;
+    
+    // Determine status text based on score
+    const getStatusText = (score: number) => {
+        if (score >= 80) return "Excellent match";
+        if (score >= 60) return "Good match";
+        if (score >= 40) return "Moderate match";
+        return "Needs improvement";
+    };
+
+    // Determine status description based on score
+    const getStatusDescription = (score: number) => {
+        if (score >= 80) return "Your resume is well-optimized for this role and experience level.";
+        if (score >= 60) return "Your resume matches well but has room for optimization.";
+        if (score >= 40) return "Your resume could use some improvements to better match this role.";
+        return "Consider updating your resume to better align with the target position.";
+    };
+
+    return (
+        <div className="w-full rounded-3xl bg-gradient-to-br from-primary to-primary/80 p-6 text-white shadow-lg overflow-hidden relative">
+            <div className="flex items-center gap-2 mb-6 opacity-90 relative z-10">
+                <SparklesIcon className="size-5" />
+                <span className="font-semibold text-sm">ATS Compatibility Score</span>
+            </div>
+            
+            <div className="flex items-center gap-6 relative z-10">
+                {/* Circle */}
+                <div className="relative w-[120px] h-[120px] flex-shrink-0">
+                    <div 
+                        className="radial-progress text-white/20 absolute inset-0"
+                        style={{ "--value": 100, "--size": "120px", "--thickness": "8px" } as React.CSSProperties}
+                    />
+                    <div 
+                        className="radial-progress text-white absolute inset-0 transition-all duration-1000 ease-out drop-shadow-md"
+                        style={{ "--value": score, "--size": "120px", "--thickness": "8px" } as React.CSSProperties}
+                        role="progressbar"
+                    >
+                        <div className="flex flex-col items-center justify-center pt-[15px]">
+                            <span className="text-[40px] leading-none font-bold mb-1">{score}</span>
+                            <span className="text-[10px] font-medium text-white/80 -mt-1">out of 100</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Info Text */}
+                <div className="flex-1">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-xs font-semibold mb-3">
+                        <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                        </svg>
+                        {getStatusText(score)}
+                    </div>
+                    <p className="text-sm text-white/90 leading-relaxed font-medium">
+                        {getStatusDescription(score)}
+                    </p>
+                </div>
+            </div>
+            
+            {/* Background decoration */}
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl mix-blend-overlay"></div>
+        </div>
+    );
+}

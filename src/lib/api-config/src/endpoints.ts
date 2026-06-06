@@ -42,6 +42,16 @@ export const ENDPOINTS = {
     SESSION_SUBMIT: (sessionId: string) => `pacing-practice/session/${sessionId}/submit`,
     SESSION_GET: (sessionId: string) => `pacing-practice/session/${sessionId}`,
   },
+  AI_RESUME: {
+    ANALYZE: "ai-resume/analyze",
+    GET_ANALYSIS: (analysisId: string) => `ai-resume/analysis/${analysisId}`,
+  },
+  RESUME_BUILDER: {
+    GET_TEMPLATES: "resume-builder/templates",
+    CREATE_FROM_TEMPLATE: "resume-builder/from-template",
+    UPDATE: (resumeId: string) => `resume-builder/${resumeId}`,
+    GET_DOWNLOAD: (resumeId: string) => `resume-builder/${resumeId}/download`,
+  },
 };
 
 export const ENDPOINTS_V2 = {
