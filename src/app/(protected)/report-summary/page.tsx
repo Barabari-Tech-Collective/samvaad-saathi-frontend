@@ -84,8 +84,8 @@ const ReportSummaryPage: React.FC = () => {
       /> */}
 
       <OverallScoreSummary
-        knowledgeCompetence={reportData.scoreSummary.knowledgeCompetence}
-        speechAndStructure={reportData.scoreSummary.speechAndStructure}
+        knowledgeCompetence={reportData?.scoreSummary?.knowledgeCompetence}
+        speechAndStructure={reportData?.scoreSummary?.speechAndStructure}
       />
 
       <div role="tablist" className="tabs tabs-box mb-3 w-full bg-gray-200 p-2 font-bold text-2xl">
@@ -109,7 +109,7 @@ const ReportSummaryPage: React.FC = () => {
         </a>
       </div>
 
-      <PerQuestionAnalysis questionAnalysis={reportData.questionAnalysis} />
+      <PerQuestionAnalysis questionAnalysis={reportData?.questionAnalysis} />
 
       <div className="card bg-base-100 rounded-xl shadow-md">
         <div className="card-body gap-4">
@@ -121,17 +121,17 @@ const ReportSummaryPage: React.FC = () => {
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-base-content text-lg">
-                {reportData.recommendedPractice.title}
+                {reportData?.recommendedPractice?.title}
               </h3>
               <p className="text-base-content/70 text-sm">
-                {reportData.recommendedPractice.description}
+                {reportData?.recommendedPractice?.description}
               </p>
             </div>
           </div>
 
           <div className="flex justify-end">
             <Link
-              href={`/structure-your-answer/interview?interviewId=${interviewId}&role=${reportData.candidateInfo.roleTopic}`}
+              href={`/structure-your-answer/interview?interviewId=${interviewId}&role=${reportData?.candidateInfo?.roleTopic}`}
               onClick={() =>
                 trackButtonClick("practice_structure_your_answer", "report_summary_page")
               }
@@ -145,22 +145,22 @@ const ReportSummaryPage: React.FC = () => {
         </div>
       </div>
 
-      <FinalSummary speechFluencyFeedback={reportData.speechFluencyFeedback} />
+      <FinalSummary speechFluencyFeedback={reportData?.speechFluencyFeedback} />
 
       {/* Speaker Analysis Section */}
       <div className="card bg-base-100 rounded-xl shadow-md">
         <div className="card-body flex-row items-center gap-4 p-6">
           <div className="flex-shrink-0">
             <div className="text-5xl">
-              {getRatingEmoji(reportData.speechFluencyFeedback.ratingEmoji)}
+              {getRatingEmoji(reportData?.speechFluencyFeedback?.ratingEmoji || "")}
             </div>
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-base-content text-md mb-2">
-              {reportData.speechFluencyFeedback.ratingTitle}
+              {reportData?.speechFluencyFeedback?.ratingTitle}
             </h3>
             <p className="text-base-content/70">
-              {reportData.speechFluencyFeedback.ratingDescription}
+              {reportData?.speechFluencyFeedback?.ratingDescription}
             </p>
           </div>
         </div>
@@ -170,7 +170,7 @@ const ReportSummaryPage: React.FC = () => {
       <div className="space-y-4">
         <div>
           <h2 className="font-semibold text-base-content mb-2">
-            Your Next Steps to Mastering the {reportData.candidateInfo.roleTopic || "Role"}
+            Your Next Steps to Mastering the {reportData?.candidateInfo?.roleTopic || "Role"}
           </h2>
           <div className="border-t-2 border-dotted border-primary"></div>
         </div>
@@ -190,7 +190,7 @@ const ReportSummaryPage: React.FC = () => {
               </div>
               <div className="flex justify-end">
                 <Link
-                  href={`/pronunciation-practice?role=${reportData.candidateInfo.roleTopic}&difficulty=medium`}
+                  href={`/pronunciation-practice?role=${reportData?.candidateInfo?.roleTopic}&difficulty=medium`}
                   onClick={() => trackButtonClick("practice_pronunciation", "report_summary_page")}
                 >
                   <button className="btn btn-primary cursor-pointer">
@@ -218,7 +218,7 @@ const ReportSummaryPage: React.FC = () => {
               </div>
               <div className="flex justify-end">
                 <Link
-                  href={`/structure-your-answer/interview?role=${reportData.candidateInfo.roleTopic}`}
+                  href={`/structure-your-answer/interview?role=${reportData?.candidateInfo?.roleTopic}`}
                   onClick={() => trackButtonClick("practice_pronunciation", "report_summary_page")}
                 >
                   <button className="btn btn-primary cursor-pointer">
@@ -234,8 +234,8 @@ const ReportSummaryPage: React.FC = () => {
 
       {/* Final Tip Section */}
       <div className="space-y-3">
-        <h2 className="font-bold text-base-content text-xl">{reportData.finalTip.title}</h2>
-        <p className="text-base-content/70">{reportData.finalTip.description}</p>
+        <h2 className="font-bold text-base-content text-xl">{reportData?.finalTip?.title}</h2>
+        <p className="text-base-content/70">{reportData?.finalTip?.description}</p>
       </div>
     </div>
   );

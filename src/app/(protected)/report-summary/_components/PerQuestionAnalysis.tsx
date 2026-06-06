@@ -16,7 +16,7 @@ const PerQuestionAnalysis: React.FC<PerQuestionAnalysisProps> = ({ questionAnaly
 
   return (
     <div className="space-y-4" id="per-question-analysis">
-      {questionAnalysis.map((question, index) => {
+      {questionAnalysis?.map((question, index) => {
         const hasFeedback = question.feedback !== null;
 
         return (
@@ -47,19 +47,19 @@ const PerQuestionAnalysis: React.FC<PerQuestionAnalysisProps> = ({ questionAnaly
             <div className="collapse-content">
               {hasFeedback ? (
                 <div className="space-y-6">
-                  {question.feedback!.strengths && (
+                  {question.feedback?.strengths && (
                     <section className="space-y-3">
                       <h4 className="text-base font-semibold text-emerald-600">Strengths</h4>
                       <p className="text-sm leading-relaxed whitespace-pre-line">
-                        {question.feedback!.strengths}
+                        {question.feedback?.strengths}
                       </p>
                     </section>
                   )}
-                  {question.feedback!.areasOfImprovement && (
+                  {question.feedback?.areasOfImprovement && (
                     <section className="space-y-3">
                       <h4 className="text-base font-semibold text-red-600">Areas of Improvement</h4>
                       <p className="text-sm leading-relaxed whitespace-pre-line">
-                        {question.feedback!.areasOfImprovement}
+                        {question.feedback?.areasOfImprovement}
                       </p>
                     </section>
                   )}
