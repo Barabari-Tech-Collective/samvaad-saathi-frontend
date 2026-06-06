@@ -4,7 +4,7 @@ import { useAIResumeContext } from "../../_components/resume-provider";
 export function TopRecommendationsCard() {
     const { analysisResult } = useAIResumeContext();
     
-    const recs = analysisResult?.recommendations ?? [];
+    const recs = analysisResult?.finalRecommendations ?? [];
 
     return (
         <div className="space-y-4 pb-4">

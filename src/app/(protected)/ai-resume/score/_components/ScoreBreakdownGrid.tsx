@@ -5,23 +5,23 @@ export function ScoreBreakdownGrid() {
     
     // Map API breakdown fields to display labels with colors
     const getScoreItems = () => {
-        if (!analysisResult?.breakdown) {
+        if (!analysisResult?.scoreBreakdown) {
             return [];
         }
 
-        const breakdown = analysisResult.breakdown;
+        const breakdown = analysisResult.scoreBreakdown;
         const scoreMap = [
-            { key: "skills", label: "Skills Match", color: "bg-primary", track: "bg-blue-100" },
-            { key: "experience", label: "Experience", color: "bg-emerald-500", track: "bg-emerald-100" },
-            { key: "formatting", label: "Formatting", color: "bg-emerald-500", track: "bg-emerald-100" },
-            { key: "keywords", label: "Keywords", color: "bg-orange-500", track: "bg-orange-100" },
+            { key: "skillsMatch", label: "Skills Match", color: "bg-primary", track: "bg-blue-100" },
+            { key: "experienceMatch", label: "Experience", color: "bg-emerald-500", track: "bg-emerald-100" },
+            { key: "formattingScore", label: "Formatting", color: "bg-emerald-500", track: "bg-emerald-100" },
+            { key: "keywordDensity", label: "Keywords", color: "bg-orange-500", track: "bg-orange-100" },
         ];
 
         return scoreMap
-            .filter(item => breakdown[item.key] !== undefined)
+            .filter(item => breakdown[item.key as keyof typeof breakdown] !== undefined)
             .map(item => ({
                 label: item.label,
-                score: breakdown[item.key],
+                score: breakdown[item.key as keyof typeof breakdown] || 0,
                 color: item.color,
                 track: item.track,
             }))

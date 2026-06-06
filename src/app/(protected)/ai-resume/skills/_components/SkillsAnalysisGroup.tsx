@@ -8,19 +8,19 @@ export function SkillsAnalysisGroup() {
     const groups = [
         {
             title: "Strong skills",
-            key: "strong" as const,
+            key: "strongSkills" as const,
             color: "bg-emerald-50 text-emerald-700",
             iconColor: "text-slate-600"
         },
         {
             title: "Missing skills",
-            key: "missing" as const,
+            key: "missingSkills" as const,
             color: "bg-red-50 text-red-600",
             iconColor: "text-slate-600"
         },
         {
             title: "De-prioritize",
-            key: "deprioritize" as const,
+            key: "deprioritizedSkills" as const,
             color: "bg-orange-50 text-orange-700",
             iconColor: "text-slate-600",
             description: "Less relevant for this role and experience level."
