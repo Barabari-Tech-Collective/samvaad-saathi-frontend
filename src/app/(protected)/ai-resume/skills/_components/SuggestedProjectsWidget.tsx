@@ -1,5 +1,5 @@
 import { LightBulbIcon } from "@heroicons/react/24/solid";
-import { useAIResumeContext } from "../../_components/AIResumeContext";
+import { useAIResumeContext } from "../../_components/resume-provider";
 
 export function SuggestedProjectsWidget() {
     const { analysisResult } = useAIResumeContext();

@@ -1,4 +1,4 @@
-import { useAIResumeContext } from "../../_components/AIResumeContext";
+import { useAIResumeContext } from "../../_components/resume-provider";
 
 export function ExperienceEvaluationList() {
     const { analysisResult } = useAIResumeContext();

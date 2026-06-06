@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { FileDragDropZone } from "./FileDragDropZone";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
-import { useAIResumeContext } from "./AIResumeContext";
+import { useAIResumeContext } from "./resume-provider";
 import { aiResumeService } from "@/features/ai-resume/services/aiResumeService";
 import { useState } from "react";
 import toast from "react-hot-toast";

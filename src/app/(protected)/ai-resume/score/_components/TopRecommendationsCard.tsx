@@ -1,5 +1,5 @@
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
-import { useAIResumeContext } from "../../_components/AIResumeContext";
+import { useAIResumeContext } from "../../_components/resume-provider";
 
 export function TopRecommendationsCard() {
     const { analysisResult } = useAIResumeContext();

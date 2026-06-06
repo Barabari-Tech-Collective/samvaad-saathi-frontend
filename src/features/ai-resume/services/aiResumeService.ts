@@ -1,4 +1,4 @@
-import { ENDPOINTS, apiClient } from "@/lib/api-config";
+import { ENDPOINTS } from "@/lib/api-config";
 import { getTokenFromCookies } from "@/lib/token-utils";
 import axios from "axios";
 
@@ -34,25 +34,6 @@ export const aiResumeService = {
             return response.data;
         } catch (error) {
             console.error("Error analyzing resume:", error);
-            throw error;
-        }
-    },
-
-    /**
-     * Fetch analysis results by analysis_id
-     * GET /api/ai-resume/analysis/{analysis_id}
-     */
-    async getAnalysis(analysisId: string) {
-        try {
-            const { data } = await apiClient.useQuery({
-                key: [ENDPOINTS.AI_RESUME.GET_ANALYSIS(analysisId)],
-                url: ENDPOINTS.AI_RESUME.GET_ANALYSIS(analysisId),
-                enabled: !!analysisId,
-            });
-
-            return data;
-        } catch (error) {
-            console.error("Error fetching analysis:", error);
             throw error;
         }
     }

@@ -2,7 +2,8 @@
 
 import { ChevronLeftIcon, ShieldCheckIcon, DocumentTextIcon, ArrowDownTrayIcon, CheckIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
-import { useAIResumeContext } from "../_components/AIResumeContext";
+import Link from "next/link";
+import { useAIResumeContext } from "../_components/resume-provider";
 import { useEffect } from "react";
 
 export default function ResumeTemplateFullViewPage() {
@@ -23,12 +24,12 @@ export default function ResumeTemplateFullViewPage() {
             <div className="flex flex-col gap-6 relative animate-in fade-in slide-in-from-right-4 duration-500 pt-4">
                 {/* Header */}
                 <div className="flex items-center justify-between">
-                    <button 
-                        onClick={() => router.push("/ai-resume/preview")}
+                    <Link 
+                        href="/ai-resume/preview"
                         className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
                     >
                         <ChevronLeftIcon className="size-5 text-slate-700" />
-                    </button>
+                    </Link>
                     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/5 text-primary rounded-full text-sm font-medium">
                         <ShieldCheckIcon className="size-4" />
                         <span>ATS Optimized</span>

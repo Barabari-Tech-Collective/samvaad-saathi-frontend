@@ -1,15 +1,10 @@
 import { SparklesIcon } from "@heroicons/react/24/solid";
-import { useAIResumeContext } from "../../_components/AIResumeContext";
+import { useAIResumeContext } from "../../_components/resume-provider";
 
 export function ATSScoreCircle() {
     const { analysisResult } = useAIResumeContext();
     const score = analysisResult?.score ?? 0;
     
-    // Math for SVG circle
-    const radius = 45;
-    const circumference = 2 * Math.PI * radius;
-    const strokeDashoffset = circumference - (score / 100) * circumference;
-
     // Determine status text based on score
     const getStatusText = (score: number) => {
         if (score >= 80) return "Excellent match";
@@ -36,32 +31,19 @@ export function ATSScoreCircle() {
             <div className="flex items-center gap-6 relative z-10">
                 {/* Circle */}
                 <div className="relative w-[120px] h-[120px] flex-shrink-0">
-                    <svg className="w-full h-full -rotate-90 transform drop-shadow-md" viewBox="0 0 100 100">
-                        {/* Background circle */}
-                        <circle
-                            className="text-white/20 stroke-current"
-                            strokeWidth="8"
-                            cx="50"
-                            cy="50"
-                            r={radius}
-                            fill="transparent"
-                        />
-                        {/* Progress circle */}
-                        <circle
-                            className="text-white stroke-current transition-all duration-1000 ease-out"
-                            strokeWidth="8"
-                            strokeLinecap="round"
-                            cx="50"
-                            cy="50"
-                            r={radius}
-                            fill="transparent"
-                            strokeDasharray={circumference}
-                            strokeDashoffset={strokeDashoffset}
-                        />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-[40px] leading-none font-bold mb-1">{score}</span>
-                        <span className="text-[10px] font-medium text-white/80">out of 100</span>
+                    <div 
+                        className="radial-progress text-white/20 absolute inset-0"
+                        style={{ "--value": 100, "--size": "120px", "--thickness": "8px" } as React.CSSProperties}
+                    />
+                    <div 
+                        className="radial-progress text-white absolute inset-0 transition-all duration-1000 ease-out drop-shadow-md"
+                        style={{ "--value": score, "--size": "120px", "--thickness": "8px" } as React.CSSProperties}
+                        role="progressbar"
+                    >
+                        <div className="flex flex-col items-center justify-center pt-[15px]">
+                            <span className="text-[40px] leading-none font-bold mb-1">{score}</span>
+                            <span className="text-[10px] font-medium text-white/80 -mt-1">out of 100</span>
+                        </div>
                     </div>
                 </div>
 

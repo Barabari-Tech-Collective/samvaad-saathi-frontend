@@ -4,7 +4,7 @@ import { ChevronLeftIcon } from "@heroicons/react/24/solid";
 import { SparklesIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import { ResumeInputForm } from "./_components/ResumeInputForm";
-import { useAIResumeContext } from "./_components/AIResumeContext";
+import { useAIResumeContext } from "./_components/resume-provider";
 
 export default function AIResumePage() {
   const router = useRouter();

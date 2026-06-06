@@ -1,22 +1,21 @@
 "use client";
 
 import { ChevronLeftIcon, ArrowRightIcon, CheckIcon, ShieldCheckIcon, UserGroupIcon, Squares2X2Icon, AcademicCapIcon, ArrowDownTrayIcon, PencilIcon } from "@heroicons/react/24/solid";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function ResumeTemplatePreviewPage() {
-    const router = useRouter();
 
     return (
         <div className="w-full max-w-2xl mx-auto pb-20">
             <div className="flex flex-col gap-6 relative animate-in fade-in slide-in-from-right-4 duration-500 pt-4">
                 {/* Header */}
                 <div className="flex items-center justify-between">
-                    <button 
-                        onClick={() => router.push("/ai-resume/hygiene")}
+                    <Link 
+                        href="/ai-resume/hygiene"
                         className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
                     >
                         <ChevronLeftIcon className="size-5 text-slate-700" />
-                    </button>
+                    </Link>
                     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/5 text-primary rounded-full text-sm font-medium">
                         <ShieldCheckIcon className="size-4" />
                         <span>ATS Optimized</span>
@@ -84,11 +83,11 @@ export default function ResumeTemplatePreviewPage() {
 
                 {/* Actions */}
                 <div className="flex flex-col gap-3 mt-2">
-                    <button onClick={() => router.push("/ai-resume/final")} className="w-full flex items-center justify-center gap-2 py-4 bg-primary hover:opacity-90 text-white rounded-2xl font-medium transition-colors shadow-sm active:scale-[0.98]">
+                    <Link href="/ai-resume/final" className="w-full flex items-center justify-center gap-2 py-4 bg-primary hover:opacity-90 text-white rounded-2xl font-medium transition-colors shadow-sm active:scale-[0.98]">
                         <CheckIcon className="size-4" strokeWidth={3} />
                         <span>Use This Template</span>
                         <ArrowRightIcon className="size-4 ml-1" />
-                    </button>
+                    </Link>
                     
                     <div className="flex gap-3">
                         <button className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl font-medium transition-colors shadow-sm">
