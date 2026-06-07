@@ -16,6 +16,12 @@ interface AIResumeContextType {
   setIsAnalyzing: (isAnalyzing: boolean) => void;
   analysisError: string | null;
   setAnalysisError: (error: string | null) => void;
+  formData: {
+    targetRole: string;
+    experienceLevel: string;
+    jobDescription: string;
+  };
+  setFormData: (data: { targetRole: string; experienceLevel: string; jobDescription: string; }) => void;
 }
 
 const AIResumeContext = createContext<AIResumeContextType | undefined>(undefined);
@@ -27,6 +33,11 @@ export function AIResumeProvider({ children }: { children: ReactNode }) {
   const [analysisId, setAnalysisId] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    targetRole: "",
+    experienceLevel: "Entry Level",
+    jobDescription: "",
+  });
 
   return (
     <AIResumeContext.Provider
@@ -43,6 +54,8 @@ export function AIResumeProvider({ children }: { children: ReactNode }) {
         setIsAnalyzing,
         analysisError,
         setAnalysisError,
+        formData,
+        setFormData,
       }}
     >
       {children}
