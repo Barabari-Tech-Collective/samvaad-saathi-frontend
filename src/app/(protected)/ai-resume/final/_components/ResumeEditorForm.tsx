@@ -152,7 +152,7 @@ export default function ResumeEditorForm({ initialData, onSave, onCancel, isSavi
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Projects</h3>
-                        <button onClick={() => addArrayItem("projects", { title: "", duration: "", bullets: [] })} className="text-xs flex items-center gap-1 text-primary hover:underline font-medium">
+                        <button onClick={() => addArrayItem("projects", { title: "", duration: "", github_link: "", hosted_link: "", bullets: [] })} className="text-xs flex items-center gap-1 text-primary hover:underline font-medium">
                             <PlusIcon className="size-3" /> Add Project
                         </button>
                     </div>
@@ -164,6 +164,8 @@ export default function ResumeEditorForm({ initialData, onSave, onCancel, isSavi
                             <div className="grid grid-cols-2 gap-3 pr-6">
                                 <label className="flex flex-col gap-1 text-xs text-slate-600">Title <input type="text" className="input input-xs input-bordered" value={proj.title || ""} onChange={(e) => handleArrayChange("projects", idx, "title", e.target.value)} /></label>
                                 <label className="flex flex-col gap-1 text-xs text-slate-600">Duration <input type="text" className="input input-xs input-bordered" value={proj.duration || ""} onChange={(e) => handleArrayChange("projects", idx, "duration", e.target.value)} /></label>
+                                <label className="flex flex-col gap-1 text-xs text-slate-600">GitHub Link (Optional) <input type="text" className="input input-xs input-bordered" value={proj.github_link || ""} onChange={(e) => handleArrayChange("projects", idx, "github_link", e.target.value)} placeholder="e.g. https://github.com/..." /></label>
+                                <label className="flex flex-col gap-1 text-xs text-slate-600">Hosted Link (Optional) <input type="text" className="input input-xs input-bordered" value={proj.hosted_link || ""} onChange={(e) => handleArrayChange("projects", idx, "hosted_link", e.target.value)} placeholder="e.g. https://myproject.com" /></label>
                             </div>
                             <label className="flex flex-col gap-1 text-xs text-slate-600">Bullet Points / Description (One per line)
                                 <textarea className="textarea textarea-bordered textarea-xs h-20" value={(proj.bullets || proj.description ? (proj.bullets ? proj.bullets.join("\n") : proj.description) : "")} onChange={(e) => handleArrayChange("projects", idx, "bullets", e.target.value)} />

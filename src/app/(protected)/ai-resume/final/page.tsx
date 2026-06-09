@@ -289,6 +289,13 @@ function ResumeTemplateFullViewContent() {
                                                 <span>{proj.title}</span>
                                                 <span className="font-normal text-slate-600">{proj.duration || ""}</span>
                                             </div>
+                                            {(proj.github_link || proj.hosted_link) && (
+                                                <div className="flex gap-2 text-[10px] text-blue-600 mt-0.5">
+                                                    {proj.github_link && <a href={proj.github_link} target="_blank" rel="noopener noreferrer" className="hover:underline">GitHub</a>}
+                                                    {proj.github_link && proj.hosted_link && <span className="text-slate-400">|</span>}
+                                                    {proj.hosted_link && <a href={proj.hosted_link} target="_blank" rel="noopener noreferrer" className="hover:underline">Live Project</a>}
+                                                </div>
+                                            )}
                                             {(proj.highlights || proj.bullets || []).length > 0 && (
                                                 <ul className="list-disc text-slate-700 text-[11px] ml-4 space-y-1 text-justify mt-1">
                                                     {(proj.highlights || proj.bullets).map((bullet: string, bIdx: number) => (
