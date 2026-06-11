@@ -51,6 +51,7 @@ export const ENDPOINTS = {
     CREATE_FROM_TEMPLATE: "resume-builder/from-template",
     UPDATE: (resumeId: string) => `resume-builder/${resumeId}`,
     GET_DOWNLOAD: (resumeId: string) => `resume-builder/${resumeId}/download`,
+    SYNC_TO_PROFILE: (resumeId: string) => `resume-builder/${resumeId}/sync-to-profile`,
   },
 };
 

@@ -36,7 +36,10 @@ export default function AIResumePage() {
         </div>
 
         {/* Form */}
-        <ResumeInputForm onNext={() => router.push("/ai-resume/score")} onFileChange={setUploadedFile} />
+        <ResumeInputForm
+          onNext={() => router.push("/ai-resume/score")}
+          onFileChange={setUploadedFile}
+        />
       </div>
     </div>
   );

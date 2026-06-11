@@ -21,7 +21,11 @@ interface AIResumeContextType {
     experienceLevel: string;
     jobDescription: string;
   };
-  setFormData: (data: { targetRole: string; experienceLevel: string; jobDescription: string; }) => void;
+  setFormData: (data: {
+    targetRole: string;
+    experienceLevel: string;
+    jobDescription: string;
+  }) => void;
 }
 
 const AIResumeContext = createContext<AIResumeContextType | undefined>(undefined);

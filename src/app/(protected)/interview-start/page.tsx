@@ -14,6 +14,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useAuth } from "@/components/providers/auth-provider";
 
 interface CreateInterviewRequest {
   track: string;
@@ -68,6 +69,7 @@ export default function InterviewStartPage() {
   const [useResume, setUseResume] = useState(false);
 
   const router = useRouter();
+  const { user } = useAuth();
   const apiClient = createApiClient(APIServiceV2.INTERVIEWS);
 
   const { data: jobProfilesData, isLoading: isLoadingProfiles } =
@@ -144,6 +146,30 @@ export default function InterviewStartPage() {
 
   const handleSubmit = async () => {
     if (!selection) return;
+
+    if (
+      selection.kind === "tech" &&
+      selection.track === "Full Stack Developer" &&
+      difficulty === "medium" &&
+      !useResume
+    ) {
+      toast.error(
+        "Please toggle 'Use Resume for Interview' and ensure your resume is uploaded for Medium level Full Stack Developer interviews."
+      );
+      return;
+    }
+
+    if (
+      selection.kind === "tech" &&
+      selection.track === "Full Stack Developer" &&
+      difficulty === "medium" &&
+      !user?.authorizedUser?.hasResume
+    ) {
+      toast.error(
+        "You must save a resume to your profile first before starting a Medium level Full Stack Developer interview."
+      );
+      return;
+    }
 
     const trackLabel = selection.kind === "tech" ? selection.track : selection.jobName;
     trackStartInterviewButtonClick(trackLabel, difficulty, useResume);
