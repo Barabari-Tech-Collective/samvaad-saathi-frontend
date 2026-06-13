@@ -17,14 +17,20 @@ export const useGetTemplateDetails = (templateId: string) => {
 };
 
 export const useCreateFromTemplate = () => {
-  return apiClient.useMutation<ResumeData, { templateId: string; analysisId?: string; jobDescription?: string }>({
+  return apiClient.useMutation<
+    ResumeData,
+    { templateId: string; analysisId?: string; jobDescription?: string }
+  >({
     url: ENDPOINTS.RESUME_BUILDER.CREATE_FROM_TEMPLATE,
     method: "post",
   });
 };
 
 export const useUpdateResume = (resumeId: string) => {
-  return apiClient.useMutation<{ resumeId: string; status: string }, { data: Record<string, unknown> }>({
+  return apiClient.useMutation<
+    { resumeId: string; status: string },
+    { data: Record<string, unknown> }
+  >({
     url: ENDPOINTS.RESUME_BUILDER.UPDATE(resumeId),
     method: "put",
   });
@@ -36,5 +42,13 @@ export const useDownloadResume = (resumeId: string, format: "pdf" | "docx" = "pd
     url: `${ENDPOINTS.RESUME_BUILDER.GET_DOWNLOAD(resumeId)}?format=${format}`,
     enabled: !!resumeId,
     config: { responseType: "blob" },
+  });
+};
+
+export const useSyncResumeToProfile = (resumeId: string) => {
+  return apiClient.useMutation<{ status: string }, void>({
+    url: ENDPOINTS.RESUME_BUILDER.SYNC_TO_PROFILE(resumeId),
+    method: "post",
+    keyToInvalidate: { queryKey: [ENDPOINTS.AUTH.ABOUT_ME] },
   });
 };

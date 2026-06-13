@@ -67,9 +67,7 @@ export default function BottomNav({ className = "" }: { className?: string }) {
 
       <Link
         href="/ai-resume"
-        className={`${baseItemClass} ${
-          isActive("ai-resume") ? "text-white" : "text-gray-400"
-        }`}
+        className={`${baseItemClass} ${isActive("ai-resume") ? "text-white" : "text-gray-400"}`}
         onClick={() => handleClick("ai-resume")}
         aria-label="Go to AI Resume"
       >

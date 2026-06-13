@@ -9,6 +9,8 @@ import { useAIResumeContext } from "./resume-provider";
 import { aiResumeService } from "@/features/ai-resume/services/aiResumeService";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
+import { ENDPOINTS } from "@/lib/api-config";
 
 const formSchema = z.object({
   targetRole: z.string().min(1, "Target role is required"),
@@ -26,9 +28,18 @@ export function ResumeInputForm({
   onNext: () => void;
   onFileChange: (file: File | null) => void;
 }) {
-  const { formData, setFormData, setHasExperience, setAnalysisResult, setAnalysisId, setIsAnalyzing, setAnalysisError } = useAIResumeContext();
+  const {
+    formData,
+    setFormData,
+    setHasExperience,
+    setAnalysisResult,
+    setAnalysisId,
+    setIsAnalyzing,
+    setAnalysisError,
+  } = useAIResumeContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const queryClient = useQueryClient();
+
   const {
     register,
     handleSubmit,
@@ -80,11 +91,15 @@ export function ResumeInputForm({
       }
 
       toast.success("Resume analyzed successfully!");
-      
+
+      // Invalidate the auth cache so the system knows we have a resume now
+      queryClient.invalidateQueries({ queryKey: [ENDPOINTS.AUTH.ABOUT_ME] });
+
       // Navigate to next step
       onNext();
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to analyze resume. Please try again.";
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to analyze resume. Please try again.";
       setAnalysisError(errorMessage);
       toast.error(errorMessage);
       console.error("Resume analysis error:", error);

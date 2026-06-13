@@ -10,6 +10,7 @@ export interface UserProfile {
     university: string | null;
     targetPosition: string | null;
     yearsExperience: number | null;
+    hasResume: boolean;
     isOnboarded: boolean;
     totalAttempts: number;
   };
