@@ -25,7 +25,7 @@ export function ExperienceEvaluationList() {
       <div className="flex items-center justify-between">
         <h2 className="text-[15px] font-bold text-slate-800">Experience evaluation</h2>
         <span className="text-xs font-semibold text-slate-400">
-          {evaluation ? "1 evaluation" : "0 detected"}
+          {evaluation ? "Evaluated" : "Not evaluated"}
         </span>
       </div>
 

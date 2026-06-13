@@ -1,4 +1,5 @@
 import { SparklesIcon } from "@heroicons/react/24/solid";
+import { ArrowTrendingUpIcon } from "@heroicons/react/24/outline";
 import { useAIResumeContext } from "../../_components/resume-provider";
 
 export function ATSScoreCircle() {
@@ -54,14 +55,7 @@ export function ATSScoreCircle() {
         {/* Info Text */}
         <div className="flex-1">
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-xs font-semibold mb-3">
-            <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-              />
-            </svg>
+            <ArrowTrendingUpIcon className="size-3.5" />
             {getStatusText(score)}
           </div>
           <p className="text-sm text-white/90 leading-relaxed font-medium">
