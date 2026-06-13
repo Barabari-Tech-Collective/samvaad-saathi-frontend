@@ -20,8 +20,10 @@ export const UNIVERSITY_OPTIONS = [
   "Others",
 ] as const;
 
+export const FULL_STACK_ROLE = "Full Stack Developer";
+
 export const ROLE_OPTIONS = [
-  "Full Stack Developer",
+  FULL_STACK_ROLE,
   "React Developer",
   "Node JS Developer",
   "Express JS Developer",

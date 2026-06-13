@@ -40,13 +40,13 @@ export function ExperienceEvaluationList() {
                 <span className="font-semibold text-[15px] text-slate-800">Overall Experience</span>
               </div>
               <span
-                className={`px-3 py-1 rounded-full text-[11px] uppercase tracking-wider font-bold ${getStatusColor(evaluation.rating)}`}
+                className={`px-3 py-1 rounded-full text-[11px] uppercase tracking-wider font-bold ${getStatusColor(evaluation?.rating || "")}`}
               >
-                {evaluation.rating}
+                {evaluation?.rating}
               </span>
             </div>
             <p className="text-[13px] leading-relaxed text-slate-500 font-medium">
-              {evaluation.feedback}
+              {evaluation?.feedback}
             </p>
           </div>
         ) : (

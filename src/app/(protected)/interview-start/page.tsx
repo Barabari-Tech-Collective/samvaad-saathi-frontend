@@ -3,7 +3,7 @@
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS, ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
-import { ROLE_OPTIONS } from "@/lib/constants";
+import { ROLE_OPTIONS, FULL_STACK_ROLE } from "@/lib/constants";
 import { setInterviewQuestions } from "@/lib/interview-session-storage";
 import {
   trackDifficultySelected,
@@ -149,7 +149,7 @@ export default function InterviewStartPage() {
 
     if (
       selection.kind === "tech" &&
-      selection.track === "Full Stack Developer" &&
+      selection.track === FULL_STACK_ROLE &&
       difficulty === "medium" &&
       !useResume
     ) {
@@ -161,7 +161,7 @@ export default function InterviewStartPage() {
 
     if (
       selection.kind === "tech" &&
-      selection.track === "Full Stack Developer" &&
+      selection.track === FULL_STACK_ROLE &&
       difficulty === "medium" &&
       !user?.authorizedUser?.hasResume
     ) {
