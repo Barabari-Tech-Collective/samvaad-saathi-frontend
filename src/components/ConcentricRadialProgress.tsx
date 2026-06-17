@@ -65,11 +65,7 @@ export function ConcentricRadialProgress({
 
   return (
     <div
-      className={cn(
-        "relative inline-flex items-center justify-center",
-        "select-none",
-        className,
-      )}
+      className={cn("relative inline-flex items-center justify-center", "select-none", className)}
       style={{
         // Ensure text uses your design tokens
         color: "var(--color-foreground)",
@@ -137,10 +133,7 @@ export function ConcentricRadialProgress({
       {centerRender ? (
         <div className="absolute inset-0 flex items-center justify-center">
           <div
-            className={cn(
-              "flex flex-col items-center justify-center text-center",
-              "text-balance",
-            )}
+            className={cn("flex flex-col items-center justify-center text-center", "text-balance")}
           >
             {centerRender(safeRings)}
           </div>

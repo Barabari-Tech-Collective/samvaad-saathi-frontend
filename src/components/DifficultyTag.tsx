@@ -40,9 +40,7 @@ const DifficultyTag: React.FC<DifficultyTagProps> = ({
 
   return (
     <span
-      className={`badge badge-${size} badge-soft ${getDifficultyColor(
-        difficulty
-      )} ${className}`}
+      className={`badge badge-${size} badge-soft ${getDifficultyColor(difficulty)} ${className}`}
     >
       {difficulty?.toUpperCase()}
     </span>

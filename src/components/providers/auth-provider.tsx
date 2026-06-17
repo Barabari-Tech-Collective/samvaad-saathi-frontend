@@ -1,11 +1,7 @@
 "use client";
 
 import { apiClient, ENDPOINTS } from "@/lib/api-config";
-import {
-  identifyUser,
-  resetUser,
-  trackLogoutButtonClick,
-} from "@/lib/posthog/tracking.utils";
+import { identifyUser, resetUser, trackLogoutButtonClick } from "@/lib/posthog/tracking.utils";
 import { UserProfile } from "@/lib/types/user";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -51,10 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       identifyUser(user.userId, userProperties);
 
       // If user is NOT onboarded, redirect to onboarding if not already there
-      if (
-        !user.authorizedUser.isOnboarded &&
-        window.location.pathname !== "/onboarding"
-      ) {
+      if (!user.authorizedUser.isOnboarded && window.location.pathname !== "/onboarding") {
         router.push("/onboarding");
       }
     }

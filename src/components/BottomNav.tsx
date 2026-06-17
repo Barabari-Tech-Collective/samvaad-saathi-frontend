@@ -1,7 +1,7 @@
 "use client";
 
 import { trackBottomNavClick } from "@/lib/posthog/tracking.utils";
-import { HomeIcon, ListBulletIcon, UserIcon } from "@heroicons/react/24/solid";
+import { HomeIcon, ListBulletIcon, UserIcon, DocumentTextIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { TargetPracticeIcon } from "./icons";
@@ -18,6 +18,7 @@ export default function BottomNav({ className = "" }: { className?: string }) {
     if (pathname.startsWith("/home")) return "home";
     if (pathname.startsWith("/history")) return "history";
     if (pathname.startsWith("/practice")) return "practice";
+    if (pathname.startsWith("/ai-resume")) return "ai-resume";
     if (pathname.startsWith("/profile")) return "profile";
     return undefined;
   };
@@ -39,9 +40,7 @@ export default function BottomNav({ className = "" }: { className?: string }) {
     >
       <Link
         href="/home"
-        className={`${baseItemClass} ${
-          isActive("home") ? "text-white" : "text-gray-400"
-        }`}
+        className={`${baseItemClass} ${isActive("home") ? "text-white" : "text-gray-400"}`}
         onClick={() => handleClick("home")}
         aria-label="Go to home"
       >
@@ -50,9 +49,7 @@ export default function BottomNav({ className = "" }: { className?: string }) {
 
       <Link
         href="/history"
-        className={`${baseItemClass} ${
-          isActive("history") ? "text-white" : "text-gray-400"
-        }`}
+        className={`${baseItemClass} ${isActive("history") ? "text-white" : "text-gray-400"}`}
         onClick={() => handleClick("history")}
         aria-label="Go to history"
       >
@@ -61,9 +58,7 @@ export default function BottomNav({ className = "" }: { className?: string }) {
 
       <Link
         href="/practice"
-        className={`${baseItemClass} ${
-          isActive("practice") ? "text-white" : "text-gray-400"
-        }`}
+        className={`${baseItemClass} ${isActive("practice") ? "text-white" : "text-gray-400"}`}
         onClick={() => handleClick("practice")}
         aria-label="Go to target practice"
       >
@@ -71,10 +66,17 @@ export default function BottomNav({ className = "" }: { className?: string }) {
       </Link>
 
       <Link
+        href="/ai-resume"
+        className={`${baseItemClass} ${isActive("ai-resume") ? "text-white" : "text-gray-400"}`}
+        onClick={() => handleClick("ai-resume")}
+        aria-label="Go to AI Resume"
+      >
+        <DocumentTextIcon className="size-7" />
+      </Link>
+
+      <Link
         href="/profile"
-        className={`${baseItemClass} ${
-          isActive("profile") ? "text-white" : "text-gray-400"
-        }`}
+        className={`${baseItemClass} ${isActive("profile") ? "text-white" : "text-gray-400"}`}
         onClick={() => handleClick("profile")}
         aria-label="Go to profile"
       >

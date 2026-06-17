@@ -44,8 +44,7 @@ const LevelsPage = () => {
 
   const { levels, overallReadiness } = data;
 
-  const lastUnlockedLevel =
-    levels.filter((l) => l.status !== "locked").pop() ?? levels[0];
+  const lastUnlockedLevel = levels.filter((l) => l.status !== "locked").pop() ?? levels[0];
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
@@ -108,17 +107,11 @@ const LevelsPage = () => {
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <h2
-                  className={`font-bold text-lg mb-1 ${
-                    isLocked ? "text-gray-500" : "text-black"
-                  }`}
+                  className={`font-bold text-lg mb-1 ${isLocked ? "text-gray-500" : "text-black"}`}
                 >
                   {level.name}
                 </h2>
-                <p
-                  className={`text-sm mb-4 pr-12 ${
-                    isLocked ? "text-gray-400" : "text-gray-500"
-                  }`}
-                >
+                <p className={`text-sm mb-4 pr-12 ${isLocked ? "text-gray-400" : "text-gray-500"}`}>
                   {level.description}
                 </p>
                 <div className="flex justify-between items-center">

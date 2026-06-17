@@ -1,0 +1,35 @@
+#!/bin/sh
+commit_msg=$(cat "$1")
+
+# Conventional commits: <type>[(scope)]: <description>
+# Skip merge commits and WIP stubs
+if echo "$commit_msg" | grep -qE '^(Merge|WIP)'; then
+  exit 0
+fi
+
+if ! echo "$commit_msg" | grep -qE '^(feat|fix|refactor|perf|style|test|docs|build|ops|chore)(\(.+\))?: .+$'; then
+  echo ""
+  echo "Commit message rejected."
+  echo ""
+  echo "Format:  <type>[(scope)]: <description>"
+  echo ""
+  echo "Types:"
+  echo "  feat      add/adjust/remove a feature"
+  echo "  fix       fix a bug in a preceding feat commit"
+  echo "  refactor  rewrite/restructure without behavior change"
+  echo "  perf      performance-focused refactor"
+  echo "  style     whitespace, formatting, semicolons"
+  echo "  test      add or correct tests"
+  echo "  docs      documentation only"
+  echo "  build     build tools, dependencies, version"
+  echo "  ops       CI/CD, infra, deployment, monitoring"
+  echo "  chore     initial commit, .gitignore, misc"
+  echo ""
+  echo "Examples:"
+  echo "  feat(auth): add JWT refresh token support"
+  echo "  fix: resolve null pointer in payment module"
+  echo "  refactor(api): simplify user validation logic"
+  echo "  ops: add GitHub Actions CI workflow"
+  echo ""
+  exit 1
+fi

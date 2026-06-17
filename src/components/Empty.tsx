@@ -10,12 +10,7 @@ interface EmptyProps {
   /**
    * The icon to display. Can be a custom React component or one of the predefined icon names.
    */
-  icon?:
-    | React.ComponentType<{ className?: string }>
-    | "inbox"
-    | "folder"
-    | "document"
-    | "archive";
+  icon?: React.ComponentType<{ className?: string }> | "inbox" | "folder" | "document" | "archive";
   /**
    * The title/heading text
    */
@@ -92,25 +87,17 @@ const Empty: React.FC<EmptyProps> = ({
       <div className="mb-4">
         <div className="inline-flex items-center justify-center rounded-full bg-base-200 p-4">
           {IconComponent && (
-            <IconComponent
-              className={`${config.icon} text-base-content opacity-40`}
-            />
+            <IconComponent className={`${config.icon} text-base-content opacity-40`} />
           )}
         </div>
       </div>
 
       {/* Title */}
-      {title && (
-        <h3 className={`font-semibold text-base-content mb-2 ${config.title}`}>
-          {title}
-        </h3>
-      )}
+      {title && <h3 className={`font-semibold text-base-content mb-2 ${config.title}`}>{title}</h3>}
 
       {/* Description */}
       {description && (
-        <p
-          className={`text-base-content opacity-60 max-w-md mb-4 ${config.description}`}
-        >
+        <p className={`text-base-content opacity-60 max-w-md mb-4 ${config.description}`}>
           {description}
         </p>
       )}

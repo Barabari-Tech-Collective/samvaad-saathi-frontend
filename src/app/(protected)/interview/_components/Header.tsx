@@ -38,9 +38,7 @@ const Header = ({
     const savedEndTime = sessionStorage.getItem(storageKey);
 
     if (savedEndTime) {
-      const remaining = Math.floor(
-        (parseInt(savedEndTime) - Date.now()) / 1000
-      );
+      const remaining = Math.floor((parseInt(savedEndTime) - Date.now()) / 1000);
       if (remaining > 0) {
         setTimeLeft(remaining);
       } else {
@@ -78,9 +76,7 @@ const Header = ({
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs
-      .toString()
-      .padStart(2, "0")}`;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -89,11 +85,9 @@ const Header = ({
         isMobile ? "" : "bg-[#ACADF1]/20 rounded-lg"
       }`}
     >
-
-        <h3 className="text-[#1f285b] text-2xl font-bold uppercase tracking-wide">
-          {role || "Developer"}
-        </h3>
-   
+      <h3 className="text-[#1f285b] text-2xl font-bold uppercase tracking-wide">
+        {role || "Developer"}
+      </h3>
 
       <div className="flex-none pr-4">
         {/* Timer Container with Gradient Border */}

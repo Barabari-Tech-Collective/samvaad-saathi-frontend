@@ -7,9 +7,7 @@
 export const getTokenFromCookies = (): string | null => {
   if (typeof window !== "undefined") {
     const cookies = document.cookie.split(";");
-    const tokenCookie = cookies.find((cookie) =>
-      cookie.trim().startsWith("token="),
-    );
+    const tokenCookie = cookies.find((cookie) => cookie.trim().startsWith("token="));
     if (tokenCookie) {
       return tokenCookie.split("=")[1];
     }
@@ -21,9 +19,7 @@ export const getTokenFromCookies = (): string | null => {
 export const getRefreshTokenFromCookies = (): string | null => {
   if (typeof window !== "undefined") {
     const cookies = document.cookie.split(";");
-    const refreshTokenCookie = cookies.find((cookie) =>
-      cookie.trim().startsWith("refresh_token="),
-    );
+    const refreshTokenCookie = cookies.find((cookie) => cookie.trim().startsWith("refresh_token="));
     if (refreshTokenCookie) {
       return refreshTokenCookie.split("=")[1];
     }
@@ -49,8 +45,7 @@ export const setTokensInCookies = (token: string, refreshToken: string) => {
 const clearTokensFromCookies = () => {
   if (typeof window !== "undefined") {
     document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    document.cookie =
-      "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   }
 };
 

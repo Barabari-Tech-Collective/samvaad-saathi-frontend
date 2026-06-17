@@ -21,8 +21,7 @@ export const ENDPOINTS = {
     GENERATE_QUESTIONS: "interviews/generate-questions",
     COMPLETE: "interviews/complete",
     QUESTIONS: (interviewId: string) => `interviews/${interviewId}/questions`,
-    QUESTION_ATTEMPTS: (interviewId: string) =>
-      `interviews/${interviewId}/question-attempts`,
+    QUESTION_ATTEMPTS: (interviewId: string) => `interviews/${interviewId}/question-attempts`,
     START_QUESTION_ATTEMPT: "interviews/question-attempts",
     WITH_SUMMARY: "interviews-with-summary",
     RESUME_INTERVIEW: `interviews/resume`,
@@ -40,10 +39,19 @@ export const ENDPOINTS = {
   PACING: {
     LEVELS: "pacing-practice/levels",
     SESSION_CREATE: "pacing-practice/session",
-    SESSION_SUBMIT: (sessionId: string) =>
-      `pacing-practice/session/${sessionId}/submit`,
-    SESSION_GET: (sessionId: string) =>
-      `pacing-practice/session/${sessionId}`,
+    SESSION_SUBMIT: (sessionId: string) => `pacing-practice/session/${sessionId}/submit`,
+    SESSION_GET: (sessionId: string) => `pacing-practice/session/${sessionId}`,
+  },
+  AI_RESUME: {
+    ANALYZE: "ai-resume/analyze",
+    GET_ANALYSIS: (analysisId: string) => `ai-resume/analyze/${analysisId}`,
+  },
+  RESUME_BUILDER: {
+    GET_TEMPLATES: "resume-builder/templates",
+    CREATE_FROM_TEMPLATE: "resume-builder/from-template",
+    UPDATE: (resumeId: string) => `resume-builder/${resumeId}`,
+    GET_DOWNLOAD: (resumeId: string) => `resume-builder/${resumeId}/download`,
+    SYNC_TO_PROFILE: (resumeId: string) => `resume-builder/${resumeId}/sync-to-profile`,
   },
 };
 
@@ -52,14 +60,11 @@ export const ENDPOINTS_V2 = {
   GENERATE_QUESTIONS: "v2/interviews/generate-questions",
   GENERATE_NON_TECH_QUESTIONS: "v2/interviews/non-tech/generate-questions",
   JOB_PROFILES: "v2/job-profiles",
-  SUPPLEMENTS: (interviewId: string) =>
-    `v2/interviews/${interviewId}/supplements`,
+  SUPPLEMENTS: (interviewId: string) => `v2/interviews/${interviewId}/supplements`,
   SUMMARY_REPORT: "v2/summary-report",
   CREATE_PRONUNCIATION_PRACTICE: "v2/pronunciation/create",
-  GET_PRONUNCIATION_PRACTICE_AUDIO: (
-    practiceId: string,
-    questionNumber: number
-  ) => `v2/pronunciation/${practiceId}/audio/${questionNumber}`,
+  GET_PRONUNCIATION_PRACTICE_AUDIO: (practiceId: string, questionNumber: number) =>
+    `v2/pronunciation/${practiceId}/audio/${questionNumber}`,
   GENERATE_STRUCTURED_PRACTICE: "v2/structure-practice/session",
   SUBMIT_STRUCTURED_PRACTICE_AUDIO: (
     practiceId: string,
@@ -67,8 +72,6 @@ export const ENDPOINTS_V2 = {
     sectionName: string
   ) =>
     `v2/structure-practice/${practiceId}/question/${questionIndex}/section/${sectionName}/submit`,
-  ANALYSE_STRUCTURED_PRACTICE_AUDIO: (
-    practiceId: string,
-    questionIndex: number
-  ) => `v2/structure-practice/${practiceId}/question/${questionIndex}/analyze`,
+  ANALYSE_STRUCTURED_PRACTICE_AUDIO: (practiceId: string, questionIndex: number) =>
+    `v2/structure-practice/${practiceId}/question/${questionIndex}/analyze`,
 };

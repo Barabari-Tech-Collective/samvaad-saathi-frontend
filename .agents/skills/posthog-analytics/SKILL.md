@@ -8,7 +8,7 @@ effort: medium
 
 # PostHog Analytics Skill
 
-*Load with: base.md + [framework].md*
+_Load with: base.md + [framework].md_
 
 For implementing product analytics with PostHog - event tracking, user identification, feature flags, and project-specific dashboards.
 
@@ -21,6 +21,7 @@ For implementing product analytics with PostHog - event tracking, user identific
 **Measure what matters, not everything.**
 
 Analytics should answer specific questions:
+
 - Are users getting value? (activation, retention)
 - Where do users struggle? (funnels, drop-offs)
 - What features drive engagement? (feature usage)
@@ -40,17 +41,17 @@ npm install posthog-js
 
 ```typescript
 // lib/posthog.ts
-import posthog from 'posthog-js';
+import posthog from "posthog-js";
 
 export function initPostHog() {
-  if (typeof window !== 'undefined' && !posthog.__loaded) {
+  if (typeof window !== "undefined" && !posthog.__loaded) {
     posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-      api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
-      person_profiles: 'identified_only', // Only create profiles for identified users
+      api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
+      person_profiles: "identified_only", // Only create profiles for identified users
       capture_pageview: false, // We'll handle this manually for SPA
       capture_pageleave: true,
       loaded: (posthog) => {
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === "development") {
           posthog.debug();
         }
       },
@@ -114,11 +115,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ```typescript
 // src/posthog.ts
-import posthog from 'posthog-js';
+import posthog from "posthog-js";
 
 posthog.init(import.meta.env.VITE_POSTHOG_KEY, {
-  api_host: import.meta.env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com',
-  person_profiles: 'identified_only',
+  api_host: import.meta.env.VITE_POSTHOG_HOST || "https://us.i.posthog.com",
+  person_profiles: "identified_only",
 });
 
 export { posthog };
@@ -176,14 +177,14 @@ npm install posthog-node
 
 ```typescript
 // lib/posthog.ts
-import { PostHog } from 'posthog-node';
+import { PostHog } from "posthog-node";
 
 const posthog = new PostHog(process.env.POSTHOG_API_KEY!, {
-  host: process.env.POSTHOG_HOST || 'https://us.i.posthog.com',
+  host: process.env.POSTHOG_HOST || "https://us.i.posthog.com",
 });
 
 // Flush on shutdown
-process.on('SIGTERM', () => posthog.shutdown());
+process.on("SIGTERM", () => posthog.shutdown());
 
 export { posthog };
 
@@ -219,6 +220,7 @@ POSTHOG_HOST=https://us.i.posthog.com
 ```
 
 Add to `credentials.md` patterns:
+
 ```python
 'POSTHOG_API_KEY': r'phc_[A-Za-z0-9]+',
 ```
@@ -238,11 +240,11 @@ async function handleSignup(email: string, name: string) {
     email: user.email,
     name: user.name,
     created_at: user.createdAt,
-    plan: 'free',
+    plan: "free",
   });
 
-  posthog.capture('user_signed_up', {
-    signup_method: 'email',
+  posthog.capture("user_signed_up", {
+    signup_method: "email",
   });
 }
 
@@ -257,12 +259,12 @@ async function handleLogin(email: string) {
     last_login: new Date().toISOString(),
   });
 
-  posthog.capture('user_logged_in');
+  posthog.capture("user_logged_in");
 }
 
 // Reset on logout
 function handleLogout() {
-  posthog.capture('user_logged_out');
+  posthog.capture("user_logged_out");
   posthog.reset(); // Clears identity
 }
 ```
@@ -278,7 +280,7 @@ interface UserProperties {
 
   // Lifecycle
   created_at: string;
-  plan: 'free' | 'pro' | 'enterprise';
+  plan: "free" | "pro" | "enterprise";
 
   // Engagement
   onboarding_completed: boolean;
@@ -291,8 +293,8 @@ interface UserProperties {
 }
 
 // Update properties when they change
-posthog.capture('$set', {
-  $set: { plan: 'pro' },
+posthog.capture("$set", {
+  $set: { plan: "pro" },
 });
 ```
 
@@ -307,113 +309,113 @@ posthog.capture('$set', {
 // Use snake_case, past tense for actions
 
 // ✅ Good event names
-'user_signed_up'
-'feature_created'
-'subscription_upgraded'
-'onboarding_completed'
-'invite_sent'
-'file_uploaded'
-'search_performed'
-'checkout_started'
-'payment_completed'
+"user_signed_up";
+"feature_created";
+"subscription_upgraded";
+"onboarding_completed";
+"invite_sent";
+"file_uploaded";
+"search_performed";
+"checkout_started";
+"payment_completed";
 
 // ❌ Bad event names
-'click'           // Too vague
-'ButtonClick'     // Not snake_case
-'user signup'     // Spaces
-'creatingFeature' // Not past tense
+"click"; // Too vague
+"ButtonClick"; // Not snake_case
+"user signup"; // Spaces
+"creatingFeature"; // Not past tense
 ```
 
 ### Core Events by Category
 
 ```typescript
 // === AUTHENTICATION ===
-posthog.capture('user_signed_up', {
-  signup_method: 'google' | 'email' | 'github',
-  referral_source: 'organic' | 'paid' | 'referral',
+posthog.capture("user_signed_up", {
+  signup_method: "google" | "email" | "github",
+  referral_source: "organic" | "paid" | "referral",
 });
 
-posthog.capture('user_logged_in', {
-  login_method: 'google' | 'email' | 'magic_link',
+posthog.capture("user_logged_in", {
+  login_method: "google" | "email" | "magic_link",
 });
 
-posthog.capture('user_logged_out');
+posthog.capture("user_logged_out");
 
-posthog.capture('password_reset_requested');
+posthog.capture("password_reset_requested");
 
 // === ONBOARDING ===
-posthog.capture('onboarding_started');
+posthog.capture("onboarding_started");
 
-posthog.capture('onboarding_step_completed', {
-  step_name: 'profile' | 'preferences' | 'first_action',
+posthog.capture("onboarding_step_completed", {
+  step_name: "profile" | "preferences" | "first_action",
   step_number: 1,
   total_steps: 3,
 });
 
-posthog.capture('onboarding_completed', {
+posthog.capture("onboarding_completed", {
   duration_seconds: 120,
   steps_skipped: 0,
 });
 
-posthog.capture('onboarding_skipped', {
+posthog.capture("onboarding_skipped", {
   skipped_at_step: 2,
 });
 
 // === FEATURE USAGE ===
-posthog.capture('feature_used', {
-  feature_name: 'export' | 'share' | 'duplicate',
-  context: 'dashboard' | 'editor',
+posthog.capture("feature_used", {
+  feature_name: "export" | "share" | "duplicate",
+  context: "dashboard" | "editor",
 });
 
-posthog.capture('[resource]_created', {
-  resource_type: 'project' | 'document' | 'team',
+posthog.capture("[resource]_created", {
+  resource_type: "project" | "document" | "team",
   // Resource-specific properties
 });
 
-posthog.capture('[resource]_updated', {
-  resource_type: 'project',
-  fields_changed: ['name', 'description'],
+posthog.capture("[resource]_updated", {
+  resource_type: "project",
+  fields_changed: ["name", "description"],
 });
 
-posthog.capture('[resource]_deleted', {
-  resource_type: 'project',
+posthog.capture("[resource]_deleted", {
+  resource_type: "project",
 });
 
 // === BILLING ===
-posthog.capture('pricing_page_viewed', {
-  current_plan: 'free',
+posthog.capture("pricing_page_viewed", {
+  current_plan: "free",
 });
 
-posthog.capture('checkout_started', {
-  plan: 'pro',
-  billing_period: 'monthly' | 'annual',
+posthog.capture("checkout_started", {
+  plan: "pro",
+  billing_period: "monthly" | "annual",
   price: 29,
 });
 
-posthog.capture('subscription_upgraded', {
-  from_plan: 'free',
-  to_plan: 'pro',
+posthog.capture("subscription_upgraded", {
+  from_plan: "free",
+  to_plan: "pro",
   mrr_change: 29,
 });
 
-posthog.capture('subscription_downgraded', {
-  from_plan: 'pro',
-  to_plan: 'free',
-  reason: 'too_expensive' | 'missing_features' | 'not_using',
+posthog.capture("subscription_downgraded", {
+  from_plan: "pro",
+  to_plan: "free",
+  reason: "too_expensive" | "missing_features" | "not_using",
 });
 
-posthog.capture('subscription_cancelled', {
-  plan: 'pro',
-  reason: 'string',
-  feedback: 'string',
+posthog.capture("subscription_cancelled", {
+  plan: "pro",
+  reason: "string",
+  feedback: "string",
 });
 
 // === ERRORS ===
-posthog.capture('error_occurred', {
-  error_type: 'api_error' | 'validation_error' | 'network_error',
-  error_message: 'string',
-  error_code: 'string',
-  page: '/dashboard',
+posthog.capture("error_occurred", {
+  error_type: "api_error" | "validation_error" | "network_error",
+  error_message: "string",
+  error_code: "string",
+  page: "/dashboard",
 });
 ```
 
@@ -547,18 +549,22 @@ function ExperimentComponent() {
 ## Essential SaaS Dashboards
 
 ### 1. Acquisition Dashboard
+
 **Questions answered:** Where do users come from? What converts?
 
 Insights to create:
+
 - [ ] Signups by source (daily/weekly trend)
 - [ ] Signup conversion rate by landing page
 - [ ] Time from first visit to signup
 - [ ] Signup funnel: Visit → Signup Page → Form Start → Complete
 
 ### 2. Activation Dashboard
+
 **Questions answered:** Are new users getting value?
 
 Insights to create:
+
 - [ ] Onboarding completion rate
 - [ ] Time to first key action
 - [ ] Activation rate (% reaching "aha moment" in first 7 days)
@@ -566,9 +572,11 @@ Insights to create:
 - [ ] Feature adoption in first session
 
 ### 3. Engagement Dashboard
+
 **Questions answered:** How are users using the product?
 
 Insights to create:
+
 - [ ] DAU/WAU/MAU trends
 - [ ] Feature usage heatmap
 - [ ] Session duration distribution
@@ -576,9 +584,11 @@ Insights to create:
 - [ ] Power users vs casual users
 
 ### 4. Retention Dashboard
+
 **Questions answered:** Are users coming back?
 
 Insights to create:
+
 - [ ] Retention cohorts (D1, D7, D30)
 - [ ] Churn rate by plan
 - [ ] Reactivation rate
@@ -586,9 +596,11 @@ Insights to create:
 - [ ] Features correlated with retention
 
 ### 5. Revenue Dashboard
+
 **Questions answered:** Is the business growing?
 
 Insights to create:
+
 - [ ] MRR trend
 - [ ] Upgrades vs downgrades
 - [ ] Trial to paid conversion
@@ -602,21 +614,27 @@ Insights to create:
 ## Essential E-Commerce Dashboards
 
 ### 1. Conversion Funnel
+
 Insights to create:
+
 - [ ] Full funnel: Browse → PDP → Add to Cart → Checkout → Purchase
 - [ ] Cart abandonment rate
 - [ ] Checkout drop-off by step
 - [ ] Payment failure rate
 
 ### 2. Product Performance
+
 Insights to create:
+
 - [ ] Product views → purchases (by product)
 - [ ] Add to cart rate by category
 - [ ] Search → purchase correlation
 - [ ] Cross-sell effectiveness
 
 ### 3. Customer Dashboard
+
 Insights to create:
+
 - [ ] Repeat purchase rate
 - [ ] Average order value trend
 - [ ] Customer lifetime value
@@ -629,21 +647,27 @@ Insights to create:
 ## Essential Content Dashboards
 
 ### 1. Consumption Dashboard
+
 Insights to create:
+
 - [ ] Content views by type
 - [ ] Read/watch completion rate
 - [ ] Time on content
 - [ ] Scroll depth distribution
 
 ### 2. Engagement Dashboard
+
 Insights to create:
+
 - [ ] Shares by content
 - [ ] Comments per article
 - [ ] Save/bookmark rate
 - [ ] Return visits to same content
 
 ### 3. Growth Dashboard
+
 Insights to create:
+
 - [ ] New vs returning visitors
 - [ ] Email signup rate
 - [ ] Referral traffic sources
@@ -655,21 +679,27 @@ Insights to create:
 ## Essential AI App Dashboards
 
 ### 1. Usage Dashboard
+
 Insights to create:
+
 - [ ] Queries per user per day
 - [ ] Token usage distribution
 - [ ] Response time p50/p95
 - [ ] Error rate by query type
 
 ### 2. Quality Dashboard
+
 Insights to create:
+
 - [ ] User feedback (thumbs up/down)
 - [ ] Regeneration rate (user asked for new response)
 - [ ] Edit rate (user modified AI output)
 - [ ] Follow-up query rate
 
 ### 3. Cost Dashboard
+
 Insights to create:
+
 - [ ] Token cost per user
 - [ ] Cost by model
 - [ ] Cost by feature
@@ -774,19 +804,19 @@ posthog.init(key, {
 
 ```typescript
 // ❌ NEVER track these
-posthog.capture('event', {
-  password: '...',           // Credentials
-  credit_card: '...',        // Payment info
-  ssn: '...',                // Government IDs
-  medical_info: '...',       // Health data
-  full_address: '...',       // Detailed location
+posthog.capture("event", {
+  password: "...", // Credentials
+  credit_card: "...", // Payment info
+  ssn: "...", // Government IDs
+  medical_info: "...", // Health data
+  full_address: "...", // Detailed location
 });
 
 // ✅ OK to track
-posthog.capture('event', {
-  country: 'US',             // General location
-  plan: 'pro',               // Product info
-  feature_used: 'export',    // Usage
+posthog.capture("event", {
+  country: "US", // General location
+  plan: "pro", // Product info
+  feature_used: "export", // Usage
 });
 ```
 
@@ -794,12 +824,12 @@ posthog.capture('event', {
 
 ```typescript
 // lib/analytics.ts
-const SENSITIVE_KEYS = ['password', 'token', 'secret', 'credit', 'ssn'];
+const SENSITIVE_KEYS = ["password", "token", "secret", "credit", "ssn"];
 
 function sanitizeProperties(props: Record<string, any>): Record<string, any> {
   return Object.fromEntries(
-    Object.entries(props).filter(([key]) =>
-      !SENSITIVE_KEYS.some(sensitive => key.toLowerCase().includes(sensitive))
+    Object.entries(props).filter(
+      ([key]) => !SENSITIVE_KEYS.some((sensitive) => key.toLowerCase().includes(sensitive))
     )
   );
 }
@@ -817,7 +847,7 @@ export function safeCapture(event: string, properties?: Record<string, any>) {
 
 ```typescript
 // Disable in development
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   posthog.opt_out_capturing();
   // Or use debug mode
   posthog.debug();
@@ -828,7 +858,7 @@ if (process.env.NODE_ENV === 'development') {
 
 ```typescript
 // playwright/fixtures.ts
-import { test as base } from '@playwright/test';
+import { test as base } from "@playwright/test";
 
 export const test = base.extend({
   page: async ({ page }, use) => {
@@ -848,15 +878,15 @@ export const test = base.extend({
 });
 
 // In tests
-test('tracks signup event', async ({ page }) => {
-  await page.goto('/signup');
-  await page.fill('[name=email]', 'test@example.com');
-  await page.click('button[type=submit]');
+test("tracks signup event", async ({ page }) => {
+  await page.goto("/signup");
+  await page.fill("[name=email]", "test@example.com");
+  await page.click("button[type=submit]");
 
   const events = await page.evaluate(() => window.capturedEvents);
   expect(events).toContainEqual({
-    event: 'user_signed_up',
-    props: expect.objectContaining({ signup_method: 'email' }),
+    event: "user_signed_up",
+    props: expect.objectContaining({ signup_method: "email" }),
   });
 });
 ```
@@ -872,7 +902,7 @@ test('tracks signup event', async ({ page }) => {
 posthog.init(key, {
   // ...
   loaded: (posthog) => {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development") {
       posthog.debug();
       // Toolbar available via PostHog dashboard
     }
@@ -886,8 +916,8 @@ posthog.init(key, {
 // Log all events in development
 posthog.init(key, {
   _onCapture: (eventName, eventData) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('PostHog Event:', eventName, eventData);
+    if (process.env.NODE_ENV === "development") {
+      console.log("PostHog Event:", eventName, eventData);
     }
   },
 });
@@ -903,55 +933,60 @@ posthog.init(key, {
 ## Must-Track Events
 
 ### Acquisition
+
 - [ ] `page_viewed` (automatic with capture_pageview)
 - [ ] `user_signed_up`
 - [ ] `user_logged_in`
 
 ### Activation
+
 - [ ] `onboarding_started`
 - [ ] `onboarding_step_completed`
 - [ ] `onboarding_completed`
 - [ ] `first_[key_action]` (your "aha moment")
 
 ### Engagement
+
 - [ ] `[feature]_used`
 - [ ] `[resource]_created`
 - [ ] `search_performed`
 - [ ] `invite_sent`
 
 ### Revenue
+
 - [ ] `pricing_page_viewed`
 - [ ] `checkout_started`
 - [ ] `subscription_upgraded`
 - [ ] `subscription_cancelled`
 
 ### Retention
+
 - [ ] `session_started`
 - [ ] `feature_[x]_used` (power features)
 ```
 
 ### Dashboard Templates
 
-| Project Type | Key Dashboards |
-|--------------|----------------|
-| **SaaS** | Acquisition, Activation, Engagement, Retention, Revenue |
-| **E-Commerce** | Conversion Funnel, Product Performance, Customer LTV |
-| **Content** | Consumption, Engagement, Growth |
-| **AI/LLM** | Usage, Quality, Cost |
-| **Mobile App** | Installs, Onboarding, DAU/MAU, Crashes |
+| Project Type   | Key Dashboards                                          |
+| -------------- | ------------------------------------------------------- |
+| **SaaS**       | Acquisition, Activation, Engagement, Retention, Revenue |
+| **E-Commerce** | Conversion Funnel, Product Performance, Customer LTV    |
+| **Content**    | Consumption, Engagement, Growth                         |
+| **AI/LLM**     | Usage, Quality, Cost                                    |
+| **Mobile App** | Installs, Onboarding, DAU/MAU, Crashes                  |
 
 ### Properties to Always Include
 
 ```typescript
 // Auto-enriched by PostHog
-$current_url
-$browser
-$device_type
-$os
+$current_url;
+$browser;
+$device_type;
+$os;
 
 // Add these yourself
-user_plan       // 'free' | 'pro' | 'enterprise'
-user_role       // 'admin' | 'member'
-company_id      // For B2B
-feature_context // Where in the app
+user_plan; // 'free' | 'pro' | 'enterprise'
+user_role; // 'admin' | 'member'
+company_id; // For B2B
+feature_context; // Where in the app
 ```

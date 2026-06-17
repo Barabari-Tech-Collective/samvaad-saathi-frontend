@@ -16,11 +16,9 @@ const PATH_TO_SCREEN_MAP: Record<string, string> = {
   "/interview-completed": SCREEN_VIEW.INTERVIEW_COMPLETED_PAGE,
   "/report-summary": SCREEN_VIEW.OVERALL_REPORT_PAGE,
   "/auth/signup": SCREEN_VIEW.SIGNUP_PAGE,
-  "/pronunciation-practice/start":
-    SCREEN_VIEW.PRONUNCIATION_PRACTICE_START_PAGE,
+  "/pronunciation-practice/start": SCREEN_VIEW.PRONUNCIATION_PRACTICE_START_PAGE,
   "/pronunciation-practice": SCREEN_VIEW.PRONUNCIATION_PRACTICE_PAGE,
-  "/structure-your-answer/interview":
-    SCREEN_VIEW.STRUCTURE_YOUR_ANSWER_INTERVIEW_PAGE,
+  "/structure-your-answer/interview": SCREEN_VIEW.STRUCTURE_YOUR_ANSWER_INTERVIEW_PAGE,
   "/structure-your-answer": SCREEN_VIEW.STRUCTURE_YOUR_ANSWER_PAGE,
 };
 
@@ -32,7 +30,7 @@ export function PostHogPageView() {
     if (pathname) {
       // Find the best match for the current path
       const screenName = Object.entries(PATH_TO_SCREEN_MAP).find(([path]) =>
-        pathname.startsWith(path),
+        pathname.startsWith(path)
       )?.[1];
 
       if (screenName) {

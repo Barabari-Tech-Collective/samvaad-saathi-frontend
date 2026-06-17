@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  trackError,
-  trackProfileSupportButtonClick,
-} from "@/lib/posthog/tracking.utils";
+import { trackError, trackProfileSupportButtonClick } from "@/lib/posthog/tracking.utils";
 import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/solid";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import React, { useEffect } from "react";
@@ -30,9 +27,7 @@ const GlobalError = ({
     trackProfileSupportButtonClick();
     const phoneNumber = "+918639322365";
     const message = "Hi, I need support with Samvaad Saathi app.";
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-      message
-    )}`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
   };
 
@@ -44,11 +39,7 @@ const GlobalError = ({
             <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 text-center">
               {/* Lottie Animation */}
               <div className="w-48 h-48 mx-auto mb-6">
-                <DotLottieReact
-                  src="/assets/lottie/Failed.lottie"
-                  autoplay
-                  loop
-                />
+                <DotLottieReact src="/assets/lottie/Failed.lottie" autoplay loop />
               </div>
 
               {/* Error Message */}
@@ -57,8 +48,8 @@ const GlobalError = ({
               </h1>
 
               <p className="text-gray-600 text-lg mb-8 max-w-md mx-auto">
-                We&apos;re sorry, but something unexpected happened. Don&apos;t
-                worry, our team has been notified and we&apos;re working on it.
+                We&apos;re sorry, but something unexpected happened. Don&apos;t worry, our team has
+                been notified and we&apos;re working on it.
               </p>
 
               {/* Error Details (Dev Mode) */}
@@ -79,9 +70,7 @@ const GlobalError = ({
                     {error.stack && (
                       <div>
                         <strong>Stack:</strong>
-                        <pre className="mt-1 whitespace-pre-wrap">
-                          {error.stack}
-                        </pre>
+                        <pre className="mt-1 whitespace-pre-wrap">{error.stack}</pre>
                       </div>
                     )}
                   </div>

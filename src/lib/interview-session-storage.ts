@@ -9,10 +9,7 @@ export function getInterviewQuestionsStorageKey(interviewId: number): string {
   return `${STORAGE_KEY_PREFIX}${interviewId}`;
 }
 
-export function setInterviewQuestions(
-  interviewId: number,
-  questions: unknown,
-): void {
+export function setInterviewQuestions(interviewId: number, questions: unknown): void {
   if (typeof window === "undefined") return;
   const key = getInterviewQuestionsStorageKey(interviewId);
   localStorage.setItem(key, JSON.stringify(questions));

@@ -1,9 +1,7 @@
 import React from "react";
 import { PerQuestionAnalysisProps } from "./types";
 
-const PerQuestionAnalysis: React.FC<PerQuestionAnalysisProps> = ({
-  questionAnalysis,
-}) => {
+const PerQuestionAnalysis: React.FC<PerQuestionAnalysisProps> = ({ questionAnalysis }) => {
   const getQuestionTypeBadgeColor = (type: string) => {
     const lowerType = type.toLowerCase();
     if (lowerType.includes("technical question")) {
@@ -18,7 +16,7 @@ const PerQuestionAnalysis: React.FC<PerQuestionAnalysisProps> = ({
 
   return (
     <div className="space-y-4" id="per-question-analysis">
-      {questionAnalysis.map((question, index) => {
+      {questionAnalysis?.map((question, index) => {
         const hasFeedback = question.feedback !== null;
 
         return (
@@ -49,32 +47,26 @@ const PerQuestionAnalysis: React.FC<PerQuestionAnalysisProps> = ({
             <div className="collapse-content">
               {hasFeedback ? (
                 <div className="space-y-6">
-                  {question.feedback!.strengths && (
+                  {question.feedback?.strengths && (
                     <section className="space-y-3">
-                      <h4 className="text-base font-semibold text-emerald-600">
-                        Strengths
-                      </h4>
+                      <h4 className="text-base font-semibold text-emerald-600">Strengths</h4>
                       <p className="text-sm leading-relaxed whitespace-pre-line">
-                        {question.feedback!.strengths}
+                        {question.feedback?.strengths}
                       </p>
                     </section>
                   )}
-                  {question.feedback!.areasOfImprovement && (
+                  {question.feedback?.areasOfImprovement && (
                     <section className="space-y-3">
-                      <h4 className="text-base font-semibold text-red-600">
-                        Areas of Improvement
-                      </h4>
+                      <h4 className="text-base font-semibold text-red-600">Areas of Improvement</h4>
                       <p className="text-sm leading-relaxed whitespace-pre-line">
-                        {question.feedback!.areasOfImprovement}
+                        {question.feedback?.areasOfImprovement}
                       </p>
                     </section>
                   )}
                 </div>
               ) : (
                 <div className="text-center text-muted-foreground py-4">
-                  <p className="text-sm">
-                    No report available — question not attempted.
-                  </p>
+                  <p className="text-sm">No report available — question not attempted.</p>
                 </div>
               )}
             </div>
