@@ -55,7 +55,7 @@ export default function Onboarding() {
       target_position: data.target_position,
       years_experience: data.years_experience,
     };
-
+    console.log("this is the submitted data at the time of onboarding", submitData);
     try {
       await updateProfileMutation.mutateAsync(submitData);
     } catch {
