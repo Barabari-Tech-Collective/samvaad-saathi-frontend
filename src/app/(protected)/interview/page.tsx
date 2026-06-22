@@ -89,7 +89,9 @@ const InterviewPage = () => {
   useEffect(() => {
     if (!interviewId || (!resumed && !reattempt)) return;
     const id = Number(interviewId);
+    console.log("this is the interview id", id);
     const stored = getInterviewQuestions(id);
+    console.log("this is the stored questions", stored);
     if (Array.isArray(stored) && stored.length > 0) {
       setQuestions(stored as GenerateQuestionsResponse["items"]);
       if (pendingStart) {
@@ -102,6 +104,7 @@ const InterviewPage = () => {
     if (resumed) {
       resumeInterview({ interviewId: id })
         .then((response) => {
+          console.log("this is the resume interview response", response);
           setInterviewQuestions(response.interviewId, response.questions);
           setQuestions(response.questions);
           if (pendingStart) {
@@ -129,6 +132,7 @@ const InterviewPage = () => {
       const parsedQuestions = JSON.parse(
         decodeURIComponent(selectedQuestionsParam)
       ) as GenerateQuestionsResponse["items"];
+      console.log("this is the parsed questions", parsedQuestions);
       if (Array.isArray(parsedQuestions) && parsedQuestions.length > 0) {
         setQuestions(parsedQuestions);
         if (pendingStart) {
@@ -144,6 +148,7 @@ const InterviewPage = () => {
 
   // Update local questions state when generatedQuestions changes
   useEffect(() => {
+    console.log("this is the generated questions", generatedQuestions);
     if (generatedQuestions?.items && generatedQuestions.items.length > 0) {
       setQuestions(generatedQuestions.items);
       // Start interview if user has clicked the start button

@@ -44,7 +44,7 @@ const InterviewCompleted = () => {
 
   const generateReport = async () => {
     try {
-      console.log("interviewId :", interviewId);
+      console.log("interviewId for generating report:", interviewId);
       if (interviewId) {
         await generateFinalReport({
           interviewId: parseInt(interviewId),
@@ -54,6 +54,7 @@ const InterviewCompleted = () => {
       }
     } catch (error) {
       console.error("Failed to generate final report:", error);
+      console.log("Failed to generate final report:", error);
       toast.error("Failed to generate final report");
     }
   };
