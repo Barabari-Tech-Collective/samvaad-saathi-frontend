@@ -297,6 +297,23 @@ const InterviewPage = () => {
     setQuestions((prev) => {
       const newQuestions = [...prev];
       newQuestions.splice(currentQuestionIndex + 1, 0, transformedQuestion);
+
+      // Enforce the 7 question limit for Full Stack Role on the frontend
+      // by popping the last unasked base question if we add a follow-up.
+      if (role === "Full Stack Developer" && newQuestions.length > 7) {
+        let lastUnaskedBaseIndex = -1;
+        // Search backwards for the last base question
+        for (let i = newQuestions.length - 1; i > currentQuestionIndex + 1; i--) {
+          if (!newQuestions[i].isFollowUp) {
+            lastUnaskedBaseIndex = i;
+            break;
+          }
+        }
+        if (lastUnaskedBaseIndex !== -1) {
+          newQuestions.splice(lastUnaskedBaseIndex, 1);
+        }
+      }
+
       return newQuestions;
     });
   };
