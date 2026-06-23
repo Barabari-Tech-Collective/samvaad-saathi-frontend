@@ -448,10 +448,12 @@ const InterviewPage = () => {
                 role={role || ""}
                 allowSpeech={!isIntroducing}
               />
-              <CodeView
-                isLoading={isGeneratingQuestions}
-                supplement={questions?.[currentQuestionIndex]?.supplement || null}
-              />
+              {role?.toLowerCase() !== "full stack developer" && (
+                <CodeView
+                  isLoading={isGeneratingQuestions}
+                  supplement={questions?.[currentQuestionIndex]?.supplement || null}
+                />
+              )}
             </>
           ) : (
             <>
@@ -460,7 +462,7 @@ const InterviewPage = () => {
                   <DotLottieReact src="/assets/lottie/Speaker.lottie" autoplay loop />
                 </div>
 
-                <div className="col-span-3">
+                <div className={role?.toLowerCase() === "full stack developer" ? "col-span-5" : "col-span-3"}>
                   <Question
                     isLoading={isGeneratingQuestions}
                     question={questions?.[currentQuestionIndex]}
@@ -471,12 +473,14 @@ const InterviewPage = () => {
                     allowSpeech={!isIntroducing}
                   />
                 </div>
-                <div className="col-span-2">
-                  <CodeView
-                    isLoading={isGeneratingQuestions}
-                    supplement={questions?.[currentQuestionIndex]?.supplement || null}
-                  />
-                </div>
+                {role?.toLowerCase() !== "full stack developer" && (
+                  <div className="col-span-2">
+                    <CodeView
+                      isLoading={isGeneratingQuestions}
+                      supplement={questions?.[currentQuestionIndex]?.supplement || null}
+                    />
+                  </div>
+                )}
               </div>
             </>
           )}
