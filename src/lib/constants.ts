@@ -6,6 +6,7 @@ export const DEGREE_OPTIONS = [
   "BBA",
   "BCA",
   "Bcom Computers",
+  "BTech",
   "BSc Al/ML",
   "BSc Computer Science",
   "BSc Life Science",
@@ -17,6 +18,7 @@ export const UNIVERSITY_OPTIONS = [
   "Government City College",
   "GDC Husaini Alam",
   "GDC Narayanguda",
+  "Umeed",
   "Others",
 ] as const;
 
