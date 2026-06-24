@@ -1,6 +1,7 @@
 "use client";
 
 import { useForm, Controller } from "react-hook-form";
+import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { FileDragDropZone } from "./FileDragDropZone";
@@ -98,8 +99,13 @@ export function ResumeInputForm({
       // Navigate to next step
       onNext();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to analyze resume. Please try again.";
+      let errorMessage = "Failed to analyze resume. Please try again.";
+      if (axios.isAxiosError(error) && error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
       setAnalysisError(errorMessage);
       toast.error(errorMessage);
       console.error("Resume analysis error:", error);
