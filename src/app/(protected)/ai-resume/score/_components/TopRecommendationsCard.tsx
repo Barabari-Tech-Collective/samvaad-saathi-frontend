@@ -2,7 +2,7 @@ import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { useAIResumeContext } from "../../_components/resume-provider";
 
 export function TopRecommendationsCard() {
-  const { analysisResult } = useAIResumeContext();
+  const { analysisResult, formData } = useAIResumeContext();
 
   const recs = analysisResult?.finalRecommendations ?? [];
 
@@ -36,10 +36,10 @@ export function TopRecommendationsCard() {
 
       <div className="flex flex-wrap gap-2 pt-2">
         <span className="px-4 py-2 bg-primary/5 text-primary rounded-full text-xs font-bold border border-primary/10">
-          Frontend Developer
+          {formData?.targetRole || "Target Role"}
         </span>
         <span className="px-4 py-2 bg-slate-50 text-slate-500 rounded-full text-xs font-bold border border-slate-200">
-          Entry Level
+          {formData?.experienceLevel || "Level"}
         </span>
       </div>
     </div>
