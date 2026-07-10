@@ -98,7 +98,7 @@ export default function SignupPage() {
   return (
     <div className="auth-page flex flex-col justify-center items-center w-full h-screen px-4">
       {/* Logo */}
-      <Image
+      <img
         src="/barabari_logo.png"
         alt="Samvaad Saathi Logo"
         className="w-[116px] h-[110px] mb-6"
