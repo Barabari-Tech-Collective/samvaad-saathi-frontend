@@ -9,7 +9,13 @@ export function proxy(request: NextRequest) {
 
   // Define static/internal routes to exclude from middleware
   const isInternalRoute =
-    pathname.includes("_next") || pathname.includes("api") || pathname.includes("favicon.ico");
+    pathname.includes("_next") ||
+    pathname.includes("api") ||
+    pathname.includes("favicon.ico") ||
+    pathname.endsWith(".json") ||
+    pathname.endsWith(".png") ||
+    pathname.endsWith(".jpg") ||
+    pathname.endsWith(".svg");
 
   if (isInternalRoute) {
     return NextResponse.next();
@@ -36,7 +42,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - manifest.json (manifest file)
+     * - *.png, *.jpg, *.svg (images)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|manifest.json|.*\\.png$|.*\\.jpg$|.*\\.svg$).*)",
   ],
 };

@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
+import logo from "../../../../public/barabari_logo.png";
 
 export default function SignupPage() {
   const [cookies, setCookie] = useCookies(["token", "refresh_token"]);
@@ -42,7 +43,7 @@ export default function SignupPage() {
       const token = params.get("token");
       const refreshToken = params.get("refresh_token");
 
-      if (token && refreshToken) {
+      if (token) {
         setIsProcessing(true);
 
         // Track successful login
@@ -58,7 +59,11 @@ export default function SignupPage() {
         };
 
         setCookie("token", token, cookieOptions);
-        setCookie("refresh_token", refreshToken, cookieOptions);
+        if (refreshToken) {
+          setCookie("refresh_token", refreshToken, cookieOptions);
+        } else {
+          console.warn("No refresh_token found in URL, continuing with access token only.");
+        }
 
         // Clear the query parameters from URL
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -99,7 +104,7 @@ export default function SignupPage() {
     <div className="auth-page flex flex-col justify-center items-center w-full h-screen px-4">
       {/* Logo */}
       <Image
-        src="/barabari_logo.png"
+        src={logo}
         alt="Samvaad Saathi Logo"
         className="w-[116px] h-[110px] mb-6"
         width={300}

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import logo from "../../public/barabari_logo.png";
 
 /**
  * Top navigation bar used across protected screens.
@@ -24,7 +25,7 @@ export default function TopNav({
         {/* App Logo and Name */}
         <div className="flex items-center gap-3">
           <Image
-            src="/barabari_logo.png"
+            src={logo}
             alt="Samvaad Saathi Logo"
             width={32}
             height={32}
