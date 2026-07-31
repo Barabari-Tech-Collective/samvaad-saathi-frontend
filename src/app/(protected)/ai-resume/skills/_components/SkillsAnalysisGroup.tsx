@@ -19,11 +19,11 @@ export function SkillsAnalysisGroup() {
       iconColor: "text-slate-600",
     },
     {
-      title: "De-prioritize",
-      key: "deprioritizedSkills" as const,
+      title: "Additional Skills",
+      key: "additionalSkills" as const,
       color: "bg-orange-50 text-orange-700",
       iconColor: "text-slate-600",
-      description: "Less relevant for this role and experience level.",
+      description: "Additional technologies and skills found in your resume.",
     },
   ];
 

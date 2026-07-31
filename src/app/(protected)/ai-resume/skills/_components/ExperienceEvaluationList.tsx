@@ -4,21 +4,21 @@ export function ExperienceEvaluationList() {
   const { analysisResult } = useAIResumeContext();
   const evaluation = analysisResult?.experienceEvaluation;
 
-  const getStatusColor = (status: string) => {
-    if (!status) return "bg-slate-50 text-slate-600 border border-slate-100";
-    switch (status.toLowerCase()) {
-      case "excellent":
-        return "bg-emerald-50 text-emerald-600 border border-emerald-100";
-      case "good":
-        return "bg-emerald-50 text-emerald-600 border border-emerald-100";
-      case "average":
-        return "bg-orange-50 text-orange-600 border border-orange-100";
-      case "poor":
-        return "bg-red-50 text-red-600 border border-red-100";
-      default:
-        return "bg-slate-50 text-slate-600 border border-slate-100";
-    }
-  };
+  // const getStatusColor = (status: string) => {
+  //   if (!status) return "bg-slate-50 text-slate-600 border border-slate-100";
+  //   switch (status.toLowerCase()) {
+  //     case "excellent":
+  //       return "bg-emerald-50 text-emerald-600 border border-emerald-100";
+  //     case "good":
+  //       return "bg-emerald-50 text-emerald-600 border border-emerald-100";
+  //     case "average":
+  //       return "bg-orange-50 text-orange-600 border border-orange-100";
+  //     case "poor":
+  //       return "bg-red-50 text-red-600 border border-red-100";
+  //     default:
+  //       return "bg-slate-50 text-slate-600 border border-slate-100";
+  //   }
+  // };
 
   return (
     <div className="space-y-4">
@@ -39,11 +39,13 @@ export function ExperienceEvaluationList() {
                 </div>
                 <span className="font-semibold text-[15px] text-slate-800">Overall Experience</span>
               </div>
-              <span
+              <p className="mt-2 text-xs text-primary font-semibold">{evaluation?.rating}</p>
+
+              {/* <span
                 className={`px-3 py-1 rounded-full text-[11px] uppercase tracking-wider font-bold ${getStatusColor(evaluation?.rating || "")}`}
               >
                 {evaluation?.rating}
-              </span>
+              </span> */}
             </div>
             <p className="text-[13px] leading-relaxed text-slate-500 font-medium">
               {evaluation?.feedback}
