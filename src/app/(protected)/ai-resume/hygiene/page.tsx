@@ -34,11 +34,12 @@ export default function HygieneAndTemplatePage() {
   const hygiene = analysisResult?.hygieneCheck;
   const grammarIssues = hygiene?.grammarIssues ?? [];
   const recommendations = analysisResult?.finalRecommendations ?? [];
+  const education = analysisResult?.educationEvaluation;
 
   const profileLinks = [
-    { name: "LinkedIn Profile", valid: !!hygiene?.hasLinkedIn },
-    { name: "GitHub Profile", valid: !!hygiene?.hasGithub },
-    { name: "Portfolio Website", valid: !!hygiene?.hasPortfolio },
+    { name: "LinkedIn Profile", valid: !!hygiene?.hasLinkedIn && hygiene?.linkedinWorking },
+    { name: "GitHub Profile", valid: !!hygiene?.hasGithub && hygiene?.githubWorking },
+    { name: "Portfolio Website", valid: !!hygiene?.hasPortfolio && hygiene?.portfolioWorking },
     { name: "Phone Number", valid: !!hygiene?.hasPhone },
     { name: "Email Address", valid: !!hygiene?.hasEmail },
   ];
@@ -248,6 +249,57 @@ export default function HygieneAndTemplatePage() {
               ))}
             </div>
           </div>
+
+          {/* Education Evaluation Card */}
+          {education && (
+            <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-slate-900">Education</h2>
+                <span className="text-slate-400 text-xs">Academic Review</span>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-700">Institution</span>
+                  <span
+                    className={`font-medium ${
+                      education.hasInstitution ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {education.hasInstitution ? "✔ Present" : "✖ Missing"}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-700">Duration</span>
+                  <span
+                    className={`font-medium ${
+                      education.hasDuration ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {education.hasDuration ? "✔ Present" : "✖ Missing"}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-700">CGPA / Percentage</span>
+                  <span
+                    className={`font-medium ${
+                      education.hasScore ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {education.hasScore ? "✔ Present" : "✖ Missing"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="border-t border-slate-100 pt-4">
+                <h3 className="text-sm font-semibold text-slate-800 mb-2">AI Feedback</h3>
+
+                <p className="text-sm text-slate-600 leading-6">{education.feedback}</p>
+              </div>
+            </div>
+          )}
 
           {/* Final Recommendations Card */}
           <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
