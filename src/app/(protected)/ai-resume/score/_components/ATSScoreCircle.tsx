@@ -64,7 +64,7 @@ export function ATSScoreCircle() {
           </p>
         </div>
       </div>
-
+      <div className="mt-6 relative z-10">
       {summary && (
         <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
           <h2 className="text-[15px] font-bold text-slate-800 mb-3">ATS Summary</h2>
@@ -72,6 +72,7 @@ export function ATSScoreCircle() {
           <p className="text-[13px] leading-7 text-slate-600">{summary}</p>
         </div>
       )}
+      </div>
 
       {/* Background decoration */}
       <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl mix-blend-overlay"></div>

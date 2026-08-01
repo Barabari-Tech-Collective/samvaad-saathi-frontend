@@ -37,7 +37,7 @@ export default function HygieneAndTemplatePage() {
   const education = analysisResult?.educationEvaluation;
 
   const profileLinks = [
-    { name: "LinkedIn Profile", valid: !!hygiene?.hasLinkedIn && hygiene?.linkedinWorking },
+    { name: "LinkedIn Profile", valid: !!hygiene?.hasLinkedIn && hygiene?.linkedInWorking },
     { name: "GitHub Profile", valid: !!hygiene?.hasGithub && hygiene?.githubWorking },
     { name: "Portfolio Website", valid: !!hygiene?.hasPortfolio && hygiene?.portfolioWorking },
     { name: "Phone Number", valid: !!hygiene?.hasPhone },
@@ -230,7 +230,7 @@ export default function HygieneAndTemplatePage() {
           <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-slate-900">Profile links</h2>
-              <span className="text-slate-400 text-xs">Developer track</span>
+              {/* <span className="text-slate-400 text-xs">Developer track</span> */}
             </div>
             <div className="space-y-3">
               {profileLinks.map((link, idx) => (

@@ -42,7 +42,7 @@ export interface SuggestedProject {
 }
 
 export interface HygieneCheck {
-  linkedinWorking: boolean;
+  linkedInWorking: boolean;
   githubWorking: boolean;
   portfolioWorking: boolean;
   grammarIssues?: string[];
