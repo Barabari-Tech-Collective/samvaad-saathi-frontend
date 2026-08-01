@@ -5,18 +5,25 @@
 export interface ScoreBreakdown {
   skillsMatch?: number;
   experienceMatch?: number;
-  formattingScore?: number;
-  keywordDensity?: number;
+  linkIntegrity?: number;
+  educationScore?: number;
 }
 
 export interface SkillsAnalysis {
   strongSkills?: string[];
   missingSkills?: string[];
-  deprioritizedSkills?: string[];
+  additionalSkills?: string[];
 }
 
 export interface ExperienceEvaluation {
   rating: string;
+  feedback: string;
+}
+
+export interface EducationEvaluation {
+  hasInstitution: boolean;
+  hasDuration: boolean;
+  hasScore: boolean;
   feedback: string;
 }
 
@@ -35,10 +42,16 @@ export interface SuggestedProject {
 }
 
 export interface HygieneCheck {
+  linkedInWorking: boolean;
+  githubWorking: boolean;
+  portfolioWorking: boolean;
   grammarIssues?: string[];
   hasLinkedIn: boolean;
   hasGithub: boolean;
   hasPortfolio: boolean;
+  hasInstitution?: boolean;
+  hasDuration?: boolean;
+  hasScore?: boolean;
   hasPhone: boolean;
   hasEmail: boolean;
 }
@@ -49,6 +62,7 @@ export interface AnalysisResult {
   scoreBreakdown: ScoreBreakdown;
   skillsAnalysis: SkillsAnalysis;
   experienceEvaluation?: ExperienceEvaluation;
+  educationEvaluation?: EducationEvaluation;
   projectEvaluation?: ProjectEvaluationItem[];
   suggestedProject?: SuggestedProject;
   finalRecommendations?: string[];

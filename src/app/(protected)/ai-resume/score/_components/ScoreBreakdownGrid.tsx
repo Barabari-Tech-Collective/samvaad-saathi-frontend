@@ -19,12 +19,12 @@ export function ScoreBreakdownGrid() {
         track: "bg-emerald-100",
       },
       {
-        key: "formattingScore",
-        label: "Formatting",
+        key: "linkIntegrity",
+        label: "Links",
         color: "bg-emerald-500",
         track: "bg-emerald-100",
       },
-      { key: "keywordDensity", label: "Keywords", color: "bg-orange-500", track: "bg-orange-100" },
+      { key: "educationScore", label: "Education", color: "bg-orange-500", track: "bg-orange-100" },
     ];
 
     return scoreMap

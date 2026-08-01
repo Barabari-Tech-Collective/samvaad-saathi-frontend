@@ -92,6 +92,7 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
             ...(token && { Authorization: `Bearer ${token}` }),
           },
         });
+        console.log("this is response data", res.data);
         return res.data;
       } catch (error) {
         const err = error as AxiosError<{ detail?: string }>;

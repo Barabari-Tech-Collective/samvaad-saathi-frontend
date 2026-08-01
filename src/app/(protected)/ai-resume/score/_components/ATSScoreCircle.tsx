@@ -5,6 +5,7 @@ import { useAIResumeContext } from "../../_components/resume-provider";
 export function ATSScoreCircle() {
   const { analysisResult } = useAIResumeContext();
   const score = analysisResult?.atsScore ?? 0;
+  const summary = analysisResult?.summary;
 
   // Determine status text based on score
   const getStatusText = (score: number) => {
@@ -62,6 +63,15 @@ export function ATSScoreCircle() {
             {getStatusDescription(score)}
           </p>
         </div>
+      </div>
+      <div className="mt-6 relative z-10">
+      {summary && (
+        <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
+          <h2 className="text-[15px] font-bold text-slate-800 mb-3">ATS Summary</h2>
+
+          <p className="text-[13px] leading-7 text-slate-600">{summary}</p>
+        </div>
+      )}
       </div>
 
       {/* Background decoration */}

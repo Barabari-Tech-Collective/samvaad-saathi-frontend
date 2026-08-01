@@ -10,7 +10,8 @@ import { SuggestedProjectsWidget } from "./_components/SuggestedProjectsWidget";
 import { useAIResumeContext } from "../_components/resume-provider";
 
 export default function SkillsFeedbackPage() {
-  const { hasExperience } = useAIResumeContext();
+  // const { hasExperience } = useAIResumeContext();
+  const { analysisResult } = useAIResumeContext();
 
   return (
     <div className="w-full max-w-2xl mx-auto pb-20">
@@ -39,7 +40,7 @@ export default function SkillsFeedbackPage() {
         <div className="flex flex-col gap-8">
           <SkillsAnalysisGroup />
           <ProjectEvaluationList />
-          {hasExperience && <ExperienceEvaluationList />}
+          {analysisResult?.experienceEvaluation && <ExperienceEvaluationList />}
           <SuggestedProjectsWidget />
         </div>
 

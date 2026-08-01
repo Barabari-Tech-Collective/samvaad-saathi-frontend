@@ -89,7 +89,9 @@ const InterviewPage = () => {
   useEffect(() => {
     if (!interviewId || (!resumed && !reattempt)) return;
     const id = Number(interviewId);
+    console.log("this is the interview id", id);
     const stored = getInterviewQuestions(id);
+    console.log("this is the stored questions", stored);
     if (Array.isArray(stored) && stored.length > 0) {
       setQuestions(stored as GenerateQuestionsResponse["items"]);
       if (pendingStart) {
@@ -102,6 +104,7 @@ const InterviewPage = () => {
     if (resumed) {
       resumeInterview({ interviewId: id })
         .then((response) => {
+          console.log("this is the resume interview response", response);
           setInterviewQuestions(response.interviewId, response.questions);
           setQuestions(response.questions);
           if (pendingStart) {
@@ -129,6 +132,7 @@ const InterviewPage = () => {
       const parsedQuestions = JSON.parse(
         decodeURIComponent(selectedQuestionsParam)
       ) as GenerateQuestionsResponse["items"];
+      console.log("this is the parsed questions", parsedQuestions);
       if (Array.isArray(parsedQuestions) && parsedQuestions.length > 0) {
         setQuestions(parsedQuestions);
         if (pendingStart) {
@@ -144,6 +148,7 @@ const InterviewPage = () => {
 
   // Update local questions state when generatedQuestions changes
   useEffect(() => {
+    console.log("this is the generated questions", generatedQuestions);
     if (generatedQuestions?.items && generatedQuestions.items.length > 0) {
       setQuestions(generatedQuestions.items);
       // Start interview if user has clicked the start button
@@ -297,6 +302,23 @@ const InterviewPage = () => {
     setQuestions((prev) => {
       const newQuestions = [...prev];
       newQuestions.splice(currentQuestionIndex + 1, 0, transformedQuestion);
+
+      // Enforce the 7 question limit for Full Stack Role on the frontend
+      // by popping the last unasked base question if we add a follow-up.
+      if (role === "Full Stack Developer" && newQuestions.length > 7) {
+        let lastUnaskedBaseIndex = -1;
+        // Search backwards for the last base question
+        for (let i = newQuestions.length - 1; i > currentQuestionIndex + 1; i--) {
+          if (!newQuestions[i].isFollowUp) {
+            lastUnaskedBaseIndex = i;
+            break;
+          }
+        }
+        if (lastUnaskedBaseIndex !== -1) {
+          newQuestions.splice(lastUnaskedBaseIndex, 1);
+        }
+      }
+
       return newQuestions;
     });
   };
@@ -431,10 +453,12 @@ const InterviewPage = () => {
                 role={role || ""}
                 allowSpeech={!isIntroducing}
               />
-              <CodeView
-                isLoading={isGeneratingQuestions}
-                supplement={questions?.[currentQuestionIndex]?.supplement || null}
-              />
+              {role?.toLowerCase() !== "full stack developer" && (
+                <CodeView
+                  isLoading={isGeneratingQuestions}
+                  supplement={questions?.[currentQuestionIndex]?.supplement || null}
+                />
+              )}
             </>
           ) : (
             <>
@@ -443,7 +467,7 @@ const InterviewPage = () => {
                   <DotLottieReact src="/assets/lottie/Speaker.lottie" autoplay loop />
                 </div>
 
-                <div className="col-span-3">
+                <div className={role?.toLowerCase() === "full stack developer" ? "col-span-5" : "col-span-3"}>
                   <Question
                     isLoading={isGeneratingQuestions}
                     question={questions?.[currentQuestionIndex]}
@@ -454,12 +478,14 @@ const InterviewPage = () => {
                     allowSpeech={!isIntroducing}
                   />
                 </div>
-                <div className="col-span-2">
-                  <CodeView
-                    isLoading={isGeneratingQuestions}
-                    supplement={questions?.[currentQuestionIndex]?.supplement || null}
-                  />
-                </div>
+                {role?.toLowerCase() !== "full stack developer" && (
+                  <div className="col-span-2">
+                    <CodeView
+                      isLoading={isGeneratingQuestions}
+                      supplement={questions?.[currentQuestionIndex]?.supplement || null}
+                    />
+                  </div>
+                )}
               </div>
             </>
           )}

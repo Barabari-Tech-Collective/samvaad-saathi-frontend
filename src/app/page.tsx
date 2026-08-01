@@ -25,21 +25,13 @@ export default function HomePage() {
     }
   }, [user, loading, router]);
 
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-6 p-4">
-        <div className="skeleton w-24 h-24 rounded-full bg-base-300"></div>
-        <div className="flex flex-col gap-3 items-center w-full max-w-xs">
-          <div className="skeleton h-6 w-3/4 bg-base-300"></div>
-          <div className="skeleton h-4 w-1/2 bg-base-300"></div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="loading loading-spinner loading-lg text-primary"></div>
+    <div className="flex flex-col items-center justify-center min-h-screen gap-6 p-4">
+      <div className="skeleton w-24 h-24 rounded-full bg-base-300"></div>
+      <div className="flex flex-col gap-3 items-center w-full max-w-xs">
+        <div className="skeleton h-6 w-3/4 bg-base-300"></div>
+        <div className="skeleton h-4 w-1/2 bg-base-300"></div>
+      </div>
     </div>
   );
 }

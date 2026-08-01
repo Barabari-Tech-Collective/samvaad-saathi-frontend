@@ -345,69 +345,32 @@ function ResumeTemplateFullViewContent() {
                   </div>
                 )}
 
-                {/* Projects */}
-                {projects.length > 0 && (
-                  <div className="mb-3">
-                    <h3 className="font-bold text-[11px] tracking-wider text-slate-900 uppercase border-b border-slate-300 pb-1 mb-2">
-                      Projects
-                    </h3>
-                    <div className="space-y-3">
-                      {projects.map((proj: any, idx: number) => (
-                        <div key={idx}>
-                          <div className="flex justify-between font-bold text-slate-900 text-[11px]">
-                            <span>{proj.title}</span>
-                            <span className="font-normal text-slate-600">
-                              {proj.duration || ""}
-                            </span>
-                          </div>
-                          {(proj.github_link || proj.hosted_link) && (
-                            <div className="flex gap-2 text-[10px] text-blue-600 mt-0.5">
-                              {proj.github_link && (
-                                <a
-                                  href={proj.github_link}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="hover:underline"
-                                >
-                                  GitHub
-                                </a>
-                              )}
-                              {proj.github_link && proj.hosted_link && (
-                                <span className="text-slate-400">|</span>
-                              )}
-                              {proj.hosted_link && (
-                                <a
-                                  href={proj.hosted_link}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="hover:underline"
-                                >
-                                  Live Project
-                                </a>
-                              )}
+                        {/* Projects */}
+                        {projects.length > 0 && (
+                            <div className="mb-3">
+                                <h3 className="font-bold text-[11px] tracking-wider text-slate-900 uppercase border-b border-slate-300 pb-1 mb-2">Projects</h3>
+                                <div className="space-y-3">
+                                    {projects.map((proj: any, idx: number) => (
+                                        <div key={idx}>
+                                            <div className="flex justify-between font-bold text-slate-900 text-[11px]">
+                                                <span>{proj.title}</span>
+                                                <span className="font-normal text-slate-600">{proj.duration || ""}</span>
+                                            </div>
+                                            {(proj.highlights || proj.bullets || []).length > 0 && (
+                                                <ul className="list-disc text-slate-700 text-[11px] ml-4 space-y-1 text-justify mt-1">
+                                                    {(proj.highlights || proj.bullets).map((bullet: string, bIdx: number) => (
+                                                        <li key={bIdx} className="pl-1">{bullet}</li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                            {(!proj.highlights && !proj.bullets && proj.description) && (
+                                                <p className="text-slate-700 text-[11px] text-justify mt-1">{proj.description}</p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                          )}
-                          {(proj.highlights || proj.bullets || []).length > 0 && (
-                            <ul className="list-disc text-slate-700 text-[11px] ml-4 space-y-1 text-justify mt-1">
-                              {(proj.highlights || proj.bullets).map(
-                                (bullet: string, bIdx: number) => (
-                                  <li key={bIdx} className="pl-1">
-                                    {bullet}
-                                  </li>
-                                )
-                              )}
-                            </ul>
-                          )}
-                          {!proj.highlights && !proj.bullets && proj.description && (
-                            <p className="text-slate-700 text-[11px] text-justify mt-1">
-                              {proj.description}
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                        )}
 
                 {/* Skills */}
                 {skills.length > 0 && (

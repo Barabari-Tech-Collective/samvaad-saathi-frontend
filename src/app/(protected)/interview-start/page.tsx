@@ -177,6 +177,7 @@ export default function InterviewStartPage() {
     try {
       if (selection.kind === "tech") {
         const data = await createInterview({ track: selection.track, difficulty });
+        console.log("Data to craete interview", data);
         if (data?.interviewId) {
           router.push(
             `/interview?interviewId=${data.interviewId}&useResume=${useResume}&role=${encodeURIComponent(selection.track)}`
