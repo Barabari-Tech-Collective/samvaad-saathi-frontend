@@ -3,7 +3,6 @@ import { useAIResumeContext } from "../../_components/resume-provider";
 export function ScoreBreakdownGrid() {
   const { analysisResult } = useAIResumeContext();
 
-  // Map API breakdown fields to display labels with colors
   const getScoreItems = () => {
     if (!analysisResult?.scoreBreakdown) {
       return [];
@@ -22,47 +21,40 @@ export function ScoreBreakdownGrid() {
     // Dynamic Experience vs. Projects Card
     const experienceOrProjectsCard = isFresher
       ? {
-          key: "projectMatch",
           label: "Projects",
           score: breakdown.projectMatch ?? breakdown.experienceMatch ?? 0,
           color: "bg-emerald-500",
           track: "bg-emerald-100",
         }
       : {
-          key: "experienceMatch",
           label: "Experience",
           score: breakdown.experienceMatch ?? 0,
           color: "bg-emerald-500",
           track: "bg-emerald-100",
         };
 
-        
-    const scoreMap = [
-      { key: "skillsMatch", label: "Skills Match", color: "bg-primary", track: "bg-blue-100" },
+    // Directly construct the 4 items with pre-calculated scores
+    return [
       {
-        key: "experienceMatch",
-        label: "Experience",
-        color: "bg-emerald-500",
-        track: "bg-emerald-100",
+        label: "Skills Match",
+        score: breakdown.skillsMatch ?? 0,
+        color: "bg-primary",
+        track: "bg-blue-100",
       },
+      experienceOrProjectsCard,
       {
-        key: "linkIntegrity",
         label: "Links",
+        score: breakdown.linkIntegrity ?? 0,
         color: "bg-emerald-500",
         track: "bg-emerald-100",
       },
-      { key: "educationScore", label: "Education", color: "bg-orange-500", track: "bg-orange-100" },
+      {
+        label: "Education",
+        score: breakdown.educationScore ?? 0,
+        color: "bg-orange-500",
+        track: "bg-orange-100",
+      },
     ];
-
-    return scoreMap
-      .filter((item) => breakdown[item.key as keyof typeof breakdown] !== undefined)
-      .map((item) => ({
-        label: item.label,
-        score: breakdown[item.key as keyof typeof breakdown] || 0,
-        color: item.color,
-        track: item.track,
-      }))
-      .slice(0, 4); // Limit to 4 items max
   };
 
   const scores = getScoreItems();
@@ -77,8 +69,12 @@ export function ScoreBreakdownGrid() {
             className="px-5 py-4 rounded-3xl bg-white border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex flex-col gap-3"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[13px] font-semibold text-slate-600">{item.label}</span>
-              <span className="text-[15px] font-bold text-slate-900">{item.score}%</span>
+              <span className="text-[13px] font-semibold text-slate-600">
+                {item.label}
+              </span>
+              <span className="text-[15px] font-bold text-slate-900">
+                {item.score}%
+              </span>
             </div>
             <div className={`w-full h-1.5 rounded-full ${item.track} overflow-hidden`}>
               <div
