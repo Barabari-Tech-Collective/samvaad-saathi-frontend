@@ -64,7 +64,7 @@ export function ATSScoreCircle() {
           </p>
         </div>
       </div>
-      <div className="mt-6 relative z-10">
+      <div className="mt-6 relative">
       {summary && (
         <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
           <h2 className="text-[15px] font-bold text-slate-800 mb-3">ATS Summary</h2>

@@ -5,13 +5,17 @@
 export interface ScoreBreakdown {
   skillsMatch?: number;
   experienceMatch?: number;
+  projectMatch?: number;
   linkIntegrity?: number;
   educationScore?: number;
+  totalMonths?: number; 
+  isFresher?: boolean;
 }
 
 export interface SkillsAnalysis {
   strongSkills?: string[];
   missingSkills?: string[];
+  relatedSkills?: string[];
   additionalSkills?: string[];
 }
 
