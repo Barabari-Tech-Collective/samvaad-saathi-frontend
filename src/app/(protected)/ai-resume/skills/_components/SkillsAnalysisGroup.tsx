@@ -25,6 +25,13 @@ export function SkillsAnalysisGroup() {
       iconColor: "text-slate-600",
       description: "Additional technologies and skills found in your resume.",
     },
+    {
+      title: "Related Skills",
+      key: "relatedSkills" as const,
+      color: "bg-blue-50 text-blue-700",
+      iconColor: "text-slate-600",
+      description: "Skills related to your target role.",
+    },
   ];
 
   return (

@@ -10,6 +10,33 @@ export function ScoreBreakdownGrid() {
     }
 
     const breakdown = analysisResult.scoreBreakdown;
+    const expEval = analysisResult.experienceEvaluation;
+
+    // Detect if candidate is a fresher
+    const isFresher =
+      breakdown.isFresher === true ||
+      breakdown.totalMonths === 0 ||
+      expEval?.rating?.includes("None listed") ||
+      expEval?.rating?.includes("Fresher");
+
+    // Dynamic Experience vs. Projects Card
+    const experienceOrProjectsCard = isFresher
+      ? {
+          key: "projectMatch",
+          label: "Projects",
+          score: breakdown.projectMatch ?? breakdown.experienceMatch ?? 0,
+          color: "bg-emerald-500",
+          track: "bg-emerald-100",
+        }
+      : {
+          key: "experienceMatch",
+          label: "Experience",
+          score: breakdown.experienceMatch ?? 0,
+          color: "bg-emerald-500",
+          track: "bg-emerald-100",
+        };
+
+        
     const scoreMap = [
       { key: "skillsMatch", label: "Skills Match", color: "bg-primary", track: "bg-blue-100" },
       {
