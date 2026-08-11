@@ -15,6 +15,7 @@ import OverallScoreSummary from "./_components/OverallScoreSummary";
 import PerQuestionAnalysis from "./_components/PerQuestionAnalysis";
 import SkeletonLoader from "./_components/SkeletonLoader";
 import { ReportResponse } from "./_components/types";
+import { HARDCODED_REPORTS } from "../../../hardcoded-reports";
 
 type ReportTab = "per-question" | "final-summary";
 
@@ -46,16 +47,21 @@ const ReportSummaryPage: React.FC = () => {
   };
 
   const {
-    data: reportData,
+    data: apiReportData,
     isLoading,
     error,
   } = apiClient.useQuery<ReportResponse>({
     key: ["report", interviewId],
     url: `${ENDPOINTS_V2.SUMMARY_REPORT}/${interviewId || ""}`,
-    enabled: !!interviewId,
+    enabled: !!interviewId && !HARDCODED_REPORTS[Number(interviewId)],
   });
+
+  const hardcodedReport = interviewId ? HARDCODED_REPORTS[Number(interviewId)] : undefined;
+  const reportData = hardcodedReport || apiReportData;
+
   console.log("this is the report data", reportData);
-  if (isLoading) {
+  
+  if (isLoading && !reportData) {
     return <SkeletonLoader />;
   }
 
