@@ -17,6 +17,7 @@ import {
   InterviewsListResponse,
   ResumeInterviewResponse,
 } from "./_components/types";
+import { HARDCODED_INTERVIEWS } from "../../../hardcoded-reports";
 
 export default function InterviewHistory() {
   const [activeTab, setActiveTab] = useState<InterviewStatus>("incomplete");
@@ -79,7 +80,7 @@ export default function InterviewHistory() {
 
     return {
       incomplete: incompleteInterviews,
-      completed: completedInterviews,
+      completed: [...HARDCODED_INTERVIEWS, ...completedInterviews], // TEMPORARY DEMO HARDCODING
     };
   }, [interviewsData]);
 
