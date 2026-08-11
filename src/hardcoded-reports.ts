@@ -44,8 +44,8 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       name: "User",
       interviewDate: new Date().toISOString(),
       roleTopic: "Full Stack Developer",
-      duration: "45 mins",
-      durationFeedback: "You effectively managed your time across all 5 complex technical questions, leaving room for deep-dive follow-ups.",
+      duration: "55 mins",
+      durationFeedback: "You effectively managed your time across all 7 complex questions, leaving room for deep-dive follow-ups.",
     },
     scoreSummary: {
       knowledgeCompetence: {
@@ -68,8 +68,8 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
     questionAnalysis: [
       {
         id: 1,
-        totalQuestions: 5,
-        type: "System Design",
+        totalQuestions: 7,
+        type: "Technical question",
         question: "How would you design a scalable microservices architecture for an e-commerce application handling millions of concurrent users during a flash sale?",
         feedback: { 
           strengths: "You correctly identified the need for load balancing and message queues (like Kafka or RabbitMQ) to handle burst traffic asynchronously. Your choice of a NoSQL database for the shopping cart was appropriate for high-write scenarios.", 
@@ -78,8 +78,8 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       },
       {
         id: 2,
-        totalQuestions: 5,
-        type: "Frontend Architecture",
+        totalQuestions: 7,
+        type: "Technical question",
         question: "Explain the reconciliation process in React. How would you optimize a highly dynamic data table component rendering thousands of rows?",
         feedback: { 
           strengths: "You provided a solid high-level overview of the Virtual DOM and React's diffing algorithm. You also correctly suggested using `React.memo` to prevent unnecessary re-renders.", 
@@ -88,8 +88,8 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       },
       {
         id: 3,
-        totalQuestions: 5,
-        type: "Database Engineering",
+        totalQuestions: 7,
+        type: "Technical question",
         question: "When would you choose to denormalize a relational database, and what are the specific trade-offs involved in maintaining data consistency?",
         feedback: { 
           strengths: "You understood the basic premise of denormalization: trading write performance and storage space for faster read queries by avoiding complex JOIN operations.", 
@@ -98,8 +98,8 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       },
       {
         id: 4,
-        totalQuestions: 5,
-        type: "Security",
+        totalQuestions: 7,
+        type: "Technical question",
         question: "Describe how you would implement robust authentication and authorization mechanisms across a fleet of stateless microservices.",
         feedback: { 
           strengths: "You correctly proposed using JWT (JSON Web Tokens) for stateless authentication and passing the token via the Authorization header.", 
@@ -108,12 +108,32 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       },
       {
         id: 5,
-        totalQuestions: 5,
-        type: "DevOps",
+        totalQuestions: 7,
+        type: "Technical Allied question",
         question: "Walk me through your ideal CI/CD pipeline for a containerized full-stack application with zero-downtime deployments.",
         feedback: { 
           strengths: "You laid out a logical progression: linting, unit testing, Docker image building, and pushing to a registry like ECR or DockerHub.", 
           areasOfImprovement: "You missed the 'zero-downtime' requirement of the prompt. You should have explicitly detailed deployment strategies like Blue-Green deployments, Canary releases, or Kubernetes rolling updates to ensure availability during the rollout." 
+        },
+      },
+      {
+        id: 6,
+        totalQuestions: 7,
+        type: "Technical Allied question",
+        question: "How do you approach cloud infrastructure cost optimization when scaling a full-stack application across multiple regions?",
+        feedback: { 
+          strengths: "You mentioned utilizing auto-scaling groups to spin down resources during off-peak hours, which is a fundamental cost-saving practice.", 
+          areasOfImprovement: "A senior developer should discuss advanced strategies like reserved instances, spot instances for background processing, and implementing CDN caching to reduce egress bandwidth costs from the primary database." 
+        },
+      },
+      {
+        id: 7,
+        totalQuestions: 7,
+        type: "Follow-up question",
+        question: "Based on your earlier answer about microservices, can you elaborate on a time your architecture failed in production under heavy load, and exactly how you diagnosed and resolved the bottleneck?",
+        feedback: { 
+          strengths: "You effectively described a scenario where a database connection pool was exhausted, showing real-world experience.", 
+          areasOfImprovement: "Your resolution relied on simply increasing the pool size. You should have discussed analyzing slow queries using APM tools (like Datadog or New Relic) and implementing read replicas or a Redis caching layer to permanently solve the root cause." 
         },
       }
     ],
@@ -169,7 +189,7 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       {
         id: 1,
         totalQuestions: 5,
-        type: "Conflict Resolution",
+        type: "Behavioral question",
         question: "How do you mediate a severe conflict between a high-performing engineering manager and a senior developer that is impacting the productivity of the entire team?",
         feedback: { 
           strengths: "Excellent approach. You emphasized active listening, separating the individuals in initial meetings, and focusing on the root cause (often a breakdown in expectations or resources) rather than assigning blame.", 
@@ -179,7 +199,7 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       {
         id: 2,
         totalQuestions: 5,
-        type: "Strategic Communication",
+        type: "Behavioral question",
         question: "Describe a strategy you would implement to communicate a highly unpopular company-wide policy change, such as a strict return-to-office mandate.",
         feedback: { 
           strengths: "You correctly highlighted the importance of transparency, avoiding corporate jargon, and equipping middle managers with FAQs to handle the immediate fallout.", 
@@ -189,7 +209,7 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       {
         id: 3,
         totalQuestions: 5,
-        type: "Employee Relations & Compliance",
+        type: "Behavioral question",
         question: "Walk me through how you would handle an employee who has formally reported experiencing microaggressions from a C-level executive.",
         feedback: { 
           strengths: "You prioritized the psychological safety of the reporting employee and immediately mentioned bringing in external, unbiased legal counsel due to the executive's seniority.", 
@@ -199,7 +219,7 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       {
         id: 4,
         totalQuestions: 5,
-        type: "Performance Management",
+        type: "Behavioral question",
         question: "How do you structure performance improvement plans (PIPs) to ensure they are genuinely supportive rather than purely punitive, while protecting the company legally?",
         feedback: { 
           strengths: "You demonstrated a modern HR mindset by focusing on the PIP as a coaching tool. You emphasized setting SMART (Specific, Measurable, Achievable, Relevant, Time-bound) goals.", 
@@ -209,7 +229,7 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       {
         id: 5,
         totalQuestions: 5,
-        type: "Change Management",
+        type: "Behavioral question",
         question: "Explain how you would design and communicate a completely new compensation and equity structure to an existing workforce without causing a spike in attrition.",
         feedback: { 
           strengths: "Very thorough answer. You proposed a multi-channel communication strategy (email, town halls, 1-on-1s) and emphasized focusing the narrative on total rewards and long-term value.", 
@@ -244,8 +264,8 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       name: "User",
       interviewDate: new Date().toISOString(),
       roleTopic: "Node JS",
-      duration: "45 mins",
-      durationFeedback: "Good time management. You answered all technical questions, though you spent slightly too long on basic concepts.",
+      duration: "55 mins",
+      durationFeedback: "Good time management. You answered all 7 technical questions, though you spent slightly too long on basic concepts.",
     },
     scoreSummary: {
       knowledgeCompetence: {
@@ -268,8 +288,8 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
     questionAnalysis: [
       {
         id: 1,
-        totalQuestions: 5,
-        type: "Core Node.js Architecture",
+        totalQuestions: 7,
+        type: "Technical question",
         question: "Deep dive into the Node.js Event Loop. How do the microtask and macrotask queues interact, and how can heavy CPU-bound tasks block the event loop? How would you solve this?",
         feedback: { 
           strengths: "You understood that Node.js is single-threaded and uses libuv to handle asynchronous non-blocking I/O operations.", 
@@ -278,8 +298,8 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       },
       {
         id: 2,
-        totalQuestions: 5,
-        type: "Memory Management",
+        totalQuestions: 7,
+        type: "Technical question",
         question: "Explain memory management and Garbage Collection in V8. How do you identify, trace, and resolve a memory leak in a production Node.js application?",
         feedback: { 
           strengths: "You correctly identified that V8 handles memory allocation and mentioned closures as a common source of memory leaks.", 
@@ -288,8 +308,8 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       },
       {
         id: 3,
-        totalQuestions: 5,
-        type: "Distributed Systems & Caching",
+        totalQuestions: 7,
+        type: "Technical question",
         question: "How would you implement a distributed caching strategy using Redis for a Node.js API that serves highly volatile real-time data to thousands of websockets?",
         feedback: { 
           strengths: "You correctly proposed using Redis Pub/Sub to broadcast updates across multiple Node.js instances, which is essential for horizontal scaling with WebSockets.", 
@@ -298,8 +318,8 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       },
       {
         id: 4,
-        totalQuestions: 5,
-        type: "Multithreading in Node.js",
+        totalQuestions: 7,
+        type: "Technical question",
         question: "Discuss the architectural differences and performance implications of using Worker Threads vs Child Processes in Node.js for parallel execution.",
         feedback: { 
           strengths: "You knew that Child Processes spin up entirely new Node instances, while Worker Threads run within the same process.", 
@@ -308,12 +328,32 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       },
       {
         id: 5,
-        totalQuestions: 5,
-        type: "Streams and File I/O",
+        totalQuestions: 7,
+        type: "Technical Allied question",
         question: "How do you securely handle and process streaming uploads of massive files (e.g., 50GB video files) in a Node.js server without exhausting RAM?",
         feedback: { 
           strengths: "You correctly identified that loading the file into memory buffer is a fatal error, and that Node.js Streams are required.", 
           areasOfImprovement: "You need to explain exactly how to pipe a `ReadableStream` (from the HTTP request) directly into a `WritableStream` (like AWS S3 or a local file) using `.pipe()` or `pipeline()`. You also forgot to mention handling backpressure." 
+        },
+      },
+      {
+        id: 6,
+        totalQuestions: 7,
+        type: "Technical Allied question",
+        question: "Explain the process and use-cases for writing native C++ addons for Node.js using Node-API (N-API).",
+        feedback: { 
+          strengths: "You understood that native addons are used for extreme performance optimization and interacting with low-level C++ libraries.", 
+          areasOfImprovement: "You were unfamiliar with the transition from V8-specific native code to the ABI-stable Node-API (N-API). You should research how N-API prevents addons from breaking across different Node.js version updates." 
+        },
+      },
+      {
+        id: 7,
+        totalQuestions: 7,
+        type: "Follow-up question",
+        question: "In your previous explanation of the Event Loop, you mentioned non-blocking I/O. How exactly would you handle a situation where a legacy third-party library relies entirely on synchronous blocking I/O methods?",
+        feedback: { 
+          strengths: "You accurately identified that running synchronous code on the main thread would crash the throughput of the server.", 
+          areasOfImprovement: "Your solution of 'rewriting the library' isn't always feasible. The expected senior-level answer is to offload the synchronous library calls to a dedicated `worker_thread` pool so the main Event Loop remains free to handle incoming HTTP requests." 
         },
       }
     ],
