@@ -80,7 +80,7 @@ export default function InterviewHistory() {
 
     return {
       incomplete: incompleteInterviews,
-      completed: HARDCODED_INTERVIEWS, // TEMPORARY DEMO HARDCODING
+      completed: [...HARDCODED_INTERVIEWS, ...completedInterviews], // TEMPORARY DEMO HARDCODING
     };
   }, [interviewsData]);
 

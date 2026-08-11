@@ -129,7 +129,7 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       {
         id: 7,
         totalQuestions: 7,
-        type: "Follow-up question",
+        type: "Behavioral question",
         question: "Based on your earlier answer about microservices, can you elaborate on a time your architecture failed in production under heavy load, and exactly how you diagnosed and resolved the bottleneck?",
         feedback: { 
           strengths: "You effectively described a scenario where a database connection pool was exhausted, showing real-world experience.", 
@@ -189,51 +189,51 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       {
         id: 1,
         totalQuestions: 5,
-        type: "Behavioral question",
-        question: "How do you mediate a severe conflict between a high-performing engineering manager and a senior developer that is impacting the productivity of the entire team?",
+        type: "Self question",
+        question: "What is one misconception people have about you that you would like to correct? (Focus on non-technical behavioral and situational interview prompts.)",
         feedback: { 
-          strengths: "Excellent approach. You emphasized active listening, separating the individuals in initial meetings, and focusing on the root cause (often a breakdown in expectations or resources) rather than assigning blame.", 
-          areasOfImprovement: "While your empathy is strong, you should also outline the tangible business outcomes you would aim for. Mention establishing a formal remediation plan with clear milestones to monitor the working relationship post-mediation." 
+          strengths: "You approached this vulnerable question with great self-awareness. Acknowledging a common misconception and explaining how you actively work to clarify your intent shows high emotional intelligence.", 
+          areasOfImprovement: "You could strengthen your answer by providing a specific, recent example where this misconception almost caused an issue, and how you proactively addressed it before it escalated." 
         },
       },
       {
         id: 2,
         totalQuestions: 5,
         type: "Behavioral question",
-        question: "Describe a strategy you would implement to communicate a highly unpopular company-wide policy change, such as a strict return-to-office mandate.",
+        question: "Describe a disagreement in a team and how you helped move things forward.",
         feedback: { 
-          strengths: "You correctly highlighted the importance of transparency, avoiding corporate jargon, and equipping middle managers with FAQs to handle the immediate fallout.", 
-          areasOfImprovement: "You missed an opportunity to discuss setting up structured feedback loops (like anonymous surveys or town halls). Communication is two-way; you must explicitly state how you will measure employee sentiment after the announcement." 
+          strengths: "Excellent use of the STAR method. You clearly outlined the disagreement, your specific role in facilitating the discussion, and the positive resolution that kept the project on track.", 
+          areasOfImprovement: "While your mediation skills are evident, ensure you also highlight what you learned from the experience to prevent similar disagreements from occurring in the future." 
         },
       },
       {
         id: 3,
         totalQuestions: 5,
-        type: "Behavioral question",
-        question: "Walk me through how you would handle an employee who has formally reported experiencing microaggressions from a C-level executive.",
+        type: "Productivity question",
+        question: "How do you evaluate whether your process is improving over time?",
         feedback: { 
-          strengths: "You prioritized the psychological safety of the reporting employee and immediately mentioned bringing in external, unbiased legal counsel due to the executive's seniority.", 
-          areasOfImprovement: "Make sure to explicitly mention documenting the entire process rigorously for compliance and protecting the company from potential retaliation claims. Documentation is your strongest defense in executive-level investigations." 
+          strengths: "You provided a strong, metrics-driven approach. Mentioning specific KPIs and regular retrospectives demonstrates that you value continuous improvement and tangible results.", 
+          areasOfImprovement: "Consider discussing how you balance quantitative metrics with qualitative feedback from your team to ensure process changes aren't negatively impacting morale or creativity." 
         },
       },
       {
         id: 4,
         totalQuestions: 5,
-        type: "Behavioral question",
-        question: "How do you structure performance improvement plans (PIPs) to ensure they are genuinely supportive rather than purely punitive, while protecting the company legally?",
+        type: "Company and Candidate question",
+        question: "What would make this role meaningful for you over the next year?",
         feedback: { 
-          strengths: "You demonstrated a modern HR mindset by focusing on the PIP as a coaching tool. You emphasized setting SMART (Specific, Measurable, Achievable, Relevant, Time-bound) goals.", 
-          areasOfImprovement: "You could improve your answer by discussing how you coach managers to deliver the PIP. Managers often fail at executing PIPs because they lack the communication skills to be both supportive and firm." 
+          strengths: "You effectively tied your personal career goals to the company's stated mission. This alignment shows you've done your research and are looking for a mutually beneficial long-term fit.", 
+          areasOfImprovement: "You focused heavily on what you will gain from the role. Ensure you balance this by emphasizing what specific, unique value you plan to bring to the company during that same year." 
         },
       },
       {
         id: 5,
         totalQuestions: 5,
-        type: "Behavioral question",
-        question: "Explain how you would design and communicate a completely new compensation and equity structure to an existing workforce without causing a spike in attrition.",
+        type: "General question",
+        question: "If you could improve one public service in your city, what would it be?",
         feedback: { 
-          strengths: "Very thorough answer. You proposed a multi-channel communication strategy (email, town halls, 1-on-1s) and emphasized focusing the narrative on total rewards and long-term value.", 
-          areasOfImprovement: "Consider mentioning the creation of a 'Total Compensation Statement' or interactive calculator. Visualizing the new equity structure helps employees understand the tangible value better than verbal explanations." 
+          strengths: "This was a great curveball response. You thought critically about a systemic issue and proposed a logical, step-by-step framework for improvement, demonstrating strong problem-solving skills.", 
+          areasOfImprovement: "While your theoretical framework was sound, you could elevate your answer by connecting your proposed solution back to the core competencies required for this specific role." 
         },
       }
     ],
@@ -349,7 +349,7 @@ export const HARDCODED_REPORTS: Record<number, ReportResponse> = {
       {
         id: 7,
         totalQuestions: 7,
-        type: "Follow-up question",
+        type: "Behavioral question",
         question: "In your previous explanation of the Event Loop, you mentioned non-blocking I/O. How exactly would you handle a situation where a legacy third-party library relies entirely on synchronous blocking I/O methods?",
         feedback: { 
           strengths: "You accurately identified that running synchronous code on the main thread would crash the throughput of the server.", 
