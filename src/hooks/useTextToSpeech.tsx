@@ -217,8 +217,8 @@ export const useTextToSpeech = ({
         return;
       }
 
-      if (audioBlob) {
-        // We have backend audio, play it and DO NOT fallback.
+      // 🛠️ FIX HERE: Check audioBlob exists AND has size > 100 bytes (Not an empty fallback blob!)
+      if (audioBlob && audioBlob.size > 100) {
         try {
           const audioUrl = URL.createObjectURL(audioBlob);
           audioUrlRef.current = audioUrl;
@@ -231,6 +231,7 @@ export const useTextToSpeech = ({
           };
 
           audio.onerror = () => {
+            console.warn("Audio playback error, unlocking speaking state");
             setIsSpeaking(false);
           };
 
@@ -244,7 +245,7 @@ export const useTextToSpeech = ({
         }
       }
 
-      // If we reach here, backend audio was not available; use browser fallback.
+      // If backend audio was empty (0 bytes) or failed, fall back to Browser Speech Synthesis
       if (typeof window === "undefined" || !("speechSynthesis" in window)) {
         setIsSpeaking(false);
         return;
@@ -288,6 +289,113 @@ export const useTextToSpeech = ({
     },
     [isSupported, useNaturalPauses, stop, rate, pitch, volume, lang, voiceName, convertTextToSpeech]
   );
+//   const speak = useCallback(
+//     async (textToSpeak: string) => {
+//       if (!isSupported) {
+//         console.warn("Text-to-speech is not supported in this browser");
+//         return;
+//       }
+
+//       if (!textToSpeak) return;
+
+//       // Cancel any ongoing speech
+//       stop();
+
+//       // Preprocess text for natural pauses
+//       const processedText = useNaturalPauses
+//         ? preprocessTextForNaturalSpeech(textToSpeak)
+//         : textToSpeak;
+
+//       const currentSpeakId = speakIdRef.current;
+
+//       // First, try to get audio from backend.
+//       let audioBlob: Blob | null = null;
+//       const voice_id = resolveStoredTtsVoiceId();
+
+//       try {
+//         audioBlob = await convertTextToSpeech({
+//           text: processedText,
+//           voice_id,
+//         });
+//       } catch (error) {
+//         console.error("TTS backend request failed, falling back to browser TTS", error);
+//       }
+
+//       if (currentSpeakId !== speakIdRef.current) {
+//         return;
+//       }
+
+//       if (audioBlob) {
+//         // We have backend audio, play it and DO NOT fallback.
+//         try {
+//           const audioUrl = URL.createObjectURL(audioBlob);
+//           audioUrlRef.current = audioUrl;
+
+//           const audio = new Audio(audioUrl);
+//           audioRef.current = audio;
+
+//           audio.onended = () => {
+//             setIsSpeaking(false);
+//           };
+
+//           audio.onerror = () => {
+//             setIsSpeaking(false);
+//           };
+
+//           setIsSpeaking(true);
+//           await audio.play();
+//           return;
+//         } catch (playError) {
+//           console.error("Failed to play backend TTS audio", playError);
+//           setIsSpeaking(false);
+//           return;
+//         }
+//       }
+
+//       // If we reach here, backend audio was not available; use browser fallback.
+//       if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+//         setIsSpeaking(false);
+//         return;
+//       }
+
+//       if (currentSpeakId !== speakIdRef.current) {
+//         return;
+//       }
+
+//       try {
+//         const utterance = new SpeechSynthesisUtterance(processedText);
+//         utterance.rate = rate;
+//         utterance.pitch = pitch;
+//         utterance.volume = volume;
+//         utterance.lang = lang;
+
+//         const selectedVoice = findBestVoice(lang, voiceName);
+//         if (selectedVoice) {
+//           utterance.voice = selectedVoice;
+//         }
+
+//         utteranceRef.current = utterance;
+
+//         utterance.onstart = () => {
+//           setIsSpeaking(true);
+//         };
+
+//         utterance.onend = () => {
+//           setIsSpeaking(false);
+//         };
+
+//         utterance.onerror = () => {
+//           setIsSpeaking(false);
+//         };
+
+//         window.speechSynthesis.speak(utterance);
+//       } catch (fallbackError) {
+//         console.error("Browser TTS fallback failed", fallbackError);
+//         setIsSpeaking(false);
+//       }
+//     },
+//     [isSupported, useNaturalPauses, stop, rate, pitch, volume, lang, voiceName, convertTextToSpeech]
+//   );
 
   useEffect(() => {
     // Only speak when text is available and not disabled
