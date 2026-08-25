@@ -149,12 +149,11 @@ export default function InterviewStartPage() {
 
     if (
       selection.kind === "tech" &&
-      selection.track === FULL_STACK_ROLE &&
       difficulty === "medium" &&
       !useResume
     ) {
       toast.error(
-        "Please toggle 'Use Resume for Interview' and ensure your resume is uploaded for Medium level Full Stack Developer interviews."
+        `Please toggle 'Use Resume for Interview' and ensure your resume is uploaded for Medium level ${selection.track} interviews.`
       );
       return;
     }
