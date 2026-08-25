@@ -161,12 +161,11 @@ export default function InterviewStartPage() {
 
     if (
       selection.kind === "tech" &&
-      selection.track === FULL_STACK_ROLE &&
       difficulty === "medium" &&
       !user?.authorizedUser?.hasResume
     ) {
       toast.error(
-        "You must save a resume to your profile first before starting a Medium level Full Stack Developer interview."
+        `You must save a resume first before starting a Medium level ${selection.track} interview. If you want to upload your resume, please use the ATS feature (the document icon beside the profile icon) in the bottom navigation bar.`
       );
       return;
     }
