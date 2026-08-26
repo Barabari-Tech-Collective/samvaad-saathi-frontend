@@ -29,6 +29,7 @@ interface JobProfile {
   id: number;
   title: string;
   description: string;
+  category?: string;
   created_at: string;
 }
 
@@ -226,18 +227,27 @@ export default function InterviewStartPage() {
               </option>
             ))}
           </optgroup>
-          {jobProfiles.length > 0 && (
-            <optgroup label="HR & Non-Technical">
-              {jobProfiles.map((profile) => (
-                <option
-                  key={profile.id}
-                  value={`${HR_SELECT_PREFIX}${profile.id}::${profile.title}`}
-                >
-                  {profile.title}
-                </option>
-              ))}
-            </optgroup>
-          )}
+          {jobProfiles.length > 0 && 
+            Object.entries(
+              jobProfiles.reduce((acc, profile) => {
+                const category = profile.category || "HR & Non-Technical";
+                if (!acc[category]) acc[category] = [];
+                acc[category].push(profile);
+                return acc;
+              }, {} as Record<string, JobProfile[]>)
+            ).map(([category, profiles]) => (
+              <optgroup key={category} label={category}>
+                {profiles.map((profile) => (
+                  <option
+                    key={profile.id}
+                    value={`${HR_SELECT_PREFIX}${profile.id}::${profile.title}`}
+                  >
+                    {profile.title}
+                  </option>
+                ))}
+              </optgroup>
+            ))
+          }
         </select>
       </div>
 
