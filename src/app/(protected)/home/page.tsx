@@ -14,6 +14,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface InterviewItem {
   interviewId: number;
@@ -113,7 +114,13 @@ export default function HomePage() {
     }
   };
 
-  if (loading) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || loading) {
     return (
       <div className="flex flex-col">
         <div className="flex justify-between items-center py-4 relative">

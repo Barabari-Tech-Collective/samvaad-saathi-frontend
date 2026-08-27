@@ -19,6 +19,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 interface CreateInterviewRequest {
   track: string;
   difficulty: string;
+  jobProfileId?: number;
 }
 
 interface CreateInterviewResponse {
@@ -29,6 +30,7 @@ interface JobProfile {
   id: number;
   title: string;
   description: string;
+  category?: string;
   created_at: string;
 }
 
@@ -51,7 +53,7 @@ interface GenerateNonTechResponse {
 
 type RoleSelection =
   | { kind: "tech"; track: string }
-  | { kind: "hr"; jobProfileId: number; jobName: string }
+  | { kind: "hr"; jobProfileId: number; jobName: string; category: string }
   | null;
 
 const DIFFICULTY_LEVEL = [
@@ -121,7 +123,12 @@ export default function InterviewStartPage() {
       const separatorIdx = rest.indexOf("::");
       const idStr = rest.slice(0, separatorIdx);
       const jobName = rest.slice(separatorIdx + 2);
-      setSelection({ kind: "hr", jobProfileId: Number(idStr), jobName });
+      
+      const profileId = Number(idStr);
+      const profile = jobProfiles.find((p) => p.id === profileId);
+      const category = profile?.category || "HR & Non-Technical";
+
+      setSelection({ kind: "hr", jobProfileId: profileId, jobName, category });
     } else {
       setSelection({ kind: "tech", track: value });
     }
@@ -147,26 +154,32 @@ export default function InterviewStartPage() {
   const handleSubmit = async () => {
     if (!selection) return;
 
+    const isNonTech = selection.kind === "hr" && 
+      (selection.category.toLowerCase().includes("hr") || 
+       selection.category.toLowerCase().includes("non-technical") || 
+       selection.category.toLowerCase().includes("communication"));
+    const isTechFlow = !isNonTech;
+
     if (
-      selection.kind === "tech" &&
-      selection.track === FULL_STACK_ROLE &&
+      isTechFlow &&
       difficulty === "medium" &&
       !useResume
     ) {
+      const trackLabel = selection.kind === "tech" ? selection.track : selection.jobName;
       toast.error(
-        "Please toggle 'Use Resume for Interview' and ensure your resume is uploaded for Medium level Full Stack Developer interviews."
+        `Please toggle 'Use Resume for Interview' and ensure your resume is uploaded for Medium level ${trackLabel} interviews.`
       );
       return;
     }
 
     if (
-      selection.kind === "tech" &&
-      selection.track === FULL_STACK_ROLE &&
+      isTechFlow &&
       difficulty === "medium" &&
       !user?.authorizedUser?.hasResume
     ) {
+      const trackLabel = selection.kind === "tech" ? selection.track : selection.jobName;
       toast.error(
-        "You must save a resume to your profile first before starting a Medium level Full Stack Developer interview."
+        `You must save a resume first before starting a Medium level ${trackLabel} interview. If you want to upload your resume, please use the ATS feature (the document icon beside the profile icon) in the bottom navigation bar.`
       );
       return;
     }
@@ -175,12 +188,15 @@ export default function InterviewStartPage() {
     trackStartInterviewButtonClick(trackLabel, difficulty, useResume);
 
     try {
-      if (selection.kind === "tech") {
-        const data = await createInterview({ track: selection.track, difficulty });
-        console.log("Data to craete interview", data);
+      if (isTechFlow) {
+        const track = selection.kind === "tech" ? selection.track : selection.jobName;
+        const jobProfileId = selection.kind === "hr" ? selection.jobProfileId : undefined;
+
+        const data = await createInterview({ track, difficulty, jobProfileId });
+        // console.log("Data to create interview", data);
         if (data?.interviewId) {
           router.push(
-            `/interview?interviewId=${data.interviewId}&useResume=${useResume}&role=${encodeURIComponent(selection.track)}`
+            `/interview?interviewId=${data.interviewId}&useResume=${useResume}&role=${encodeURIComponent(track)}`
           );
         }
       } else {
@@ -228,22 +244,31 @@ export default function InterviewStartPage() {
               </option>
             ))}
           </optgroup>
-          {jobProfiles.length > 0 && (
-            <optgroup label="HR & Non-Technical">
-              {jobProfiles.map((profile) => (
-                <option
-                  key={profile.id}
-                  value={`${HR_SELECT_PREFIX}${profile.id}::${profile.title}`}
-                >
-                  {profile.title}
-                </option>
-              ))}
-            </optgroup>
-          )}
+          {jobProfiles.length > 0 && 
+            Object.entries(
+              jobProfiles.reduce((acc, profile) => {
+                const category = profile.category || "HR & Non-Technical";
+                if (!acc[category]) acc[category] = [];
+                acc[category].push(profile);
+                return acc;
+              }, {} as Record<string, JobProfile[]>)
+            ).map(([category, profiles]) => (
+              <optgroup key={category} label={category}>
+                {profiles.map((profile) => (
+                  <option
+                    key={profile.id}
+                    value={`${HR_SELECT_PREFIX}${profile.id}::${profile.title}`}
+                  >
+                    {profile.title}
+                  </option>
+                ))}
+              </optgroup>
+            ))
+          }
         </select>
       </div>
 
-      {selection?.kind !== "hr" && (
+      {(!selection || selection.kind === "tech" || (selection.kind === "hr" && !selection.category.toLowerCase().includes("hr") && !selection.category.toLowerCase().includes("non-technical") && !selection.category.toLowerCase().includes("communication"))) && (
         <div className="space-y-3">
           <label className="block text-[14px] font-noto font-[500] text-black">
             Difficulty Level

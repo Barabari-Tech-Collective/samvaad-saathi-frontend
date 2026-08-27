@@ -5,7 +5,7 @@ import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService, APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS, ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
-import { DEFAULT_TTS_VOICE_ID, TTS_VOICE_OPTIONS, TTS_VOICE_STORAGE_KEY } from "@/lib/constants";
+import { DEFAULT_TTS_VOICE_ID, TTS_VOICE_OPTIONS, TTS_VOICE_STORAGE_KEY, ROLE_OPTIONS, FULL_STACK_ROLE } from "@/lib/constants";
 import {
   clearInterviewQuestions,
   getInterviewQuestions,
@@ -40,6 +40,8 @@ const InterviewPage = () => {
   const [pendingStart, setPendingStart] = useState(false);
   const questionStartTimeRef = useRef<number>(0);
   const [lastTrackedIndex, setLastTrackedIndex] = useState<number>(-1);
+
+  const showCodeView = role ? ROLE_OPTIONS.includes(role as any) && role !== FULL_STACK_ROLE : false;
 
   // mic permission utils
   const { hasPermission, showModal, requestPermission, hidePermissionModal, showPermissionModal } =
@@ -453,7 +455,7 @@ const InterviewPage = () => {
                 role={role || ""}
                 allowSpeech={!isIntroducing}
               />
-              {role?.toLowerCase() !== "full stack developer" && (
+              {showCodeView && (
                 <CodeView
                   isLoading={isGeneratingQuestions}
                   supplement={questions?.[currentQuestionIndex]?.supplement || null}
@@ -467,7 +469,7 @@ const InterviewPage = () => {
                   <DotLottieReact src="/assets/lottie/Speaker.lottie" autoplay loop />
                 </div>
 
-                <div className={role?.toLowerCase() === "full stack developer" ? "col-span-5" : "col-span-3"}>
+                <div className={!showCodeView ? "col-span-5" : "col-span-3"}>
                   <Question
                     isLoading={isGeneratingQuestions}
                     question={questions?.[currentQuestionIndex]}
@@ -478,7 +480,7 @@ const InterviewPage = () => {
                     allowSpeech={!isIntroducing}
                   />
                 </div>
-                {role?.toLowerCase() !== "full stack developer" && (
+                {showCodeView && (
                   <div className="col-span-2">
                     <CodeView
                       isLoading={isGeneratingQuestions}
