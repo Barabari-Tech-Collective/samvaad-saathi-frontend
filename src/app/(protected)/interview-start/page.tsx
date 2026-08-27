@@ -193,7 +193,7 @@ export default function InterviewStartPage() {
         const jobProfileId = selection.kind === "hr" ? selection.jobProfileId : undefined;
 
         const data = await createInterview({ track, difficulty, jobProfileId });
-        console.log("Data to craete interview", data);
+        // console.log("Data to create interview", data);
         if (data?.interviewId) {
           router.push(
             `/interview?interviewId=${data.interviewId}&useResume=${useResume}&role=${encodeURIComponent(track)}`
