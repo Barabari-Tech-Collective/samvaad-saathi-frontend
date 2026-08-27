@@ -52,7 +52,7 @@ interface GenerateNonTechResponse {
 
 type RoleSelection =
   | { kind: "tech"; track: string }
-  | { kind: "hr"; jobProfileId: number; jobName: string }
+  | { kind: "hr"; jobProfileId: number; jobName: string; category: string }
   | null;
 
 const DIFFICULTY_LEVEL = [
@@ -122,7 +122,12 @@ export default function InterviewStartPage() {
       const separatorIdx = rest.indexOf("::");
       const idStr = rest.slice(0, separatorIdx);
       const jobName = rest.slice(separatorIdx + 2);
-      setSelection({ kind: "hr", jobProfileId: Number(idStr), jobName });
+      
+      const profileId = Number(idStr);
+      const profile = jobProfiles.find((p) => p.id === profileId);
+      const category = profile?.category || "HR & Non-Technical";
+
+      setSelection({ kind: "hr", jobProfileId: profileId, jobName, category });
     } else {
       setSelection({ kind: "tech", track: value });
     }
@@ -251,7 +256,7 @@ export default function InterviewStartPage() {
         </select>
       </div>
 
-      {selection?.kind !== "hr" && (
+      {(!selection || selection.kind === "tech" || (selection.kind === "hr" && !selection.category.toLowerCase().includes("hr") && !selection.category.toLowerCase().includes("non-technical") && !selection.category.toLowerCase().includes("communication"))) && (
         <div className="space-y-3">
           <label className="block text-[14px] font-noto font-[500] text-black">
             Difficulty Level
