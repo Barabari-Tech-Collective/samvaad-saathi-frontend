@@ -253,7 +253,7 @@ export default function InterviewStartPage() {
                 return acc;
               }, {} as Record<string, JobProfile[]>)
             ).map(([category, profiles]) => (
-              <optgroup key={category} label={category}>
+              <optgroup key={category} label={category.charAt(0).toUpperCase() + category.slice(1)}>
                 {profiles.map((profile) => (
                   <option
                     key={profile.id}
