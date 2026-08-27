@@ -19,6 +19,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 interface CreateInterviewRequest {
   track: string;
   difficulty: string;
+  jobProfileId?: number;
 }
 
 interface CreateInterviewResponse {
@@ -153,24 +154,32 @@ export default function InterviewStartPage() {
   const handleSubmit = async () => {
     if (!selection) return;
 
+    const isNonTech = selection.kind === "hr" && 
+      (selection.category.toLowerCase().includes("hr") || 
+       selection.category.toLowerCase().includes("non-technical") || 
+       selection.category.toLowerCase().includes("communication"));
+    const isTechFlow = !isNonTech;
+
     if (
-      selection.kind === "tech" &&
+      isTechFlow &&
       difficulty === "medium" &&
       !useResume
     ) {
+      const trackLabel = selection.kind === "tech" ? selection.track : selection.jobName;
       toast.error(
-        `Please toggle 'Use Resume for Interview' and ensure your resume is uploaded for Medium level ${selection.track} interviews.`
+        `Please toggle 'Use Resume for Interview' and ensure your resume is uploaded for Medium level ${trackLabel} interviews.`
       );
       return;
     }
 
     if (
-      selection.kind === "tech" &&
+      isTechFlow &&
       difficulty === "medium" &&
       !user?.authorizedUser?.hasResume
     ) {
+      const trackLabel = selection.kind === "tech" ? selection.track : selection.jobName;
       toast.error(
-        `You must save a resume first before starting a Medium level ${selection.track} interview. If you want to upload your resume, please use the ATS feature (the document icon beside the profile icon) in the bottom navigation bar.`
+        `You must save a resume first before starting a Medium level ${trackLabel} interview. If you want to upload your resume, please use the ATS feature (the document icon beside the profile icon) in the bottom navigation bar.`
       );
       return;
     }
@@ -179,12 +188,15 @@ export default function InterviewStartPage() {
     trackStartInterviewButtonClick(trackLabel, difficulty, useResume);
 
     try {
-      if (selection.kind === "tech") {
-        const data = await createInterview({ track: selection.track, difficulty });
+      if (isTechFlow) {
+        const track = selection.kind === "tech" ? selection.track : selection.jobName;
+        const jobProfileId = selection.kind === "hr" ? selection.jobProfileId : undefined;
+
+        const data = await createInterview({ track, difficulty, jobProfileId });
         console.log("Data to craete interview", data);
         if (data?.interviewId) {
           router.push(
-            `/interview?interviewId=${data.interviewId}&useResume=${useResume}&role=${encodeURIComponent(selection.track)}`
+            `/interview?interviewId=${data.interviewId}&useResume=${useResume}&role=${encodeURIComponent(track)}`
           );
         }
       } else {
