@@ -28,6 +28,7 @@ const Question = ({
   // Text-to-speech
   const { isSpeaking } = useTextToSpeech({
     text: textToSpeak,
+    audioUrl: question?.audioUrl,
     disabled: isLoading || !question || !allowSpeech,
   });
 

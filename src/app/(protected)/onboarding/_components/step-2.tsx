@@ -8,6 +8,7 @@ import { EXPERIENCE_OPTIONS, MAX_RESUME_SIZE_MB, ROLE_OPTIONS } from "@/lib/cons
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { getTokenFromCookies } from "@/lib/token-utils";
 
 interface Step2Props {
   onNext: (data: { target_position: string; years_experience: string }) => void;
@@ -65,8 +66,27 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
         const formData = new FormData();
         formData.append("file", resume);
         await extractResumeMutation.mutateAsync(formData);
+
+        // Poll for hasResume
+        let retries = 10;
+        let hasResume = false;
+        toast.loading("Processing resume...", { id: "resume-poll" });
+        while (retries > 0 && !hasResume) {
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+          const token = getTokenFromCookies();
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.ABOUT_ME}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const userData = await res.json();
+          if (userData?.authorizedUser?.hasResume) {
+            hasResume = true;
+          }
+          retries--;
+        }
+        toast.dismiss("resume-poll");
       } catch {
         toast.error("Resume extraction failed");
+        toast.dismiss("resume-poll");
         // Don't prevent form submission if extraction fails
       }
     }

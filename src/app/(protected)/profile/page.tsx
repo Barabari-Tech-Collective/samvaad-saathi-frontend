@@ -28,6 +28,8 @@ import {
   QuestionMarkCircleIcon,
 } from "@heroicons/react/24/solid";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { getTokenFromCookies } from "@/lib/token-utils";
 import { z } from "zod";
 
 import { ProfileFieldRow } from "./_components/ProfileFieldRow";
@@ -149,9 +151,30 @@ export default function ProfilePage() {
 
     try {
       await updateProfileMutation.mutateAsync(submitData);
-      if (field === "resume") setResumeFile(null);
+      
+      if (field === "resume") {
+        let retries = 10;
+        let hasResume = false;
+        toast.loading("Processing resume...", { id: "resume-poll" });
+        while (retries > 0 && !hasResume) {
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+          const token = getTokenFromCookies();
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.ABOUT_ME}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const userData = await res.json();
+          if (userData?.authorizedUser?.hasResume) {
+            hasResume = true;
+          }
+          retries--;
+        }
+        toast.dismiss("resume-poll");
+        setResumeFile(null);
+      }
+      
       setEditingField(null);
     } catch (error) {
+      if (field === "resume") toast.dismiss("resume-poll");
       console.error(`Field update failed for ${field}:`, error);
     }
   };
