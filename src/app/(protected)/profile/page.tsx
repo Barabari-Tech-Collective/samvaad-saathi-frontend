@@ -30,6 +30,7 @@ import {
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { getTokenFromCookies } from "@/lib/token-utils";
 import { z } from "zod";
 
 import { ProfileFieldRow } from "./_components/ProfileFieldRow";
@@ -159,9 +160,11 @@ export default function ProfilePage() {
         toast.loading("Processing resume...", { id: "resume-poll" });
         while (retries > 0 && !hasResume) {
           await new Promise((resolve) => setTimeout(resolve, 1500));
-          const userData = await queryClient.fetchQuery<any>({
-            queryKey: [ENDPOINTS.AUTH.ABOUT_ME],
+          const token = getTokenFromCookies();
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.ABOUT_ME}`, {
+            headers: { Authorization: `Bearer ${token}` }
           });
+          const userData = await res.json();
           if (userData?.authorizedUser?.hasResume) {
             hasResume = true;
           }

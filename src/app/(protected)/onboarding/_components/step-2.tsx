@@ -8,6 +8,7 @@ import { EXPERIENCE_OPTIONS, MAX_RESUME_SIZE_MB, ROLE_OPTIONS } from "@/lib/cons
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { getTokenFromCookies } from "@/lib/token-utils";
 
 interface Step2Props {
   onNext: (data: { target_position: string; years_experience: string }) => void;
@@ -75,9 +76,11 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
         toast.loading("Processing resume...", { id: "resume-poll" });
         while (retries > 0 && !hasResume) {
           await new Promise((resolve) => setTimeout(resolve, 1500));
-          const userData = await queryClient.fetchQuery<any>({
-            queryKey: [ENDPOINTS.AUTH.ABOUT_ME],
+          const token = getTokenFromCookies();
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.ABOUT_ME}`, {
+            headers: { Authorization: `Bearer ${token}` }
           });
+          const userData = await res.json();
           if (userData?.authorizedUser?.hasResume) {
             hasResume = true;
           }
