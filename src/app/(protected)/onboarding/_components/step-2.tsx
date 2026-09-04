@@ -31,13 +31,10 @@ interface JobProfilesResponse {
 const resumeApiClient = createApiClient(APIService.RESUME);
 const jobProfilesApiClient = createApiClient(APIServiceV2.INTERVIEWS);
 
-import { useQueryClient } from "@tanstack/react-query";
-
 export default function Step2({ onNext, isLoading = false }: Step2Props) {
   const [role, setRole] = useState("");
   const [experience, setExperience] = useState("");
   const [resume, setResume] = useState<File | null>(null);
-  const queryClient = useQueryClient();
 
   const experiences = EXPERIENCE_OPTIONS;
 

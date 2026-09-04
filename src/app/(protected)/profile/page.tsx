@@ -29,7 +29,6 @@ import {
 } from "@heroicons/react/24/solid";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { useQueryClient } from "@tanstack/react-query";
 import { getTokenFromCookies } from "@/lib/token-utils";
 import { z } from "zod";
 
@@ -51,7 +50,6 @@ type EditableField = keyof ProfileFormData | "resume";
 
 export default function ProfilePage() {
   const { user, signOut } = useAuth();
-  const queryClient = useQueryClient();
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [editingField, setEditingField] = useState<EditableField | null>(null);
   const [customUniversity, setCustomUniversity] = useState("");
