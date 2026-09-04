@@ -30,10 +30,13 @@ interface JobProfilesResponse {
 const resumeApiClient = createApiClient(APIService.RESUME);
 const jobProfilesApiClient = createApiClient(APIServiceV2.INTERVIEWS);
 
+import { useQueryClient } from "@tanstack/react-query";
+
 export default function Step2({ onNext, isLoading = false }: Step2Props) {
   const [role, setRole] = useState("");
   const [experience, setExperience] = useState("");
   const [resume, setResume] = useState<File | null>(null);
+  const queryClient = useQueryClient();
 
   const experiences = EXPERIENCE_OPTIONS;
 
@@ -65,8 +68,25 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
         const formData = new FormData();
         formData.append("file", resume);
         await extractResumeMutation.mutateAsync(formData);
+
+        // Poll for hasResume
+        let retries = 10;
+        let hasResume = false;
+        toast.loading("Processing resume...", { id: "resume-poll" });
+        while (retries > 0 && !hasResume) {
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+          const userData = await queryClient.fetchQuery<any>({
+            queryKey: [ENDPOINTS.AUTH.ABOUT_ME],
+          });
+          if (userData?.authorizedUser?.hasResume) {
+            hasResume = true;
+          }
+          retries--;
+        }
+        toast.dismiss("resume-poll");
       } catch {
         toast.error("Resume extraction failed");
+        toast.dismiss("resume-poll");
         // Don't prevent form submission if extraction fails
       }
     }

@@ -37,6 +37,10 @@ interface UseTextToSpeechOptions {
    */
   voiceName?: string;
   /**
+   * Optional pre-generated audio URL
+   */
+  audioUrl?: string | null;
+  /**
    * Whether to use natural pauses for punctuation (default: true)
    */
   useNaturalPauses?: boolean;
@@ -133,6 +137,7 @@ export const useTextToSpeech = ({
   volume = 1.0,
   lang = "en-IN",
   voiceName,
+  audioUrl,
   useNaturalPauses = true,
 }: UseTextToSpeechOptions) => {
   const apiClient = createApiClient(APIService.TTS);
@@ -200,10 +205,52 @@ export const useTextToSpeech = ({
 
       const currentSpeakId = speakIdRef.current;
 
-      // First, try to get audio from backend.
-      let audioBlob: Blob | null = null;
       const voice_id = resolveStoredTtsVoiceId();
 
+      // Try pre-generated audioUrl with retry mechanism
+      if (audioUrl) {
+        let retries = 5;
+        let loadedAudio: HTMLAudioElement | null = null;
+        
+        while (retries > 0 && !loadedAudio && currentSpeakId === speakIdRef.current) {
+          try {
+            loadedAudio = await new Promise<HTMLAudioElement>((resolve, reject) => {
+              const audio = new Audio(audioUrl);
+              audio.oncanplay = () => resolve(audio);
+              audio.onerror = () => reject(new Error("Audio load failed"));
+              audio.load();
+            });
+          } catch (err) {
+            retries--;
+            if (retries > 0 && currentSpeakId === speakIdRef.current) {
+              await new Promise(r => setTimeout(r, 1500));
+            }
+          }
+        }
+
+        if (loadedAudio && currentSpeakId === speakIdRef.current) {
+          audioRef.current = loadedAudio;
+          loadedAudio.onended = () => {
+            setIsSpeaking(false);
+          };
+          loadedAudio.onerror = () => {
+            console.warn("Audio playback error, unlocking speaking state");
+            setIsSpeaking(false);
+          };
+
+          setIsSpeaking(true);
+          try {
+            await loadedAudio.play();
+            return;
+          } catch (playError) {
+            console.error("Failed to play provided audio URL", playError);
+            setIsSpeaking(false);
+            return;
+          }
+        }
+      }
+
+      let audioBlob: Blob | null = null;
       try {
         audioBlob = await convertTextToSpeech({
           text: processedText,
@@ -287,7 +334,7 @@ export const useTextToSpeech = ({
         setIsSpeaking(false);
       }
     },
-    [isSupported, useNaturalPauses, stop, rate, pitch, volume, lang, voiceName, convertTextToSpeech]
+    [isSupported, useNaturalPauses, stop, rate, pitch, volume, lang, voiceName, audioUrl, convertTextToSpeech]
   );
 //   const speak = useCallback(
 //     async (textToSpeak: string) => {
