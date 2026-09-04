@@ -214,12 +214,17 @@ export const useTextToSpeech = ({
         
         while (retries > 0 && !loadedAudio && currentSpeakId === speakIdRef.current) {
           try {
-            loadedAudio = await new Promise<HTMLAudioElement>((resolve, reject) => {
-              const audio = new Audio(audioUrl);
-              audio.oncanplay = () => resolve(audio);
-              audio.onerror = () => reject(new Error("Audio load failed"));
-              audio.load();
-            });
+            loadedAudio = await Promise.race([
+              new Promise<HTMLAudioElement>((resolve, reject) => {
+                const audio = new Audio(audioUrl);
+                audio.oncanplay = () => resolve(audio);
+                audio.onerror = () => reject(new Error("Audio load failed"));
+                audio.load();
+              }),
+              new Promise<HTMLAudioElement>((_, reject) =>
+                setTimeout(() => reject(new Error("Audio load timeout")), 5000)
+              )
+            ]);
           } catch (err) {
             retries--;
             if (retries > 0 && currentSpeakId === speakIdRef.current) {
