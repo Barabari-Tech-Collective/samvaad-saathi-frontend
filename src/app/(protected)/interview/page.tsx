@@ -52,9 +52,11 @@ const InterviewPage = () => {
     mutateAsync: generateQuestions,
     isPending: isGeneratingQuestions,
     data: generatedQuestions,
+    error: generateQuestionsError,
   } = apiClient.useMutation<GenerateQuestionsResponse>({
     url: ENDPOINTS_V2.GENERATE_QUESTIONS,
     method: "post",
+    errorMessage: "Something went wrong generating your interview questions. Please try again.",
   });
 
   const { mutateAsync: startQuestionAttempt, isPending: isStartingAttempt } =
@@ -222,7 +224,8 @@ const InterviewPage = () => {
       !reattempt &&
       questions.length === 0 &&
       !isGeneratingQuestions &&
-      !generatedQuestions
+      !generatedQuestions &&
+      !generateQuestionsError
     ) {
       generateQuestions({
         useResume: useResume === "true",
@@ -236,6 +239,7 @@ const InterviewPage = () => {
     questions.length,
     isGeneratingQuestions,
     generatedQuestions,
+    generateQuestionsError,
     useResume,
     generateQuestions,
   ]);
@@ -467,7 +471,11 @@ const InterviewPage = () => {
                   <DotLottieReact src="/assets/lottie/Speaker.lottie" autoplay loop />
                 </div>
 
-                <div className={role?.toLowerCase() === "full stack developer" ? "col-span-5" : "col-span-3"}>
+                <div
+                  className={
+                    role?.toLowerCase() === "full stack developer" ? "col-span-5" : "col-span-3"
+                  }
+                >
                   <Question
                     isLoading={isGeneratingQuestions}
                     question={questions?.[currentQuestionIndex]}
