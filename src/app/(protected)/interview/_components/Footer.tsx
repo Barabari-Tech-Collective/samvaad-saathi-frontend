@@ -121,11 +121,17 @@ const Footer = ({
     recognition.interimResults = true;
     recognition.lang = "en-US";
     recognition.onresult = (event) => {
-      let transcript = "";
+      // Each result is its own recognition segment, and the API does not
+      // guarantee a boundary space between them - it drops the gap
+      // entirely across a pause (e.g. "real" + "life" -> "reallife").
+      // Trimming each segment and rejoining with an explicit space fixes
+      // that regardless of what whitespace the engine did or didn't include.
+      const segments: string[] = [];
       for (let i = 0; i < event.results.length; i++) {
-        transcript += event.results[i][0].transcript;
+        const segment = event.results[i][0].transcript.trim();
+        if (segment) segments.push(segment);
       }
-      setLiveCaption(transcript.trim());
+      setLiveCaption(segments.join(" "));
     };
     recognition.onerror = (event) => {
       // Never surfaced to the student and never affects the actual answer
