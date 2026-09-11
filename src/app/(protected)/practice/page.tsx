@@ -17,7 +17,7 @@ const PracticePage = () => {
     {
       id: 2,
       title: "Master Your Pronunciation",
-      description: "Learn how to frame your responses with clarity, logic, and flow.",
+      description: "Hear commonly mispronounced words with phonetic spelling and slow playback.",
       gradient: "from-yellow-100 to-amber-100",
       shadowColor: "amber",
       href: "/pronunciation-practice",

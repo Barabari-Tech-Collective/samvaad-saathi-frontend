@@ -74,7 +74,11 @@ export interface SubmitPacingSessionResponse {
   speechSpeed: SpeechSpeedMetric;
   pauseDistribution: PauseDistributionMetric;
   fillerWords: FillerWordsMetric;
-  levelUnlocked: number;
+  // Backend sends null when this attempt didn't unlock a new level
+  // (level_unlocked: Optional[int] in pacing_practice.py) - this type
+  // previously didn't declare that, so a consumer could read it as if it
+  // were always a number.
+  levelUnlocked: number | null;
 }
 
 export interface PacingSessionDetailResponse {

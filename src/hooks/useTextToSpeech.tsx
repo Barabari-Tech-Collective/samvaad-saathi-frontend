@@ -37,6 +37,10 @@ interface UseTextToSpeechOptions {
    */
   voiceName?: string;
   /**
+   * Optional pre-generated audio URL
+   */
+  audioUrl?: string | null;
+  /**
    * Whether to use natural pauses for punctuation (default: true)
    */
   useNaturalPauses?: boolean;
@@ -133,6 +137,7 @@ export const useTextToSpeech = ({
   volume = 1.0,
   lang = "en-IN",
   voiceName,
+  audioUrl,
   useNaturalPauses = true,
 }: UseTextToSpeechOptions) => {
   const apiClient = createApiClient(APIService.TTS);
@@ -151,6 +156,13 @@ export const useTextToSpeech = ({
   const audioUrlRef = useRef<string | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  // True from the moment speak() is invoked until audio actually starts
+  // playing (isSpeaking becomes true) or every fallback has been exhausted.
+  // Callers previously had no way to distinguish "about to speak" from
+  // "finished speaking" - both read as isSpeaking === false - so a caller
+  // gating input on isSpeaking alone left the ~5s ElevenLabs fetch/retry
+  // window (or a slow browser-TTS startup) fully interactive.
+  const [isPreparing, setIsPreparing] = useState(false);
   const speakIdRef = useRef<number>(0);
 
   // TTS is supported in any browser that can play audio
@@ -179,6 +191,7 @@ export const useTextToSpeech = ({
     utteranceRef.current = null;
 
     setIsSpeaking(false);
+    setIsPreparing(false);
   }, []);
 
   const speak = useCallback(
@@ -192,6 +205,7 @@ export const useTextToSpeech = ({
 
       // Cancel any ongoing speech
       stop();
+      setIsPreparing(true);
 
       // Preprocess text for natural pauses
       const processedText = useNaturalPauses
@@ -200,10 +214,58 @@ export const useTextToSpeech = ({
 
       const currentSpeakId = speakIdRef.current;
 
-      // First, try to get audio from backend.
-      let audioBlob: Blob | null = null;
       const voice_id = resolveStoredTtsVoiceId();
 
+      // Try pre-generated audioUrl with retry mechanism
+      if (audioUrl) {
+        let retries = 5;
+        let loadedAudio: HTMLAudioElement | null = null;
+
+        while (retries > 0 && !loadedAudio && currentSpeakId === speakIdRef.current) {
+          try {
+            loadedAudio = await Promise.race([
+              new Promise<HTMLAudioElement>((resolve, reject) => {
+                const audio = new Audio(audioUrl);
+                audio.oncanplay = () => resolve(audio);
+                audio.onerror = () => reject(new Error("Audio load failed"));
+                audio.load();
+              }),
+              new Promise<HTMLAudioElement>((_, reject) =>
+                setTimeout(() => reject(new Error("Audio load timeout")), 5000)
+              ),
+            ]);
+          } catch (err) {
+            retries--;
+            if (retries > 0 && currentSpeakId === speakIdRef.current) {
+              await new Promise((r) => setTimeout(r, 1500));
+            }
+          }
+        }
+
+        if (loadedAudio && currentSpeakId === speakIdRef.current) {
+          audioRef.current = loadedAudio;
+          loadedAudio.onended = () => {
+            setIsSpeaking(false);
+          };
+          loadedAudio.onerror = () => {
+            console.warn("Audio playback error, unlocking speaking state");
+            setIsSpeaking(false);
+          };
+
+          setIsSpeaking(true);
+          setIsPreparing(false);
+          try {
+            await loadedAudio.play();
+            return;
+          } catch (playError) {
+            console.error("Failed to play provided audio URL", playError);
+            setIsSpeaking(false);
+            return;
+          }
+        }
+      }
+
+      let audioBlob: Blob | null = null;
       try {
         audioBlob = await convertTextToSpeech({
           text: processedText,
@@ -236,11 +298,13 @@ export const useTextToSpeech = ({
           };
 
           setIsSpeaking(true);
+          setIsPreparing(false);
           await audio.play();
           return;
         } catch (playError) {
           console.error("Failed to play backend TTS audio", playError);
           setIsSpeaking(false);
+          setIsPreparing(false);
           return;
         }
       }
@@ -248,6 +312,7 @@ export const useTextToSpeech = ({
       // If backend audio was empty (0 bytes) or failed, fall back to Browser Speech Synthesis
       if (typeof window === "undefined" || !("speechSynthesis" in window)) {
         setIsSpeaking(false);
+        setIsPreparing(false);
         return;
       }
 
@@ -271,6 +336,7 @@ export const useTextToSpeech = ({
 
         utterance.onstart = () => {
           setIsSpeaking(true);
+          setIsPreparing(false);
         };
 
         utterance.onend = () => {
@@ -279,123 +345,136 @@ export const useTextToSpeech = ({
 
         utterance.onerror = () => {
           setIsSpeaking(false);
+          setIsPreparing(false);
         };
 
         window.speechSynthesis.speak(utterance);
       } catch (fallbackError) {
         console.error("Browser TTS fallback failed", fallbackError);
         setIsSpeaking(false);
+        setIsPreparing(false);
       }
     },
-    [isSupported, useNaturalPauses, stop, rate, pitch, volume, lang, voiceName, convertTextToSpeech]
+    [
+      isSupported,
+      useNaturalPauses,
+      stop,
+      rate,
+      pitch,
+      volume,
+      lang,
+      voiceName,
+      audioUrl,
+      convertTextToSpeech,
+    ]
   );
-//   const speak = useCallback(
-//     async (textToSpeak: string) => {
-//       if (!isSupported) {
-//         console.warn("Text-to-speech is not supported in this browser");
-//         return;
-//       }
+  //   const speak = useCallback(
+  //     async (textToSpeak: string) => {
+  //       if (!isSupported) {
+  //         console.warn("Text-to-speech is not supported in this browser");
+  //         return;
+  //       }
 
-//       if (!textToSpeak) return;
+  //       if (!textToSpeak) return;
 
-//       // Cancel any ongoing speech
-//       stop();
+  //       // Cancel any ongoing speech
+  //       stop();
 
-//       // Preprocess text for natural pauses
-//       const processedText = useNaturalPauses
-//         ? preprocessTextForNaturalSpeech(textToSpeak)
-//         : textToSpeak;
+  //       // Preprocess text for natural pauses
+  //       const processedText = useNaturalPauses
+  //         ? preprocessTextForNaturalSpeech(textToSpeak)
+  //         : textToSpeak;
 
-//       const currentSpeakId = speakIdRef.current;
+  //       const currentSpeakId = speakIdRef.current;
 
-//       // First, try to get audio from backend.
-//       let audioBlob: Blob | null = null;
-//       const voice_id = resolveStoredTtsVoiceId();
+  //       // First, try to get audio from backend.
+  //       let audioBlob: Blob | null = null;
+  //       const voice_id = resolveStoredTtsVoiceId();
 
-//       try {
-//         audioBlob = await convertTextToSpeech({
-//           text: processedText,
-//           voice_id,
-//         });
-//       } catch (error) {
-//         console.error("TTS backend request failed, falling back to browser TTS", error);
-//       }
+  //       try {
+  //         audioBlob = await convertTextToSpeech({
+  //           text: processedText,
+  //           voice_id,
+  //         });
+  //       } catch (error) {
+  //         console.error("TTS backend request failed, falling back to browser TTS", error);
+  //       }
 
-//       if (currentSpeakId !== speakIdRef.current) {
-//         return;
-//       }
+  //       if (currentSpeakId !== speakIdRef.current) {
+  //         return;
+  //       }
 
-//       if (audioBlob) {
-//         // We have backend audio, play it and DO NOT fallback.
-//         try {
-//           const audioUrl = URL.createObjectURL(audioBlob);
-//           audioUrlRef.current = audioUrl;
+  //       if (audioBlob) {
+  //         // We have backend audio, play it and DO NOT fallback.
+  //         try {
+  //           const audioUrl = URL.createObjectURL(audioBlob);
+  //           audioUrlRef.current = audioUrl;
 
-//           const audio = new Audio(audioUrl);
-//           audioRef.current = audio;
+  //           const audio = new Audio(audioUrl);
+  //           audioRef.current = audio;
 
-//           audio.onended = () => {
-//             setIsSpeaking(false);
-//           };
+  //           audio.onended = () => {
+  //             setIsSpeaking(false);
+  //           };
 
-//           audio.onerror = () => {
-//             setIsSpeaking(false);
-//           };
+  //           audio.onerror = () => {
+  //             setIsSpeaking(false);
+  //           };
 
-//           setIsSpeaking(true);
-//           await audio.play();
-//           return;
-//         } catch (playError) {
-//           console.error("Failed to play backend TTS audio", playError);
-//           setIsSpeaking(false);
-//           return;
-//         }
-//       }
+  //           setIsSpeaking(true);
+  //           await audio.play();
+  //           return;
+  //         } catch (playError) {
+  //           console.error("Failed to play backend TTS audio", playError);
+  //           setIsSpeaking(false);
+  //           return;
+  //         }
+  //       }
 
-//       // If we reach here, backend audio was not available; use browser fallback.
-//       if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-//         setIsSpeaking(false);
-//         return;
-//       }
+  //       // If we reach here, backend audio was not available; use browser fallback.
+  //       if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+  //         setIsSpeaking(false);
+  //         return;
+  //       }
 
-//       if (currentSpeakId !== speakIdRef.current) {
-//         return;
-//       }
+  //       if (currentSpeakId !== speakIdRef.current) {
+  //         return;
+  //       }
 
-//       try {
-//         const utterance = new SpeechSynthesisUtterance(processedText);
-//         utterance.rate = rate;
-//         utterance.pitch = pitch;
-//         utterance.volume = volume;
-//         utterance.lang = lang;
+  //       try {
+  //         const utterance = new SpeechSynthesisUtterance(processedText);
+  //         utterance.rate = rate;
+  //         utterance.pitch = pitch;
+  //         utterance.volume = volume;
+  //         utterance.lang = lang;
 
-//         const selectedVoice = findBestVoice(lang, voiceName);
-//         if (selectedVoice) {
-//           utterance.voice = selectedVoice;
-//         }
+  //         const selectedVoice = findBestVoice(lang, voiceName);
+  //         if (selectedVoice) {
+  //           utterance.voice = selectedVoice;
+  //         }
 
-//         utteranceRef.current = utterance;
+  //         utteranceRef.current = utterance;
 
-//         utterance.onstart = () => {
-//           setIsSpeaking(true);
-//         };
+  //         utterance.onstart = () => {
+  //           setIsSpeaking(true);
+  //         };
 
-//         utterance.onend = () => {
-//           setIsSpeaking(false);
-//         };
+  //         utterance.onend = () => {
+  //           setIsSpeaking(false);
+  //         };
 
-//         utterance.onerror = () => {
-//           setIsSpeaking(false);
-//         };
+  //         utterance.onerror = () => {
+  //           setIsSpeaking(false);
+  //         };
 
-//         window.speechSynthesis.speak(utterance);
-//       } catch (fallbackError) {
-//         console.error("Browser TTS fallback failed", fallbackError);
-//         setIsSpeaking(false);
-//       }
-//     },
-//     [isSupported, useNaturalPauses, stop, rate, pitch, volume, lang, voiceName, convertTextToSpeech]
-//   );
+  //         window.speechSynthesis.speak(utterance);
+  //       } catch (fallbackError) {
+  //         console.error("Browser TTS fallback failed", fallbackError);
+  //         setIsSpeaking(false);
+  //       }
+  //     },
+  //     [isSupported, useNaturalPauses, stop, rate, pitch, volume, lang, voiceName, convertTextToSpeech]
+  //   );
 
   useEffect(() => {
     // Only speak when text is available and not disabled
@@ -417,5 +496,6 @@ export const useTextToSpeech = ({
     stop,
     isSupported,
     isSpeaking,
+    isPreparing,
   };
 };

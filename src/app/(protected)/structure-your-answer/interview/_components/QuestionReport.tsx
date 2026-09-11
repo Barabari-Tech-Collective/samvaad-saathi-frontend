@@ -17,6 +17,7 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/solid";
+import axios from "axios";
 import { useEffect } from "react";
 
 interface FrameworkSection {
@@ -94,6 +95,7 @@ const QuestionReport = ({
   const {
     mutateAsync: analyzePractice,
     data: analysisData,
+    error: analysisError,
     isPending: isLoading,
   } = apiClient.useMutation<QuestionReportResponse, Record<string, never>>({
     url: ENDPOINTS_V2.ANALYSE_STRUCTURED_PRACTICE_AUDIO(practiceId, questionIndex),
@@ -105,7 +107,13 @@ const QuestionReport = ({
   // but we still need to fetch the results, so we call it anyway
   useEffect(() => {
     if (practiceId && questionIndex !== undefined) {
-      analyzePractice({});
+      // mutateAsync rejects on failure - swallow it here so it doesn't
+      // surface as an unhandled promise rejection. The mutation's own
+      // `error` state (read above) is what actually drives the error UI
+      // below; without this catch, a failed analysis fell through to the
+      // exact same "no analysis data" render as a request that simply
+      // hadn't been made yet, so a real backend failure was invisible.
+      analyzePractice({}).catch(() => {});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [practiceId, questionIndex]);
@@ -122,6 +130,32 @@ const QuestionReport = ({
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (analysisError) {
+    const detail =
+      axios.isAxiosError(analysisError) && typeof analysisError.response?.data?.detail === "string"
+        ? analysisError.response.data.detail
+        : "We couldn't analyze this answer right now.";
+    return (
+      <div className="flex flex-col px-6 py-8">
+        <div className="my-8 flex items-start gap-2">
+          <ExclamationCircleIcon className="h-5 w-5 shrink-0 text-red-500" />
+          <p className="text-sm text-gray-700">
+            {detail} You can try again, or move on and review it later.
+          </p>
+        </div>
+        <div className="flex justify-end gap-3 mt-auto pt-6">
+          <button onClick={() => analyzePractice({}).catch(() => {})} className="btn btn-outline">
+            Try Again
+          </button>
+          <button onClick={onNextQuestion} className="btn btn-primary">
+            {isLastQuestion ? "Finish Practice" : "Next Question"}
+            <ArrowRightIcon className="h-5 w-5" />
+          </button>
         </div>
       </div>
     );
