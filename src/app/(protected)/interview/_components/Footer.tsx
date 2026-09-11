@@ -21,6 +21,40 @@ import { MicrophoneIcon } from "@heroicons/react/24/solid";
 import React, { useEffect, useRef, useState } from "react";
 import { FollowUpQuestion, TranscribeResponse } from "../types";
 
+// SpeechRecognition is a non-standard, experimental Web API (Chrome/Edge
+// only) and isn't part of TypeScript's "dom" lib. Used here only as a
+// best-effort live-captions preview while the student is speaking - it
+// never touches the actual audio upload/transcription/scoring pipeline,
+// which still runs entirely through Groq/Whisper as before.
+interface SpeechRecognitionAlternativeLike {
+  transcript: string;
+}
+interface SpeechRecognitionResultLike {
+  readonly length: number;
+  [index: number]: SpeechRecognitionAlternativeLike;
+}
+interface SpeechRecognitionEventLike {
+  readonly results: {
+    readonly length: number;
+    [index: number]: SpeechRecognitionResultLike;
+  };
+}
+interface SpeechRecognitionLike extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: ((event: { error: string }) => void) | null;
+}
+declare global {
+  interface Window {
+    SpeechRecognition?: new () => SpeechRecognitionLike;
+    webkitSpeechRecognition?: new () => SpeechRecognitionLike;
+  }
+}
+
 interface FooterProps {
   isLoading?: boolean;
   disabled?: boolean;
@@ -54,6 +88,8 @@ const Footer = ({
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [timeRemaining, setTimeRemaining] = useState(180); // 3 minutes in seconds
   const [waveformBars, setWaveformBars] = useState<number[]>(Array(20).fill(0));
+  const [liveCaption, setLiveCaption] = useState("");
+  const [captionsSupported, setCaptionsSupported] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -61,8 +97,58 @@ const Footer = ({
   const stopWaveformAnimationRef = useRef<(() => void) | null>(null);
   const lastUpdateTimeRef = useRef<number>(0);
   const startTimeRef = useRef<number>(0);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
   const apiClient = createApiClient(APIService.TRANSCRIBE);
+
+  // Feature-detected once on mount (client-only - window isn't available
+  // during SSR). Chrome/Edge only; other browsers just get no captions UI.
+  useEffect(() => {
+    setCaptionsSupported(!!(window.SpeechRecognition || window.webkitSpeechRecognition));
+  }, []);
+
+  // Best-effort live transcript while the student is speaking. This is a
+  // separate engine (browser Web Speech API) from the Groq/Whisper call
+  // that produces the real, scored transcript after upload - the two can
+  // disagree slightly, which is why the UI below labels this a preview.
+  const startLiveCaptions = () => {
+    const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionCtor) return;
+
+    setLiveCaption("");
+    const recognition = new SpeechRecognitionCtor();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+    recognition.onresult = (event) => {
+      let transcript = "";
+      for (let i = 0; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setLiveCaption(transcript.trim());
+    };
+    recognition.onerror = (event) => {
+      // Never surfaced to the student and never affects the actual answer
+      // upload/scoring pipeline - captions are a best-effort visual aid only.
+      console.warn("Live caption recognition error:", event.error);
+    };
+    recognition.start();
+    recognitionRef.current = recognition;
+  };
+
+  const stopLiveCaptions = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.onresult = null;
+      recognitionRef.current.onerror = null;
+      try {
+        recognitionRef.current.stop();
+      } catch {
+        // Already stopped/errored - fine, this is best-effort.
+      }
+      recognitionRef.current = null;
+    }
+    setLiveCaption("");
+  };
 
   // Format time as MM:SS
   const formatTime = (seconds: number): string => {
@@ -84,6 +170,7 @@ const Footer = ({
         mediaRecorderRef.current.stop();
       }
       mediaRecorderRef.current?.stream?.getTracks().forEach((track) => track.stop());
+      stopLiveCaptions();
     };
   }, []);
 
@@ -116,6 +203,7 @@ const Footer = ({
     }
     // Reset media recorder ref
     mediaRecorderRef.current = null;
+    stopLiveCaptions();
   }, [question_attempt_id]);
 
   // Timer countdown effect
@@ -249,6 +337,7 @@ const Footer = ({
       mediaRecorder.start();
       setIsListening(true);
       startTimeRef.current = Date.now();
+      startLiveCaptions();
 
       // Throttled callback to reduce state updates
       // Update state at most every 50ms (~20fps) instead of every frame (~60fps)
@@ -273,6 +362,7 @@ const Footer = ({
     if (mediaRecorderRef.current && isListening) {
       mediaRecorderRef.current.stop();
       setIsListening(false);
+      stopLiveCaptions();
 
       // Stop waveform animation
       if (stopWaveformAnimationRef.current) {
@@ -410,6 +500,7 @@ const Footer = ({
     }
     // Reset media recorder ref
     mediaRecorderRef.current = null;
+    stopLiveCaptions();
   };
 
   const handleConfirmSkip = () => {
@@ -585,6 +676,20 @@ const Footer = ({
                   />
                 ))}
               </div>
+
+              {/* Live captions - best-effort browser-side preview, not the
+                  scored transcript (that comes back from Groq/Whisper after
+                  upload). Chrome/Edge only; silently omitted elsewhere. */}
+              {captionsSupported && (
+                <div className="w-full max-w-md px-2 text-center">
+                  <p className="min-h-[1.5em] break-words text-sm italic text-gray-700 sm:text-base">
+                    {liveCaption || "Listening for your voice…"}
+                  </p>
+                  <p className="mt-1 text-[10px] text-gray-500">
+                    Live preview only — may differ slightly from your final transcript
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
