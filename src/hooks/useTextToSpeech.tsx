@@ -156,6 +156,13 @@ export const useTextToSpeech = ({
   const audioUrlRef = useRef<string | null>(null);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  // True from the moment speak() is invoked until audio actually starts
+  // playing (isSpeaking becomes true) or every fallback has been exhausted.
+  // Callers previously had no way to distinguish "about to speak" from
+  // "finished speaking" - both read as isSpeaking === false - so a caller
+  // gating input on isSpeaking alone left the ~5s ElevenLabs fetch/retry
+  // window (or a slow browser-TTS startup) fully interactive.
+  const [isPreparing, setIsPreparing] = useState(false);
   const speakIdRef = useRef<number>(0);
 
   // TTS is supported in any browser that can play audio
@@ -184,6 +191,7 @@ export const useTextToSpeech = ({
     utteranceRef.current = null;
 
     setIsSpeaking(false);
+    setIsPreparing(false);
   }, []);
 
   const speak = useCallback(
@@ -197,6 +205,7 @@ export const useTextToSpeech = ({
 
       // Cancel any ongoing speech
       stop();
+      setIsPreparing(true);
 
       // Preprocess text for natural pauses
       const processedText = useNaturalPauses
@@ -244,6 +253,7 @@ export const useTextToSpeech = ({
           };
 
           setIsSpeaking(true);
+          setIsPreparing(false);
           try {
             await loadedAudio.play();
             return;
@@ -288,11 +298,13 @@ export const useTextToSpeech = ({
           };
 
           setIsSpeaking(true);
+          setIsPreparing(false);
           await audio.play();
           return;
         } catch (playError) {
           console.error("Failed to play backend TTS audio", playError);
           setIsSpeaking(false);
+          setIsPreparing(false);
           return;
         }
       }
@@ -300,6 +312,7 @@ export const useTextToSpeech = ({
       // If backend audio was empty (0 bytes) or failed, fall back to Browser Speech Synthesis
       if (typeof window === "undefined" || !("speechSynthesis" in window)) {
         setIsSpeaking(false);
+        setIsPreparing(false);
         return;
       }
 
@@ -323,6 +336,7 @@ export const useTextToSpeech = ({
 
         utterance.onstart = () => {
           setIsSpeaking(true);
+          setIsPreparing(false);
         };
 
         utterance.onend = () => {
@@ -331,12 +345,14 @@ export const useTextToSpeech = ({
 
         utterance.onerror = () => {
           setIsSpeaking(false);
+          setIsPreparing(false);
         };
 
         window.speechSynthesis.speak(utterance);
       } catch (fallbackError) {
         console.error("Browser TTS fallback failed", fallbackError);
         setIsSpeaking(false);
+        setIsPreparing(false);
       }
     },
     [
@@ -480,5 +496,6 @@ export const useTextToSpeech = ({
     stop,
     isSupported,
     isSpeaking,
+    isPreparing,
   };
 };
