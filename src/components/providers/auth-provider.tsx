@@ -59,7 +59,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   //   window.location.href = `api${ENDPOINTS.AUTH.COGNITO_LOGIN}`;
   // };
   const signInWithSso = () => {
-    window.location.href = `api${ENDPOINTS.AUTH.SSO_LOGIN}`;
+    // Must be an absolute URL to the backend. The previous `api${...}` form (inherited
+    // from the Cognito helper) produced "apiauth/sso/login" - no separator and no
+    // origin - which the browser resolves relative to the current page and 404s on the
+    // frontend, never reaching the backend at all. The signup page's <Link> already
+    // used this correct form; this helper is the same entry point exposed on the auth
+    // context, so it has to agree.
+    window.location.href = `${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.SSO_LOGIN}`;
   };
 
   const signOut = () => {
