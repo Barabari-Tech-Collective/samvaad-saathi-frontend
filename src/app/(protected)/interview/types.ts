@@ -13,6 +13,7 @@ export interface GenerateQuestionsResponse {
     isFollowUp: boolean;
     parentQuestionId: number | null;
     followUpStrategy: string | null;
+    audioUrl?: string;
     supplement: {
       content: string;
       format: string;
