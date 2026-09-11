@@ -18,8 +18,44 @@ import {
   trackSubmitInterviewClick,
 } from "@/lib/posthog/tracking.utils";
 import { MicrophoneIcon } from "@heroicons/react/24/solid";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FollowUpQuestion, TranscribeResponse } from "../types";
+
+// Mirrors the backend's FILLER_WORDS set (src/services/pacing_practice_service.py)
+// so the live count roughly matches what the scored transcript would flag -
+// unambiguous non-lexical fillers only, no contextual words like "like"/"actually".
+const FILLER_WORDS = new Set([
+  "um",
+  "uh",
+  "hmm",
+  "hm",
+  "er",
+  "ah",
+  "erm",
+  "uhh",
+  "umm",
+  "ahh",
+  "uhm",
+  "mhm",
+  "ugh",
+]);
+
+function normalizeWord(token: string): string {
+  return token
+    .trim()
+    .toLowerCase()
+    .replace(/^[.,!?;:]+|[.,!?;:]+$/g, "");
+}
+
+/** Splits caption text into renderable segments, flagging filler words so
+ * they can be highlighted inline without losing the original whitespace. */
+function splitCaptionForHighlight(caption: string): { text: string; isFiller: boolean }[] {
+  if (!caption) return [];
+  return caption.split(/(\s+)/).map((token) => ({
+    text: token,
+    isFiller: FILLER_WORDS.has(normalizeWord(token)),
+  }));
+}
 
 // SpeechRecognition is a non-standard, experimental Web API (Chrome/Edge
 // only) and isn't part of TypeScript's "dom" lib. Used here only as a
@@ -106,6 +142,18 @@ const Footer = ({
   useEffect(() => {
     setCaptionsSupported(!!(window.SpeechRecognition || window.webkitSpeechRecognition));
   }, []);
+
+  // Live filler-word count from the browser's own captions, purely as a
+  // self-awareness aid while speaking - not tied to the actual scored
+  // filler-word metric, which is computed server-side from the Whisper
+  // transcript after upload.
+  const fillerCount = useMemo(() => {
+    if (!liveCaption) return 0;
+    return liveCaption
+      .split(/\s+/)
+      .map(normalizeWord)
+      .filter((word) => FILLER_WORDS.has(word)).length;
+  }, [liveCaption]);
 
   // Best-effort live transcript while the student is speaking. This is a
   // separate engine (browser Web Speech API) from the Groq/Whisper call
@@ -679,12 +727,33 @@ const Footer = ({
 
               {/* Live captions - best-effort browser-side preview, not the
                   scored transcript (that comes back from Groq/Whisper after
-                  upload). Chrome/Edge only; silently omitted elsewhere. */}
+                  upload). Chrome/Edge only; silently omitted elsewhere.
+                  Filler words ("um", "uh", ...) are highlighted inline and
+                  counted so the student gets real-time self-awareness feedback
+                  while speaking, separate from the post-answer scored metric. */}
               {captionsSupported && (
                 <div className="w-full max-w-md px-2 text-center">
                   <p className="min-h-[1.5em] break-words text-sm italic text-gray-700 sm:text-base">
-                    {liveCaption || "Listening for your voice…"}
+                    {liveCaption
+                      ? splitCaptionForHighlight(liveCaption).map((part, index) =>
+                          part.isFiller ? (
+                            <mark
+                              key={index}
+                              className="rounded bg-amber-200 px-0.5 not-italic text-amber-900"
+                            >
+                              {part.text}
+                            </mark>
+                          ) : (
+                            <React.Fragment key={index}>{part.text}</React.Fragment>
+                          )
+                        )
+                      : "Listening for your voice…"}
                   </p>
+                  {fillerCount > 0 && (
+                    <p className="mt-1 text-xs font-medium text-amber-700">
+                      Filler words so far: {fillerCount}
+                    </p>
+                  )}
                   <p className="mt-1 text-[10px] text-gray-500">
                     Live preview only — may differ slightly from your final transcript
                   </p>
