@@ -4,8 +4,9 @@ import { createApiClient } from "@/lib/api-config/src/client";
 import { APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
 import { ArrowRightIcon } from "@heroicons/react/24/solid";
+import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AnswerTypeStep, QuestionReport } from "./_components";
 
 interface Question {
@@ -43,6 +44,7 @@ const StructureYourAnswerInterviewPage = () => {
   const [hasStartedPractice, setHasStartedPractice] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const apiClient = createApiClient(APIServiceV2.INTERVIEWS);
 
@@ -54,32 +56,45 @@ const StructureYourAnswerInterviewPage = () => {
     method: "post",
   });
 
-  useEffect(() => {
-    const callApi = async () => {
-      try {
-        setIsLoading(true);
-        const requestData: {
-          interviewId?: string;
-          track?: string;
-          difficulty?: string;
-        } = {};
-        if (interviewId) {
-          requestData.interviewId = interviewId;
-        }
-        if (role) {
-          requestData.track = role;
-        }
-        requestData.difficulty = "easy";
-        const response = await generateStructuredPractice(requestData);
-        setStructuredPractice(response);
-      } catch (error) {
-        console.error("Error calling API:", error);
-      } finally {
-        setIsLoading(false);
+  // Extracted so the error UI below can retry with the exact same call,
+  // rather than duplicating request-building logic in a second function.
+  const loadPractice = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setLoadError(null);
+      const requestData: {
+        interviewId?: string;
+        track?: string;
+        difficulty?: string;
+      } = {};
+      if (interviewId) {
+        requestData.interviewId = interviewId;
       }
-    };
+      if (role) {
+        requestData.track = role;
+      }
+      requestData.difficulty = "easy";
+      const response = await generateStructuredPractice(requestData);
+      setStructuredPractice(response);
+    } catch (error) {
+      console.error("Error calling API:", error);
+      // Previously this was console.error-only: the student saw the exact
+      // same "No questions available" screen whether generation genuinely
+      // had nothing to offer or the request failed outright, with no way
+      // to retry.
+      const detail =
+        axios.isAxiosError(error) && typeof error.response?.data?.detail === "string"
+          ? error.response.data.detail
+          : "We couldn't load your practice questions.";
+      setLoadError(detail);
+    } finally {
+      setIsLoading(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [interviewId, role]);
 
-    callApi();
+  useEffect(() => {
+    loadPractice();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interviewId, role]);
 
@@ -180,6 +195,22 @@ const StructureYourAnswerInterviewPage = () => {
   // Show welcome screen during loading or if welcome state is true
   if (isLoading || showWelcome) {
     return <WelcomeScreen isLoading={isLoading} />;
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex flex-col items-center justify-center pt-10 gap-4 px-6 text-center">
+        <p className="text-gray-700">{loadError}</p>
+        <div className="flex gap-3">
+          <button onClick={() => loadPractice()} className="btn btn-outline">
+            Try Again
+          </button>
+          <button onClick={() => router.push("/practice")} className="btn btn-neutral">
+            Back to Practice
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (!structuredPractice || !currentQuestion) {
