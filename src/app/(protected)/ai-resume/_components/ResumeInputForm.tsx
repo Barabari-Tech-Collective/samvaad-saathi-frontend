@@ -105,7 +105,7 @@ export function ResumeInputForm({
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }
-      
+
       setAnalysisError(errorMessage);
       toast.error(errorMessage);
       console.error("Resume analysis error:", error);

@@ -17,7 +17,6 @@ import {
   InterviewsListResponse,
   ResumeInterviewResponse,
 } from "./_components/types";
-import { HARDCODED_INTERVIEWS } from "../../../hardcoded-reports";
 
 export default function InterviewHistory() {
   const [activeTab, setActiveTab] = useState<InterviewStatus>("incomplete");
@@ -41,15 +40,44 @@ export default function InterviewHistory() {
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
+  // The backend paginates this list (default 20/page, cursor-based) and
+  // this page previously never requested more than the first page, so any
+  // user with over 20 total interviews couldn't see their older history at
+  // all - not just a performance concern, actual data was inaccessible.
+  const [cursor, setCursor] = useState<number | null>(null);
+  const [allItems, setAllItems] = useState<InterviewItem[]>([]);
+
   const {
     data: interviewsData,
     isLoading,
+    isFetching,
     error,
   } = useQuery<InterviewsListResponse>({
     key: [ENDPOINTS.INTERVIEWS.LIST, "list"],
     url: ENDPOINTS.INTERVIEWS.LIST,
     method: "get",
+    params: cursor ? { cursor } : undefined,
   });
+
+  useEffect(() => {
+    if (!interviewsData) return;
+    setAllItems((prev) => {
+      if (cursor === null) return interviewsData.items;
+      // Dedupe by id - guards against React StrictMode's double effect
+      // invocation in dev, and any accidental overlap across pages.
+      const seen = new Set(prev.map((item) => item.interviewId));
+      const newItems = interviewsData.items.filter((item) => !seen.has(item.interviewId));
+      return [...prev, ...newItems];
+    });
+    // Only re-run when a new page actually arrives, not on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [interviewsData]);
+
+  const handleLoadMore = () => {
+    if (interviewsData?.nextCursor != null) {
+      setCursor(interviewsData.nextCursor);
+    }
+  };
 
   // Mutation for resume interview
   const { mutateAsync: resumeInterviewMutation } = useMutation<
@@ -63,14 +91,10 @@ export default function InterviewHistory() {
   });
 
   const { incomplete, completed } = useMemo(() => {
-    if (!interviewsData?.items) {
-      return { incomplete: [], completed: [] };
-    }
-
     const incompleteInterviews: InterviewItem[] = [];
     const completedInterviews: InterviewItem[] = [];
 
-    interviewsData.items.forEach((interview) => {
+    allItems.forEach((interview) => {
       if (interview.status === "active") {
         incompleteInterviews.push(interview);
       } else if (interview.status === "completed") {
@@ -80,9 +104,9 @@ export default function InterviewHistory() {
 
     return {
       incomplete: incompleteInterviews,
-      completed: [...HARDCODED_INTERVIEWS, ...completedInterviews], // TEMPORARY DEMO HARDCODING
+      completed: completedInterviews,
     };
-  }, [interviewsData]);
+  }, [allItems]);
 
   // Handle complete interview
   const handleCompleteInterview = async (interviewId: number): Promise<void> => {
@@ -100,7 +124,10 @@ export default function InterviewHistory() {
     router.push(`/interview?${resumeParams.toString()}`);
   };
 
-  if (isLoading) {
+  // Only show the full skeleton on the genuine first load - isLoading flips
+  // true again for each new cursor page, which would otherwise blank out
+  // the already-loaded list every time "Load More" is clicked.
+  if (isLoading && allItems.length === 0) {
     return (
       <div className="max-w-md mx-auto pb-8">
         <h2 className="text-[20px] font-semibold text-primary my-4">History</h2>
@@ -151,6 +178,18 @@ export default function InterviewHistory() {
         />
       ) : (
         <CompletedInterviewsTab completed={completed} />
+      )}
+
+      {interviewsData?.nextCursor != null && (
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={handleLoadMore}
+            disabled={isFetching}
+            className="px-6 py-2 text-sm font-medium text-primary border border-primary rounded-lg disabled:opacity-50"
+          >
+            {isFetching ? "Loading..." : "Load More"}
+          </button>
+        </div>
       )}
     </div>
   );

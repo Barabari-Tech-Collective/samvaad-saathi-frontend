@@ -123,7 +123,7 @@ export default function InterviewStartPage() {
       const separatorIdx = rest.indexOf("::");
       const idStr = rest.slice(0, separatorIdx);
       const jobName = rest.slice(separatorIdx + 2);
-      
+
       const profileId = Number(idStr);
       const profile = jobProfiles.find((p) => p.id === profileId);
       const category = profile?.category || "HR & Non-Technical";
@@ -154,17 +154,14 @@ export default function InterviewStartPage() {
   const handleSubmit = async () => {
     if (!selection) return;
 
-    const isNonTech = selection.kind === "hr" && 
-      (selection.category.toLowerCase().includes("hr") || 
-       selection.category.toLowerCase().includes("non-technical") || 
-       selection.category.toLowerCase().includes("communication"));
+    const isNonTech =
+      selection.kind === "hr" &&
+      (selection.category.toLowerCase().includes("hr") ||
+        selection.category.toLowerCase().includes("non-technical") ||
+        selection.category.toLowerCase().includes("communication"));
     const isTechFlow = !isNonTech;
 
-    if (
-      isTechFlow &&
-      difficulty === "medium" &&
-      !useResume
-    ) {
+    if (isTechFlow && difficulty === "medium" && !useResume) {
       const trackLabel = selection.kind === "tech" ? selection.track : selection.jobName;
       toast.error(
         `Please toggle 'Use Resume for Interview' and ensure your resume is uploaded for Medium level ${trackLabel} interviews.`
@@ -172,11 +169,7 @@ export default function InterviewStartPage() {
       return;
     }
 
-    if (
-      isTechFlow &&
-      difficulty === "medium" &&
-      !user?.authorizedUser?.hasResume
-    ) {
+    if (isTechFlow && difficulty === "medium" && !user?.authorizedUser?.hasResume) {
       const trackLabel = selection.kind === "tech" ? selection.track : selection.jobName;
       toast.error(
         `You must save a resume first before starting a Medium level ${trackLabel} interview. If you want to upload your resume, please use the ATS feature (the document icon beside the profile icon) in the bottom navigation bar.`
@@ -244,14 +237,17 @@ export default function InterviewStartPage() {
               </option>
             ))}
           </optgroup>
-          {jobProfiles.length > 0 && 
+          {jobProfiles.length > 0 &&
             Object.entries(
-              jobProfiles.reduce((acc, profile) => {
-                const category = profile.category || "HR & Non-Technical";
-                if (!acc[category]) acc[category] = [];
-                acc[category].push(profile);
-                return acc;
-              }, {} as Record<string, JobProfile[]>)
+              jobProfiles.reduce(
+                (acc, profile) => {
+                  const category = profile.category || "HR & Non-Technical";
+                  if (!acc[category]) acc[category] = [];
+                  acc[category].push(profile);
+                  return acc;
+                },
+                {} as Record<string, JobProfile[]>
+              )
             ).map(([category, profiles]) => (
               <optgroup key={category} label={category.charAt(0).toUpperCase() + category.slice(1)}>
                 {profiles.map((profile) => (
@@ -263,12 +259,16 @@ export default function InterviewStartPage() {
                   </option>
                 ))}
               </optgroup>
-            ))
-          }
+            ))}
         </select>
       </div>
 
-      {(!selection || selection.kind === "tech" || (selection.kind === "hr" && !selection.category.toLowerCase().includes("hr") && !selection.category.toLowerCase().includes("non-technical") && !selection.category.toLowerCase().includes("communication"))) && (
+      {(!selection ||
+        selection.kind === "tech" ||
+        (selection.kind === "hr" &&
+          !selection.category.toLowerCase().includes("hr") &&
+          !selection.category.toLowerCase().includes("non-technical") &&
+          !selection.category.toLowerCase().includes("communication"))) && (
         <div className="space-y-3">
           <label className="block text-[14px] font-noto font-[500] text-black">
             Difficulty Level

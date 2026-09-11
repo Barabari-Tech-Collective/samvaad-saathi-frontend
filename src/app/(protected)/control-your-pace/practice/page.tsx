@@ -94,6 +94,18 @@ const PracticePage = () => {
     };
   }, [recordingStatus]);
 
+  // Stop the mic stream on unmount - previously only the manual "stop
+  // recording" button released it, so navigating away mid-recording left
+  // the microphone live until GC/tab close.
+  useEffect(() => {
+    return () => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+      mediaRecorderRef.current?.stream?.getTracks().forEach((track) => track.stop());
+    };
+  }, []);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;

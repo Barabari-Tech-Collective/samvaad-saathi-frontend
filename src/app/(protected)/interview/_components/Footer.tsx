@@ -71,13 +71,19 @@ const Footer = ({
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Cleanup on unmount
+  // Cleanup on unmount - stops the mic stream too, not just the waveform/
+  // analysis context, so navigating away mid-recording actually releases
+  // the microphone instead of leaving it live until GC/tab close.
   useEffect(() => {
     return () => {
       if (stopWaveformAnimationRef.current) {
         stopWaveformAnimationRef.current();
       }
       cleanupAudioAnalysis(audioAnalysisRef.current);
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+      mediaRecorderRef.current?.stream?.getTracks().forEach((track) => track.stop());
     };
   }, []);
 

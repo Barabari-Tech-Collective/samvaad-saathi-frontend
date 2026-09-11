@@ -74,9 +74,12 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
         while (retries > 0 && !hasResume) {
           await new Promise((resolve) => setTimeout(resolve, 1500));
           const token = getTokenFromCookies();
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.ABOUT_ME}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.ABOUT_ME}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
           const userData = await res.json();
           if (userData?.authorizedUser?.hasResume) {
             hasResume = true;
