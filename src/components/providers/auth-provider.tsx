@@ -11,7 +11,8 @@ import { useCookies } from "react-cookie";
 interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
-  signInWithCognito: () => void;
+  // LEGACY - COGNITO, kept for rollback: signInWithCognito: () => void;
+  signInWithSso: () => void;
   signOut: () => void;
 }
 
@@ -53,8 +54,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, loading, router]);
 
-  const signInWithCognito = () => {
-    window.location.href = `api${ENDPOINTS.AUTH.COGNITO_LOGIN}`;
+  // LEGACY - COGNITO, kept for rollback:
+  // const signInWithCognito = () => {
+  //   window.location.href = `api${ENDPOINTS.AUTH.COGNITO_LOGIN}`;
+  // };
+  const signInWithSso = () => {
+    window.location.href = `api${ENDPOINTS.AUTH.SSO_LOGIN}`;
   };
 
   const signOut = () => {
@@ -88,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value: AuthContextType = {
     user: user ?? null,
     loading,
-    signInWithCognito,
+    signInWithSso,
     signOut,
   };
 

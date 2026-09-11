@@ -46,7 +46,9 @@ export default function SignupPage() {
         setIsProcessing(true);
 
         // Track successful login
-        trackLoginSuccess("Google");
+        // LEGACY - COGNITO: was trackLoginSuccess("Google") when Cognito Hosted UI only offered
+        // Google sign-in. Login now goes through Sampark Saathi's central auth.
+        trackLoginSuccess("Sampark Saathi");
 
         // Set secure cookies with tokens
         const cookieOptions = {
@@ -71,7 +73,8 @@ export default function SignupPage() {
         // If we tracked a login attempt but no tokens were received, track failure
         const params = new URLSearchParams(window.location.search);
         const error = params.get("error");
-        trackLoginFailure(error || "google_login_error");
+        // LEGACY - COGNITO: was trackLoginFailure(error || "google_login_error").
+        trackLoginFailure(error || "sso_login_error");
       }
     };
 
@@ -80,7 +83,8 @@ export default function SignupPage() {
 
   // Handle continue button click
   const handleContinueClick = () => {
-    trackLoginAttempt("Google", "create_account");
+    // LEGACY - COGNITO: was trackLoginAttempt("Google", "create_account").
+    trackLoginAttempt("Sampark Saathi", "create_account");
     setHasTrackedLoginAttempt(true);
   };
 
@@ -114,9 +118,13 @@ export default function SignupPage() {
       {/* Page Heading */}
       <h1 className="font-noto text-white text-[20px] font-[600] mb-8">Create Account / Login</h1>
 
-      {/* Google Signup */}
+      {/* Sampark Saathi SSO login/signup entry point. Must stay a real <Link> (top-level
+          navigation, not a fetch/router.push) - the whole /authorize <-> shared-cookie
+          redirect chain depends on the browser actually navigating away and back. */}
+      {/* LEGACY - COGNITO, kept for rollback:
+          href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.COGNITO_LOGIN}`} */}
       <Link
-        href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.COGNITO_LOGIN}`}
+        href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.SSO_LOGIN}`}
         onClick={handleContinueClick}
       >
         <button className="w-72 h-11 bg-white rounded-lg flex items-center justify-center gap-3 active:scale-95 transition shadow-md cursor-pointer">
