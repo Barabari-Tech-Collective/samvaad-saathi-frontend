@@ -70,6 +70,27 @@ const PracticePage = () => {
     }
   }, [levelParam, level, router]);
 
+  // Reset per-attempt state whenever the level changes. Necessary because
+  // "Next Sentence" on the report page (report/page.tsx) navigates here
+  // with just a new ?level= search param on the same route - Next.js
+  // reuses this component instance rather than remounting it, so without
+  // this reset, `session` from the previous level survived and the
+  // session-creation effect below (gated on `!session`) would never fire
+  // again: the student's next recording got submitted under the old
+  // level's sessionId instead of a new one.
+  useEffect(() => {
+    setSession(null);
+    setRecordingStatus("idle");
+    setTimer(0);
+    chunksRef.current = [];
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream?.getTracks().forEach((track) => track.stop());
+    }
+    mediaRecorderRef.current = null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only run when level changes
+  }, [level]);
+
   // Create session when level is available
   useEffect(() => {
     if (!levelParam || Number.isNaN(level) || session) return;
