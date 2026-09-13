@@ -5,7 +5,13 @@ import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService, APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS, ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
-import { DEFAULT_TTS_VOICE_ID, TTS_VOICE_OPTIONS, TTS_VOICE_STORAGE_KEY, ROLE_OPTIONS, FULL_STACK_ROLE } from "@/lib/constants";
+import {
+  DEFAULT_TTS_VOICE_ID,
+  TTS_VOICE_OPTIONS,
+  TTS_VOICE_STORAGE_KEY,
+  ROLE_OPTIONS,
+  FULL_STACK_ROLE,
+} from "@/lib/constants";
 import {
   clearInterviewQuestions,
   getInterviewQuestions,
@@ -37,11 +43,19 @@ const InterviewPage = () => {
   const [currentAttemptId, setCurrentAttemptId] = useState<number | undefined>();
   const [questions, setQuestions] = useState<GenerateQuestionsResponse["items"]>([]);
   const [isTextToSpeechSpeaking, setIsTextToSpeechSpeaking] = useState(false);
+  // Separate from isTextToSpeechSpeaking: true while the question audio is
+  // being fetched, before it's actually playing. Kept distinct rather than
+  // folded into the speaking flag because isTextToSpeechSpeaking also drives
+  // the Speaker avatar's loop={...} animation, which should only run once
+  // audio is actually audible, not during the fetch/load itself.
+  const [isTextToSpeechPreparing, setIsTextToSpeechPreparing] = useState(false);
   const [pendingStart, setPendingStart] = useState(false);
   const questionStartTimeRef = useRef<number>(0);
   const [lastTrackedIndex, setLastTrackedIndex] = useState<number>(-1);
 
-  const showCodeView = role ? ROLE_OPTIONS.includes(role as any) && role !== FULL_STACK_ROLE : false;
+  const showCodeView = role
+    ? ROLE_OPTIONS.includes(role as any) && role !== FULL_STACK_ROLE
+    : false;
 
   // mic permission utils
   const { hasPermission, showModal, requestPermission, hidePermissionModal, showPermissionModal } =
@@ -54,9 +68,11 @@ const InterviewPage = () => {
     mutateAsync: generateQuestions,
     isPending: isGeneratingQuestions,
     data: generatedQuestions,
+    error: generateQuestionsError,
   } = apiClient.useMutation<GenerateQuestionsResponse>({
     url: ENDPOINTS_V2.GENERATE_QUESTIONS,
     method: "post",
+    errorMessage: "Something went wrong generating your interview questions. Please try again.",
   });
 
   const { mutateAsync: startQuestionAttempt, isPending: isStartingAttempt } =
@@ -224,7 +240,8 @@ const InterviewPage = () => {
       !reattempt &&
       questions.length === 0 &&
       !isGeneratingQuestions &&
-      !generatedQuestions
+      !generatedQuestions &&
+      !generateQuestionsError
     ) {
       generateQuestions({
         useResume: useResume === "true",
@@ -238,6 +255,7 @@ const InterviewPage = () => {
     questions.length,
     isGeneratingQuestions,
     generatedQuestions,
+    generateQuestionsError,
     useResume,
     generateQuestions,
   ]);
@@ -397,6 +415,7 @@ const InterviewPage = () => {
               setIsUserIntroducing(true);
             }}
             onSpeakingChange={setIsTextToSpeechSpeaking}
+            onPreparingChange={setIsTextToSpeechPreparing}
           />
         </div>
       ) : isUserIntroducing ? (
@@ -420,11 +439,14 @@ const InterviewPage = () => {
               </div>
             </div>
 
-            <UserIntroductionSpeaker onSpeakingChange={setIsTextToSpeechSpeaking} />
+            <UserIntroductionSpeaker
+              onSpeakingChange={setIsTextToSpeechSpeaking}
+              onPreparingChange={setIsTextToSpeechPreparing}
+            />
 
             <div className="w-full mt-4">
               <Footer
-                disabled={isTextToSpeechSpeaking}
+                disabled={isTextToSpeechSpeaking || isTextToSpeechPreparing}
                 onNext={() => setIsUserIntroducing(false)}
                 isIntroStep={true}
               />
@@ -452,6 +474,7 @@ const InterviewPage = () => {
                 currentQuestionIndex={currentQuestionIndex}
                 totalQuestions={questions?.length || 0}
                 onSpeakingChange={setIsTextToSpeechSpeaking}
+                onPreparingChange={setIsTextToSpeechPreparing}
                 role={role || ""}
                 allowSpeech={!isIntroducing}
               />
@@ -476,6 +499,7 @@ const InterviewPage = () => {
                     currentQuestionIndex={currentQuestionIndex}
                     totalQuestions={questions?.length || 0}
                     onSpeakingChange={setIsTextToSpeechSpeaking}
+                    onPreparingChange={setIsTextToSpeechPreparing}
                     role={role || ""}
                     allowSpeech={!isIntroducing}
                   />
@@ -494,7 +518,12 @@ const InterviewPage = () => {
 
           <Footer
             isLoading={isGeneratingQuestions}
-            disabled={isStartingAttempt || isTextToSpeechSpeaking || !currentAttemptId}
+            disabled={
+              isStartingAttempt ||
+              isTextToSpeechSpeaking ||
+              isTextToSpeechPreparing ||
+              !currentAttemptId
+            }
             question_attempt_id={currentAttemptId}
             followUpStrategy={questions?.[currentQuestionIndex]?.followUpStrategy ?? null}
             isCurrentQuestionFollowUp={questions?.[currentQuestionIndex]?.isFollowUp ?? false}
@@ -512,9 +541,11 @@ const InterviewPage = () => {
 const IntroductionSpeaker = ({
   onFinished,
   onSpeakingChange,
+  onPreparingChange,
 }: {
   onFinished: () => void;
   onSpeakingChange: (s: boolean) => void;
+  onPreparingChange?: (p: boolean) => void;
 }) => {
   const [hasSpoken, setHasSpoken] = useState(false);
 
@@ -531,7 +562,7 @@ const IntroductionSpeaker = ({
 
   const introductionText = `Hi. My name is ${voiceName}. I will be taking your interview today. Let's begin.`;
 
-  const { isSpeaking } = useTextToSpeech({
+  const { isSpeaking, isPreparing } = useTextToSpeech({
     text: introductionText,
     disabled: false,
   });
@@ -553,22 +584,32 @@ const IntroductionSpeaker = ({
     }
   }, [isSpeaking, hasSpoken, onFinished, onSpeakingChange]);
 
+  useEffect(() => {
+    onPreparingChange?.(isPreparing);
+  }, [isPreparing, onPreparingChange]);
+
   return null;
 };
 
 const UserIntroductionSpeaker = ({
   onSpeakingChange,
+  onPreparingChange,
 }: {
   onSpeakingChange: (s: boolean) => void;
+  onPreparingChange?: (p: boolean) => void;
 }) => {
-  const { isSpeaking } = useTextToSpeech({
+  const { isSpeaking, isPreparing } = useTextToSpeech({
     text: "Before we begin, please introduce yourself briefly.",
     disabled: false,
   });
 
   useEffect(() => {
     onSpeakingChange(isSpeaking);
-  }, [isSpeaking]);
+  }, [isSpeaking, onSpeakingChange]);
+
+  useEffect(() => {
+    onPreparingChange?.(isPreparing);
+  }, [isPreparing, onPreparingChange]);
 
   return null;
 };

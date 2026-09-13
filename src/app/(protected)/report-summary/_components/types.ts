@@ -42,6 +42,8 @@ export interface ReportResponse {
     totalQuestions: number;
     type: string;
     question: string;
+    /** The candidate's answer transcript that the feedback below was generated from (absent/null if not attempted). */
+    transcript?: string | null;
     feedback: {
       strengths: string;
       areasOfImprovement: string;

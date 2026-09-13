@@ -29,6 +29,12 @@ interface UseQueryApiProps<TData> {
 interface APIError {
   message: string;
   success: boolean;
+  // FastAPI's actual error shape ({"detail": "..."}) - several call sites
+  // already read error.response.data.detail at runtime (it works, since
+  // that's genuinely what the backend sends), but this type didn't declare
+  // it, so any caller using the properly-typed mutation.error had to cast
+  // around it instead of getting a real type error caught the honest way.
+  detail?: string;
 }
 
 interface UseMutationApiProps<TData, TParams> {

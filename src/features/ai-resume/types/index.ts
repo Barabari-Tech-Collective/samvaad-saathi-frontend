@@ -8,7 +8,7 @@ export interface ScoreBreakdown {
   projectMatch?: number;
   linkIntegrity?: number;
   educationScore?: number;
-  totalMonths?: number; 
+  totalMonths?: number;
   isFresher?: boolean;
 }
 

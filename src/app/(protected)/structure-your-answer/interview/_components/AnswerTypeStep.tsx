@@ -12,6 +12,7 @@ import {
   type AudioAnalysisContext,
 } from "@/lib/audio-utils";
 import { MicrophoneIcon } from "@heroicons/react/24/solid";
+import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -72,13 +73,19 @@ const AnswerTypeStep = ({
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Cleanup on unmount
+  // Cleanup on unmount - stops the mic stream too, not just the waveform/
+  // analysis context, so navigating away mid-recording actually releases
+  // the microphone instead of leaving it live until GC/tab close.
   useEffect(() => {
     return () => {
       if (stopWaveformAnimationRef.current) {
         stopWaveformAnimationRef.current();
       }
       cleanupAudioAnalysis(audioAnalysisRef.current);
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+      mediaRecorderRef.current?.stream?.getTracks().forEach((track) => track.stop());
     };
   }, []);
 
@@ -243,7 +250,14 @@ const AnswerTypeStep = ({
           onComplete();
         } catch (error) {
           console.error("Error submitting audio:", error);
-          toast.error("Failed to submit. Please try again.");
+          // The backend already returns a specific reason (e.g. "answer too
+          // short to evaluate") - show that instead of a generic message so
+          // the student knows what to actually do differently.
+          let errorMessage = "Failed to submit. Please try again.";
+          if (axios.isAxiosError(error) && typeof error.response?.data?.detail === "string") {
+            errorMessage = error.response.data.detail;
+          }
+          toast.error(errorMessage);
         }
       };
       stopRecording();

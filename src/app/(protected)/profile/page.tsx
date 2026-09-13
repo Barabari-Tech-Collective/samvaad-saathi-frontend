@@ -229,16 +229,18 @@ export default function ProfilePage() {
         formData.append("file", resumeFile);
         await extractResumeMutation.mutateAsync(formData);
 
-        // Poll until /me returns updated hasResume
         let retries = 10;
         let hasResume = false;
         toast.loading("Processing resume...", { id: "resume-poll" });
         while (retries > 0 && !hasResume) {
           await new Promise((resolve) => setTimeout(resolve, 1500));
           const token = getTokenFromCookies();
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.ABOUT_ME}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.ABOUT_ME}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
           const userData = await res.json();
           if (userData?.authorizedUser?.hasResume) hasResume = true;
           retries--;

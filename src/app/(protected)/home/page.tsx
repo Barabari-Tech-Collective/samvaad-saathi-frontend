@@ -190,7 +190,10 @@ export default function HomePage() {
                     ? "Communication Effectiveness"
                     : "Technical Knowledge";
                   return (
-                    <div key={interview.interviewId} className="embla__slide flex-[0_0_100%] min-w-0">
+                    <div
+                      key={interview.interviewId}
+                      className="embla__slide flex-[0_0_100%] min-w-0"
+                    >
                       <div className="card bg-base-100 w-full shadow-lg ">
                         <div className="card-body">
                           <div className="flex justify-between items-start mb-4">

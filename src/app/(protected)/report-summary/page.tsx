@@ -54,8 +54,8 @@ const ReportSummaryPage: React.FC = () => {
     url: `${ENDPOINTS_V2.SUMMARY_REPORT}/${interviewId || ""}`,
     enabled: !!interviewId,
   });
-  console.log("this is the report data", reportData);
-  if (isLoading) {
+
+  if (isLoading && !reportData) {
     return <SkeletonLoader />;
   }
 

@@ -10,6 +10,7 @@ interface QuestionProps {
   currentQuestionIndex: number;
   totalQuestions: number;
   onSpeakingChange?: (isSpeaking: boolean) => void;
+  onPreparingChange?: (isPreparing: boolean) => void;
   role?: string;
   allowSpeech?: boolean;
 }
@@ -20,13 +21,14 @@ const Question = ({
   currentQuestionIndex = 0,
   totalQuestions = 0,
   onSpeakingChange,
+  onPreparingChange,
   role = "",
   allowSpeech = true,
 }: QuestionProps) => {
   const textToSpeak = question?.text;
 
   // Text-to-speech
-  const { isSpeaking } = useTextToSpeech({
+  const { isSpeaking, isPreparing } = useTextToSpeech({
     text: textToSpeak,
     audioUrl: question?.audioUrl,
     disabled: isLoading || !question || !allowSpeech,
@@ -38,6 +40,17 @@ const Question = ({
       onSpeakingChange(isSpeaking);
     }
   }, [isSpeaking, onSpeakingChange]);
+
+  // Notify parent while the question audio is being fetched/loaded, before
+  // it actually starts playing - this is the ~5s ElevenLabs latency window
+  // that isSpeaking alone doesn't cover (isSpeaking is false both before
+  // and after speech, so a caller gating only on that leaves this window
+  // fully interactive).
+  useEffect(() => {
+    if (onPreparingChange) {
+      onPreparingChange(isPreparing);
+    }
+  }, [isPreparing, onPreparingChange]);
 
   if (isLoading) {
     return (

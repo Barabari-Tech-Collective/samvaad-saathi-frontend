@@ -69,12 +69,8 @@ export function ScoreBreakdownGrid() {
             className="px-5 py-4 rounded-3xl bg-white border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] flex flex-col gap-3"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[13px] font-semibold text-slate-600">
-                {item.label}
-              </span>
-              <span className="text-[15px] font-bold text-slate-900">
-                {item.score}%
-              </span>
+              <span className="text-[13px] font-semibold text-slate-600">{item.label}</span>
+              <span className="text-[15px] font-bold text-slate-900">{item.score}%</span>
             </div>
             <div className={`w-full h-1.5 rounded-full ${item.track} overflow-hidden`}>
               <div
