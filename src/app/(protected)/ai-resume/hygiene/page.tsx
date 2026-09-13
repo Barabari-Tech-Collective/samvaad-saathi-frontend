@@ -9,6 +9,7 @@ import {
   EyeIcon,
   ArrowDownTrayIcon,
   ArrowRightIcon,
+  DocumentCheckIcon,
 } from "@heroicons/react/24/solid";
 import { SparklesIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
@@ -17,9 +18,15 @@ import { useGetTemplates } from "@/features/ai-resume/services/resumeBuilderServ
 import { aiResumeService } from "@/features/ai-resume/services/aiResumeService";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { ENDPOINTS } from "@/lib/api-config";
+import { getTokenFromCookies } from "@/lib/token-utils";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 
 export default function HygieneAndTemplatePage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const [isSaving, setIsSaving] = useState(false);
   const {
     analysisResult,
     uploadedFile,
@@ -45,6 +52,52 @@ export default function HygieneAndTemplatePage() {
   ];
 
   const firstTemplate = templates?.[0];
+
+  const handleSaveResume = async () => {
+    if (!uploadedFile) {
+      toast.error("No resume file found to save.");
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      const formDataToSend = new FormData();
+      formDataToSend.append("file", uploadedFile);
+      
+      const token = getTokenFromCookies();
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      
+      toast.loading("Saving resume to profile...", { id: "saving-resume" });
+      const response = await fetch(`${baseUrl}/save-final-resume`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        body: formDataToSend,
+      });
+      
+      const data = await response.json();
+      toast.dismiss("saving-resume");
+      
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to save resume");
+      }
+      
+      // Invalidate the /me query so the app immediately fetches the new ats_resume_filename and ats_resume_id
+      await queryClient.invalidateQueries({ queryKey: [ENDPOINTS.AUTH.ABOUT_ME] });
+
+      toast.success(
+        "Resume safely stored in your Profile! To use this ATS resume for your AI interviews, go to your Profile page and click 'Replace with ATS Resume'.",
+        { duration: 8000 }
+      );
+    } catch (error) {
+       console.error("Save failed:", error);
+       toast.error("Failed to save resume to profile.");
+       toast.dismiss("saving-resume");
+    } finally {
+       setIsSaving(false);
+    }
+  };
 
   const handleDownloadReport = () => {
     try {
@@ -102,19 +155,17 @@ export default function HygieneAndTemplatePage() {
 
                     <h2>Project Evaluation</h2>
                     <div class="card">
-                        ${
-                          (analysisResult.projectEvaluation || [])
-                            .map(
-                              (p: any) => `
+                        ${(analysisResult.projectEvaluation || [])
+                          .map(
+                            (p: any) => `
                             <div class="project-item">
-                                <h3 style="margin:0 0 8px 0;">${p.projectName} <span class="rating-badge">${p.rating || "Evaluated"}</span></h3>
-                                <p style="margin:0; font-size:0.95em; color:#475569;">${p.feedback}</p>
+                                <strong style="color: #0f172a;">${p.projectName}</strong>
+                                <span class="rating-badge">Rating: ${p.rating}/5</span>
+                                <p style="margin-top: 8px;">${p.feedback}</p>
                             </div>
                         `
-                            )
-                            .join("") ||
-                          '<p style="margin:0; color:#64748b;">No projects evaluated</p>'
-                        }
+                          )
+                          .join("") || '<p style="margin:0; color:#64748b;">No projects evaluated</p>'}
                     </div>
 
                     <h2>Final Recommendations</h2>
@@ -380,6 +431,18 @@ export default function HygieneAndTemplatePage() {
 
         {/* Bottom Actions */}
         <div className="flex gap-3 mt-4">
+          <button
+            onClick={handleSaveResume}
+            disabled={isSaving}
+            className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors shadow-sm disabled:opacity-50"
+          >
+            {isSaving ? (
+              <span className="loading loading-spinner loading-xs" />
+            ) : (
+              <DocumentCheckIcon className="size-4" />
+            )}
+            Save Resume
+          </button>
           <button
             onClick={handleReAnalyze}
             className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-colors"

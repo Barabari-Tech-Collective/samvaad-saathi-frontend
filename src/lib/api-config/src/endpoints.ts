@@ -11,6 +11,8 @@ export const ENDPOINTS = {
   },
   RESUME: {
     EXTRACT: "extract-resume",
+    SET_ACTIVE: "set-active-resume",
+    DOWNLOAD_ORIGINAL: "resume/download-original",
   },
   TTS: {
     CONVERT: "tts/convert",
