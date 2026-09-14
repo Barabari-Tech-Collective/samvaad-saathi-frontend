@@ -64,46 +64,12 @@ export default function ProfilePage() {
   });
   const [errors, setErrors] = useState<Partial<ProfileFormData>>({});
   const [isDownloadingResume, setIsDownloadingResume] = useState(false);
-  const [isDownloadingAtsResume, setIsDownloadingAtsResume] = useState(false);
 
   // Force refetch on mount to ensure resumes are always up to date 
   // when navigating via client-side router
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: [ENDPOINTS.AUTH.ABOUT_ME] });
   }, [queryClient]);
-
-  const handleDownloadAtsResume = async () => {
-    const atsResumeId = user?.authorizedUser?.atsResumeId || (user?.authorizedUser as any)?.ats_resume_id;
-    if (!atsResumeId) return;
-    setIsDownloadingAtsResume(true);
-    try {
-      const token = getTokenFromCookies();
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-      const response = await fetch(
-        `${baseUrl}/${ENDPOINTS.RESUME.DOWNLOAD_ORIGINAL}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (!response.ok) throw new Error("Failed to download resume");
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = user?.authorizedUser?.atsResumeFilename || (user?.authorizedUser as any)?.ats_resume_filename || `ats-resume-${atsResumeId}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Download failed:", error);
-      toast.error("Failed to download ATS resume.");
-    } finally {
-      setIsDownloadingAtsResume(false);
-    }
-  };
 
   const handleViewResume = async () => {
     setIsDownloadingResume(true);
@@ -567,20 +533,6 @@ export default function ProfilePage() {
                 <span className="text-sm truncate flex-1 text-gray-500">
                   {user.authorizedUser.atsResumeFilename || (user.authorizedUser as any).ats_resume_filename || "No ATS resume yet"}
                 </span>
-                {(user.authorizedUser.atsResumeFilename || (user.authorizedUser as any).ats_resume_filename) && (user.authorizedUser.atsResumeId || (user.authorizedUser as any).ats_resume_id) && (
-                  <button
-                    type="button"
-                    onClick={handleDownloadAtsResume}
-                    disabled={isDownloadingAtsResume}
-                    className="text-primary text-sm ml-auto hover:underline flex items-center gap-1 shrink-0"
-                  >
-                    {isDownloadingAtsResume ? (
-                      <span className="loading loading-spinner loading-xs" />
-                    ) : (
-                      "Download"
-                    )}
-                  </button>
-                )}
               </div>
             </div>
 
