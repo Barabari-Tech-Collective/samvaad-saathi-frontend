@@ -80,7 +80,7 @@ export default function ProfilePage() {
       const token = getTokenFromCookies();
       const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
       const response = await fetch(
-        `${baseUrl}/${ENDPOINTS.RESUME_BUILDER.GET_DOWNLOAD(atsResumeId.toString())}`,
+        `${baseUrl}/${ENDPOINTS.RESUME.DOWNLOAD_ORIGINAL}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -154,7 +154,10 @@ export default function ProfilePage() {
     successMessage: "Resume uploaded successfully!",
     errorMessage: "Failed to upload resume. Please try again.",
     keyToInvalidate: { queryKey: [ENDPOINTS.AUTH.ABOUT_ME] },
-    config: { headers: { "Content-Type": "multipart/form-data" } },
+    config: { 
+      headers: { "Content-Type": "multipart/form-data" },
+      timeout: 300000 // 5 minutes specifically for ATS analysis
+    },
   });
 
   // Replace with ATS resume → POST /resume/set-active-resume

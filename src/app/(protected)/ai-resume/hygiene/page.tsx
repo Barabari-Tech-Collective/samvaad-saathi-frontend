@@ -68,7 +68,7 @@ export default function HygieneAndTemplatePage() {
       const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
       
       toast.loading("Saving resume to profile...", { id: "saving-resume" });
-      const response = await fetch(`${baseUrl}/save-final-resume`, {
+      const response = await fetch(`${baseUrl}/${ENDPOINTS.RESUME.SAVE_FINAL}`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${token}`,

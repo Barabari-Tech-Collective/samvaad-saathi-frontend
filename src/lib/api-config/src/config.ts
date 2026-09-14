@@ -29,7 +29,7 @@ export enum APIServiceV2 {
 export const createAxiosInstance = (baseURL: string) => {
   const axiosInstance = axios.create({
     baseURL,
-    timeout: 300000, // 5 minutes
+    timeout: 60000, // 1 minute
     headers: {
       "Content-Type": "application/json",
     },
