@@ -12,10 +12,14 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { ENDPOINTS } from "@/lib/api-config";
-import { MAX_AI_RESUME_SIZE_MB } from "@/lib/constants";
+import {
+  AI_RESUME_FILE_TYPES,
+  AI_RESUME_MIME_TYPES,
+  MAX_AI_RESUME_SIZE_MB,
+} from "@/lib/constants";
 
 const MAX_FILE_SIZE_BYTES = MAX_AI_RESUME_SIZE_MB * 1024 * 1024;
-const ALLOWED_EXTENSIONS = [".pdf", ".docx"];
+const ALLOWED_EXTENSIONS = AI_RESUME_FILE_TYPES.split(",");
 
 const formSchema = z.object({
   targetRole: z.string().min(1, "Target role is required"),
@@ -26,8 +30,15 @@ const formSchema = z.object({
     .refine((file) => file instanceof File, "Resume file is required")
     .refine((file) => {
       if (!(file instanceof File)) return false;
+      return file.size > 0;
+    }, "File cannot be empty")
+    .refine((file) => {
+      if (!(file instanceof File)) return false;
       const fileName = file.name.toLowerCase();
-      return ALLOWED_EXTENSIONS.some((ext) => fileName.endsWith(ext));
+      const isAllowedExt = ALLOWED_EXTENSIONS.some((ext) => fileName.endsWith(ext));
+      const isAllowedMime =
+        !file.type || (AI_RESUME_MIME_TYPES as readonly string[]).includes(file.type);
+      return isAllowedExt && isAllowedMime;
     }, "Only .pdf and .docx files are allowed")
     .refine((file) => {
       if (!(file instanceof File)) return false;

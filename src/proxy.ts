@@ -7,18 +7,11 @@ export function proxy(request: NextRequest) {
   // Define public routes (routes that don't require authentication)
   const isPublicRoute = pathname.startsWith("/auth");
 
-  // Exclude static assets and internal routes from auth redirects.
-  // Without this check, unauthenticated requests for public assets (e.g. /barabari_logo.png,
-  // /background-image.jpeg, /welcome-bg.png) get 307 redirected to /auth/signup,
-  // causing broken images on initial visit or after logout.
-  const isInternalOrStatic =
-    pathname.includes("_next") ||
-    pathname.includes("api") ||
-    pathname.includes("favicon.ico") ||
-    pathname.includes(".") ||
-    pathname.startsWith("/assets");
+  // Define static/internal routes to exclude from proxy redirects
+  const isInternalRoute =
+    pathname.includes("_next") || pathname.includes("api") || pathname.includes("favicon.ico");
 
-  if (isInternalOrStatic) {
+  if (isInternalRoute) {
     return NextResponse.next();
   }
 

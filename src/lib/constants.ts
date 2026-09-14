@@ -42,6 +42,10 @@ export const MAX_RESUME_SIZE_MB = 5; // 5MB for onboarding
 export const MAX_PROFILE_RESUME_SIZE_MB = 1; // 1MB for profile updates
 export const MAX_AI_RESUME_SIZE_MB = 10; // 10MB for AI Resume
 export const AI_RESUME_FILE_TYPES = ".pdf,.docx";
+export const AI_RESUME_MIME_TYPES = [
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+] as const;
 
 export const TTS_VOICE_STORAGE_KEY = "samvaad_tts_voice_id";
 
