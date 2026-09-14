@@ -12,12 +12,38 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { ENDPOINTS } from "@/lib/api-config";
+import {
+  AI_RESUME_FILE_TYPES,
+  AI_RESUME_MIME_TYPES,
+  MAX_AI_RESUME_SIZE_MB,
+} from "@/lib/constants";
+
+const MAX_FILE_SIZE_BYTES = MAX_AI_RESUME_SIZE_MB * 1024 * 1024;
+const ALLOWED_EXTENSIONS = AI_RESUME_FILE_TYPES.split(",");
 
 const formSchema = z.object({
   targetRole: z.string().min(1, "Target role is required"),
   experienceLevel: z.string().min(1, "Experience level is required"),
   jobDescription: z.string().min(10, "Job description must be at least 10 characters"),
-  resume: z.any().refine((file) => file instanceof File, "Resume file is required"),
+  resume: z
+    .any()
+    .refine((file) => file instanceof File, "Resume file is required")
+    .refine((file) => {
+      if (!(file instanceof File)) return false;
+      return file.size > 0;
+    }, "File cannot be empty")
+    .refine((file) => {
+      if (!(file instanceof File)) return false;
+      const fileName = file.name.toLowerCase();
+      const isAllowedExt = ALLOWED_EXTENSIONS.some((ext) => fileName.endsWith(ext));
+      const isAllowedMime =
+        !file.type || (AI_RESUME_MIME_TYPES as readonly string[]).includes(file.type);
+      return isAllowedExt && isAllowedMime;
+    }, "Only .pdf and .docx files are allowed")
+    .refine((file) => {
+      if (!(file instanceof File)) return false;
+      return file.size <= MAX_FILE_SIZE_BYTES;
+    }, `File size must be less than ${MAX_AI_RESUME_SIZE_MB}MB`),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -168,7 +194,7 @@ export function ResumeInputForm({
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium text-slate-700">Upload resume</label>
           <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
-            PDF - DOCX
+            PDF - DOCX (Max 10MB)
           </span>
         </div>
         <Controller
