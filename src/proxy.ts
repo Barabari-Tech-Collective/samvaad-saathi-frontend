@@ -7,11 +7,18 @@ export function proxy(request: NextRequest) {
   // Define public routes (routes that don't require authentication)
   const isPublicRoute = pathname.startsWith("/auth");
 
-  // Define static/internal routes to exclude from middleware
-  const isInternalRoute =
-    pathname.includes("_next") || pathname.includes("api") || pathname.includes("favicon.ico");
+  // Exclude static assets and internal routes from auth redirects.
+  // Without this check, unauthenticated requests for public assets (e.g. /barabari_logo.png,
+  // /background-image.jpeg, /welcome-bg.png) get 307 redirected to /auth/signup,
+  // causing broken images on initial visit or after logout.
+  const isInternalOrStatic =
+    pathname.includes("_next") ||
+    pathname.includes("api") ||
+    pathname.includes("favicon.ico") ||
+    pathname.includes(".") ||
+    pathname.startsWith("/assets");
 
-  if (isInternalRoute) {
+  if (isInternalOrStatic) {
     return NextResponse.next();
   }
 
@@ -31,12 +38,16 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
+     * Match all request paths except for:
      * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
+     * - .*\\.[\\w]+$ (any file with an extension, e.g. .png, .jpeg, .svg, .json, .lottie)
+     *
+     * Why: Ensures the proxy only intercepts page route navigations and does not run
+     * on static assets in the public/ directory, preventing 307 redirects for images.
      */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|.*\\.[\\w]+$).*)",
   ],
 };

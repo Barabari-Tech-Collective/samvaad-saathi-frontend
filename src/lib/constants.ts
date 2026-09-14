@@ -40,6 +40,8 @@ export const EXPERIENCE_OPTIONS = ["0", "1", "2", "3", "4", "5"] as const;
 export const RESUME_FILE_TYPES = ".pdf,.doc,.docx";
 export const MAX_RESUME_SIZE_MB = 5; // 5MB for onboarding
 export const MAX_PROFILE_RESUME_SIZE_MB = 1; // 1MB for profile updates
+export const MAX_AI_RESUME_SIZE_MB = 10; // 10MB for AI Resume
+export const AI_RESUME_FILE_TYPES = ".pdf,.docx";
 
 export const TTS_VOICE_STORAGE_KEY = "samvaad_tts_voice_id";
 
