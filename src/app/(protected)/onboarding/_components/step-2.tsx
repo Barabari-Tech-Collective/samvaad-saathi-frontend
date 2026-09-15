@@ -56,6 +56,7 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
       headers: {
         "Content-Type": "multipart/form-data",
       },
+      timeout: 300000, // 5 minutes specifically for ATS analysis
     },
   });
 

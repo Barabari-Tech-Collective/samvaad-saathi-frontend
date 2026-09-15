@@ -11,6 +11,11 @@ export interface UserProfile {
     targetPosition: string | null;
     yearsExperience: number | null;
     hasResume: boolean;
+    // Set by backend after adding onboarding_resume_filename to /me
+    onboardingResumeFilename?: string | null;
+    // ATS final resume info (also added by backend to /me)
+    atsResumeFilename?: string | null;
+    atsResumeId?: number | null;
     isOnboarded: boolean;
     totalAttempts: number;
   };
