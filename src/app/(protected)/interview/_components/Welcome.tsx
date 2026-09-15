@@ -44,7 +44,9 @@ const Welcome = ({ role, onInterviewStart, isGeneratingQuestions }: WelcomeProps
               <li>The interview ends in 25 mins</li>
               <li>Expected time for each question is 3 mins.</li>
               <li>You can take more time than that depending on the question</li>
-              <li>Please do not refresh the page during the interview. If refreshed, the interview will restart from the beginning.</li>
+              <li className="text-red-500 italic">
+                <span className="font-semibold">Note:</span> Please do not refresh the page during the interview. If refreshed, the interview will restart from the beginning.
+              </li>
             </ul>
 
             <div className="mt-6 flex justify-center">
