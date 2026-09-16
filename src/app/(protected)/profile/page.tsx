@@ -27,16 +27,18 @@ import {
   DocumentTextIcon,
   QuestionMarkCircleIcon,
 } from "@heroicons/react/24/solid";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { getTokenFromCookies } from "@/lib/token-utils";
 import { z } from "zod";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { ProfileFieldRow } from "./_components/ProfileFieldRow";
 import { ProfileSkeleton } from "./_components/ProfileSkeleton";
 import { VoiceSelector } from "./_components/VoiceSelector";
 
 const usersApiClient = createApiClient(APIService.USERS);
+const resumeApiClient = createApiClient(APIService.RESUME);
 
 const profileSchema = z.object({
   targetPosition: z.string().min(1, "Target position is required"),
@@ -50,6 +52,7 @@ type EditableField = keyof ProfileFormData | "resume";
 
 export default function ProfilePage() {
   const { user, signOut } = useAuth();
+  const queryClient = useQueryClient();
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [editingField, setEditingField] = useState<EditableField | null>(null);
   const [customUniversity, setCustomUniversity] = useState("");
@@ -60,6 +63,43 @@ export default function ProfilePage() {
     university: "",
   });
   const [errors, setErrors] = useState<Partial<ProfileFormData>>({});
+  const [isDownloadingResume, setIsDownloadingResume] = useState(false);
+
+  // Force refetch on mount to ensure resumes are always up to date 
+  // when navigating via client-side router
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: [ENDPOINTS.AUTH.ABOUT_ME] });
+  }, [queryClient]);
+
+  const handleViewResume = async () => {
+    setIsDownloadingResume(true);
+    try {
+      const token = getTokenFromCookies();
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.RESUME.DOWNLOAD_ORIGINAL}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("Backend error:", errText);
+        throw new Error("Failed to get download URL");
+      }
+      
+      // The backend returns a JSON object containing a presigned URL
+      const data = await res.json();
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      } else {
+        throw new Error("No URL returned from backend");
+      }
+    } catch (error) {
+      console.error("View resume error:", error);
+      toast.error("Could not load resume. Please try again.");
+    } finally {
+      setIsDownloadingResume(false);
+    }
+  };
 
   const userInitials = getInitials(user?.authorizedUser?.name || "User");
 
@@ -71,6 +111,28 @@ export default function ProfilePage() {
     keyToInvalidate: {
       queryKey: [ENDPOINTS.AUTH.ABOUT_ME],
     },
+  });
+
+  // Upload a new resume → POST /extract-resume (same as onboarding)
+  const extractResumeMutation = resumeApiClient.useMutation({
+    url: ENDPOINTS.RESUME.EXTRACT,
+    method: "post",
+    successMessage: "Resume uploaded successfully!",
+    errorMessage: "Failed to upload resume. Please try again.",
+    keyToInvalidate: { queryKey: [ENDPOINTS.AUTH.ABOUT_ME] },
+    config: { 
+      headers: { "Content-Type": "multipart/form-data" },
+      timeout: 300000 // 5 minutes specifically for ATS analysis
+    },
+  });
+
+  // Replace with ATS resume → POST /resume/set-active-resume
+  const setActiveResumeMutation = resumeApiClient.useMutation({
+    url: ENDPOINTS.RESUME.SET_ACTIVE,
+    method: "post",
+    successMessage: "ATS resume is now your active resume!",
+    errorMessage: "Failed to set ATS resume as active.",
+    keyToInvalidate: { queryKey: [ENDPOINTS.AUTH.ABOUT_ME] },
   });
 
   const startEditing = (field: EditableField) => {
@@ -125,34 +187,17 @@ export default function ProfilePage() {
       }
     }
 
-    const submitData = new FormData();
-
     if (field === "resume") {
       if (!resumeFile) {
         setEditingField(null);
         return;
       }
-      submitData.append("resume", resumeFile);
-    } else {
-      const value =
-        field === "university" && tempData.university === "Others"
-          ? customUniversity
-          : tempData[field];
+      // Upload via POST /extract-resume (same as onboarding, overwrites onboarding resume)
+      try {
+        const formData = new FormData();
+        formData.append("file", resumeFile);
+        await extractResumeMutation.mutateAsync(formData);
 
-      submitData.append(
-        field === "targetPosition"
-          ? "target_position"
-          : field === "yearsExperience"
-            ? "years_experience"
-            : field,
-        value
-      );
-    }
-
-    try {
-      await updateProfileMutation.mutateAsync(submitData);
-
-      if (field === "resume") {
         let retries = 10;
         let hasResume = false;
         toast.loading("Processing resume...", { id: "resume-poll" });
@@ -166,18 +211,38 @@ export default function ProfilePage() {
             }
           );
           const userData = await res.json();
-          if (userData?.authorizedUser?.hasResume) {
-            hasResume = true;
-          }
+          if (userData?.authorizedUser?.hasResume) hasResume = true;
           retries--;
         }
         toast.dismiss("resume-poll");
         setResumeFile(null);
+        setEditingField(null);
+      } catch (error) {
+        toast.dismiss("resume-poll");
+        console.error("Resume upload failed:", error);
       }
+      return;
+    }
 
+    const submitData = new FormData();
+    const value =
+      field === "university" && tempData.university === "Others"
+        ? customUniversity
+        : tempData[field];
+
+    submitData.append(
+      field === "targetPosition"
+        ? "target_position"
+        : field === "yearsExperience"
+          ? "years_experience"
+          : field,
+      value
+    );
+
+    try {
+      await updateProfileMutation.mutateAsync(submitData);
       setEditingField(null);
     } catch (error) {
-      if (field === "resume") toast.dismiss("resume-poll");
       console.error(`Field update failed for ${field}:`, error);
     }
   };
@@ -378,31 +443,98 @@ export default function ProfilePage() {
             </ProfileFieldRow>
 
             <ProfileFieldRow
-              label={`Resume (Optional, Max ${MAX_PROFILE_RESUME_SIZE_MB}MB)`}
+              label="Onboarding Resume"
               isEditing={editingField === "resume"}
               onEdit={() => startEditing("resume")}
               onCancel={cancelEditing}
             >
               <>
-                <div className="w-full">
-                  <input
-                    type="file"
-                    disabled={editingField !== "resume"}
-                    className="file-input w-full"
-                    accept={RESUME_FILE_TYPES}
-                    onChange={handleFileChange}
-                  />
+                <div className="w-full flex flex-col gap-2">
+                  {editingField !== "resume" ? (
+                    // View mode: show filename from /me response
+                    <div className="flex items-center gap-2 px-3 py-2 border rounded-lg bg-base-100">
+                      <DocumentTextIcon className="size-5 text-gray-500" />
+                      <span className="text-sm truncate flex-1">
+                        {user.authorizedUser.onboardingResumeFilename ||
+                          (user.authorizedUser.hasResume ? "Resume uploaded" : "No resume uploaded")}
+                      </span>
+                      {/* View button completely removed per user request */}
+                    </div>
+                  ) : (
+                    // Edit mode: two options
+                    <div className="flex flex-col gap-3">
+                      {/* Option 1: Upload a new resume → POST /extract-resume */}
+                      <div className="flex flex-col gap-1">
+                        <p className="text-xs text-gray-500">Upload a new resume (replaces current)</p>
+                        <input
+                          type="file"
+                          className="file-input file-input-sm w-full"
+                          accept="application/pdf"
+                          onChange={handleFileChange}
+                        />
+                        {resumeFile && (
+                          <span className="label-text-alt text-success flex items-center gap-1 mt-1">
+                            <DocumentTextIcon className="size-3" />
+                            {resumeFile.name} selected
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Option 2: Replace with ATS resume → POST /resume/set-active-resume */}
+                      {/* Always shown; disabled with tooltip when no ATS resume */}
+                      <>
+                        <div className="divider my-0 text-xs text-gray-400">OR</div>
+                        <div className="flex flex-col gap-1">
+                          <p className="text-xs text-gray-500">
+                            {user.authorizedUser.atsResumeId
+                              ? "Use your final ATS resume for interviews"
+                              : "Complete the ATS feature to unlock this"}
+                          </p>
+                          <button
+                            type="button"
+                            disabled={!user.authorizedUser.atsResumeId || setActiveResumeMutation.isPending}
+                            title={!user.authorizedUser.atsResumeId ? "No ATS resume yet" : ""}
+                            onClick={async () => {
+                              if (!user.authorizedUser.atsResumeId) return;
+                              try {
+                                await setActiveResumeMutation.mutateAsync({
+                                  user_resume_id: user.authorizedUser.atsResumeId,
+                                });
+                                setEditingField(null);
+                              } catch (error) {
+                                console.error("Failed to set ATS resume as active:", error);
+                              }
+                            }}
+                            className="btn btn-sm btn-outline btn-primary w-full disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            {setActiveResumeMutation.isPending ? (
+                              <span className="loading loading-spinner loading-xs" />
+                            ) : (
+                              "Replace with ATS Resume"
+                            )}
+                          </button>
+                        </div>
+                      </>
+                    </div>
+                  )}
                 </div>
-                {editingField === "resume" && resumeFile && (
-                  <label className="label">
-                    <span className="label-text-alt text-success flex items-center gap-1">
-                      <DocumentTextIcon className="size-3" />
-                      File selected successfully
-                    </span>
-                  </label>
-                )}
               </>
             </ProfileFieldRow>
+
+            {/* ATS Resume — always shown; greyed out placeholder when user hasn't used ATS feature */}
+            <div className="form-control mt-4">
+              <label className="label flex justify-between items-center mb-2">
+                <span className="label-text">ATS Resume (Final)</span>
+              </label>
+              <div className={`flex items-center gap-2 px-3 py-2 border rounded-lg w-full ${
+                (user.authorizedUser.atsResumeFilename || (user.authorizedUser as any).ats_resume_filename) ? "bg-base-100" : "bg-base-200 opacity-60"
+              }`}>
+                <DocumentTextIcon className="size-5 text-gray-400" />
+                <span className="text-sm truncate flex-1 text-gray-500">
+                  {user.authorizedUser.atsResumeFilename || (user.authorizedUser as any).ats_resume_filename || "No ATS resume yet"}
+                </span>
+              </div>
+            </div>
 
             <VoiceSelector />
           </div>
