@@ -4,6 +4,15 @@ import {
   CheckCircleIcon,
   ArrowPathIcon,
 } from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
+import {
+  AI_RESUME_FILE_TYPES,
+  AI_RESUME_MIME_TYPES,
+  MAX_AI_RESUME_SIZE_MB,
+} from "@/lib/constants";
+
+const MAX_FILE_SIZE_BYTES = MAX_AI_RESUME_SIZE_MB * 1024 * 1024;
+const ALLOWED_EXTENSIONS = AI_RESUME_FILE_TYPES.split(",");
 
 export function FileDragDropZone({
   file,
@@ -12,6 +21,31 @@ export function FileDragDropZone({
   file: File | null;
   onFileSelect: (f: File | null) => void;
 }) {
+  const validateFile = (selectedFile: File): boolean => {
+    if (selectedFile.size === 0) {
+      toast.error("File cannot be empty. Please upload a valid resume.");
+      return false;
+    }
+
+    const fileName = selectedFile.name.toLowerCase();
+    const isAllowedExt = ALLOWED_EXTENSIONS.some((ext) => fileName.endsWith(ext));
+    const isAllowedMime =
+      !selectedFile.type ||
+      (AI_RESUME_MIME_TYPES as readonly string[]).includes(selectedFile.type);
+
+    if (!isAllowedExt || !isAllowedMime) {
+      toast.error("Only .pdf and .docx files are allowed");
+      return false;
+    }
+
+    if (selectedFile.size > MAX_FILE_SIZE_BYTES) {
+      toast.error(`File size must be less than ${MAX_AI_RESUME_SIZE_MB}MB`);
+      return false;
+    }
+
+    return true;
+  };
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -21,19 +55,21 @@ export function FileDragDropZone({
     e.preventDefault();
     e.stopPropagation();
     const droppedFile = e.dataTransfer.files[0];
-    if (
-      droppedFile &&
-      (droppedFile.type === "application/pdf" || droppedFile.name.endsWith(".docx"))
-    ) {
-      onFileSelect(droppedFile);
+    if (droppedFile) {
+      if (validateFile(droppedFile)) {
+        onFileSelect(droppedFile);
+      }
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
     if (selected) {
-      onFileSelect(selected);
+      if (validateFile(selected)) {
+        onFileSelect(selected);
+      }
     }
+    e.target.value = "";
   };
 
   const formatBytes = (bytes: number) => {
@@ -89,7 +125,8 @@ export function FileDragDropZone({
         <ArrowUpTrayIcon className="size-6" />
       </div>
       <p className="text-slate-800 font-semibold mb-1">Drag & drop your resume</p>
-      <p className="text-slate-500 text-sm mb-5">or browse from your device</p>
+      <p className="text-slate-500 text-sm mb-1">or browse from your device</p>
+      <p className="text-slate-400 text-xs mb-5">Only .pdf and .docx (Max 10MB)</p>
 
       <div className="px-5 py-2 rounded-full border border-slate-200 bg-white text-slate-700 font-medium text-sm shadow-sm hover:border-primary/30 hover:text-primary transition-all">
         Browse files

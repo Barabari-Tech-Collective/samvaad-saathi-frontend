@@ -44,6 +44,7 @@ const PronunciationPracticeStartPage = () => {
     data: audioData,
     refetch: fetchAudio,
     isFetching: isFetchingAudio,
+    isError: isAudioError,
   } = apiClient.useQuery<Blob>({
     key: ["pronunciation-audio", practiceData?.practiceId, currentWord?.index, isSlow],
     url:
@@ -251,8 +252,8 @@ const PronunciationPracticeStartPage = () => {
               <button
                 onClick={handlePlayAudio}
                 className="flex-shrink-0 p-2 hover:bg-purple-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Play pronunciation"
-                disabled={!audioData || isFetchingAudio}
+                aria-label={isAudioError ? "Retry loading pronunciation" : "Play pronunciation"}
+                disabled={isFetchingAudio}
               >
                 {isFetchingAudio ? (
                   <ArrowPathIcon className="h-6 w-6 text-[#1f285b] animate-spin" />
@@ -261,15 +262,11 @@ const PronunciationPracticeStartPage = () => {
                 )}
               </button>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-600 text-sm">Stress:</span>
-              <span className="bg-gray-200 text-black px-3 py-1 rounded-lg text-sm">
-                {/* Stress indicator - would need API data for this */}
-                {currentWord?.word
-                  ? currentWord.word.charAt(Math.floor(currentWord.word.length / 2)).toLowerCase()
-                  : ""}
-              </span>
-            </div>
+            {isAudioError && (
+              <p className="text-sm text-red-600">
+                Couldn&apos;t load the audio. Tap the speaker icon to try again.
+              </p>
+            )}
           </div>
         </div>
 
