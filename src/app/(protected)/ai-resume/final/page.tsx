@@ -112,79 +112,79 @@ function ResumeTemplateFullViewContent() {
   const handleSync = async () => {
     if (!resumeId) return;
     setIsSavingResume(true);
-    
+
     try {
       const element = document.getElementById("resume-preview-content");
       if (!element) {
-         toast.error("Could not find resume content to save.");
-         setIsSavingResume(false);
-         return;
+        toast.error("Could not find resume content to save.");
+        setIsSavingResume(false);
+        return;
       }
-      
+
       toast.loading("Converting to PDF...", { id: "saving-resume" });
-      
+
       const htmlToImage = await import("html-to-image");
       const { jsPDF } = await import("jspdf");
 
-      const dataUrl = await htmlToImage.toJpeg(element, { 
-          quality: 0.98, 
-          backgroundColor: '#ffffff',
-          pixelRatio: 2 
+      const dataUrl = await htmlToImage.toJpeg(element, {
+        quality: 0.98,
+        backgroundColor: "#ffffff",
+        pixelRatio: 2,
       });
 
       const pdf = new jsPDF({
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait'
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
       });
-      
+
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const imgProps = pdf.getImageProperties(dataUrl);
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-      pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
-      const pdfBlob = pdf.output('blob');
-      
+      pdf.addImage(dataUrl, "JPEG", 0, 0, pdfWidth, pdfHeight);
+      const pdfBlob = pdf.output("blob");
+
       const file = new File([pdfBlob], "my_ats_resume.pdf", { type: "application/pdf" });
-      
+
       const formData = new FormData();
       formData.append("file", file);
-      
+
       const token = getTokenFromCookies();
       const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-      
+
       toast.loading("Saving resume to profile...", { id: "saving-resume" });
       const response = await fetch(`${baseUrl}/save-final-resume`, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
-      
+
       const data = await response.json();
       toast.dismiss("saving-resume");
-      
+
       if (!response.ok) {
         throw new Error(data.message || "Failed to save resume");
       }
-      
+
       // Invalidate the /me query so the app immediately fetches the new ats_resume_filename and ats_resume_id
       await queryClient.invalidateQueries({ queryKey: [ENDPOINTS.AUTH.ABOUT_ME] });
 
       // Force Next.js router to refresh server/client states just in case
       router.refresh();
-      
+
       toast.success(
         "Resume safely stored in your Profile! To use this ATS resume for your AI interviews, go to your Profile page and click 'Replace with ATS Resume'.",
         { duration: 8000 }
       );
     } catch (error) {
-       console.error("Save failed:", error);
-       toast.error("Failed to save resume to profile.");
-       toast.dismiss("saving-resume");
+      console.error("Save failed:", error);
+      toast.error("Failed to save resume to profile.");
+      toast.dismiss("saving-resume");
     } finally {
-       setIsSavingResume(false);
+      setIsSavingResume(false);
     }
   };
 
@@ -342,7 +342,10 @@ function ResumeTemplateFullViewContent() {
               </div>
 
               {/* Actual Resume Content Mockup */}
-              <div id="resume-preview-content" className="flex flex-col text-[11px] leading-relaxed text-[#1e293b] font-sans px-2 bg-white">
+              <div
+                id="resume-preview-content"
+                className="flex flex-col text-[11px] leading-relaxed text-[#1e293b] font-sans px-2 bg-white"
+              >
                 {/* Header */}
                 <div className="text-center pb-3">
                   <h2 className="text-2xl font-bold text-[#0f172a] tracking-wide uppercase">
