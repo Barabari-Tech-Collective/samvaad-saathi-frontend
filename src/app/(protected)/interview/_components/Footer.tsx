@@ -143,7 +143,6 @@ const Footer = ({
     setCaptionsSupported(!!(window.SpeechRecognition || window.webkitSpeechRecognition));
   }, []);
 
-
   // Live filler-word count from the browser's own captions, purely as a
   // self-awareness aid while speaking - not tied to the actual scored
   // filler-word metric, which is computed server-side from the Whisper
@@ -170,7 +169,6 @@ const Footer = ({
     recognition.interimResults = true;
     recognition.lang = "en-US";
     recognition.onresult = (event) => {
-
       let transcript = "";
       for (let i = 0; i < event.results.length; i++) {
         transcript += event.results[i][0].transcript;
@@ -741,13 +739,6 @@ const Footer = ({
 
               {/* Live captions - best-effort browser-side preview, not the
                   scored transcript (that comes back from Groq/Whisper after
-                  upload). Chrome/Edge only; silently omitted elsewhere. */}
-              {captionsSupported && (
-                <div className="w-full max-w-md px-2 text-center">
-                  <p className="min-h-[1.5em] break-words text-sm italic text-gray-700 sm:text-base">
-                    {liveCaption || "Listening for your voice…"}
-                  </p>
-
                   upload). Chrome/Edge only; silently omitted elsewhere.
                   Filler words ("um", "uh", ...) are highlighted inline and
                   counted so the student gets real-time self-awareness feedback
