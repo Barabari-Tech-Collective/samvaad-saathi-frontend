@@ -29,7 +29,7 @@ export enum APIServiceV2 {
 export const createAxiosInstance = (baseURL: string) => {
   const axiosInstance = axios.create({
     baseURL,
-    timeout: 60000,
+    timeout: 60000, // 1 minute
     headers: {
       "Content-Type": "application/json",
     },
@@ -54,8 +54,9 @@ export const createAxiosInstance = (baseURL: string) => {
           }
 
           // Call refresh endpoint using normal axios with form data
+          // LEGACY - COGNITO, kept for rollback: `${AUTH_BASE_URL}/${ENDPOINTS.AUTH.COGNITO_REFRESH}`
           const refreshResponse = await axios.post(
-            `${AUTH_BASE_URL}/${ENDPOINTS.AUTH.COGNITO_REFRESH}`,
+            `${AUTH_BASE_URL}/${ENDPOINTS.AUTH.SSO_REFRESH}`,
             `refresh_token=${refreshToken}`,
             {
               headers: {

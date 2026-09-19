@@ -2,15 +2,22 @@ export const ENDPOINTS = {
   HEALTH_CHECK: "",
   AUTH: {
     ABOUT_ME: "me",
-    COGNITO_LOGIN: "auth/cognito/login",
-    COGNITO_REFRESH: "auth/cognito/refresh",
-    COGNITO_LOGOUT: "auth/cognito/logout",
+    // LEGACY - COGNITO, kept for rollback during the Sampark Saathi SSO migration.
+    // Uncomment and swap back in auth-provider.tsx/config.ts if SSO needs to be reverted.
+    // COGNITO_LOGIN: "auth/cognito/login",
+    // COGNITO_REFRESH: "auth/cognito/refresh",
+    // COGNITO_LOGOUT: "auth/cognito/logout",
+    SSO_LOGIN: "auth/sso/login",
+    SSO_REFRESH: "auth/sso/refresh",
   },
   USERS: {
     PROFILE: "users/profile",
   },
   RESUME: {
     EXTRACT: "extract-resume",
+    SET_ACTIVE: "set-active-resume",
+    DOWNLOAD_ORIGINAL: "download-original",
+    SAVE_FINAL: "save-final-resume",
   },
   TTS: {
     CONVERT: "tts/convert",

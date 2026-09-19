@@ -22,10 +22,12 @@ import axios from "axios";
 import { ENDPOINTS } from "@/lib/api-config";
 import toast from "react-hot-toast";
 import ResumeEditorForm from "./_components/ResumeEditorForm";
+import { useQueryClient } from "@tanstack/react-query";
 
 function ResumeTemplateFullViewContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const templateId = searchParams.get("templateId") || "";
 
   const { uploadedFile, analysisId } = useAIResumeContext();
@@ -36,9 +38,10 @@ function ResumeTemplateFullViewContent() {
   const [createError, setCreateError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [isSavingResume, setIsSavingResume] = useState(false);
 
   const updateResumeMutation = useUpdateResume(resumeId || "");
-  const syncResumeMutation = useSyncResumeToProfile(resumeId || "");
+  // const syncResumeMutation = useSyncResumeToProfile(resumeId || "");
 
   useEffect(() => {
     // Redirect if someone visits this URL directly without uploading
@@ -106,16 +109,83 @@ function ResumeTemplateFullViewContent() {
     }
   };
 
-  const handleSync = () => {
+  const handleSync = async () => {
     if (!resumeId) return;
-    syncResumeMutation.mutate(undefined, {
-      onSuccess: () => {
-        toast.success("Resume saved to your profile! You can now use it for interviews.");
-      },
-      onError: () => {
-        toast.error("Failed to save resume to profile.");
-      },
-    });
+    setIsSavingResume(true);
+    
+    try {
+      const element = document.getElementById("resume-preview-content");
+      if (!element) {
+         toast.error("Could not find resume content to save.");
+         setIsSavingResume(false);
+         return;
+      }
+      
+      toast.loading("Converting to PDF...", { id: "saving-resume" });
+      
+      const htmlToImage = await import("html-to-image");
+      const { jsPDF } = await import("jspdf");
+
+      const dataUrl = await htmlToImage.toJpeg(element, { 
+          quality: 0.98, 
+          backgroundColor: '#ffffff',
+          pixelRatio: 2 
+      });
+
+      const pdf = new jsPDF({
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait'
+      });
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const imgProps = pdf.getImageProperties(dataUrl);
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      const pdfBlob = pdf.output('blob');
+      
+      const file = new File([pdfBlob], "my_ats_resume.pdf", { type: "application/pdf" });
+      
+      const formData = new FormData();
+      formData.append("file", file);
+      
+      const token = getTokenFromCookies();
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+      
+      toast.loading("Saving resume to profile...", { id: "saving-resume" });
+      const response = await fetch(`${baseUrl}/save-final-resume`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+        body: formData,
+      });
+      
+      const data = await response.json();
+      toast.dismiss("saving-resume");
+      
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to save resume");
+      }
+      
+      // Invalidate the /me query so the app immediately fetches the new ats_resume_filename and ats_resume_id
+      await queryClient.invalidateQueries({ queryKey: [ENDPOINTS.AUTH.ABOUT_ME] });
+
+      // Force Next.js router to refresh server/client states just in case
+      router.refresh();
+      
+      toast.success(
+        "Resume safely stored in your Profile! To use this ATS resume for your AI interviews, go to your Profile page and click 'Replace with ATS Resume'.",
+        { duration: 8000 }
+      );
+    } catch (error) {
+       console.error("Save failed:", error);
+       toast.error("Failed to save resume to profile.");
+       toast.dismiss("saving-resume");
+    } finally {
+       setIsSavingResume(false);
+    }
   };
 
   if (!uploadedFile) return null;
@@ -272,14 +342,14 @@ function ResumeTemplateFullViewContent() {
               </div>
 
               {/* Actual Resume Content Mockup */}
-              <div className="flex flex-col text-[11px] leading-relaxed text-slate-800 font-sans px-2">
+              <div id="resume-preview-content" className="flex flex-col text-[11px] leading-relaxed text-[#1e293b] font-sans px-2 bg-white">
                 {/* Header */}
                 <div className="text-center pb-3">
-                  <h2 className="text-2xl font-bold text-slate-900 tracking-wide uppercase">
+                  <h2 className="text-2xl font-bold text-[#0f172a] tracking-wide uppercase">
                     {header.fullName || header.name}
                   </h2>
-                  {header.title && <p className="text-sm text-slate-700 mt-1">{header.title}</p>}
-                  <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-slate-500 mt-2 text-[10px]">
+                  {header.title && <p className="text-sm text-[#334155] mt-1">{header.title}</p>}
+                  <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-[#64748b] mt-2 text-[10px]">
                     {header.email && (
                       <span className="flex items-center gap-1">✉ {header.email}</span>
                     )}
@@ -301,10 +371,10 @@ function ResumeTemplateFullViewContent() {
                 {/* Objective */}
                 {summary && (
                   <div className="mb-3">
-                    <h3 className="font-bold text-[11px] tracking-wider text-slate-900 uppercase border-b border-slate-300 pb-1 mb-2">
+                    <h3 className="font-bold text-[11px] tracking-wider text-[#0f172a] uppercase border-b border-[#cbd5e1] pb-1 mb-2">
                       Career Objective
                     </h3>
-                    <p className="text-slate-700 leading-relaxed text-[11px] text-justify">
+                    <p className="text-[#334155] leading-relaxed text-[11px] text-justify">
                       {summary}
                     </p>
                   </div>
@@ -313,23 +383,23 @@ function ResumeTemplateFullViewContent() {
                 {/* Experience */}
                 {experience.length > 0 && (
                   <div className="mb-3">
-                    <h3 className="font-bold text-[11px] tracking-wider text-slate-900 uppercase border-b border-slate-300 pb-1 mb-2">
+                    <h3 className="font-bold text-[11px] tracking-wider text-[#0f172a] uppercase border-b border-[#cbd5e1] pb-1 mb-2">
                       Work Experience
                     </h3>
                     <div className="space-y-3">
                       {experience.map((exp: any, idx: number) => (
                         <div key={idx}>
-                          <div className="flex justify-between font-bold text-slate-900 text-[11px]">
+                          <div className="flex justify-between font-bold text-[#0f172a] text-[11px]">
                             <span>{exp.role || exp.title}</span>
-                            <span className="font-normal text-slate-600">{exp.duration}</span>
+                            <span className="font-normal text-[#475569]">{exp.duration}</span>
                           </div>
                           {exp.company && (
-                            <div className="text-slate-700 italic text-[11px] mb-1">
+                            <div className="text-[#334155] italic text-[11px] mb-1">
                               {exp.company}
                             </div>
                           )}
                           {(exp.highlights || exp.bullets || []).length > 0 && (
-                            <ul className="list-disc text-slate-700 text-[11px] ml-4 space-y-1 text-justify">
+                            <ul className="list-disc text-[#334155] text-[11px] ml-4 space-y-1 text-justify">
                               {(exp.highlights || exp.bullets).map(
                                 (bullet: string, bIdx: number) => (
                                   <li key={bIdx} className="pl-1">
@@ -385,10 +455,10 @@ function ResumeTemplateFullViewContent() {
                 {/* Skills */}
                 {skills.length > 0 && (
                   <div className="mb-3">
-                    <h3 className="font-bold text-[11px] tracking-wider text-slate-900 uppercase border-b border-slate-300 pb-1 mb-2">
+                    <h3 className="font-bold text-[11px] tracking-wider text-[#0f172a] uppercase border-b border-[#cbd5e1] pb-1 mb-2">
                       Skills
                     </h3>
-                    <p className="text-slate-700 text-[11px] leading-relaxed">
+                    <p className="text-[#334155] text-[11px] leading-relaxed">
                       {skills.join(" • ")}
                     </p>
                   </div>
@@ -397,19 +467,19 @@ function ResumeTemplateFullViewContent() {
                 {/* Education */}
                 {education.length > 0 && (
                   <div className="mb-2">
-                    <h3 className="font-bold text-[11px] tracking-wider text-slate-900 uppercase border-b border-slate-300 pb-1 mb-2">
+                    <h3 className="font-bold text-[11px] tracking-wider text-[#0f172a] uppercase border-b border-[#cbd5e1] pb-1 mb-2">
                       Education
                     </h3>
                     <div className="space-y-2">
                       {education.map((edu: any, idx: number) => (
                         <div key={idx} className="flex justify-between items-start">
                           <div>
-                            <div className="font-bold text-slate-900 text-[11px]">{edu.degree}</div>
-                            <div className="text-slate-600 text-[11px]">
+                            <div className="font-bold text-[#0f172a] text-[11px]">{edu.degree}</div>
+                            <div className="text-[#475569] text-[11px]">
                               {edu.year || edu.duration}
                             </div>
                           </div>
-                          <span className="font-normal text-slate-600 text-[11px] text-right">
+                          <span className="font-normal text-[#475569] text-[11px] text-right">
                             {edu.institution}
                           </span>
                         </div>
@@ -424,11 +494,11 @@ function ResumeTemplateFullViewContent() {
             <div className="flex gap-3 mt-2">
               <button
                 onClick={handleSync}
-                disabled={syncResumeMutation.isPending || !resumeId}
+                disabled={isSavingResume || !resumeId}
                 className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded-xl font-medium transition-colors shadow-sm"
               >
                 <BookmarkSquareIcon className="size-4" strokeWidth={3} />
-                {syncResumeMutation.isPending ? "Saving..." : "Save Resume"}
+                {isSavingResume ? "Saving..." : "Save Resume"}
               </button>
               <button
                 onClick={handleDownload}
