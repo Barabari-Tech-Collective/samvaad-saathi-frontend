@@ -5,11 +5,7 @@ import {
   ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
-import {
-  AI_RESUME_FILE_TYPES,
-  AI_RESUME_MIME_TYPES,
-  MAX_AI_RESUME_SIZE_MB,
-} from "@/lib/constants";
+import { AI_RESUME_FILE_TYPES, AI_RESUME_MIME_TYPES, MAX_AI_RESUME_SIZE_MB } from "@/lib/constants";
 
 const MAX_FILE_SIZE_BYTES = MAX_AI_RESUME_SIZE_MB * 1024 * 1024;
 const ALLOWED_EXTENSIONS = AI_RESUME_FILE_TYPES.split(",");
@@ -30,8 +26,7 @@ export function FileDragDropZone({
     const fileName = selectedFile.name.toLowerCase();
     const isAllowedExt = ALLOWED_EXTENSIONS.some((ext) => fileName.endsWith(ext));
     const isAllowedMime =
-      !selectedFile.type ||
-      (AI_RESUME_MIME_TYPES as readonly string[]).includes(selectedFile.type);
+      !selectedFile.type || (AI_RESUME_MIME_TYPES as readonly string[]).includes(selectedFile.type);
 
     if (!isAllowedExt || !isAllowedMime) {
       toast.error("Only .pdf and .docx files are allowed");

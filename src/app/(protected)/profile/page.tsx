@@ -65,7 +65,7 @@ export default function ProfilePage() {
   const [errors, setErrors] = useState<Partial<ProfileFormData>>({});
   const [isDownloadingResume, setIsDownloadingResume] = useState(false);
 
-  // Force refetch on mount to ensure resumes are always up to date 
+  // Force refetch on mount to ensure resumes are always up to date
   // when navigating via client-side router
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: [ENDPOINTS.AUTH.ABOUT_ME] });
@@ -79,13 +79,13 @@ export default function ProfilePage() {
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.RESUME.DOWNLOAD_ORIGINAL}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
+
       if (!res.ok) {
         const errText = await res.text();
         console.error("Backend error:", errText);
         throw new Error("Failed to get download URL");
       }
-      
+
       // The backend returns a JSON object containing a presigned URL
       const data = await res.json();
       if (data?.url) {
@@ -120,9 +120,9 @@ export default function ProfilePage() {
     successMessage: "Resume uploaded successfully!",
     errorMessage: "Failed to upload resume. Please try again.",
     keyToInvalidate: { queryKey: [ENDPOINTS.AUTH.ABOUT_ME] },
-    config: { 
+    config: {
       headers: { "Content-Type": "multipart/form-data" },
-      timeout: 300000 // 5 minutes specifically for ATS analysis
+      timeout: 300000, // 5 minutes specifically for ATS analysis
     },
   });
 
@@ -456,7 +456,9 @@ export default function ProfilePage() {
                       <DocumentTextIcon className="size-5 text-gray-500" />
                       <span className="text-sm truncate flex-1">
                         {user.authorizedUser.onboardingResumeFilename ||
-                          (user.authorizedUser.hasResume ? "Resume uploaded" : "No resume uploaded")}
+                          (user.authorizedUser.hasResume
+                            ? "Resume uploaded"
+                            : "No resume uploaded")}
                       </span>
                       {/* View button completely removed per user request */}
                     </div>
@@ -465,7 +467,9 @@ export default function ProfilePage() {
                     <div className="flex flex-col gap-3">
                       {/* Option 1: Upload a new resume → POST /extract-resume */}
                       <div className="flex flex-col gap-1">
-                        <p className="text-xs text-gray-500">Upload a new resume (replaces current)</p>
+                        <p className="text-xs text-gray-500">
+                          Upload a new resume (replaces current)
+                        </p>
                         <input
                           type="file"
                           className="file-input file-input-sm w-full"
@@ -492,7 +496,9 @@ export default function ProfilePage() {
                           </p>
                           <button
                             type="button"
-                            disabled={!user.authorizedUser.atsResumeId || setActiveResumeMutation.isPending}
+                            disabled={
+                              !user.authorizedUser.atsResumeId || setActiveResumeMutation.isPending
+                            }
                             title={!user.authorizedUser.atsResumeId ? "No ATS resume yet" : ""}
                             onClick={async () => {
                               if (!user.authorizedUser.atsResumeId) return;
@@ -526,12 +532,19 @@ export default function ProfilePage() {
               <label className="label flex justify-between items-center mb-2">
                 <span className="label-text">ATS Resume (Final)</span>
               </label>
-              <div className={`flex items-center gap-2 px-3 py-2 border rounded-lg w-full ${
-                (user.authorizedUser.atsResumeFilename || (user.authorizedUser as any).ats_resume_filename) ? "bg-base-100" : "bg-base-200 opacity-60"
-              }`}>
+              <div
+                className={`flex items-center gap-2 px-3 py-2 border rounded-lg w-full ${
+                  user.authorizedUser.atsResumeFilename ||
+                  (user.authorizedUser as any).ats_resume_filename
+                    ? "bg-base-100"
+                    : "bg-base-200 opacity-60"
+                }`}
+              >
                 <DocumentTextIcon className="size-5 text-gray-400" />
                 <span className="text-sm truncate flex-1 text-gray-500">
-                  {user.authorizedUser.atsResumeFilename || (user.authorizedUser as any).ats_resume_filename || "No ATS resume yet"}
+                  {user.authorizedUser.atsResumeFilename ||
+                    (user.authorizedUser as any).ats_resume_filename ||
+                    "No ATS resume yet"}
                 </span>
               </div>
             </div>

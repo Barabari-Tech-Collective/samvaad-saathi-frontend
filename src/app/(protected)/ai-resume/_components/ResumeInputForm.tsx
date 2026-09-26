@@ -12,11 +12,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { ENDPOINTS } from "@/lib/api-config";
-import {
-  AI_RESUME_FILE_TYPES,
-  AI_RESUME_MIME_TYPES,
-  MAX_AI_RESUME_SIZE_MB,
-} from "@/lib/constants";
+import { AI_RESUME_FILE_TYPES, AI_RESUME_MIME_TYPES, MAX_AI_RESUME_SIZE_MB } from "@/lib/constants";
 
 const MAX_FILE_SIZE_BYTES = MAX_AI_RESUME_SIZE_MB * 1024 * 1024;
 const ALLOWED_EXTENSIONS = AI_RESUME_FILE_TYPES.split(",");

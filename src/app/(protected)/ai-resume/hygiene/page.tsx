@@ -63,26 +63,26 @@ export default function HygieneAndTemplatePage() {
       setIsSaving(true);
       const formDataToSend = new FormData();
       formDataToSend.append("file", uploadedFile);
-      
+
       const token = getTokenFromCookies();
       const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-      
+
       toast.loading("Saving resume to profile...", { id: "saving-resume" });
       const response = await fetch(`${baseUrl}/${ENDPOINTS.RESUME.SAVE_FINAL}`, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: formDataToSend,
       });
-      
+
       const data = await response.json();
       toast.dismiss("saving-resume");
-      
+
       if (!response.ok) {
         throw new Error(data.message || "Failed to save resume");
       }
-      
+
       // Invalidate the /me query so the app immediately fetches the new ats_resume_filename and ats_resume_id
       await queryClient.invalidateQueries({ queryKey: [ENDPOINTS.AUTH.ABOUT_ME] });
 
@@ -91,11 +91,11 @@ export default function HygieneAndTemplatePage() {
         { duration: 8000 }
       );
     } catch (error) {
-       console.error("Save failed:", error);
-       toast.error("Failed to save resume to profile.");
-       toast.dismiss("saving-resume");
+      console.error("Save failed:", error);
+      toast.error("Failed to save resume to profile.");
+      toast.dismiss("saving-resume");
     } finally {
-       setIsSaving(false);
+      setIsSaving(false);
     }
   };
 
@@ -155,17 +155,20 @@ export default function HygieneAndTemplatePage() {
 
                     <h2>Project Evaluation</h2>
                     <div class="card">
-                        ${(analysisResult.projectEvaluation || [])
-                          .map(
-                            (p: any) => `
+                        ${
+                          (analysisResult.projectEvaluation || [])
+                            .map(
+                              (p: any) => `
                             <div class="project-item">
                                 <strong style="color: #0f172a;">${p.projectName}</strong>
                                 <span class="rating-badge">Rating: ${p.rating}/5</span>
                                 <p style="margin-top: 8px;">${p.feedback}</p>
                             </div>
                         `
-                          )
-                          .join("") || '<p style="margin:0; color:#64748b;">No projects evaluated</p>'}
+                            )
+                            .join("") ||
+                          '<p style="margin:0; color:#64748b;">No projects evaluated</p>'
+                        }
                     </div>
 
                     <h2>Final Recommendations</h2>
