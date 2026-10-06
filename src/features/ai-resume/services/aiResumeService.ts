@@ -21,8 +21,8 @@ export const aiResumeService = {
 
       const response = await axios.post(`${baseUrl}/${ENDPOINTS.AI_RESUME.ANALYZE}`, formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
           // Let axios set the Content-Type automatically for FormData
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         withCredentials: true,
       });
