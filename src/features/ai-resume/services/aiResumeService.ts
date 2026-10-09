@@ -30,6 +30,12 @@ export const aiResumeService = {
       return response.data;
     } catch (error) {
       console.error("Error analyzing resume:", error);
+      if (axios.isAxiosError(error) && error.response?.data?.detail) {
+        throw new Error(typeof error.response.data.detail === 'string' 
+          ? error.response.data.detail 
+          : JSON.stringify(error.response.data.detail)
+        );
+      }
       throw error;
     }
   },
