@@ -19,6 +19,11 @@ export const resampleAudioTo16kHz = async (audioBlob: Blob): Promise<Blob> => {
       sampleRate: 16000,
     });
 
+    const timeout = setTimeout(() => {
+      reject(new Error("Audio conversion timed out. Please retry saving."));
+      void audioContext.close().catch(() => undefined);
+    }, 30_000);
+
     const reader = new FileReader();
     reader.onload = async () => {
       try {
@@ -59,10 +64,17 @@ export const resampleAudioTo16kHz = async (audioBlob: Blob): Promise<Blob> => {
         resolve(wavBlob);
       } catch (error) {
         reject(error);
+      } finally {
+        clearTimeout(timeout);
+        if (audioContext.state !== "closed") void audioContext.close().catch(() => undefined);
       }
     };
 
-    reader.onerror = reject;
+    reader.onerror = () => {
+      clearTimeout(timeout);
+      void audioContext.close().catch(() => undefined);
+      reject(new Error("Could not read the recording. Please retry saving."));
+    };
     reader.readAsArrayBuffer(audioBlob);
   });
 };
