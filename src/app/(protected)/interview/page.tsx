@@ -20,7 +20,8 @@ import {
 import { trackEvent, trackInterviewQuestionView } from "@/lib/posthog/tracking.utils";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { CodeView, Footer, Header, Question, Welcome } from "./_components";
 import { FollowUpQuestion, GenerateQuestionsResponse, StartQuestionAttemptResponse } from "./types";
 
@@ -41,6 +42,9 @@ const InterviewPage = () => {
   const [isUserIntroducing, setIsUserIntroducing] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentAttemptId, setCurrentAttemptId] = useState<number | undefined>();
+  // True once attempt creation has failed for the current question and been given
+  // up on. Releases the Answer button so a backend hiccup cannot freeze the screen.
+  const [attemptFailed, setAttemptFailed] = useState(false);
   const [questions, setQuestions] = useState<GenerateQuestionsResponse["items"]>([]);
   const [isTextToSpeechSpeaking, setIsTextToSpeechSpeaking] = useState(false);
   // Separate from isTextToSpeechSpeaking: true while the question audio is
@@ -75,16 +79,48 @@ const InterviewPage = () => {
     errorMessage: "Something went wrong generating your interview questions. Please try again.",
   });
 
+  // Previously this mutation registered onSuccess only. When the call failed,
+  // currentAttemptId stayed undefined (it is cleared before every attempt), which
+  // left the Footer's `disabled` latched on permanently - the student could not
+  // answer, and on the last question could not submit either, with no error shown
+  // and no retry. Failures are now retried once and then surfaced.
   const { mutateAsync: startQuestionAttempt, isPending: isStartingAttempt } =
     apiClient.useMutation<StartQuestionAttemptResponse>({
       url: ENDPOINTS.INTERVIEWS.START_QUESTION_ATTEMPT,
       method: "post",
       options: {
         onSuccess: (data) => {
+          setAttemptFailed(false);
           setCurrentAttemptId(data.questionAttemptId);
         },
       },
     });
+
+  // Starts an attempt and, if the request fails, retries once before giving up.
+  // On final failure the Answer button is released rather than left dead: the
+  // recorder still works without an attempt id, and the upload path can recover,
+  // which is strictly better than stranding the student on a frozen screen.
+  const startAttemptWithRetry = useCallback(
+    async (interviewIdValue: number, questionId: number) => {
+      for (let remaining = 1; remaining >= 0; remaining--) {
+        try {
+          await startQuestionAttempt({ interviewId: interviewIdValue, questionId });
+          return;
+        } catch (error) {
+          if (remaining > 0) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+            continue;
+          }
+          console.error("Failed to start question attempt", error);
+          setAttemptFailed(true);
+          toast.error(
+            "Couldn't sync this question. You can still answer - if it fails, reload the page."
+          );
+        }
+      }
+    },
+    [startQuestionAttempt]
+  );
 
   interface ResumeInterviewResponse {
     interviewId: number;
@@ -184,10 +220,11 @@ const InterviewPage = () => {
   useEffect(() => {
     if (currentQuestionId && interviewId) {
       setCurrentAttemptId(undefined);
-      startQuestionAttempt({
-        interviewId: Number(interviewId),
-        questionId: currentQuestionId,
-      });
+      setAttemptFailed(false);
+      // Fire-and-forget, but errors are handled inside startAttemptWithRetry. The
+      // bare mutateAsync call this replaces had no catch at all, so a failure both
+      // froze the UI and surfaced as an unhandled promise rejection.
+      void startAttemptWithRetry(Number(interviewId), currentQuestionId);
 
       // Track question view
       const question = questions?.[currentQuestionIndex];
@@ -202,7 +239,7 @@ const InterviewPage = () => {
     }
     // Reset text-to-speech speaking state when question changes
     setIsTextToSpeechSpeaking(false);
-  }, [interviewId, currentQuestionIndex, currentQuestionId, startQuestionAttempt]);
+  }, [interviewId, currentQuestionIndex, currentQuestionId, startAttemptWithRetry]);
 
   // Track time taken for each question
   useEffect(() => {
@@ -519,10 +556,11 @@ const InterviewPage = () => {
           <Footer
             isLoading={isGeneratingQuestions}
             disabled={
-              isStartingAttempt ||
-              isTextToSpeechSpeaking ||
-              isTextToSpeechPreparing ||
-              !currentAttemptId
+              !attemptFailed &&
+              (isStartingAttempt ||
+                isTextToSpeechSpeaking ||
+                isTextToSpeechPreparing ||
+                !currentAttemptId)
             }
             question_attempt_id={currentAttemptId}
             followUpStrategy={questions?.[currentQuestionIndex]?.followUpStrategy ?? null}

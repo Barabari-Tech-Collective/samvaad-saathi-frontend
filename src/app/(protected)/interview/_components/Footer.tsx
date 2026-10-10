@@ -662,10 +662,15 @@ const Footer = ({
             </button>
           )}
 
+          {/* Submit deliberately does NOT use `disabled`. That flag folds in question-audio
+              state (speaking/preparing) and attempt-creation state, none of which have
+              anything to do with ending the interview - and on the last question there is no
+              Next button to fall back on, so any of those latching left the student with no
+              way out at all. Only genuine in-flight submission work gates it. */}
           {isLastQuestion ? (
             <button
               onClick={handleSubmitClick}
-              disabled={disabled || isUploading || isCompletingAnalysis}
+              disabled={isUploading || isCompletingAnalysis}
               className="btn btn-primary text-white"
             >
               {isCompletingAnalysis ? "Submitting..." : "Submit"}
