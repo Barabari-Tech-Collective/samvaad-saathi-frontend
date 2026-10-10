@@ -3,10 +3,14 @@
   "version": "1.19.0",
   "private": true,
   "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "lint:release": "eslint --config eslint.release.config.mjs src/hooks/useInterviewAnswer.ts src/hooks/useQuestionAttempt.ts 'src/app/(protected)/interview/_components/Footer.tsx' tests",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -42,12 +46,18 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.64.0",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
+    "eslint-config-next": "^16.1.6",
     "husky": "^9.1.7",
+    "jsdom": "^29.1.1",
     "prettier": "^3.8.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }
