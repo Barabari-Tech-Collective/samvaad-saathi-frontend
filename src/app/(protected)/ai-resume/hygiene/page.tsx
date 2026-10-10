@@ -49,7 +49,7 @@ export default function HygieneAndTemplatePage() {
   const getLinkError = (keyword: string) => {
     const allLinks = analysisResult?.allLinks || [];
     const link = allLinks.find(
-      (l) => !l.working && (l.type?.toLowerCase().includes(keyword) || l.url?.toLowerCase().includes(keyword))
+      (l) => !l.working && l.category?.toLowerCase() === keyword.toLowerCase()
     );
     return link?.error;
   };
@@ -57,7 +57,7 @@ export default function HygieneAndTemplatePage() {
   const getLinkNote = (keyword: string) => {
     const messages = hygiene?.linkFeedbackMessages || [];
     return messages.find(
-      (msg) => msg.toLowerCase().startsWith("note:") && msg.toLowerCase().includes(keyword)
+      (msg) => (msg.startsWith("💡") || msg.startsWith("⚠️")) && msg.toLowerCase().includes(keyword)
     );
   };
 
@@ -446,7 +446,7 @@ export default function HygieneAndTemplatePage() {
                 {hygiene.linkFeedbackMessages
                   .filter(msg => !profileLinks.some(l => l.note === msg))
                   .map((msg, idx) => {
-                    const isNote = msg.toLowerCase().startsWith("note:");
+                    const isNote = msg.startsWith("💡") || msg.startsWith("⚠️");
                     return (
                       <p
                         key={idx}

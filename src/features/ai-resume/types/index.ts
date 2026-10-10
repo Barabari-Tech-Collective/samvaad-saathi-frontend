@@ -63,8 +63,10 @@ export interface HygieneCheck {
 
 export interface ExtractedLink {
   url?: string;
-  type?: string;
+  platform?: string;
+  category?: string;
   working: boolean;
+  statusCode?: number;
   error?: string;
 }
 
