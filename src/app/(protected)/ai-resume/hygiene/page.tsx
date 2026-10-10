@@ -62,9 +62,24 @@ export default function HygieneAndTemplatePage() {
   };
 
   const profileLinks = [
-    { name: "LinkedIn Profile", valid: !!hygiene?.hasLinkedIn && hygiene?.linkedInWorking, error: getLinkError("linkedin"), note: getLinkNote("linkedin") },
-    { name: "GitHub Profile", valid: !!hygiene?.hasGithub && hygiene?.githubWorking, error: getLinkError("github"), note: getLinkNote("github") },
-    { name: "Portfolio Website", valid: !!hygiene?.hasPortfolio && hygiene?.portfolioWorking, error: getLinkError("portfolio"), note: getLinkNote("portfolio") },
+    {
+      name: "LinkedIn Profile",
+      valid: !!hygiene?.hasLinkedIn && hygiene?.linkedInWorking,
+      error: getLinkError("linkedin"),
+      note: getLinkNote("linkedin"),
+    },
+    {
+      name: "GitHub Profile",
+      valid: !!hygiene?.hasGithub && hygiene?.githubWorking,
+      error: getLinkError("github"),
+      note: getLinkNote("github"),
+    },
+    {
+      name: "Portfolio Website",
+      valid: !!hygiene?.hasPortfolio && hygiene?.portfolioWorking,
+      error: getLinkError("portfolio"),
+      note: getLinkNote("portfolio"),
+    },
     { name: "Phone Number", valid: !!hygiene?.hasPhone },
     { name: "Email Address", valid: !!hygiene?.hasEmail },
   ];
@@ -173,19 +188,20 @@ export default function HygieneAndTemplatePage() {
 
                     <h2>Project Evaluation</h2>
                     <div class="card">
-                        ${(analysisResult.projectEvaluation || [])
-          .map(
-            (p: any) => `
+                        ${
+                          (analysisResult.projectEvaluation || [])
+                            .map(
+                              (p: any) => `
                             <div class="project-item">
                                 <strong style="color: #0f172a;">${p.projectName}</strong>
                                 <span class="rating-badge">Rating: ${p.rating}/5</span>
                                 <p style="margin-top: 8px;">${p.feedback}</p>
                             </div>
                         `
-          )
-          .join("") ||
-        '<p style="margin:0; color:#64748b;">No projects evaluated</p>'
-        }
+                            )
+                            .join("") ||
+                          '<p style="margin:0; color:#64748b;">No projects evaluated</p>'
+                        }
                     </div>
 
                     <h2>Final Recommendations</h2>
@@ -309,7 +325,7 @@ export default function HygieneAndTemplatePage() {
                   >
                     <InformationCircleIcon className="size-5 text-slate-400 hover:text-primary transition-colors" />
                   </button>
-                  
+
                   {/* Custom CSS Tooltip */}
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-3 py-1.5 bg-slate-800 text-white text-xs font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[60] shadow-lg">
                     Important details that student has to read
@@ -335,18 +351,31 @@ export default function HygieneAndTemplatePage() {
 
                   <div className="p-5 overflow-y-auto space-y-6 bg-slate-50 text-slate-700">
                     <div>
-                      <p className="font-bold text-slate-900 text-base mb-2">1. 💼 LinkedIn Profile</p>
-                      <p className="text-sm text-slate-700 mb-3">Please provide your direct LinkedIn profile link to showcase your professional experience.</p>
+                      <p className="font-bold text-slate-900 text-base mb-2">
+                        1. 💼 LinkedIn Profile
+                      </p>
+                      <p className="text-sm text-slate-700 mb-3">
+                        Please provide your direct LinkedIn profile link to showcase your
+                        professional experience.
+                      </p>
                       <div className="text-sm space-y-3 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
                         <div>
                           <p className="font-medium text-green-700 mb-1">✅ Accepted Links:</p>
                           <ul className="list-disc list-inside text-slate-600 ml-1 space-y-1">
-                            <li>Full, direct profile URLs (e.g., https://www.linkedin.com/in/your-profile-name)</li>
-                            <li>Standard localized LinkedIn URLs (e.g., https://in.linkedin.com/in/your-profile)</li>
+                            <li>
+                              Full, direct profile URLs (e.g.,
+                              https://www.linkedin.com/in/your-profile-name)
+                            </li>
+                            <li>
+                              Standard localized LinkedIn URLs (e.g.,
+                              https://in.linkedin.com/in/your-profile)
+                            </li>
                           </ul>
                         </div>
                         <div className="pt-2 border-t border-slate-50">
-                          <p className="font-medium text-red-700 mb-1">⚠️ Not Accepted (Will not be detected):</p>
+                          <p className="font-medium text-red-700 mb-1">
+                            ⚠️ Not Accepted (Will not be detected):
+                          </p>
                           <ul className="list-disc list-inside text-slate-600 ml-1 space-y-1">
                             <li>Links to LinkedIn company pages or job posts.</li>
                             <li>Just your name or username without the URL (e.g., @JohnDoe).</li>
@@ -357,44 +386,76 @@ export default function HygieneAndTemplatePage() {
                     </div>
 
                     <div>
-                      <p className="font-bold text-slate-900 text-base mb-2">2. 💻 GitHub Profile</p>
-                      <p className="text-sm text-slate-700 mb-3">Connect your GitHub to highlight your technical projects and contributions.</p>
+                      <p className="font-bold text-slate-900 text-base mb-2">
+                        2. 💻 GitHub Profile
+                      </p>
+                      <p className="text-sm text-slate-700 mb-3">
+                        Connect your GitHub to highlight your technical projects and contributions.
+                      </p>
                       <div className="text-sm space-y-3 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
                         <div>
                           <p className="font-medium text-green-700 mb-1">✅ Accepted Links:</p>
                           <ul className="list-disc list-inside text-slate-600 ml-1 space-y-1">
-                            <li>Direct user profile URLs (e.g., https://github.com/your-username)</li>
+                            <li>
+                              Direct user profile URLs (e.g., https://github.com/your-username)
+                            </li>
                           </ul>
                         </div>
                         <div className="pt-2 border-t border-slate-50">
-                          <p className="font-medium text-red-700 mb-1">⚠️ Not Accepted (Will not be detected):</p>
+                          <p className="font-medium text-red-700 mb-1">
+                            ⚠️ Not Accepted (Will not be detected):
+                          </p>
                           <ul className="list-disc list-inside text-slate-600 ml-1 space-y-1">
-                            <li>Links to specific repositories instead of your main profile (e.g., github.com/your-username/project-name).</li>
-                            <li>Links to raw code files or GitHub pages (.github.io)—put GitHub Pages in the Portfolio section instead.</li>
-                            <li>Just your GitHub username without the https://github.com/ prefix.</li>
+                            <li>
+                              Links to specific repositories instead of your main profile (e.g.,
+                              github.com/your-username/project-name).
+                            </li>
+                            <li>
+                              Links to raw code files or GitHub pages (.github.io)—put GitHub Pages
+                              in the Portfolio section instead.
+                            </li>
+                            <li>
+                              Just your GitHub username without the https://github.com/ prefix.
+                            </li>
                           </ul>
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <p className="font-bold text-slate-900 text-base mb-2">3. 🌐 Portfolio / Linktree</p>
-                      <p className="text-sm text-slate-700 mb-3">Share your personal website, portfolio, or a Linktree to show off your aggregated work.</p>
+                      <p className="font-bold text-slate-900 text-base mb-2">
+                        3. 🌐 Portfolio / Linktree
+                      </p>
+                      <p className="text-sm text-slate-700 mb-3">
+                        Share your personal website, portfolio, or a Linktree to show off your
+                        aggregated work.
+                      </p>
                       <div className="text-sm space-y-3 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
                         <div>
                           <p className="font-medium text-green-700 mb-1">✅ Accepted Links:</p>
                           <ul className="list-disc list-inside text-slate-600 ml-1 space-y-1">
                             <li>Standard Linktree URLs (e.g., https://linktr.ee/your-name)</li>
-                            <li>Direct links to your personal website (e.g., https://www.your-portfolio.com or https://your-name.github.io)</li>
-                            <li>Links to other portfolio sites (e.g., Behance, Dribbble) that start with http:// or https://.</li>
+                            <li>
+                              Direct links to your personal website (e.g.,
+                              https://www.your-portfolio.com or https://your-name.github.io)
+                            </li>
+                            <li>
+                              Links to other portfolio sites (e.g., Behance, Dribbble) that start
+                              with http:// or https://.
+                            </li>
                           </ul>
                         </div>
                         <div className="pt-2 border-t border-slate-50">
-                          <p className="font-medium text-red-700 mb-1">⚠️ Not Accepted (Will not be detected):</p>
+                          <p className="font-medium text-red-700 mb-1">
+                            ⚠️ Not Accepted (Will not be detected):
+                          </p>
                           <ul className="list-disc list-inside text-slate-600 ml-1 space-y-1">
                             <li>Links missing the http:// or https:// prefix at the beginning.</li>
                             <li>Links to Google Drive folders or Dropbox files.</li>
-                            <li>Social media accounts that are not professional portfolios (e.g., personal Instagram, Facebook, or X/Twitter accounts).</li>
+                            <li>
+                              Social media accounts that are not professional portfolios (e.g.,
+                              personal Instagram, Facebook, or X/Twitter accounts).
+                            </li>
                           </ul>
                         </div>
                       </div>
@@ -412,7 +473,9 @@ export default function HygieneAndTemplatePage() {
                     <div className="flex items-center gap-2">
                       {link.note && link.valid && (
                         <button
-                          onClick={() => setExpandedNotes(prev => ({ ...prev, [link.name]: !prev[link.name] }))}
+                          onClick={() =>
+                            setExpandedNotes((prev) => ({ ...prev, [link.name]: !prev[link.name] }))
+                          }
                           className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 text-[10px] font-medium border border-amber-200 hover:bg-amber-100 transition-colors"
                         >
                           <InformationCircleIcon className="size-3" />
@@ -441,29 +504,33 @@ export default function HygieneAndTemplatePage() {
                 </div>
               ))}
             </div>
-            {hygiene?.linkFeedbackMessages && hygiene.linkFeedbackMessages.filter(msg => !profileLinks.some(l => l.note === msg)).length > 0 && (
-              <div className="pt-3 border-t border-slate-100 space-y-2">
-                {hygiene.linkFeedbackMessages
-                  .filter(msg => !profileLinks.some(l => l.note === msg))
-                  .map((msg, idx) => {
-                    const isNote = msg.startsWith("💡") || msg.startsWith("⚠️");
-                    return (
-                      <p
-                        key={idx}
-                        className={`text-xs flex items-start gap-1.5 ${isNote ? "text-amber-600 bg-amber-50 p-2 rounded-md" : "text-red-500"
+            {hygiene?.linkFeedbackMessages &&
+              hygiene.linkFeedbackMessages.filter(
+                (msg) => !profileLinks.some((l) => l.note === msg)
+              ).length > 0 && (
+                <div className="pt-3 border-t border-slate-100 space-y-2">
+                  {hygiene.linkFeedbackMessages
+                    .filter((msg) => !profileLinks.some((l) => l.note === msg))
+                    .map((msg, idx) => {
+                      const isNote = msg.startsWith("💡") || msg.startsWith("⚠️");
+                      return (
+                        <p
+                          key={idx}
+                          className={`text-xs flex items-start gap-1.5 ${
+                            isNote ? "text-amber-600 bg-amber-50 p-2 rounded-md" : "text-red-500"
                           }`}
-                      >
-                        {isNote ? (
-                          <InformationCircleIcon className="size-4 mt-0 flex-shrink-0" />
-                        ) : (
-                          <XMarkIcon className="size-3.5 mt-0.5 flex-shrink-0" />
-                        )}
-                        <span className={isNote ? "leading-tight" : ""}>{msg}</span>
-                      </p>
-                    );
-                  })}
-              </div>
-            )}
+                        >
+                          {isNote ? (
+                            <InformationCircleIcon className="size-4 mt-0 flex-shrink-0" />
+                          ) : (
+                            <XMarkIcon className="size-3.5 mt-0.5 flex-shrink-0" />
+                          )}
+                          <span className={isNote ? "leading-tight" : ""}>{msg}</span>
+                        </p>
+                      );
+                    })}
+                </div>
+              )}
           </div>
 
           {/* Education Evaluation Card */}
@@ -478,8 +545,9 @@ export default function HygieneAndTemplatePage() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-700">Institution</span>
                   <span
-                    className={`font-medium ${education.hasInstitution ? "text-green-600" : "text-red-600"
-                      }`}
+                    className={`font-medium ${
+                      education.hasInstitution ? "text-green-600" : "text-red-600"
+                    }`}
                   >
                     {education.hasInstitution ? "✔ Present" : "✖ Missing"}
                   </span>
@@ -488,8 +556,9 @@ export default function HygieneAndTemplatePage() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-700">Duration</span>
                   <span
-                    className={`font-medium ${education.hasDuration ? "text-green-600" : "text-red-600"
-                      }`}
+                    className={`font-medium ${
+                      education.hasDuration ? "text-green-600" : "text-red-600"
+                    }`}
                   >
                     {education.hasDuration ? "✔ Present" : "✖ Missing"}
                   </span>
@@ -498,8 +567,9 @@ export default function HygieneAndTemplatePage() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-slate-700">CGPA / Percentage</span>
                   <span
-                    className={`font-medium ${education.hasScore ? "text-green-600" : "text-red-600"
-                      }`}
+                    className={`font-medium ${
+                      education.hasScore ? "text-green-600" : "text-red-600"
+                    }`}
                   >
                     {education.hasScore ? "✔ Present" : "✖ Missing"}
                   </span>
