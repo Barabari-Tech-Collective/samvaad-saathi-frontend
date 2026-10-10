@@ -50,6 +50,7 @@ export interface HygieneCheck {
   githubWorking: boolean;
   portfolioWorking: boolean;
   grammarIssues?: string[];
+  linkFeedbackMessages?: string[];
   hasLinkedIn: boolean;
   hasGithub: boolean;
   hasPortfolio: boolean;
@@ -58,6 +59,13 @@ export interface HygieneCheck {
   hasScore?: boolean;
   hasPhone: boolean;
   hasEmail: boolean;
+}
+
+export interface ExtractedLink {
+  url?: string;
+  type?: string;
+  working: boolean;
+  error?: string;
 }
 
 export interface AnalysisResult {
@@ -71,6 +79,7 @@ export interface AnalysisResult {
   suggestedProject?: SuggestedProject;
   finalRecommendations?: string[];
   hygieneCheck?: HygieneCheck;
+  allLinks?: ExtractedLink[];
   analysisId: string;
 }
 
