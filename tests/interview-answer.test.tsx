@@ -240,6 +240,34 @@ it("ignores late attempt responses for a previous question and exposes retry", a
   expect(result.current.id).toBe(200);
 });
 
+it("does not disable Answer and Next together while waiting for the microphone", async () => {
+  const permission = deferred<MediaStream>();
+  vi.spyOn(navigator.mediaDevices, "getUserMedia").mockReturnValue(permission.promise);
+  render(<Footer question_attempt_id={7} onNext={() => undefined} />);
+  fireEvent.click(screen.getByRole("button", { name: /Answer/ }));
+  await waitFor(() => expect(screen.getByRole("button", { name: /Answer/ })).toBeDisabled());
+  // The permission prompt has captured no audio, so there is nothing to protect
+  // and the student must still be able to move on.
+  expect(screen.getByRole("button", { name: "Next" })).toBeEnabled();
+});
+
+it("abandons a pending microphone request when the student moves on", async () => {
+  const track = { stop: vi.fn() };
+  const permission = deferred<MediaStream>();
+  vi.spyOn(navigator.mediaDevices, "getUserMedia").mockReturnValue(permission.promise);
+  const onNext = vi.fn();
+  render(<Footer question_attempt_id={7} onNext={onNext} />);
+  fireEvent.click(screen.getByRole("button", { name: /Answer/ }));
+  await waitFor(() => expect(screen.getByRole("button", { name: /Answer/ })).toBeDisabled());
+  fireEvent.click(screen.getByRole("button", { name: "Next" }));
+  // Answer is released rather than latched off for the whole permission timeout.
+  await waitFor(() => expect(screen.getByRole("button", { name: /Answer/ })).toBeEnabled());
+  // A late grant must be released, not turned into a recording on a skipped question.
+  await act(async () => permission.resolve({ getTracks: () => [track] } as unknown as MediaStream));
+  expect(track.stop).toHaveBeenCalled();
+  expect(screen.queryByRole("heading", { name: "Listening…" })).toBeNull();
+});
+
 it("surfaces an unusable interview id as a failure instead of pending forever", async () => {
   const start = vi.fn();
   const { result } = renderHook(() => useQuestionAttempt(Number("/interview"), 10, start));

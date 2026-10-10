@@ -170,7 +170,11 @@ export default function Footer({
   });
 
   const busy = ["requesting", "saving"].includes(answer.phase) || isSubmitting;
-  const unsaved = ["recording", "saving", "failed", "requesting"].includes(answer.phase);
+  // "unsaved" means captured audio that is not yet durably stored, so it must gate
+  // Next and Submit. A pending microphone prompt has captured nothing, and
+  // including it here disabled Answer and Next together for the whole permission
+  // timeout - the frozen footer students reported.
+  const unsaved = ["recording", "saving", "failed"].includes(answer.phase);
 
   async function submit() {
     if (submittingRef.current || unsaved || isAnalyzing || !onSubmit) return;
@@ -191,12 +195,17 @@ export default function Footer({
     }
   }
 
-  const expiryRef = useRef({ stop: answer.stop, submit });
-  expiryRef.current = { stop: answer.stop, submit };
+  const expiryRef = useRef({ stop: answer.stop, submit, cancel: answer.cancel });
+  expiryRef.current = { stop: answer.stop, submit, cancel: answer.cancel };
   useEffect(() => {
     if (!timerExpired || isAnalyzing) return;
     if (answer.phase === "recording") {
       void expiryRef.current.stop();
+      return;
+    }
+    // Expiry must not wait out a microphone prompt nobody is going to answer.
+    if (answer.phase === "requesting") {
+      expiryRef.current.cancel();
       return;
     }
     if (["idle", "saved"].includes(answer.phase) && !autoSubmitAttemptedRef.current) {
@@ -207,6 +216,8 @@ export default function Footer({
 
   function next() {
     if (unsaved || isAnalyzing || isSubmitting || timerExpired) return;
+    // Moving on abandons any microphone prompt still waiting for an answer.
+    if (answer.phase === "requesting") answer.cancel();
     if (answer.phase === "saved") {
       trackButtonClick("next_question", "interview_footer");
       onNext?.();

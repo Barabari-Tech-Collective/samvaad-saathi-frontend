@@ -23,6 +23,7 @@ export function useInterviewAnswer({ save, onStream, onStop }: Options) {
   const recordingRef = useRef<Blob | null>(null);
   const fileRef = useRef<File | null>(null);
   const pendingRef = useRef<Promise<boolean> | null>(null);
+  const cancelledRef = useRef(false);
   const mountedRef = useRef(true);
   const startedAtRef = useRef(0);
   const optionsRef = useRef({ save, onStream, onStop });
@@ -101,9 +102,19 @@ export function useInterviewAnswer({ save, onStream, onStop }: Options) {
     return pendingRef.current;
   }
 
+  /** Abandons a microphone request so a pending permission prompt cannot hold the
+   *  student for the full acquisition timeout when they would rather move on. */
+  function cancel() {
+    if (phaseRef.current !== "requesting") return;
+    cancelledRef.current = true;
+    setError(null);
+    transition("idle");
+  }
+
   async function start() {
     if (!["idle", "saved"].includes(phaseRef.current)) return;
     const previousPhase = phaseRef.current;
+    cancelledRef.current = false;
     transition("requesting");
     setError(null);
     let stream: MediaStream | undefined;
@@ -114,7 +125,7 @@ export function useInterviewAnswer({ save, onStream, onStop }: Options) {
       // The browser permission dialog cannot be cancelled; dispose of a late grant.
       void permission.then(
         (result) => {
-          if (permissionExpired || !mountedRef.current)
+          if (permissionExpired || cancelledRef.current || !mountedRef.current)
             result.getTracks().forEach((track) => track.stop());
         },
         () => undefined
@@ -128,8 +139,12 @@ export function useInterviewAnswer({ save, onStream, onStop }: Options) {
           }, 20_000);
         }),
       ]);
-      if (!mountedRef.current) {
+      // A late grant must never start recording on a question the student has
+      // cancelled or moved past, and must not leave the phase stuck at
+      // "requesting" - that latched both Answer and Next off with no way out.
+      if (cancelledRef.current || !mountedRef.current) {
         stream.getTracks().forEach((track) => track.stop());
+        if (mountedRef.current && phaseRef.current === "requesting") transition(previousPhase);
         return;
       }
       const recorder = new MediaRecorder(stream);
@@ -165,8 +180,12 @@ export function useInterviewAnswer({ save, onStream, onStop }: Options) {
       }
     } catch {
       stream?.getTracks().forEach((track) => track.stop());
-      setError("Microphone unavailable. Allow microphone access, then select Answer again.");
-      transition(previousPhase);
+      // A deliberate cancellation is not a microphone fault, so it must not leave
+      // an error behind or undo the idle phase cancel() already applied.
+      if (!cancelledRef.current) {
+        setError("Microphone unavailable. Allow microphone access, then select Answer again.");
+        transition(previousPhase);
+      }
     } finally {
       if (timeout) clearTimeout(timeout);
     }
@@ -223,5 +242,5 @@ export function useInterviewAnswer({ save, onStream, onStop }: Options) {
     };
   }, []);
 
-  return { phase, error, timeRemaining, start, stop, retry, discard };
+  return { phase, error, timeRemaining, start, stop, retry, discard, cancel };
 }
