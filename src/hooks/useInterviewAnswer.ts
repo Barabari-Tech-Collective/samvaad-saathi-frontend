@@ -12,6 +12,11 @@ interface Options {
 }
 
 const RECORDING_SECONDS = 180;
+/** How long to wait for the browser permission prompt before giving up on it.
+ *  Short on purpose: students should get a usable screen back quickly rather
+ *  than watch a stalled control. A grant that lands later is released, and the
+ *  browser remembers the decision, so a second Answer press starts instantly. */
+const MIC_PERMISSION_TIMEOUT_MS = 5_000;
 
 /** Owns one question's recording. Mount a new instance for each question. */
 export function useInterviewAnswer({ save, onStream, onStop }: Options) {
@@ -136,7 +141,7 @@ export function useInterviewAnswer({ save, onStream, onStop }: Options) {
           timeout = setTimeout(() => {
             permissionExpired = true;
             reject(new Error("MIC_TIMEOUT"));
-          }, 20_000);
+          }, MIC_PERMISSION_TIMEOUT_MS);
         }),
       ]);
       // A late grant must never start recording on a question the student has
@@ -178,12 +183,19 @@ export function useInterviewAnswer({ save, onStream, onStop }: Options) {
       } catch {
         /* audio still records */
       }
-    } catch {
+    } catch (startError) {
       stream?.getTracks().forEach((track) => track.stop());
       // A deliberate cancellation is not a microphone fault, so it must not leave
       // an error behind or undo the idle phase cancel() already applied.
       if (!cancelledRef.current) {
-        setError("Microphone unavailable. Allow microphone access, then select Answer again.");
+        // An unanswered prompt is not a denial. Saying "unavailable" to a student
+        // who was still reading the browser dialog is both wrong and alarming,
+        // and the short timeout makes that the common case rather than a rare one.
+        setError(
+          (startError as Error)?.message === "MIC_TIMEOUT"
+            ? "We did not get microphone access yet. Choose Allow in your browser, then select Answer again."
+            : "Microphone unavailable. Allow microphone access, then select Answer again."
+        );
         transition(previousPhase);
       }
     } finally {

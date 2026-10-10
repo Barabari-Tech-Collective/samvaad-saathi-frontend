@@ -119,9 +119,14 @@ describe("recording recovery", () => {
     act(() => {
       starting = result.current.start();
     });
-    await act(() => vi.advanceTimersByTimeAsync(20_000));
+    // Still waiting just short of the timeout.
+    await act(() => vi.advanceTimersByTimeAsync(4_000));
+    expect(result.current.phase).toBe("requesting");
+    await act(() => vi.advanceTimersByTimeAsync(1_500));
     await act(() => starting);
     expect(result.current.phase).toBe("idle");
+    // An unanswered prompt must not be reported as a broken or denied microphone.
+    expect(result.current.error).toContain("did not get microphone access yet");
     await act(async () => {
       permission.resolve(stream);
     });
