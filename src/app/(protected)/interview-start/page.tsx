@@ -289,8 +289,8 @@ export default function InterviewStartPage() {
         </h2>
         <p className="text-center text-[13px] text-gray-600 font-noto px-2">
           {mode === "assessment"
-            ? "Questions are set by your facilitator. Your results may be shared with them."
-            : "Free practice with AI-generated questions. Nothing here is shared or scored by anyone."}
+            ? "Questions are set by your facilitator and reviewed as a formal result."
+            : "Free practice with AI-generated questions and feedback. Your facilitator may see your scores and invite you to a formal assessment based on them."}
         </p>
       </div>
 
