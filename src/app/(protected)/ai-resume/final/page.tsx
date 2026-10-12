@@ -88,9 +88,13 @@ function ResumeTemplateFullViewContent() {
         }
       );
 
-      // Create download link for the blob file response
+      // Create download link for the blob file response.
+      // Axios types a header value as string | number | true | string[] |
+      // AxiosHeaders, so it cannot be handed to Blob directly; anything that is
+      // not a plain string falls back to the PDF type this endpoint returns.
+      const contentType = response.headers["content-type"];
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "application/pdf",
+        type: typeof contentType === "string" ? contentType : "application/pdf",
       });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");

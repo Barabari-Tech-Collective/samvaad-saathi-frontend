@@ -2,6 +2,7 @@
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MicPermissionModal, useMicPermission } from "@/hooks/useMicPermission";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
+import { useQuestionAttempt } from "@/hooks/useQuestionAttempt";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService, APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS, ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
@@ -40,7 +41,7 @@ const InterviewPage = () => {
   const [isIntroducing, setIsIntroducing] = useState(false);
   const [isUserIntroducing, setIsUserIntroducing] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [currentAttemptId, setCurrentAttemptId] = useState<number | undefined>();
+  const [timerExpired, setTimerExpired] = useState(false);
   const [questions, setQuestions] = useState<GenerateQuestionsResponse["items"]>([]);
   const [isTextToSpeechSpeaking, setIsTextToSpeechSpeaking] = useState(false);
   // Separate from isTextToSpeechSpeaking: true while the question audio is
@@ -75,16 +76,18 @@ const InterviewPage = () => {
     errorMessage: "Something went wrong generating your interview questions. Please try again.",
   });
 
-  const { mutateAsync: startQuestionAttempt, isPending: isStartingAttempt } =
-    apiClient.useMutation<StartQuestionAttemptResponse>({
+  const { mutateAsync: startQuestionAttempt } = apiClient.useMutation<StartQuestionAttemptResponse>(
+    {
       url: ENDPOINTS.INTERVIEWS.START_QUESTION_ATTEMPT,
       method: "post",
-      options: {
-        onSuccess: (data) => {
-          setCurrentAttemptId(data.questionAttemptId);
-        },
-      },
-    });
+      config: { timeout: 20_000 },
+    }
+  );
+  const attempt = useQuestionAttempt(
+    Number(interviewId),
+    questions[currentQuestionIndex]?.interviewQuestionId,
+    startQuestionAttempt
+  );
 
   interface ResumeInterviewResponse {
     interviewId: number;
@@ -183,12 +186,6 @@ const InterviewPage = () => {
 
   useEffect(() => {
     if (currentQuestionId && interviewId) {
-      setCurrentAttemptId(undefined);
-      startQuestionAttempt({
-        interviewId: Number(interviewId),
-        questionId: currentQuestionId,
-      });
-
       // Track question view
       const question = questions?.[currentQuestionIndex];
       if (question) {
@@ -202,7 +199,7 @@ const InterviewPage = () => {
     }
     // Reset text-to-speech speaking state when question changes
     setIsTextToSpeechSpeaking(false);
-  }, [interviewId, currentQuestionIndex, currentQuestionId, startQuestionAttempt]);
+  }, [interviewId, currentQuestionIndex, currentQuestionId]);
 
   // Track time taken for each question
   useEffect(() => {
@@ -357,7 +354,7 @@ const InterviewPage = () => {
     },
   });
 
-  const handleInterviewSubmit = () => {
+  const handleInterviewSubmit = async () => {
     if (interviewId) {
       // Track time for the final question before submitting
       if (questionStartTimeRef.current !== 0) {
@@ -375,7 +372,7 @@ const InterviewPage = () => {
         }
       }
 
-      completeInterview({
+      await completeInterview({
         interviewId: Number(interviewId),
       });
     }
@@ -424,7 +421,7 @@ const InterviewPage = () => {
             role={role || ""}
             hasStarted={hasStarted}
             interviewId={interviewId}
-            onTimerExpire={handleInterviewSubmit}
+            onTimerExpire={() => setTimerExpired(true)}
           />
 
           <div className="flex flex-col items-center mt-12 max-w-4xl mx-auto px-4">
@@ -446,6 +443,9 @@ const InterviewPage = () => {
 
             <div className="w-full mt-4">
               <Footer
+                key="introduction"
+                timerExpired={timerExpired}
+                onSubmit={handleInterviewSubmit}
                 disabled={isTextToSpeechSpeaking || isTextToSpeechPreparing}
                 onNext={() => setIsUserIntroducing(false)}
                 isIntroStep={true}
@@ -459,7 +459,7 @@ const InterviewPage = () => {
             role={role || ""}
             hasStarted={hasStarted}
             interviewId={interviewId}
-            onTimerExpire={handleInterviewSubmit}
+            onTimerExpire={() => setTimerExpired(true)}
           />
 
           {isMobile ? (
@@ -516,15 +516,31 @@ const InterviewPage = () => {
             </>
           )}
 
+          {attempt.failed && (
+            <div role="alert" className="my-4 text-center text-red-700">
+              We could not prepare this question for saving. Select Retry question before recording.
+              <button
+                className="btn btn-outline ml-3"
+                disabled={attempt.pending || timerExpired}
+                onClick={() => void attempt.retry()}
+              >
+                Retry question
+              </button>
+            </div>
+          )}
+          {attempt.pending && (
+            <p role="status" className="text-center">
+              Preparing your answer. If this takes too long, a retry option will appear.
+            </p>
+          )}
           <Footer
+            key={`${interviewId}:${currentQuestionId}`}
+            timerExpired={timerExpired}
             isLoading={isGeneratingQuestions}
             disabled={
-              isStartingAttempt ||
-              isTextToSpeechSpeaking ||
-              isTextToSpeechPreparing ||
-              !currentAttemptId
+              attempt.pending || isTextToSpeechSpeaking || isTextToSpeechPreparing || !attempt.id
             }
-            question_attempt_id={currentAttemptId}
+            question_attempt_id={attempt.id}
             followUpStrategy={questions?.[currentQuestionIndex]?.followUpStrategy ?? null}
             isCurrentQuestionFollowUp={questions?.[currentQuestionIndex]?.isFollowUp ?? false}
             onNext={handleNextQuestion}

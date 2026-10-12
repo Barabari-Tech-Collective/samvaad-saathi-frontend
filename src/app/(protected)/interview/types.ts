@@ -40,6 +40,8 @@ export interface FollowUpQuestion {
 }
 
 export interface TranscribeResponse {
+  saved: boolean;
+  questionAttemptId: number;
   followUpGenerated?: boolean;
   followUpQuestion?: FollowUpQuestion;
 }

@@ -164,12 +164,26 @@ export const useTextToSpeech = ({
   // window (or a slow browser-TTS startup) fully interactive.
   const [isPreparing, setIsPreparing] = useState(false);
   const speakIdRef = useRef<number>(0);
+  // Watchdog for isPreparing. Several paths through speak() can leave the flag
+  // set forever: the two `currentSpeakId !== speakIdRef.current` early returns
+  // below, and - most damagingly - the browser-TTS fallback, which only clears
+  // it from utterance.onstart/onerror. Chromium silently drops speak() calls in
+  // some states, so neither handler fires and the flag never clears. Callers
+  // gate input on isPreparing, so a stuck flag froze the interview UI outright.
+  // This guarantees the flag always releases, whatever happens upstream.
+  const preparingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const PREPARING_WATCHDOG_MS = 8000;
 
   // TTS is supported in any browser that can play audio
   const isSupported = typeof window !== "undefined";
 
   const stop = useCallback(() => {
     speakIdRef.current += 1;
+
+    if (preparingTimerRef.current) {
+      clearTimeout(preparingTimerRef.current);
+      preparingTimerRef.current = null;
+    }
 
     if (audioRef.current) {
       audioRef.current.pause();
@@ -203,9 +217,19 @@ export const useTextToSpeech = ({
 
       if (!textToSpeak) return;
 
-      // Cancel any ongoing speech
+      // Cancel any ongoing speech (also clears any watchdog from a previous call)
       stop();
       setIsPreparing(true);
+
+      const watchdogSpeakId = speakIdRef.current;
+      preparingTimerRef.current = setTimeout(() => {
+        // Only release if this call is still the current one - a newer speak()
+        // will have bumped speakIdRef and armed its own watchdog.
+        if (watchdogSpeakId === speakIdRef.current) {
+          console.warn("TTS preparing watchdog fired; releasing UI");
+          setIsPreparing(false);
+        }
+      }, PREPARING_WATCHDOG_MS);
 
       // Preprocess text for natural pauses
       const processedText = useNaturalPauses
@@ -218,7 +242,12 @@ export const useTextToSpeech = ({
 
       // Try pre-generated audioUrl with retry mechanism
       if (audioUrl) {
-        let retries = 5;
+        // Budget: 2 attempts x 3s + one 750ms backoff is ~6.75s worst case. The
+        // previous 5 x 5s + 4 x 1.5s came to ~31s, during which callers gating on
+        // isPreparing kept the Answer button dead - far past where a student in a
+        // timed interview concludes the page is broken. Falling through to the
+        // backend TTS / browser-speech fallbacks sooner is the better trade.
+        let retries = 2;
         let loadedAudio: HTMLAudioElement | null = null;
 
         while (retries > 0 && !loadedAudio && currentSpeakId === speakIdRef.current) {
@@ -231,13 +260,13 @@ export const useTextToSpeech = ({
                 audio.load();
               }),
               new Promise<HTMLAudioElement>((_, reject) =>
-                setTimeout(() => reject(new Error("Audio load timeout")), 5000)
+                setTimeout(() => reject(new Error("Audio load timeout")), 3000)
               ),
             ]);
           } catch (err) {
             retries--;
             if (retries > 0 && currentSpeakId === speakIdRef.current) {
-              await new Promise((r) => setTimeout(r, 1500));
+              await new Promise((r) => setTimeout(r, 750));
             }
           }
         }
