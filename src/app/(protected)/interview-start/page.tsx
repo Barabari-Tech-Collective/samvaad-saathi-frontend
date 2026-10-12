@@ -4,6 +4,14 @@ import { createApiClient } from "@/lib/api-config/src/client";
 import { APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS, ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
 import { ROLE_OPTIONS, FULL_STACK_ROLE } from "@/lib/constants";
+import {
+  DIFFICULTY_LEVEL,
+  correctedDifficulty,
+  isDifficultyOffered,
+  isNonTechCategory,
+  offeredDifficulties,
+  unavailableDifficultyMessage,
+} from "@/lib/interview-difficulty";
 import { setInterviewQuestions } from "@/lib/interview-session-storage";
 import {
   trackDifficultySelected,
@@ -11,7 +19,7 @@ import {
   trackRoleSelected,
   trackStartInterviewButtonClick,
 } from "@/lib/posthog/tracking.utils";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -71,16 +79,29 @@ type RoleSelection =
   | { kind: "hr"; jobProfileId: number; jobName: string; category: string }
   | null;
 
-const DIFFICULTY_LEVEL = [
-  { key: "easy", label: "Easy" },
-  { key: "medium", label: "Medium" },
-  { key: "hard", label: "Hard" },
-  { key: "expert", label: "Expert" },
-];
-
 const HR_SELECT_PREFIX = "hr::";
 
+/**
+ * Practice and Assessment are two different products sharing one page.
+ *
+ * Practice generates questions freely and is never seen by anyone but the
+ * student - it is the ROLE_OPTIONS tracks. Assessment is every job-profile
+ * role: a facilitator published a specific set of questions for it, a score
+ * means something to them, and the backend refuses to substitute AI content
+ * for one (see interview_eligibility.py). Before this split both pools sat in
+ * one dropdown with no label distinguishing them, so a student had no way to
+ * know which kind of interview they were about to start.
+ */
+type InterviewMode = "practice" | "assessment";
+
+function readInterviewMode(value: string | null): InterviewMode {
+  return value === "assessment" ? "assessment" : "practice";
+}
+
 export default function InterviewStartPage() {
+  const searchParams = useSearchParams();
+  const mode = readInterviewMode(searchParams.get("mode"));
+
   const [selection, setSelection] = useState<RoleSelection>(null);
   const [difficulty, setDifficulty] = useState("medium");
   const [useResume, setUseResume] = useState(false);
@@ -97,28 +118,36 @@ export default function InterviewStartPage() {
 
   const jobProfiles = jobProfilesData?.items ?? [];
 
+  // A selection made under one mode must not carry into the other - the two
+  // pools use the same "hr::" value shape, so without this a leftover
+  // selection could silently submit as the wrong kind of interview.
+  useEffect(() => {
+    setSelection(null);
+  }, [mode]);
+
   const selectedProfile =
     selection?.kind === "hr"
       ? jobProfiles.find((profile) => profile.id === selection.jobProfileId)
       : undefined;
 
-  // Undefined for free practice, where generated questions are the product and
-  // every level is fair game. For a facilitator's role the server decides.
-  const availableDifficulties = selectedProfile?.availableDifficulties;
-  const isDifficultyAvailable = (key: string) =>
-    !availableDifficulties || availableDifficulties.includes(key);
+  const isNonTech = selection?.kind === "hr" && isNonTechCategory(selection.category);
+  const isTechFlow = !isNonTech;
+
+  const offered = offeredDifficulties({
+    isTechFlow,
+    profileAvailableDifficulties: selectedProfile?.availableDifficulties,
+  });
   // A string dep, so the effect below does not re-run on every render just
   // because `find` returned a new array reference.
-  const availabilityKey = availableDifficulties?.join(",") ?? "";
+  const offeredKey = offered?.join(",") ?? "";
 
   // The default is medium, so without this a facilitator who published only
   // easy questions would have every student submit an unavailable level and see
   // the server's refusal instead of an interview.
   useEffect(() => {
-    if (!availableDifficulties) return;
-    if (availableDifficulties.includes(difficulty)) return;
-    setDifficulty(availableDifficulties[0] ?? "");
-  }, [availabilityKey, availableDifficulties, difficulty]);
+    setDifficulty((current) => correctedDifficulty(current, offered));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [offeredKey]);
 
   const { mutateAsync: createInterview, isPending: isCreatingInterview } = apiClient.useMutation<
     CreateInterviewResponse,
@@ -195,21 +224,11 @@ export default function InterviewStartPage() {
     // The picker already disables these, but a stale profile list or a mid-session
     // change by the facilitator can still leave an unavailable level selected.
     // Saying so here is better than submitting and surfacing a server refusal.
-    if (availableDifficulties && !availableDifficulties.includes(difficulty)) {
-      toast.error(
-        availableDifficulties.length
-          ? `The ${difficulty} level is not ready for this role yet. Available now: ${availableDifficulties.join(", ")}.`
-          : "This role has no interview levels ready yet. Please check back once your facilitator has added questions."
-      );
+    const refusal = unavailableDifficultyMessage(difficulty, offered);
+    if (refusal) {
+      toast.error(refusal);
       return;
     }
-
-    const isNonTech =
-      selection.kind === "hr" &&
-      (selection.category.toLowerCase().includes("hr") ||
-        selection.category.toLowerCase().includes("non-technical") ||
-        selection.category.toLowerCase().includes("communication"));
-    const isTechFlow = !isNonTech;
 
     if (isTechFlow && difficulty === "medium" && !useResume) {
       const trackLabel = selection.kind === "tech" ? selection.track : selection.jobName;
@@ -265,60 +284,72 @@ export default function InterviewStartPage() {
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="space-y-2">
-        <h2 className="text-center text-[20px] font-bold leading-6">Select Your Interview</h2>
-        <h2 className="text-center text-[20px] font-bold leading-6">Preferences</h2>
+        <h2 className="text-center text-[20px] font-bold leading-6">
+          {mode === "assessment" ? "Assessment Interview" : "Practice Interview"}
+        </h2>
+        <p className="text-center text-[13px] text-gray-600 font-noto px-2">
+          {mode === "assessment"
+            ? "Questions are set by your facilitator and reviewed as a formal result."
+            : "Free practice with AI-generated questions and feedback. Your facilitator may see your scores and invite you to a formal assessment based on them."}
+        </p>
       </div>
 
       <div>
         <label className="block text-[14px] font-noto font-[500] text-black mb-2">Role</label>
-        <select
-          value={getSelectValue()}
-          onChange={(e) => handleSelectChange(e.target.value)}
-          className="select select-bordered w-full"
-          disabled={isLoadingProfiles}
-        >
-          <option value="" disabled>
-            {isLoadingProfiles ? "Loading roles..." : "Select a role"}
-          </option>
-          <optgroup label="Technical">
-            {ROLE_OPTIONS.map((role) => (
-              <option key={role} value={role}>
-                {role}
-              </option>
-            ))}
-          </optgroup>
-          {jobProfiles.length > 0 &&
-            Object.entries(
-              jobProfiles.reduce(
-                (acc, profile) => {
-                  const category = profile.category || "HR & Non-Technical";
-                  if (!acc[category]) acc[category] = [];
-                  acc[category].push(profile);
-                  return acc;
-                },
-                {} as Record<string, JobProfile[]>
-              )
-            ).map(([category, profiles]) => (
-              <optgroup key={category} label={category.charAt(0).toUpperCase() + category.slice(1)}>
-                {profiles.map((profile) => (
-                  <option
-                    key={profile.id}
-                    value={`${HR_SELECT_PREFIX}${profile.id}::${profile.title}`}
-                  >
-                    {profile.title}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-        </select>
+        {mode === "assessment" && !isLoadingProfiles && jobProfiles.length === 0 ? (
+          <p className="text-[13px] text-gray-600 font-noto">
+            No assessment roles are available yet. Check back once your facilitator has published
+            one.
+          </p>
+        ) : (
+          <select
+            value={getSelectValue()}
+            onChange={(e) => handleSelectChange(e.target.value)}
+            className="select select-bordered w-full"
+            disabled={isLoadingProfiles}
+          >
+            <option value="" disabled>
+              {isLoadingProfiles ? "Loading roles..." : "Select a role"}
+            </option>
+            {mode === "practice" &&
+              ROLE_OPTIONS.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            {mode === "assessment" &&
+              jobProfiles.length > 0 &&
+              Object.entries(
+                jobProfiles.reduce(
+                  (acc, profile) => {
+                    const category = profile.category || "HR & Non-Technical";
+                    if (!acc[category]) acc[category] = [];
+                    acc[category].push(profile);
+                    return acc;
+                  },
+                  {} as Record<string, JobProfile[]>
+                )
+              ).map(([category, profiles]) => (
+                <optgroup
+                  key={category}
+                  label={category.charAt(0).toUpperCase() + category.slice(1)}
+                >
+                  {profiles.map((profile) => (
+                    <option
+                      key={profile.id}
+                      value={`${HR_SELECT_PREFIX}${profile.id}::${profile.title}`}
+                    >
+                      {profile.title}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+          </select>
+        )}
       </div>
 
-      {(!selection ||
-        selection.kind === "tech" ||
-        (selection.kind === "hr" &&
-          !selection.category.toLowerCase().includes("hr") &&
-          !selection.category.toLowerCase().includes("non-technical") &&
-          !selection.category.toLowerCase().includes("communication"))) && (
+      {/* Hidden for the non-tech flow, which fixes its own difficulty server-side. */}
+      {isTechFlow && (
         <div className="space-y-3">
           <label className="block text-[14px] font-noto font-[500] text-black">
             Difficulty Level
@@ -326,7 +357,7 @@ export default function InterviewStartPage() {
 
           <div className="space-y-2">
             {DIFFICULTY_LEVEL.map((opt) => {
-              const available = isDifficultyAvailable(opt.key);
+              const available = isDifficultyOffered(opt.key, offered);
               return (
                 <label
                   key={opt.key}
@@ -355,7 +386,7 @@ export default function InterviewStartPage() {
             })}
           </div>
 
-          {availableDifficulties?.length === 0 && (
+          {offered?.length === 0 && (
             <p className="text-[13px] text-gray-600 font-noto">
               This role has no interview levels ready yet. Your facilitator needs to add more
               questions before it can be started.
