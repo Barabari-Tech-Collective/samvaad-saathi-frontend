@@ -12,7 +12,7 @@ import {
   trackStartInterviewButtonClick,
 } from "@/lib/posthog/tracking.utils";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/components/providers/auth-provider";
 
@@ -32,6 +32,21 @@ interface JobProfile {
   description: string;
   category?: string;
   created_at: string;
+  /**
+   * Difficulties the facilitator has published enough questions for, easiest
+   * first, as decided by the server.
+   *
+   * This picker used to offer all four levels unconditionally. If a facilitator
+   * published only easy questions and a student picked medium, the backend
+   * silently generated AI questions instead - so the student was assessed
+   * against that facilitator's role on questions the facilitator had never
+   * seen. The server now refuses that, and this field is how the picker avoids
+   * offering a level that would be refused.
+   *
+   * Optional because free-practice roles have no job profile behind them; there
+   * every level is available.
+   */
+  availableDifficulties?: string[];
 }
 
 interface JobProfilesResponse {
@@ -81,6 +96,29 @@ export default function InterviewStartPage() {
     });
 
   const jobProfiles = jobProfilesData?.items ?? [];
+
+  const selectedProfile =
+    selection?.kind === "hr"
+      ? jobProfiles.find((profile) => profile.id === selection.jobProfileId)
+      : undefined;
+
+  // Undefined for free practice, where generated questions are the product and
+  // every level is fair game. For a facilitator's role the server decides.
+  const availableDifficulties = selectedProfile?.availableDifficulties;
+  const isDifficultyAvailable = (key: string) =>
+    !availableDifficulties || availableDifficulties.includes(key);
+  // A string dep, so the effect below does not re-run on every render just
+  // because `find` returned a new array reference.
+  const availabilityKey = availableDifficulties?.join(",") ?? "";
+
+  // The default is medium, so without this a facilitator who published only
+  // easy questions would have every student submit an unavailable level and see
+  // the server's refusal instead of an interview.
+  useEffect(() => {
+    if (!availableDifficulties) return;
+    if (availableDifficulties.includes(difficulty)) return;
+    setDifficulty(availableDifficulties[0] ?? "");
+  }, [availabilityKey, availableDifficulties, difficulty]);
 
   const { mutateAsync: createInterview, isPending: isCreatingInterview } = apiClient.useMutation<
     CreateInterviewResponse,
@@ -153,6 +191,18 @@ export default function InterviewStartPage() {
 
   const handleSubmit = async () => {
     if (!selection) return;
+
+    // The picker already disables these, but a stale profile list or a mid-session
+    // change by the facilitator can still leave an unavailable level selected.
+    // Saying so here is better than submitting and surfacing a server refusal.
+    if (availableDifficulties && !availableDifficulties.includes(difficulty)) {
+      toast.error(
+        availableDifficulties.length
+          ? `The ${difficulty} level is not ready for this role yet. Available now: ${availableDifficulties.join(", ")}.`
+          : "This role has no interview levels ready yet. Please check back once your facilitator has added questions."
+      );
+      return;
+    }
 
     const isNonTech =
       selection.kind === "hr" &&
@@ -275,23 +325,42 @@ export default function InterviewStartPage() {
           </label>
 
           <div className="space-y-2">
-            {DIFFICULTY_LEVEL.map((opt) => (
-              <label key={opt.key} className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="difficulty"
-                  value={opt.key}
-                  checked={difficulty === opt.key}
-                  onChange={(e) => {
-                    setDifficulty(e.target.value);
-                    trackDifficultySelected(e.target.value);
-                  }}
-                  className="radio radio-sm"
-                />
-                <span className="text-[14px] text-black font-noto">{opt.label}</span>
-              </label>
-            ))}
+            {DIFFICULTY_LEVEL.map((opt) => {
+              const available = isDifficultyAvailable(opt.key);
+              return (
+                <label
+                  key={opt.key}
+                  className={`flex items-center gap-3 ${
+                    available ? "cursor-pointer" : "cursor-not-allowed opacity-50"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="difficulty"
+                    value={opt.key}
+                    checked={difficulty === opt.key}
+                    disabled={!available}
+                    onChange={(e) => {
+                      setDifficulty(e.target.value);
+                      trackDifficultySelected(e.target.value);
+                    }}
+                    className="radio radio-sm"
+                  />
+                  <span className="text-[14px] text-black font-noto">{opt.label}</span>
+                  {!available && (
+                    <span className="text-[12px] text-gray-500 font-noto">Not available yet</span>
+                  )}
+                </label>
+              );
+            })}
           </div>
+
+          {availableDifficulties?.length === 0 && (
+            <p className="text-[13px] text-gray-600 font-noto">
+              This role has no interview levels ready yet. Your facilitator needs to add more
+              questions before it can be started.
+            </p>
+          )}
         </div>
       )}
 
