@@ -4,6 +4,14 @@ import { createApiClient } from "@/lib/api-config/src/client";
 import { APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS, ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
 import { ROLE_OPTIONS, FULL_STACK_ROLE } from "@/lib/constants";
+import {
+  DIFFICULTY_LEVEL,
+  correctedDifficulty,
+  isDifficultyOffered,
+  isNonTechCategory,
+  offeredDifficulties,
+  unavailableDifficultyMessage,
+} from "@/lib/interview-difficulty";
 import { setInterviewQuestions } from "@/lib/interview-session-storage";
 import {
   trackDifficultySelected,
@@ -71,13 +79,6 @@ type RoleSelection =
   | { kind: "hr"; jobProfileId: number; jobName: string; category: string }
   | null;
 
-const DIFFICULTY_LEVEL = [
-  { key: "easy", label: "Easy" },
-  { key: "medium", label: "Medium" },
-  { key: "hard", label: "Hard" },
-  { key: "expert", label: "Expert" },
-];
-
 const HR_SELECT_PREFIX = "hr::";
 
 export default function InterviewStartPage() {
@@ -102,23 +103,24 @@ export default function InterviewStartPage() {
       ? jobProfiles.find((profile) => profile.id === selection.jobProfileId)
       : undefined;
 
-  // Undefined for free practice, where generated questions are the product and
-  // every level is fair game. For a facilitator's role the server decides.
-  const availableDifficulties = selectedProfile?.availableDifficulties;
-  const isDifficultyAvailable = (key: string) =>
-    !availableDifficulties || availableDifficulties.includes(key);
+  const isNonTech = selection?.kind === "hr" && isNonTechCategory(selection.category);
+  const isTechFlow = !isNonTech;
+
+  const offered = offeredDifficulties({
+    isTechFlow,
+    profileAvailableDifficulties: selectedProfile?.availableDifficulties,
+  });
   // A string dep, so the effect below does not re-run on every render just
   // because `find` returned a new array reference.
-  const availabilityKey = availableDifficulties?.join(",") ?? "";
+  const offeredKey = offered?.join(",") ?? "";
 
   // The default is medium, so without this a facilitator who published only
   // easy questions would have every student submit an unavailable level and see
   // the server's refusal instead of an interview.
   useEffect(() => {
-    if (!availableDifficulties) return;
-    if (availableDifficulties.includes(difficulty)) return;
-    setDifficulty(availableDifficulties[0] ?? "");
-  }, [availabilityKey, availableDifficulties, difficulty]);
+    setDifficulty((current) => correctedDifficulty(current, offered));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [offeredKey]);
 
   const { mutateAsync: createInterview, isPending: isCreatingInterview } = apiClient.useMutation<
     CreateInterviewResponse,
@@ -195,21 +197,11 @@ export default function InterviewStartPage() {
     // The picker already disables these, but a stale profile list or a mid-session
     // change by the facilitator can still leave an unavailable level selected.
     // Saying so here is better than submitting and surfacing a server refusal.
-    if (availableDifficulties && !availableDifficulties.includes(difficulty)) {
-      toast.error(
-        availableDifficulties.length
-          ? `The ${difficulty} level is not ready for this role yet. Available now: ${availableDifficulties.join(", ")}.`
-          : "This role has no interview levels ready yet. Please check back once your facilitator has added questions."
-      );
+    const refusal = unavailableDifficultyMessage(difficulty, offered);
+    if (refusal) {
+      toast.error(refusal);
       return;
     }
-
-    const isNonTech =
-      selection.kind === "hr" &&
-      (selection.category.toLowerCase().includes("hr") ||
-        selection.category.toLowerCase().includes("non-technical") ||
-        selection.category.toLowerCase().includes("communication"));
-    const isTechFlow = !isNonTech;
 
     if (isTechFlow && difficulty === "medium" && !useResume) {
       const trackLabel = selection.kind === "tech" ? selection.track : selection.jobName;
@@ -313,12 +305,8 @@ export default function InterviewStartPage() {
         </select>
       </div>
 
-      {(!selection ||
-        selection.kind === "tech" ||
-        (selection.kind === "hr" &&
-          !selection.category.toLowerCase().includes("hr") &&
-          !selection.category.toLowerCase().includes("non-technical") &&
-          !selection.category.toLowerCase().includes("communication"))) && (
+      {/* Hidden for the non-tech flow, which fixes its own difficulty server-side. */}
+      {isTechFlow && (
         <div className="space-y-3">
           <label className="block text-[14px] font-noto font-[500] text-black">
             Difficulty Level
@@ -326,7 +314,7 @@ export default function InterviewStartPage() {
 
           <div className="space-y-2">
             {DIFFICULTY_LEVEL.map((opt) => {
-              const available = isDifficultyAvailable(opt.key);
+              const available = isDifficultyOffered(opt.key, offered);
               return (
                 <label
                   key={opt.key}
@@ -355,7 +343,7 @@ export default function InterviewStartPage() {
             })}
           </div>
 
-          {availableDifficulties?.length === 0 && (
+          {offered?.length === 0 && (
             <p className="text-[13px] text-gray-600 font-noto">
               This role has no interview levels ready yet. Your facilitator needs to add more
               questions before it can be started.
