@@ -1,6 +1,11 @@
 "use client";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MicPermissionModal, useMicPermission } from "@/hooks/useMicPermission";
+import {
+  ProctoringPreflightModal,
+  ProctoringTerminatedOverlay,
+  useProctoring,
+} from "@/hooks/useProctoring";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useQuestionAttempt } from "@/hooks/useQuestionAttempt";
 import { createApiClient } from "@/lib/api-config/src/client";
@@ -36,6 +41,7 @@ const InterviewPage = () => {
   const selectedQuestionsParam = searchParams.get("selectedQuestions");
   const resumed = searchParams.get("resumed") === "true";
   const reattempt = searchParams.get("reattempt") === "true";
+  const interviewModeParam = searchParams.get("interviewMode");
 
   const [hasStarted, setHasStarted] = useState(false);
   const [isIntroducing, setIsIntroducing] = useState(false);
@@ -53,6 +59,13 @@ const InterviewPage = () => {
   const [pendingStart, setPendingStart] = useState(false);
   const questionStartTimeRef = useRef<number>(0);
   const [lastTrackedIndex, setLastTrackedIndex] = useState<number>(-1);
+  // Only set by the resume response, which is the one case where the URL
+  // param alone isn't reliable - continuing an existing sitting never goes
+  // through interview-start, so there's no fresh creation response to read it
+  // from.
+  const [resumedInterviewMode, setResumedInterviewMode] = useState<
+    "practice" | "assessment" | null
+  >(null);
 
   const showCodeView = role
     ? ROLE_OPTIONS.includes(role as any) && role !== FULL_STACK_ROLE
@@ -89,6 +102,31 @@ const InterviewPage = () => {
     startQuestionAttempt
   );
 
+  const { mutateAsync: reportProctoringViolation } = interviewsV1Client.useMutation<
+    unknown,
+    { interviewId: number; reason: "tab_switch" | "fullscreen_exit" }
+  >({
+    url: ENDPOINTS.INTERVIEWS.PROCTORING_VIOLATION,
+    method: "post",
+  });
+
+  // Fresh creation carries interviewMode in the URL (see interview-start);
+  // a resumed sitting has none, since resuming never goes through creation -
+  // it's filled in once resumeInterview's response arrives below. Defaults to
+  // practice, never assessment, so an unknown state never wrongly locks a
+  // student into proctoring.
+  const interviewModeValue: "practice" | "assessment" =
+    resumedInterviewMode ?? (interviewModeParam === "assessment" ? "assessment" : "practice");
+
+  const proctoring = useProctoring({
+    enabled: interviewModeValue === "assessment",
+    interviewId: interviewId ? Number(interviewId) : null,
+    reportViolation: reportProctoringViolation,
+    onTerminated: () => {
+      setHasStarted(false);
+    },
+  });
+
   interface ResumeInterviewResponse {
     interviewId: number;
     track: string;
@@ -97,6 +135,7 @@ const InterviewPage = () => {
     totalQuestions: number;
     attemptedQuestions: number;
     remainingQuestions: number;
+    interviewMode?: "practice" | "assessment";
   }
   const { mutateAsync: resumeInterview } = interviewsV1Client.useMutation<
     ResumeInterviewResponse,
@@ -105,6 +144,25 @@ const InterviewPage = () => {
     url: ENDPOINTS.INTERVIEWS.RESUME_INTERVIEW,
     method: "post",
   });
+
+  // The single point every pendingStart resolution goes through. A plain
+  // "setHasStarted(true)" at each site - which is what this replaced - was
+  // how an assessment's proctoring lock could be skipped entirely: whichever
+  // effect happened to resolve pendingStart first just started the interview,
+  // with no gate in between. mode is passed explicitly per call site because
+  // the resume response and the generate response can each know their own
+  // mode before interviewModeValue's state has re-rendered to reflect it.
+  const finishStart = (mode: "practice" | "assessment") => {
+    if (mode === "assessment" && !proctoring.isActive) {
+      proctoring.openPreflight();
+      // pendingStart stays true; handleBeginProctoredSession finishes this
+      // once the student accepts the preflight and fullscreen engages.
+      return;
+    }
+    setHasStarted(true);
+    setIsIntroducing(true);
+    setPendingStart(false);
+  };
 
   // Read questions from session storage when resumed or reattempt
   useEffect(() => {
@@ -116,9 +174,7 @@ const InterviewPage = () => {
     if (Array.isArray(stored) && stored.length > 0) {
       setQuestions(stored as GenerateQuestionsResponse["items"]);
       if (pendingStart) {
-        setHasStarted(true);
-        setIsIntroducing(true);
-        setPendingStart(false);
+        finishStart(interviewModeValue);
       }
       return;
     }
@@ -128,10 +184,10 @@ const InterviewPage = () => {
           console.log("this is the resume interview response", response);
           setInterviewQuestions(response.interviewId, response.questions);
           setQuestions(response.questions);
+          const mode = response.interviewMode === "assessment" ? "assessment" : "practice";
+          setResumedInterviewMode(mode);
           if (pendingStart) {
-            setHasStarted(true);
-            setIsIntroducing(true);
-            setPendingStart(false);
+            finishStart(mode);
           }
         })
         .catch(() => {
@@ -144,6 +200,7 @@ const InterviewPage = () => {
         `/reattempt-interview?interviewId=${interviewId}&role=${encodeURIComponent(role || "")}`
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [interviewId, resumed, reattempt, pendingStart, role, router, resumeInterview]);
 
   // Parse selectedQuestions from URL if present (fallback for old links; skip when using session storage)
@@ -157,14 +214,13 @@ const InterviewPage = () => {
       if (Array.isArray(parsedQuestions) && parsedQuestions.length > 0) {
         setQuestions(parsedQuestions);
         if (pendingStart) {
-          setHasStarted(true);
-          setIsIntroducing(true);
-          setPendingStart(false);
+          finishStart(interviewModeValue);
         }
       }
     } catch (error) {
       // Handle URL parsing error silently
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedQuestionsParam, pendingStart, resumed, reattempt]);
 
   // Update local questions state when generatedQuestions changes
@@ -174,11 +230,11 @@ const InterviewPage = () => {
       setQuestions(generatedQuestions.items);
       // Start interview if user has clicked the start button
       if (pendingStart) {
-        setHasStarted(true);
-        setIsIntroducing(true);
-        setPendingStart(false);
+        const mode = generatedQuestions.interviewMode === "assessment" ? "assessment" : "practice";
+        finishStart(mode);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [generatedQuestions?.items, pendingStart]);
 
   // Use current question id so we don't re-run when questions array reference changes (e.g. when adding follow-up)
@@ -263,8 +319,7 @@ const InterviewPage = () => {
       if (isGeneratingQuestions) {
         setPendingStart(true);
       } else if (questions.length > 0) {
-        setHasStarted(true);
-        setIsIntroducing(true);
+        finishStart(interviewModeValue);
       } else {
         // Fallback: If no questions and not generating, try generating
         setPendingStart(true);
@@ -283,8 +338,7 @@ const InterviewPage = () => {
       if (isGeneratingQuestions) {
         setPendingStart(true);
       } else if (questions.length > 0) {
-        setHasStarted(true);
-        setIsIntroducing(true);
+        finishStart(interviewModeValue);
       } else {
         setPendingStart(true);
         generateQuestions({
@@ -293,6 +347,13 @@ const InterviewPage = () => {
       }
     }
     return granted;
+  };
+
+  const handleBeginProctoredSession = async () => {
+    await proctoring.beginProctoredSession();
+    setHasStarted(true);
+    setIsIntroducing(true);
+    setPendingStart(false);
   };
 
   const handleNextQuestion = () => {
@@ -380,6 +441,17 @@ const InterviewPage = () => {
 
   return (
     <div className="px-8 pt-4">
+      <ProctoringPreflightModal
+        isOpen={proctoring.showPreflight}
+        onBegin={handleBeginProctoredSession}
+        onCancel={proctoring.closePreflight}
+      />
+      {proctoring.isTerminated && (
+        <ProctoringTerminatedOverlay
+          reason={proctoring.terminationReason}
+          onLeave={() => router.push("/home")}
+        />
+      )}
       {!hasStarted ? (
         <>
           <Welcome

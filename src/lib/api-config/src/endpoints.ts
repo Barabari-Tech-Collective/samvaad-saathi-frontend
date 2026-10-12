@@ -27,6 +27,7 @@ export const ENDPOINTS = {
     CREATE: "interviews/create",
     GENERATE_QUESTIONS: "interviews/generate-questions",
     COMPLETE: "interviews/complete",
+    PROCTORING_VIOLATION: "interviews/proctoring-violation",
     QUESTIONS: (interviewId: string) => `interviews/${interviewId}/questions`,
     QUESTION_ATTEMPTS: (interviewId: string) => `interviews/${interviewId}/question-attempts`,
     START_QUESTION_ATTEMPT: "interviews/question-attempts",

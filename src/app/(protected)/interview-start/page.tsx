@@ -32,6 +32,15 @@ interface CreateInterviewRequest {
 
 interface CreateInterviewResponse {
   interviewId: string;
+  /**
+   * Snapshotted on the interview at creation - never re-read from the job
+   * profile later. Passed through to /interview so it knows whether to
+   * activate proctoring; the backend independently re-checks this same
+   * stored value before actually ending an interview, so this being wrong
+   * or stripped client-side cannot itself end an interview incorrectly -
+   * worst case, proctoring simply doesn't activate.
+   */
+  interviewMode?: "practice" | "assessment";
 }
 
 interface JobProfile {
@@ -71,6 +80,7 @@ interface GenerateNonTechRequest {
 interface GenerateNonTechResponse {
   interviewId: number;
   track: string;
+  interviewMode?: "practice" | "assessment";
   items: unknown[];
 }
 
@@ -258,7 +268,7 @@ export default function InterviewStartPage() {
         // console.log("Data to create interview", data);
         if (data?.interviewId) {
           router.push(
-            `/interview?interviewId=${data.interviewId}&useResume=${useResume}&role=${encodeURIComponent(track)}`
+            `/interview?interviewId=${data.interviewId}&useResume=${useResume}&role=${encodeURIComponent(track)}&interviewMode=${data.interviewMode ?? "practice"}`
           );
         }
       } else {
@@ -270,7 +280,7 @@ export default function InterviewStartPage() {
         if (result?.interviewId) {
           setInterviewQuestions(result.interviewId, result.items);
           router.push(
-            `/interview?interviewId=${result.interviewId}&useResume=${useResume}&role=${encodeURIComponent(selection.jobName)}&resumed=true`
+            `/interview?interviewId=${result.interviewId}&useResume=${useResume}&role=${encodeURIComponent(selection.jobName)}&resumed=true&interviewMode=${result.interviewMode ?? "practice"}`
           );
         }
       }
