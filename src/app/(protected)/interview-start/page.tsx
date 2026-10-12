@@ -19,7 +19,7 @@ import {
   trackRoleSelected,
   trackStartInterviewButtonClick,
 } from "@/lib/posthog/tracking.utils";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -81,7 +81,27 @@ type RoleSelection =
 
 const HR_SELECT_PREFIX = "hr::";
 
+/**
+ * Practice and Assessment are two different products sharing one page.
+ *
+ * Practice generates questions freely and is never seen by anyone but the
+ * student - it is the ROLE_OPTIONS tracks. Assessment is every job-profile
+ * role: a facilitator published a specific set of questions for it, a score
+ * means something to them, and the backend refuses to substitute AI content
+ * for one (see interview_eligibility.py). Before this split both pools sat in
+ * one dropdown with no label distinguishing them, so a student had no way to
+ * know which kind of interview they were about to start.
+ */
+type InterviewMode = "practice" | "assessment";
+
+function readInterviewMode(value: string | null): InterviewMode {
+  return value === "assessment" ? "assessment" : "practice";
+}
+
 export default function InterviewStartPage() {
+  const searchParams = useSearchParams();
+  const mode = readInterviewMode(searchParams.get("mode"));
+
   const [selection, setSelection] = useState<RoleSelection>(null);
   const [difficulty, setDifficulty] = useState("medium");
   const [useResume, setUseResume] = useState(false);
@@ -97,6 +117,13 @@ export default function InterviewStartPage() {
     });
 
   const jobProfiles = jobProfilesData?.items ?? [];
+
+  // A selection made under one mode must not carry into the other - the two
+  // pools use the same "hr::" value shape, so without this a leftover
+  // selection could silently submit as the wrong kind of interview.
+  useEffect(() => {
+    setSelection(null);
+  }, [mode]);
 
   const selectedProfile =
     selection?.kind === "hr"
@@ -257,52 +284,68 @@ export default function InterviewStartPage() {
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="space-y-2">
-        <h2 className="text-center text-[20px] font-bold leading-6">Select Your Interview</h2>
-        <h2 className="text-center text-[20px] font-bold leading-6">Preferences</h2>
+        <h2 className="text-center text-[20px] font-bold leading-6">
+          {mode === "assessment" ? "Assessment Interview" : "Practice Interview"}
+        </h2>
+        <p className="text-center text-[13px] text-gray-600 font-noto px-2">
+          {mode === "assessment"
+            ? "Questions are set by your facilitator. Your results may be shared with them."
+            : "Free practice with AI-generated questions. Nothing here is shared or scored by anyone."}
+        </p>
       </div>
 
       <div>
         <label className="block text-[14px] font-noto font-[500] text-black mb-2">Role</label>
-        <select
-          value={getSelectValue()}
-          onChange={(e) => handleSelectChange(e.target.value)}
-          className="select select-bordered w-full"
-          disabled={isLoadingProfiles}
-        >
-          <option value="" disabled>
-            {isLoadingProfiles ? "Loading roles..." : "Select a role"}
-          </option>
-          <optgroup label="Technical">
-            {ROLE_OPTIONS.map((role) => (
-              <option key={role} value={role}>
-                {role}
-              </option>
-            ))}
-          </optgroup>
-          {jobProfiles.length > 0 &&
-            Object.entries(
-              jobProfiles.reduce(
-                (acc, profile) => {
-                  const category = profile.category || "HR & Non-Technical";
-                  if (!acc[category]) acc[category] = [];
-                  acc[category].push(profile);
-                  return acc;
-                },
-                {} as Record<string, JobProfile[]>
-              )
-            ).map(([category, profiles]) => (
-              <optgroup key={category} label={category.charAt(0).toUpperCase() + category.slice(1)}>
-                {profiles.map((profile) => (
-                  <option
-                    key={profile.id}
-                    value={`${HR_SELECT_PREFIX}${profile.id}::${profile.title}`}
-                  >
-                    {profile.title}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-        </select>
+        {mode === "assessment" && !isLoadingProfiles && jobProfiles.length === 0 ? (
+          <p className="text-[13px] text-gray-600 font-noto">
+            No assessment roles are available yet. Check back once your facilitator has published
+            one.
+          </p>
+        ) : (
+          <select
+            value={getSelectValue()}
+            onChange={(e) => handleSelectChange(e.target.value)}
+            className="select select-bordered w-full"
+            disabled={isLoadingProfiles}
+          >
+            <option value="" disabled>
+              {isLoadingProfiles ? "Loading roles..." : "Select a role"}
+            </option>
+            {mode === "practice" &&
+              ROLE_OPTIONS.map((role) => (
+                <option key={role} value={role}>
+                  {role}
+                </option>
+              ))}
+            {mode === "assessment" &&
+              jobProfiles.length > 0 &&
+              Object.entries(
+                jobProfiles.reduce(
+                  (acc, profile) => {
+                    const category = profile.category || "HR & Non-Technical";
+                    if (!acc[category]) acc[category] = [];
+                    acc[category].push(profile);
+                    return acc;
+                  },
+                  {} as Record<string, JobProfile[]>
+                )
+              ).map(([category, profiles]) => (
+                <optgroup
+                  key={category}
+                  label={category.charAt(0).toUpperCase() + category.slice(1)}
+                >
+                  {profiles.map((profile) => (
+                    <option
+                      key={profile.id}
+                      value={`${HR_SELECT_PREFIX}${profile.id}::${profile.title}`}
+                    >
+                      {profile.title}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+          </select>
+        )}
       </div>
 
       {/* Hidden for the non-tech flow, which fixes its own difficulty server-side. */}
