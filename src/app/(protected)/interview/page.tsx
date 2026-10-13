@@ -57,6 +57,7 @@ const InterviewPage = () => {
   // audio is actually audible, not during the fetch/load itself.
   const [isTextToSpeechPreparing, setIsTextToSpeechPreparing] = useState(false);
   const [pendingStart, setPendingStart] = useState(false);
+  const [resumeError, setResumeError] = useState<string | null>(null);
   const questionStartTimeRef = useRef<number>(0);
   const [lastTrackedIndex, setLastTrackedIndex] = useState<number>(-1);
   // Only set by the resume response, which is the one case where the URL
@@ -99,7 +100,8 @@ const InterviewPage = () => {
   const attempt = useQuestionAttempt(
     Number(interviewId),
     questions[currentQuestionIndex]?.interviewQuestionId,
-    startQuestionAttempt
+    startQuestionAttempt,
+    questions[currentQuestionIndex]?.questionAttemptId
   );
 
   const { mutateAsync: reportProctoringViolation } = interviewsV1Client.useMutation<
@@ -135,9 +137,12 @@ const InterviewPage = () => {
     totalQuestions: number;
     attemptedQuestions: number;
     remainingQuestions: number;
+    answeredQuestions: number;
+    resumeQuestionIndex: number | null;
+    status: string;
     interviewMode?: "practice" | "assessment";
   }
-  const { mutateAsync: resumeInterview } = interviewsV1Client.useMutation<
+  const { mutateAsync: resumeInterview, isPending: isResuming } = interviewsV1Client.useMutation<
     ResumeInterviewResponse,
     { interviewId: number }
   >({
@@ -168,22 +173,24 @@ const InterviewPage = () => {
   useEffect(() => {
     if (!interviewId || (!resumed && !reattempt)) return;
     const id = Number(interviewId);
-    console.log("this is the interview id", id);
     const stored = getInterviewQuestions(id);
-    console.log("this is the stored questions", stored);
-    if (Array.isArray(stored) && stored.length > 0) {
-      setQuestions(stored as GenerateQuestionsResponse["items"]);
-      if (pendingStart) {
-        finishStart(interviewModeValue);
-      }
-      return;
-    }
     if (resumed) {
+      setResumeError(null);
       resumeInterview({ interviewId: id })
         .then((response) => {
-          console.log("this is the resume interview response", response);
+          if (response.status === "completed") {
+            router.replace(`/interview-completed?interviewId=${id}&role=${role || "Interview"}`);
+            return;
+          }
+          if (response.status !== "active") {
+            setResumeError("This interview has ended and cannot be resumed.");
+            return;
+          }
           setInterviewQuestions(response.interviewId, response.questions);
           setQuestions(response.questions);
+          setCurrentQuestionIndex(
+            response.resumeQuestionIndex ?? Math.max(0, response.questions.length - 1)
+          );
           const mode = response.interviewMode === "assessment" ? "assessment" : "practice";
           setResumedInterviewMode(mode);
           if (pendingStart) {
@@ -191,8 +198,22 @@ const InterviewPage = () => {
           }
         })
         .catch(() => {
-          // Handle resume interview fetch failure
+          if (Array.isArray(stored) && stored.length > 0) {
+            setQuestions(stored as GenerateQuestionsResponse["items"]);
+            setResumeError(
+              "We could not confirm your latest saved answer. You can review the cached questions, but reconnect before answering."
+            );
+          } else {
+            setResumeError(
+              "We could not restore this interview. Check your connection and try again."
+            );
+          }
         });
+      return;
+    }
+    if (Array.isArray(stored) && stored.length > 0) {
+      setQuestions(stored as GenerateQuestionsResponse["items"]);
+      if (pendingStart) finishStart(interviewModeValue);
       return;
     }
     if (reattempt) {
@@ -210,7 +231,6 @@ const InterviewPage = () => {
       const parsedQuestions = JSON.parse(
         decodeURIComponent(selectedQuestionsParam)
       ) as GenerateQuestionsResponse["items"];
-      console.log("this is the parsed questions", parsedQuestions);
       if (Array.isArray(parsedQuestions) && parsedQuestions.length > 0) {
         setQuestions(parsedQuestions);
         if (pendingStart) {
@@ -225,7 +245,6 @@ const InterviewPage = () => {
 
   // Update local questions state when generatedQuestions changes
   useEffect(() => {
-    console.log("this is the generated questions", generatedQuestions);
     if (generatedQuestions?.items && generatedQuestions.items.length > 0) {
       setQuestions(generatedQuestions.items);
       // Start interview if user has clicked the start button
@@ -454,10 +473,19 @@ const InterviewPage = () => {
       )}
       {!hasStarted ? (
         <>
+          {resumeError && (
+            <div role="alert" className="mx-auto mb-4 max-w-2xl text-center text-red-700">
+              <p>{resumeError}</p>
+              <button className="btn btn-outline mt-3" onClick={() => window.location.reload()}>
+                Try restoring again
+              </button>
+            </div>
+          )}
           <Welcome
             role={role || ""}
             onInterviewStart={handleInterviewStart}
-            isGeneratingQuestions={isGeneratingQuestions}
+            isPreparing={isGeneratingQuestions || isResuming}
+            blocked={Boolean(resumeError)}
           />
           <MicPermissionModal
             isOpen={showModal}
@@ -613,6 +641,7 @@ const InterviewPage = () => {
               attempt.pending || isTextToSpeechSpeaking || isTextToSpeechPreparing || !attempt.id
             }
             question_attempt_id={attempt.id}
+            initiallyAnswered={questions?.[currentQuestionIndex]?.answerSaved === true}
             followUpStrategy={questions?.[currentQuestionIndex]?.followUpStrategy ?? null}
             isCurrentQuestionFollowUp={questions?.[currentQuestionIndex]?.isFollowUp ?? false}
             onNext={handleNextQuestion}

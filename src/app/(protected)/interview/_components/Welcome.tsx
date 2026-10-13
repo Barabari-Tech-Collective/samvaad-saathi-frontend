@@ -4,10 +4,11 @@ import React from "react";
 interface WelcomeProps {
   role: string;
   onInterviewStart: () => void;
-  isGeneratingQuestions: boolean;
+  isPreparing: boolean;
+  blocked?: boolean;
 }
 
-const Welcome = ({ role, onInterviewStart, isGeneratingQuestions }: WelcomeProps) => {
+const Welcome = ({ role, onInterviewStart, isPreparing, blocked = false }: WelcomeProps) => {
   return (
     <div className="">
       <div className="flex-1">
@@ -40,23 +41,19 @@ const Welcome = ({ role, onInterviewStart, isGeneratingQuestions }: WelcomeProps
               Instructions
             </h3>
             <ul className="space-y-2 text-gray-800 font-medium text-md leading-relaxed list-disc pl-5 marker:text-gray-800">
-              <li>This is a timed mock interview</li>
-              <li>The interview ends in 25 mins</li>
-              <li>Expected time for each question is 3 mins.</li>
-              <li>You can take more time than that depending on the question</li>
-              <li className="text-red-500 italic">
-                <span className="font-semibold">Note:</span> Please do not refresh the page during
-                the interview. If refreshed, the interview will restart from the beginning.
-              </li>
+              <li>This is a low-pressure practice interview, not an exam.</li>
+              <li>You can record an answer or type when your microphone is unavailable.</li>
+              <li>Your saved answers stay attached to the same questions.</li>
+              <li>You may refresh or reconnect. We will resume from the first unsaved answer.</li>
             </ul>
 
             <div className="mt-6 flex justify-center">
               <button
                 onClick={onInterviewStart}
                 className="btn btn-primary px-8 text-lg"
-                disabled={isGeneratingQuestions}
+                disabled={isPreparing || blocked}
               >
-                {isGeneratingQuestions ? "Generating questions..." : "Click here to continue"}
+                {isPreparing ? "Preparing interview…" : "Begin practice interview"}
               </button>
             </div>
           </div>

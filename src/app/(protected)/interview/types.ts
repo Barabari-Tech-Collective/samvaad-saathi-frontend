@@ -13,6 +13,11 @@ export interface GenerateQuestionsResponse {
     isFollowUp: boolean;
     parentQuestionId: number | null;
     followUpStrategy: string | null;
+    questionAttemptId?: number | null;
+    answerSaved?: boolean;
+    answerVersion?: number;
+    answerKind?: "audio" | "text" | null;
+    transcriptionStatus?: "pending" | "processing" | "transcribed" | "failed" | null;
     audioUrl?: string;
     supplement: {
       content: string;

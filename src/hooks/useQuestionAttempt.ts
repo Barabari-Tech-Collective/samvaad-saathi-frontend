@@ -36,7 +36,8 @@ function clientAttemptId(interviewId: number, questionId: number): string {
 export function useQuestionAttempt(
   interviewId: number,
   questionId: number | undefined,
-  startAttempt: StartAttempt
+  startAttempt: StartAttempt,
+  initialAttemptId?: number | null
 ) {
   const [state, setState] = useState<{
     key: string;
@@ -84,11 +85,16 @@ export function useQuestionAttempt(
   }, [interviewId, questionId, key]);
 
   useEffect(() => {
+    if (initialAttemptId && Number.isSafeInteger(initialAttemptId) && initialAttemptId > 0) {
+      version.current++;
+      setState({ key, id: initialAttemptId, pending: false, failed: false });
+      return;
+    }
     void retry();
     return () => {
       version.current++;
     };
-  }, [retry]);
+  }, [initialAttemptId, key, retry]);
 
   return {
     id: state.key === key ? state.id : undefined,

@@ -45,6 +45,7 @@ interface FooterProps {
   onFollowUpQuestion?: (question: FollowUpQuestion) => void;
   isIntroStep?: boolean;
   timerExpired?: boolean;
+  initiallyAnswered?: boolean;
 }
 
 export default function Footer({
@@ -59,6 +60,7 @@ export default function Footer({
   onFollowUpQuestion,
   isIntroStep = false,
   timerExpired = false,
+  initiallyAnswered = false,
 }: FooterProps) {
   const [modal, setModal] = useState<"skip" | "submit" | "discard" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -72,6 +74,7 @@ export default function Footer({
   const [typedSaved, setTypedSaved] = useState(false);
   const [typedSaving, setTypedSaving] = useState(false);
   const [typedError, setTypedError] = useState<string | null>(null);
+  const [serverAnswered, setServerAnswered] = useState(initiallyAnswered);
   const analysisRef = useRef<AudioAnalysisContext | null>(null);
   const animationRef = useRef<(() => void) | null>(null);
   const recognitionRef = useRef<Recognition | null>(null);
@@ -150,6 +153,7 @@ export default function Footer({
       const result = await uploadAudio(data);
       if (result.saved !== true || result.questionAttemptId !== question_attempt_id)
         throw new Error("ANSWER_NOT_SAVED");
+      setServerAnswered(true);
       setTypedSaved(false);
       // Scoring can be retried separately after the answer is durably acknowledged.
       trackAnswerRecorded(Math.round((Date.now() - startedAtRef.current) / 1000));
@@ -209,7 +213,7 @@ export default function Footer({
   const typedDraftUnsaved = typedMode && typedAnswer.trim().length > 0 && !typedSaved;
   const unsaved =
     ["recording", "saving", "failed"].includes(answer.phase) || typedSaving || typedDraftUnsaved;
-  const answered = answer.phase === "saved" || typedSaved;
+  const answered = answer.phase === "saved" || typedSaved || serverAnswered;
 
   async function submitTypedAnswer() {
     const text = typedAnswer.trim();
@@ -225,6 +229,7 @@ export default function Footer({
       if (!result.saved || result.questionAttemptId !== question_attempt_id)
         throw new Error("TEXT_ANSWER_NOT_SAVED");
       setTypedSaved(true);
+      setServerAnswered(true);
       setTypedMode(false);
       setTypedAnswer("");
       setSpeechFeedbackDelayed(false);
@@ -387,7 +392,7 @@ export default function Footer({
           Allow microphone access in your browser. This will time out if no permission is given.
         </p>
       )}
-      {answer.phase === "saved" && (
+      {(answer.phase === "saved" || (serverAnswered && answer.phase === "idle")) && (
         <p role="status">{isIntroStep ? "Introduction complete." : "Answer saved."}</p>
       )}
       {typedSaved && <p role="status">Typed answer saved. Speech feedback will be limited.</p>}

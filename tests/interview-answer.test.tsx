@@ -248,6 +248,14 @@ describe("answer controls", () => {
     render(<Footer />);
     expect(screen.getByRole("button", { name: "Answer" })).toBeDisabled();
   });
+  it("restores a server-saved answer as ready to continue", () => {
+    const next = vi.fn();
+    render(<Footer question_attempt_id={42} initiallyAnswered onNext={next} />);
+    expect(screen.getByText("Answer saved.")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Redo" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(next).toHaveBeenCalledTimes(1);
+  });
   it("lets Done work even if question playback changes while recording", async () => {
     const { rerender } = render(<Footer question_attempt_id={42} />);
     fireEvent.click(screen.getByRole("button", { name: "Answer" }));
@@ -414,4 +422,12 @@ it("reuses one client attempt id across retries", async () => {
   const secondId = start.mock.calls[1][0].clientAttemptId;
   expect(firstId).toBe(secondId);
   expect(firstId).toContain("practice-5-9-");
+});
+
+it("uses the server attempt checkpoint without creating a duplicate attempt", async () => {
+  const start = vi.fn();
+  const { result } = renderHook(() => useQuestionAttempt(5, 9, start, 123));
+  await waitFor(() => expect(result.current.id).toBe(123));
+  expect(result.current.pending).toBe(false);
+  expect(start).not.toHaveBeenCalled();
 });
