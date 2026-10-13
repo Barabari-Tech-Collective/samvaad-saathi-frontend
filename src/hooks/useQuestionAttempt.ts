@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getSessionLeaseErrorCode } from "@/lib/interview-session-lease";
 
 type StartAttempt = (input: {
   interviewId: number;
   questionId: number;
   clientAttemptId: string;
+  sessionLeaseToken?: string;
 }) => Promise<{ questionAttemptId: number }>;
 
 function clientAttemptId(interviewId: number, questionId: number): string {
@@ -37,7 +39,10 @@ export function useQuestionAttempt(
   interviewId: number,
   questionId: number | undefined,
   startAttempt: StartAttempt,
-  initialAttemptId?: number | null
+  initialAttemptId?: number | null,
+  sessionLeaseToken?: string | null,
+  enabled = true,
+  onSessionConflict?: () => void
 ) {
   const [state, setState] = useState<{
     key: string;
@@ -48,6 +53,8 @@ export function useQuestionAttempt(
   const version = useRef(0);
   const request = useRef(startAttempt);
   request.current = startAttempt;
+  const conflictHandler = useRef(onSessionConflict);
+  conflictHandler.current = onSessionConflict;
   const key = `${interviewId}:${questionId}`;
   const clientIdRef = useRef({ key: "", value: "" });
   if (questionId && clientIdRef.current.key !== key) {
@@ -61,7 +68,7 @@ export function useQuestionAttempt(
     // is correct. An unusable interview id never resolves, so it must surface as a
     // failure - reporting "pending" forever leaves the student with no visible
     // error and no retry control.
-    if (!questionId) return;
+    if (!questionId || !enabled) return;
     if (!Number.isSafeInteger(interviewId) || interviewId <= 0) {
       setState({ key, pending: false, failed: true });
       return;
@@ -73,16 +80,18 @@ export function useQuestionAttempt(
         interviewId,
         questionId,
         clientAttemptId: clientIdRef.current.value,
+        ...(sessionLeaseToken ? { sessionLeaseToken } : {}),
       });
       if (!Number.isSafeInteger(result.questionAttemptId) || result.questionAttemptId <= 0)
         throw new Error("INVALID_ATTEMPT");
       if (sequence === version.current && key === activeKey.current)
         setState({ key, id: result.questionAttemptId, pending: false, failed: false });
-    } catch {
+    } catch (error) {
+      if (getSessionLeaseErrorCode(error)) conflictHandler.current?.();
       if (sequence === version.current && key === activeKey.current)
         setState({ key, pending: false, failed: true });
     }
-  }, [interviewId, questionId, key]);
+  }, [enabled, interviewId, questionId, key, sessionLeaseToken]);
 
   useEffect(() => {
     if (initialAttemptId && Number.isSafeInteger(initialAttemptId) && initialAttemptId > 0) {
@@ -90,11 +99,16 @@ export function useQuestionAttempt(
       setState({ key, id: initialAttemptId, pending: false, failed: false });
       return;
     }
+    if (!enabled) {
+      version.current++;
+      setState({ key, pending: true, failed: false });
+      return;
+    }
     void retry();
     return () => {
       version.current++;
     };
-  }, [initialAttemptId, key, retry]);
+  }, [enabled, initialAttemptId, key, retry]);
 
   return {
     id: state.key === key ? state.id : undefined,

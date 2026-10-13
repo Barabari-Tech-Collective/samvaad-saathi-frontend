@@ -28,6 +28,8 @@ export const ENDPOINTS = {
     GENERATE_QUESTIONS: "interviews/generate-questions",
     COMPLETE: "interviews/complete",
     PAUSE: "interviews/pause",
+    CLAIM_SESSION: "interviews/session/claim",
+    HEARTBEAT_SESSION: "interviews/session/heartbeat",
     PROCTORING_VIOLATION: "interviews/proctoring-violation",
     QUESTIONS: (interviewId: string) => `interviews/${interviewId}/questions`,
     QUESTION_ATTEMPTS: (interviewId: string) => `interviews/${interviewId}/question-attempts`,

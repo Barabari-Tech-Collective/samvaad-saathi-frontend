@@ -38,6 +38,13 @@ export interface StartQuestionAttemptResponse {
   created?: boolean;
 }
 
+export interface InterviewSessionLeaseResponse {
+  interviewId: number;
+  leaseToken: string;
+  leaseExpiresAt: string;
+  state: "acquired" | "renewed" | "taken_over";
+}
+
 export interface FollowUpQuestion {
   interviewQuestionId: number;
   questionAttemptId: number;

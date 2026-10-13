@@ -248,6 +248,13 @@ describe("answer controls", () => {
     render(<Footer />);
     expect(screen.getByRole("button", { name: "Answer" })).toBeDisabled();
   });
+  it("sends the active Practice session token with recorded answers", async () => {
+    render(<Footer question_attempt_id={42} sessionLeaseToken="lease-token-1234567890" />);
+    await record();
+    await screen.findByText("Answer saved.");
+    const body = mocks.upload.mock.calls[0][0] as FormData;
+    expect(body.get("session_lease_token")).toBe("lease-token-1234567890");
+  });
   it("restores a server-saved answer as ready to continue", () => {
     const next = vi.fn();
     render(<Footer question_attempt_id={42} initiallyAnswered onNext={next} />);
@@ -349,6 +356,21 @@ describe("answer controls", () => {
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
     expect(next).toHaveBeenCalledTimes(1);
   });
+  it("sends the active Practice session token with typed answers", async () => {
+    render(<Footer question_attempt_id={42} sessionLeaseToken="lease-token-1234567890" />);
+    fireEvent.click(screen.getByRole("button", { name: "Type answer instead" }));
+    fireEvent.change(screen.getByLabelText("Type your answer"), {
+      target: { value: "A typed response." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save typed answer" }));
+    await screen.findByText("Typed answer saved. Speech feedback will be limited.");
+    expect(mocks.saveText).toHaveBeenCalledWith({
+      questionAttemptId: 42,
+      text: "A typed response.",
+      language: "en",
+      sessionLeaseToken: "lease-token-1234567890",
+    });
+  });
   it("restores an unsaved typed answer after refresh and clears it after save", async () => {
     window.sessionStorage.setItem(
       "practice-text-answer:42",
@@ -445,4 +467,28 @@ it("uses the server attempt checkpoint without creating a duplicate attempt", as
   await waitFor(() => expect(result.current.id).toBe(123));
   expect(result.current.pending).toBe(false);
   expect(start).not.toHaveBeenCalled();
+});
+
+it("sends the Practice session token when creating a question attempt", async () => {
+  const start = vi.fn().mockResolvedValue({ questionAttemptId: 77 });
+  const { result } = renderHook(() =>
+    useQuestionAttempt(5, 9, start, null, "lease-token-1234567890")
+  );
+  await waitFor(() => expect(result.current.id).toBe(77));
+  expect(start).toHaveBeenCalledWith(
+    expect.objectContaining({ sessionLeaseToken: "lease-token-1234567890" })
+  );
+});
+
+it("does not create an attempt until the Practice session is writable", async () => {
+  const start = vi.fn().mockResolvedValue({ questionAttemptId: 77 });
+  const { result, rerender } = renderHook(
+    ({ enabled }) => useQuestionAttempt(5, 9, start, null, null, enabled),
+    { initialProps: { enabled: false } }
+  );
+  expect(result.current.pending).toBe(true);
+  expect(start).not.toHaveBeenCalled();
+  rerender({ enabled: true });
+  await waitFor(() => expect(result.current.id).toBe(77));
+  expect(start).toHaveBeenCalledTimes(1);
 });

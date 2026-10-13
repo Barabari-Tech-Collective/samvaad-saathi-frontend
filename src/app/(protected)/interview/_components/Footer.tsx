@@ -6,6 +6,7 @@ import { useInterviewAnswer } from "@/hooks/useInterviewAnswer";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService } from "@/lib/api-config/src/config";
 import { ENDPOINTS } from "@/lib/api-config/src/endpoints";
+import { getSessionLeaseErrorCode } from "@/lib/interview-session-lease";
 import {
   cleanupAudioAnalysis,
   createAudioAnalysisContext,
@@ -47,6 +48,8 @@ interface FooterProps {
   timerExpired?: boolean;
   initiallyAnswered?: boolean;
   onSaveAndExit?: () => Promise<void>;
+  sessionLeaseToken?: string | null;
+  onSessionConflict?: () => void;
 }
 
 export default function Footer({
@@ -63,6 +66,8 @@ export default function Footer({
   timerExpired = false,
   initiallyAnswered = false,
   onSaveAndExit,
+  sessionLeaseToken,
+  onSessionConflict,
 }: FooterProps) {
   const [modal, setModal] = useState<"skip" | "submit" | "discard" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -101,7 +106,7 @@ export default function Footer({
   });
   const { mutateAsync: saveTypedAnswer } = api.useMutation<
     TextAnswerResponse,
-    { questionAttemptId: number; text: string; language: string }
+    { questionAttemptId: number; text: string; language: string; sessionLeaseToken?: string }
   >({
     url: ENDPOINTS.TRANSCRIBE.TEXT_ANSWER,
     method: "post",
@@ -154,7 +159,14 @@ export default function Footer({
       data.append("question_attempt_id", String(question_attempt_id));
       data.append("language", "en");
       data.append("file", file);
-      const result = await uploadAudio(data);
+      if (sessionLeaseToken) data.append("session_lease_token", sessionLeaseToken);
+      let result: TranscribeResponse;
+      try {
+        result = await uploadAudio(data);
+      } catch (error) {
+        if (getSessionLeaseErrorCode(error)) onSessionConflict?.();
+        throw error;
+      }
       if (result.saved !== true || result.questionAttemptId !== question_attempt_id)
         throw new Error("ANSWER_NOT_SAVED");
       setServerAnswered(true);
@@ -229,6 +241,7 @@ export default function Footer({
         questionAttemptId: question_attempt_id,
         text,
         language: "en",
+        ...(sessionLeaseToken ? { sessionLeaseToken } : {}),
       });
       if (!result.saved || result.questionAttemptId !== question_attempt_id)
         throw new Error("TEXT_ANSWER_NOT_SAVED");
@@ -238,7 +251,8 @@ export default function Footer({
       setTypedAnswer("");
       setSpeechFeedbackDelayed(false);
       void analyze(["domain"], result.answerVersion);
-    } catch {
+    } catch (error) {
+      if (getSessionLeaseErrorCode(error)) onSessionConflict?.();
       setTypedError(
         "Your typed answer has not been saved. Keep this page open and select Save typed answer again."
       );

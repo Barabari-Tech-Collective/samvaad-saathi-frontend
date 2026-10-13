@@ -8,6 +8,7 @@ import {
 } from "@/hooks/useProctoring";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
 import { useQuestionAttempt } from "@/hooks/useQuestionAttempt";
+import { useInterviewSessionLease } from "@/hooks/useInterviewSessionLease";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService, APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS, ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
@@ -23,6 +24,7 @@ import {
   getInterviewQuestions,
   setInterviewQuestions,
 } from "@/lib/interview-session-storage";
+import { getSessionLeaseErrorCode } from "@/lib/interview-session-lease";
 import { trackEvent, trackInterviewQuestionView } from "@/lib/posthog/tracking.utils";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -68,6 +70,22 @@ const InterviewPage = () => {
     "practice" | "assessment" | null
   >(null);
 
+  // Fresh creation carries interviewMode in the URL (see interview-start);
+  // a resumed sitting is resolved by the resume response below. Unknown mode
+  // defaults to Practice so proctoring is never applied by accident.
+  const interviewModeValue: "practice" | "assessment" =
+    resumedInterviewMode ?? (interviewModeParam === "assessment" ? "assessment" : "practice");
+  const numericInterviewId = interviewId ? Number(interviewId) : null;
+  const leaseEnabled =
+    interviewModeValue === "practice" &&
+    Number.isSafeInteger(numericInterviewId) &&
+    Number(numericInterviewId) > 0 &&
+    (!resumed || resumedInterviewMode !== null);
+  const sessionLease = useInterviewSessionLease({
+    interviewId: numericInterviewId,
+    enabled: leaseEnabled,
+  });
+
   const showCodeView = role
     ? ROLE_OPTIONS.includes(role as any) && role !== FULL_STACK_ROLE
     : false;
@@ -101,7 +119,10 @@ const InterviewPage = () => {
     Number(interviewId),
     questions[currentQuestionIndex]?.interviewQuestionId,
     startQuestionAttempt,
-    questions[currentQuestionIndex]?.questionAttemptId
+    questions[currentQuestionIndex]?.questionAttemptId,
+    sessionLease.token,
+    interviewModeValue === "assessment" || sessionLease.canWrite,
+    sessionLease.markConflict
   );
 
   const { mutateAsync: reportProctoringViolation } = interviewsV1Client.useMutation<
@@ -113,19 +134,11 @@ const InterviewPage = () => {
   });
   const { mutateAsync: pauseInterview } = interviewsV1Client.useMutation<
     { interviewId: number; status: "paused"; pausedAt?: string; expiresAt?: string },
-    { interviewId: number }
+    { interviewId: number; sessionLeaseToken?: string }
   >({
     url: ENDPOINTS.INTERVIEWS.PAUSE,
     method: "post",
   });
-
-  // Fresh creation carries interviewMode in the URL (see interview-start);
-  // a resumed sitting has none, since resuming never goes through creation -
-  // it's filled in once resumeInterview's response arrives below. Defaults to
-  // practice, never assessment, so an unknown state never wrongly locks a
-  // student into proctoring.
-  const interviewModeValue: "practice" | "assessment" =
-    resumedInterviewMode ?? (interviewModeParam === "assessment" ? "assessment" : "practice");
 
   const proctoring = useProctoring({
     enabled: interviewModeValue === "assessment",
@@ -442,6 +455,7 @@ const InterviewPage = () => {
           sessionStorage.removeItem(`interviewEndTime_${interviewId}`);
           clearInterviewQuestions(Number(interviewId));
         }
+        sessionLease.clear();
         router.push(`/interview-completed?interviewId=${interviewId}&role=${role || "Interview"}`);
       },
     },
@@ -465,15 +479,30 @@ const InterviewPage = () => {
         }
       }
 
-      await completeInterview({
-        interviewId: Number(interviewId),
-      });
+      try {
+        await completeInterview({
+          interviewId: Number(interviewId),
+          ...(sessionLease.token ? { sessionLeaseToken: sessionLease.token } : {}),
+        });
+      } catch (error) {
+        if (getSessionLeaseErrorCode(error)) sessionLease.markConflict();
+        throw error;
+      }
     }
   };
 
   const handleSaveAndExit = async () => {
     if (!interviewId || interviewModeValue !== "practice") return;
-    await pauseInterview({ interviewId: Number(interviewId) });
+    try {
+      await pauseInterview({
+        interviewId: Number(interviewId),
+        ...(sessionLease.token ? { sessionLeaseToken: sessionLease.token } : {}),
+      });
+    } catch (error) {
+      if (getSessionLeaseErrorCode(error)) sessionLease.markConflict();
+      throw error;
+    }
+    sessionLease.clear();
     sessionStorage.removeItem(`interviewEndTime_${interviewId}`);
     trackEvent("interview_paused", { interview_id: interviewId });
     router.push("/practice?interviewPaused=true");
@@ -492,6 +521,59 @@ const InterviewPage = () => {
           onLeave={() => router.push("/home")}
         />
       )}
+      {leaseEnabled && sessionLease.status === "conflict" && (
+        <dialog open className="modal modal-open" aria-labelledby="session-conflict-title">
+          <div className="modal-box">
+            <h2 id="session-conflict-title" className="text-xl font-bold">
+              This interview is open somewhere else
+            </h2>
+            <p className="py-4 text-slate-700">
+              To protect your answers, only one device or browser tab can edit a Practice interview
+              at a time. Continuing here will immediately stop the other session from saving.
+            </p>
+            <div className="modal-action">
+              <button
+                className="btn btn-ghost"
+                onClick={() => {
+                  trackEvent("interview_session_conflict_exit", { interview_id: interviewId });
+                  router.push("/practice");
+                }}
+              >
+                Go back
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  trackEvent("interview_session_takeover", { interview_id: interviewId });
+                  void sessionLease.takeOver();
+                }}
+              >
+                Continue on this device
+              </button>
+            </div>
+          </div>
+        </dialog>
+      )}
+      {leaseEnabled && ["reconnecting", "error"].includes(sessionLease.status) && (
+        <div
+          role="alert"
+          className="mx-auto mb-4 max-w-2xl rounded-xl bg-amber-50 p-4 text-center text-amber-900"
+        >
+          <p>
+            We cannot safely save answers until this interview reconnects. Your current draft stays
+            on this device.
+          </p>
+          <button
+            className="btn btn-sm mt-3"
+            onClick={() => {
+              trackEvent("interview_session_reconnect", { interview_id: interviewId });
+              void sessionLease.retry();
+            }}
+          >
+            Reconnect
+          </button>
+        </div>
+      )}
       {!hasStarted ? (
         <>
           {resumeError && (
@@ -505,8 +587,12 @@ const InterviewPage = () => {
           <Welcome
             role={role || ""}
             onInterviewStart={handleInterviewStart}
-            isPreparing={isGeneratingQuestions || isResuming}
-            blocked={Boolean(resumeError)}
+            isPreparing={
+              isGeneratingQuestions ||
+              isResuming ||
+              (leaseEnabled && sessionLease.status === "acquiring")
+            }
+            blocked={Boolean(resumeError) || (leaseEnabled && !sessionLease.canWrite)}
             mode={interviewModeValue}
           />
           <MicPermissionModal
@@ -568,10 +654,16 @@ const InterviewPage = () => {
                 key="introduction"
                 timerExpired={timerExpired}
                 onSubmit={handleInterviewSubmit}
-                disabled={isTextToSpeechSpeaking || isTextToSpeechPreparing}
+                disabled={
+                  isTextToSpeechSpeaking ||
+                  isTextToSpeechPreparing ||
+                  (leaseEnabled && !sessionLease.canWrite)
+                }
                 onNext={() => setIsUserIntroducing(false)}
                 isIntroStep={true}
                 onSaveAndExit={interviewModeValue === "practice" ? handleSaveAndExit : undefined}
+                sessionLeaseToken={sessionLease.token}
+                onSessionConflict={sessionLease.markConflict}
               />
             </div>
           </div>
@@ -661,7 +753,11 @@ const InterviewPage = () => {
             timerExpired={timerExpired}
             isLoading={isGeneratingQuestions}
             disabled={
-              attempt.pending || isTextToSpeechSpeaking || isTextToSpeechPreparing || !attempt.id
+              attempt.pending ||
+              isTextToSpeechSpeaking ||
+              isTextToSpeechPreparing ||
+              !attempt.id ||
+              (leaseEnabled && !sessionLease.canWrite)
             }
             question_attempt_id={attempt.id}
             initiallyAnswered={questions?.[currentQuestionIndex]?.answerSaved === true}
@@ -672,6 +768,8 @@ const InterviewPage = () => {
             onSubmit={handleInterviewSubmit}
             onFollowUpQuestion={handleFollowUpQuestion}
             onSaveAndExit={interviewModeValue === "practice" ? handleSaveAndExit : undefined}
+            sessionLeaseToken={sessionLease.token}
+            onSessionConflict={sessionLease.markConflict}
           />
         </div>
       )}
