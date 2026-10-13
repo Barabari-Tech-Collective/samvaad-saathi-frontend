@@ -25,6 +25,7 @@ export interface GenerateQuestionsResponse {
   llmModel: string | null;
   llmLatencyMs: number | null;
   llmError: string | null;
+  interviewMode?: "practice" | "assessment";
 }
 
 export interface StartQuestionAttemptResponse {
