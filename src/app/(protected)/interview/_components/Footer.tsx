@@ -46,6 +46,7 @@ interface FooterProps {
   isIntroStep?: boolean;
   timerExpired?: boolean;
   initiallyAnswered?: boolean;
+  onSaveAndExit?: () => Promise<void>;
 }
 
 export default function Footer({
@@ -61,6 +62,7 @@ export default function Footer({
   isIntroStep = false,
   timerExpired = false,
   initiallyAnswered = false,
+  onSaveAndExit,
 }: FooterProps) {
   const [modal, setModal] = useState<"skip" | "submit" | "discard" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -75,6 +77,8 @@ export default function Footer({
   const [typedSaving, setTypedSaving] = useState(false);
   const [typedError, setTypedError] = useState<string | null>(null);
   const [serverAnswered, setServerAnswered] = useState(initiallyAnswered);
+  const [isPausing, setIsPausing] = useState(false);
+  const [pauseError, setPauseError] = useState<string | null>(null);
   const analysisRef = useRef<AudioAnalysisContext | null>(null);
   const animationRef = useRef<(() => void) | null>(null);
   const recognitionRef = useRef<Recognition | null>(null);
@@ -262,6 +266,22 @@ export default function Footer({
     }
   }
 
+  async function saveAndExit() {
+    if (!onSaveAndExit || unsaved || isSubmitting || isPausing) return;
+    if (answer.phase === "requesting") answer.cancel();
+    setIsPausing(true);
+    setPauseError(null);
+    try {
+      await onSaveAndExit();
+    } catch {
+      setPauseError(
+        "We could not pause this interview. Your saved answers are safe. Check your connection and try again."
+      );
+    } finally {
+      setIsPausing(false);
+    }
+  }
+
   const expiryRef = useRef({ stop: answer.stop, submit, cancel: answer.cancel });
   expiryRef.current = { stop: answer.stop, submit, cancel: answer.cancel };
   useEffect(() => {
@@ -349,6 +369,16 @@ export default function Footer({
       {submitError && (
         <p role="alert" className="text-red-700">
           {submitError}
+        </p>
+      )}
+      {pauseError && (
+        <p role="alert" className="text-red-700">
+          {pauseError}
+        </p>
+      )}
+      {onSaveAndExit && unsaved && (
+        <p role="status" className="text-amber-800">
+          Save this answer or discard the unsaved draft before leaving.
         </p>
       )}
       {typedError && (
@@ -497,6 +527,15 @@ export default function Footer({
             {!isIntroStep && question_attempt_id && !answered && answer.phase !== "failed" && (
               <button className="btn btn-ghost" onClick={() => setTypedMode(true)}>
                 Type answer instead
+              </button>
+            )}
+            {onSaveAndExit && (
+              <button
+                className="btn btn-ghost"
+                disabled={unsaved || isSubmitting || isPausing || timerExpired}
+                onClick={() => void saveAndExit()}
+              >
+                {isPausing ? "Saving…" : "Save and exit"}
               </button>
             )}
           </div>

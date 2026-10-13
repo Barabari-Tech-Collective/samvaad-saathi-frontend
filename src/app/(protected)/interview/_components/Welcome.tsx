@@ -6,9 +6,17 @@ interface WelcomeProps {
   onInterviewStart: () => void;
   isPreparing: boolean;
   blocked?: boolean;
+  mode?: "practice" | "assessment";
 }
 
-const Welcome = ({ role, onInterviewStart, isPreparing, blocked = false }: WelcomeProps) => {
+const Welcome = ({
+  role,
+  onInterviewStart,
+  isPreparing,
+  blocked = false,
+  mode = "practice",
+}: WelcomeProps) => {
+  const isPractice = mode === "practice";
   return (
     <div className="">
       <div className="flex-1">
@@ -41,10 +49,23 @@ const Welcome = ({ role, onInterviewStart, isPreparing, blocked = false }: Welco
               Instructions
             </h3>
             <ul className="space-y-2 text-gray-800 font-medium text-md leading-relaxed list-disc pl-5 marker:text-gray-800">
-              <li>This is a low-pressure practice interview, not an exam.</li>
-              <li>You can record an answer or type when your microphone is unavailable.</li>
-              <li>Your saved answers stay attached to the same questions.</li>
-              <li>You may refresh or reconnect. We will resume from the first unsaved answer.</li>
+              {isPractice ? (
+                <>
+                  <li>This is a low-pressure practice interview, not an exam.</li>
+                  <li>You can record an answer or type when your microphone is unavailable.</li>
+                  <li>Your saved answers stay attached to the same questions.</li>
+                  <li>
+                    You may refresh or reconnect. We will resume from the first unsaved answer.
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>This is a formal assessment interview.</li>
+                  <li>Complete it in one sitting and follow the disclosed monitoring rules.</li>
+                  <li>Leaving the tab or fullscreen ends the assessment.</li>
+                  <li>Your submitted answers remain saved if feedback processing is delayed.</li>
+                </>
+              )}
             </ul>
 
             <div className="mt-6 flex justify-center">
@@ -53,7 +74,11 @@ const Welcome = ({ role, onInterviewStart, isPreparing, blocked = false }: Welco
                 className="btn btn-primary px-8 text-lg"
                 disabled={isPreparing || blocked}
               >
-                {isPreparing ? "Preparing interview…" : "Begin practice interview"}
+                {isPreparing
+                  ? "Preparing interview…"
+                  : isPractice
+                    ? "Begin practice interview"
+                    : "Begin assessment"}
               </button>
             </div>
           </div>

@@ -111,6 +111,13 @@ const InterviewPage = () => {
     url: ENDPOINTS.INTERVIEWS.PROCTORING_VIOLATION,
     method: "post",
   });
+  const { mutateAsync: pauseInterview } = interviewsV1Client.useMutation<
+    { interviewId: number; status: "paused"; pausedAt?: string; expiresAt?: string },
+    { interviewId: number }
+  >({
+    url: ENDPOINTS.INTERVIEWS.PAUSE,
+    method: "post",
+  });
 
   // Fresh creation carries interviewMode in the URL (see interview-start);
   // a resumed sitting has none, since resuming never goes through creation -
@@ -165,7 +172,8 @@ const InterviewPage = () => {
       return;
     }
     setHasStarted(true);
-    setIsIntroducing(true);
+    setIsIntroducing(!resumed);
+    if (resumed) setIsUserIntroducing(false);
     setPendingStart(false);
   };
 
@@ -197,7 +205,12 @@ const InterviewPage = () => {
             finishStart(mode);
           }
         })
-        .catch(() => {
+        .catch((error: unknown) => {
+          const status = (error as { response?: { status?: number } })?.response?.status;
+          if (status === 410) {
+            setResumeError("This saved interview has expired. Start a new practice interview.");
+            return;
+          }
           if (Array.isArray(stored) && stored.length > 0) {
             setQuestions(stored as GenerateQuestionsResponse["items"]);
             setResumeError(
@@ -458,6 +471,14 @@ const InterviewPage = () => {
     }
   };
 
+  const handleSaveAndExit = async () => {
+    if (!interviewId || interviewModeValue !== "practice") return;
+    await pauseInterview({ interviewId: Number(interviewId) });
+    sessionStorage.removeItem(`interviewEndTime_${interviewId}`);
+    trackEvent("interview_paused", { interview_id: interviewId });
+    router.push("/practice?interviewPaused=true");
+  };
+
   return (
     <div className="px-8 pt-4">
       <ProctoringPreflightModal
@@ -486,6 +507,7 @@ const InterviewPage = () => {
             onInterviewStart={handleInterviewStart}
             isPreparing={isGeneratingQuestions || isResuming}
             blocked={Boolean(resumeError)}
+            mode={interviewModeValue}
           />
           <MicPermissionModal
             isOpen={showModal}
@@ -549,6 +571,7 @@ const InterviewPage = () => {
                 disabled={isTextToSpeechSpeaking || isTextToSpeechPreparing}
                 onNext={() => setIsUserIntroducing(false)}
                 isIntroStep={true}
+                onSaveAndExit={interviewModeValue === "practice" ? handleSaveAndExit : undefined}
               />
             </div>
           </div>
@@ -648,6 +671,7 @@ const InterviewPage = () => {
             isLastQuestion={questions && currentQuestionIndex === questions.length - 1}
             onSubmit={handleInterviewSubmit}
             onFollowUpQuestion={handleFollowUpQuestion}
+            onSaveAndExit={interviewModeValue === "practice" ? handleSaveAndExit : undefined}
           />
         </div>
       )}

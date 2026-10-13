@@ -256,6 +256,21 @@ describe("answer controls", () => {
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
     expect(next).toHaveBeenCalledTimes(1);
   });
+  it("saves and exits only after the parent pause request succeeds", async () => {
+    const pause = vi.fn().mockResolvedValue(undefined);
+    render(<Footer question_attempt_id={42} onSaveAndExit={pause} />);
+    fireEvent.click(screen.getByRole("button", { name: "Save and exit" }));
+    await waitFor(() => expect(pause).toHaveBeenCalledTimes(1));
+  });
+  it("keeps the student on the interview when pausing fails", async () => {
+    const pause = vi.fn().mockRejectedValue(Error("offline"));
+    render(<Footer question_attempt_id={42} onSaveAndExit={pause} />);
+    fireEvent.click(screen.getByRole("button", { name: "Save and exit" }));
+    await screen.findByText(
+      "We could not pause this interview. Your saved answers are safe. Check your connection and try again."
+    );
+    expect(screen.getByRole("button", { name: "Save and exit" })).toBeEnabled();
+  });
   it("lets Done work even if question playback changes while recording", async () => {
     const { rerender } = render(<Footer question_attempt_id={42} />);
     fireEvent.click(screen.getByRole("button", { name: "Answer" }));
