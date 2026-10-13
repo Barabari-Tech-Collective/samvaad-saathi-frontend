@@ -36,6 +36,7 @@ export const ENDPOINTS = {
   },
   TRANSCRIBE: {
     WHISPER: "transcribe-whisper",
+    TEXT_ANSWER: "answers/text",
   },
   ANALYSIS: {
     COMPLETE: "complete-analysis",

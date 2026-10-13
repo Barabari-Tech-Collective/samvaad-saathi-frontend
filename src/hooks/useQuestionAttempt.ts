@@ -5,7 +5,33 @@ import { useCallback, useEffect, useRef, useState } from "react";
 type StartAttempt = (input: {
   interviewId: number;
   questionId: number;
+  clientAttemptId: string;
 }) => Promise<{ questionAttemptId: number }>;
+
+function clientAttemptId(interviewId: number, questionId: number): string {
+  const storageKey = `samvaad:attempt:${interviewId}:${questionId}`;
+  try {
+    if (typeof window !== "undefined") {
+      const existing = window.localStorage.getItem(storageKey);
+      if (existing) return existing;
+    }
+  } catch {
+    // Storage can be blocked by private browsing or embedded webviews. The
+    // request still gets a stable id for this mounted question and the server
+    // remains safe; only cross-reload reuse is unavailable.
+  }
+  const random =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const value = `practice-${interviewId}-${questionId}-${random}`.slice(0, 64);
+  try {
+    if (typeof window !== "undefined") window.localStorage.setItem(storageKey, value);
+  } catch {
+    /* see blocked-storage note above */
+  }
+  return value;
+}
 
 export function useQuestionAttempt(
   interviewId: number,
@@ -22,6 +48,10 @@ export function useQuestionAttempt(
   const request = useRef(startAttempt);
   request.current = startAttempt;
   const key = `${interviewId}:${questionId}`;
+  const clientIdRef = useRef({ key: "", value: "" });
+  if (questionId && clientIdRef.current.key !== key) {
+    clientIdRef.current = { key, value: clientAttemptId(interviewId, questionId) };
+  }
   const activeKey = useRef(key);
   activeKey.current = key;
 
@@ -38,7 +68,11 @@ export function useQuestionAttempt(
     const sequence = ++version.current;
     setState({ key, pending: true, failed: false });
     try {
-      const result = await request.current({ interviewId, questionId });
+      const result = await request.current({
+        interviewId,
+        questionId,
+        clientAttemptId: clientIdRef.current.value,
+      });
       if (!Number.isSafeInteger(result.questionAttemptId) || result.questionAttemptId <= 0)
         throw new Error("INVALID_ATTEMPT");
       if (sequence === version.current && key === activeKey.current)

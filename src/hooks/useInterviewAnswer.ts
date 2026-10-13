@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AUDIO_CONSTRAINTS_16KHZ, resampleAudioTo16kHz } from "@/lib/audio-utils";
+import { browserAnswerDraftStore, type AnswerDraftStore } from "@/lib/interview-answer-drafts";
 
 export type AnswerPhase = "idle" | "requesting" | "recording" | "saving" | "failed" | "saved";
 
@@ -9,6 +10,8 @@ interface Options {
   save: (file: File) => Promise<void>;
   onStream?: (stream: MediaStream) => void;
   onStop?: () => void;
+  draftKey?: string;
+  draftStore?: AnswerDraftStore;
 }
 
 const RECORDING_SECONDS = 180;
@@ -19,7 +22,13 @@ const RECORDING_SECONDS = 180;
 const MIC_PERMISSION_TIMEOUT_MS = 5_000;
 
 /** Owns one question's recording. Mount a new instance for each question. */
-export function useInterviewAnswer({ save, onStream, onStop }: Options) {
+export function useInterviewAnswer({
+  save,
+  onStream,
+  onStop,
+  draftKey,
+  draftStore = browserAnswerDraftStore,
+}: Options) {
   const [phase, setPhase] = useState<AnswerPhase>("idle");
   const [error, setError] = useState<string | null>(null);
   const [timeRemaining, setTimeRemaining] = useState(RECORDING_SECONDS);
@@ -31,6 +40,7 @@ export function useInterviewAnswer({ save, onStream, onStop }: Options) {
   const cancelledRef = useRef(false);
   const mountedRef = useRef(true);
   const startedAtRef = useRef(0);
+  const draftPersistedRef = useRef(false);
   const optionsRef = useRef({ save, onStream, onStop });
   optionsRef.current = { save, onStream, onStop };
 
@@ -51,6 +61,15 @@ export function useInterviewAnswer({ save, onStream, onStop }: Options) {
       if (!fileRef.current) {
         const recording = recordingRef.current;
         if (!recording?.size) throw new Error("EMPTY_RECORDING");
+        if (draftKey && !draftPersistedRef.current) {
+          try {
+            await draftStore.put(draftKey, recording);
+            draftPersistedRef.current = true;
+          } catch {
+            // Quota/security failures must not prevent a healthy network upload.
+            // The in-memory Blob remains available for retry while this page is open.
+          }
+        }
         const wav = await resampleAudioTo16kHz(recording);
         fileRef.current = new File([wav], "recording.wav", { type: "audio/wav" });
       }
@@ -59,6 +78,15 @@ export function useInterviewAnswer({ save, onStream, onStop }: Options) {
       if (!mountedRef.current) return false;
       recordingRef.current = null;
       fileRef.current = null;
+      if (draftKey) {
+        try {
+          await draftStore.delete(draftKey);
+        } catch {
+          // The server acknowledgement is authoritative. A local cleanup failure
+          // must never turn a durably saved answer into a false save error.
+        }
+      }
+      draftPersistedRef.current = false;
       transition("saved");
       return true;
     } catch {
@@ -216,6 +244,8 @@ export function useInterviewAnswer({ save, onStream, onStop }: Options) {
     if (phaseRef.current !== "failed" || pendingRef.current) return;
     recordingRef.current = null;
     fileRef.current = null;
+    if (draftKey) void draftStore.delete(draftKey);
+    draftPersistedRef.current = false;
     setError(null);
     transition("idle");
   }
@@ -237,6 +267,15 @@ export function useInterviewAnswer({ save, onStream, onStop }: Options) {
 
   useEffect(() => {
     mountedRef.current = true;
+    if (draftKey) {
+      void draftStore.get(draftKey).then((draft) => {
+        if (!mountedRef.current || !draft?.size || phaseRef.current !== "idle") return;
+        recordingRef.current = draft;
+        draftPersistedRef.current = true;
+        setError("Your previous answer is saved on this device. Select Retry save to continue.");
+        transition("failed");
+      });
+    }
     const warnBeforeLeaving = (event: BeforeUnloadEvent) => {
       if (["recording", "saving", "failed"].includes(phaseRef.current)) {
         event.preventDefault();
@@ -252,7 +291,7 @@ export function useInterviewAnswer({ save, onStream, onStop }: Options) {
       recorder?.stream.getTracks().forEach((track) => track.stop());
       optionsRef.current.onStop?.();
     };
-  }, []);
+  }, [draftKey, draftStore]);
 
   return { phase, error, timeRemaining, start, stop, retry, discard, cancel };
 }

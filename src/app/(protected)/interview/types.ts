@@ -30,6 +30,7 @@ export interface GenerateQuestionsResponse {
 
 export interface StartQuestionAttemptResponse {
   questionAttemptId: number;
+  created?: boolean;
 }
 
 export interface FollowUpQuestion {
@@ -45,4 +46,13 @@ export interface TranscribeResponse {
   questionAttemptId: number;
   followUpGenerated?: boolean;
   followUpQuestion?: FollowUpQuestion;
+  answerVersion?: number;
+  transcriptionStatus?: "pending" | "processing" | "transcribed" | "failed";
+}
+
+export interface TextAnswerResponse {
+  saved: boolean;
+  questionAttemptId: number;
+  answerVersion: number;
+  transcriptionStatus: "transcribed";
 }
