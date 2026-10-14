@@ -48,6 +48,41 @@ interface UseMutationApiProps<TData, TParams> {
   showToastError?: boolean;
 }
 
+export const extractApiErrorMessage = (
+  error: unknown,
+  fallback = "Something went wrong. Please try again."
+): string => {
+  const axiosError = error as AxiosError<APIError>;
+  const errorData = axiosError?.response?.data;
+
+  if (typeof errorData?.detail === "string" && errorData.detail.trim().length > 0) {
+    return errorData.detail;
+  }
+  if (Array.isArray(errorData?.detail) && errorData.detail.length > 0) {
+    const firstDetail = errorData.detail[0];
+    if (typeof firstDetail === "string") {
+      return firstDetail;
+    }
+    if (firstDetail && typeof firstDetail === "object" && "msg" in firstDetail) {
+      return (firstDetail as { msg?: string }).msg || fallback;
+    }
+  }
+  if (errorData?.detail && typeof errorData.detail === "object" && "message" in errorData.detail) {
+    const message = (errorData.detail as { message?: string }).message;
+    if (message && message.trim().length > 0) {
+      return message;
+    }
+  }
+  if (typeof errorData?.message === "string" && errorData.message.trim().length > 0) {
+    return errorData.message;
+  }
+  if (typeof axiosError?.message === "string" && axiosError.message.trim().length > 0) {
+    return axiosError.message;
+  }
+
+  return fallback;
+};
+
 const baseUrls = {
   [APIService.AUTH]: AUTH_BASE_URL || "",
   [APIService.USERS]: AUTH_BASE_URL || "",
@@ -71,7 +106,7 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
     options,
     successMessage,
     errorMessage,
-    showToastError = true,
+    showToastError,
   }: UseMutationApiProps<TData, TParams>) => {
     const queryClient = useQueryClient();
     const [cookies] = useCookies(["token"]);
@@ -142,32 +177,15 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
             error.response?.headers?.["x-request-id"] || error.config?.headers?.["x-request-id"],
         });
 
-        // Extract server-provided error message if available
-        const errorData = error.response?.data;
-        let serverMessage: string | null = null;
+        // Only show a toast if an error toast was specifically intended
+        // (i.e. if errorMessage is defined, or showToastError is explicitly true)
+        const shouldToast = showToastError !== undefined ? showToastError : Boolean(errorMessage);
 
-        if (typeof errorData?.detail === "string" && errorData.detail.trim().length > 0) {
-          serverMessage = errorData.detail;
-        } else if (Array.isArray(errorData?.detail) && errorData.detail.length > 0) {
-          const firstDetail = errorData.detail[0];
-          if (typeof firstDetail === "string") {
-            serverMessage = firstDetail;
-          } else if (firstDetail && typeof firstDetail === "object" && "msg" in firstDetail) {
-            serverMessage = (firstDetail as { msg?: string }).msg || null;
-          }
-        } else if (
-          errorData?.detail &&
-          typeof errorData.detail === "object" &&
-          "message" in errorData.detail
-        ) {
-          serverMessage = (errorData.detail as { message?: string }).message || null;
-        } else if (typeof errorData?.message === "string" && errorData.message.trim().length > 0) {
-          serverMessage = errorData.message;
-        }
-
-        if (showToastError) {
-          const messageToShow =
-            serverMessage || errorMessage || "Something went wrong. Please try again.";
+        if (shouldToast) {
+          const messageToShow = extractApiErrorMessage(
+            error,
+            errorMessage || "Something went wrong. Please try again."
+          );
           toast.error(messageToShow);
         }
       },

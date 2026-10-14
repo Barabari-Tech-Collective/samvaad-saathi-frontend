@@ -1,15 +1,13 @@
 "use client";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { ENDPOINTS } from "@/lib/api-config";
-import { createApiClient } from "@/lib/api-config/src/client";
+import { createApiClient, ENDPOINTS, extractApiErrorMessage } from "@/lib/api-config";
 import { APIService } from "@/lib/api-config/src/config";
 import {
   APP_VERSION,
   DEGREE_OPTIONS,
   EXPERIENCE_OPTIONS,
   MAX_PROFILE_RESUME_SIZE_MB,
-  RESUME_FILE_TYPES,
   ROLE_OPTIONS,
   UNIVERSITY_OPTIONS,
 } from "@/lib/constants";
@@ -32,7 +30,6 @@ import toast from "react-hot-toast";
 import { getTokenFromCookies } from "@/lib/token-utils";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 
 import { ProfileFieldRow } from "./_components/ProfileFieldRow";
 import { ProfileSkeleton } from "./_components/ProfileSkeleton";
@@ -55,6 +52,8 @@ export default function ProfilePage() {
   const { user, signOut } = useAuth();
   const queryClient = useQueryClient();
   const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const [atsError, setAtsError] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<EditableField | null>(null);
   const [customUniversity, setCustomUniversity] = useState("");
   const [tempData, setTempData] = useState<ProfileFormData>({
@@ -104,31 +103,6 @@ export default function ProfilePage() {
 
   const userInitials = getInitials(user?.authorizedUser?.name || "User");
 
-  const extractErrorMessage = (error: unknown, fallback: string): string => {
-    const err = error as AxiosError<{
-      detail?: string | { message?: string } | Array<{ msg?: string }>;
-      message?: string;
-    }>;
-    const data = err?.response?.data;
-    if (typeof data?.detail === "string" && data.detail.trim().length > 0) {
-      return data.detail;
-    }
-    if (Array.isArray(data?.detail) && data.detail.length > 0) {
-      const first = data.detail[0];
-      if (typeof first === "string") return first;
-      if (first && typeof first === "object" && "msg" in first) {
-        return (first as { msg?: string }).msg || fallback;
-      }
-    }
-    if (data?.detail && typeof data.detail === "object" && "message" in data.detail) {
-      return (data.detail as { message?: string }).message || fallback;
-    }
-    if (typeof data?.message === "string" && data.message.trim().length > 0) {
-      return data.message;
-    }
-    return fallback;
-  };
-
   const updateProfileMutation = usersApiClient.useMutation({
     url: ENDPOINTS.USERS.PROFILE,
     method: "put",
@@ -164,6 +138,7 @@ export default function ProfilePage() {
   const startEditing = (field: EditableField) => {
     trackProfileEditButtonClick(field);
     setErrors((prev) => ({ ...prev, [field]: undefined }));
+    setAtsError(null);
     if (field === "university") {
       const currentUniversity = user?.authorizedUser.university || "";
       const isCustom =
@@ -190,6 +165,7 @@ export default function ProfilePage() {
       setErrors((prev) => ({ ...prev, [editingField]: undefined }));
     }
     if (editingField === "resume") setResumeFile(null);
+    setAtsError(null);
     setCustomUniversity("");
     setEditingField(null);
   };
@@ -243,6 +219,7 @@ export default function ProfilePage() {
       }
 
       // Upload via POST /extract-resume (same as onboarding, overwrites onboarding resume)
+      setIsUploadingResume(true);
       try {
         const formData = new FormData();
         formData.append("file", resumeFile);
@@ -272,11 +249,13 @@ export default function ProfilePage() {
         console.error("Resume upload failed:", error);
         setErrors((prev) => ({
           ...prev,
-          resume: extractErrorMessage(
+          resume: extractApiErrorMessage(
             error,
             "Failed to parse resume. Please ensure the file is an unencrypted, valid PDF."
           ),
         }));
+      } finally {
+        setIsUploadingResume(false);
       }
       return;
     }
@@ -303,7 +282,7 @@ export default function ProfilePage() {
       console.error(`Field update failed for ${field}:`, error);
       setErrors((prev) => ({
         ...prev,
-        [field]: extractErrorMessage(error, `Failed to update ${field}. Please try again.`),
+        [field]: extractApiErrorMessage(error, `Failed to update ${field}. Please try again.`),
       }));
     }
   };
@@ -395,9 +374,17 @@ export default function ProfilePage() {
               <button
                 onClick={() => handleFieldSave(editingField)}
                 className="btn btn-xs btn-success"
-                disabled={updateProfileMutation.isPending}
+                disabled={
+                  updateProfileMutation.isPending ||
+                  extractResumeMutation.isPending ||
+                  isUploadingResume
+                }
               >
-                {updateProfileMutation.isPending ? "Saving..." : "Update"}
+                {updateProfileMutation.isPending ||
+                extractResumeMutation.isPending ||
+                isUploadingResume
+                  ? "Saving..."
+                  : "Update"}
               </button>
             )}
           </div>
@@ -592,7 +579,7 @@ export default function ProfilePage() {
                             title={!user.authorizedUser.atsResumeId ? "No ATS resume yet" : ""}
                             onClick={async () => {
                               if (!user.authorizedUser.atsResumeId) return;
-                              setErrors((prev) => ({ ...prev, resume: undefined }));
+                              setAtsError(null);
                               try {
                                 await setActiveResumeMutation.mutateAsync({
                                   user_resume_id: user.authorizedUser.atsResumeId,
@@ -600,13 +587,12 @@ export default function ProfilePage() {
                                 setEditingField(null);
                               } catch (error) {
                                 console.error("Failed to set ATS resume as active:", error);
-                                setErrors((prev) => ({
-                                  ...prev,
-                                  resume: extractErrorMessage(
+                                setAtsError(
+                                  extractApiErrorMessage(
                                     error,
                                     "Failed to set ATS resume as active."
-                                  ),
-                                }));
+                                  )
+                                );
                               }
                             }}
                             className="btn btn-sm btn-outline btn-primary w-full disabled:opacity-40 disabled:cursor-not-allowed"
@@ -617,6 +603,11 @@ export default function ProfilePage() {
                               "Replace with ATS Resume"
                             )}
                           </button>
+                          {atsError && (
+                            <span className="label-text-alt text-error font-medium mt-1">
+                              {atsError}
+                            </span>
+                          )}
                         </div>
                       </>
                     </div>

@@ -1,7 +1,6 @@
 "use client";
 
-import { ENDPOINTS } from "@/lib/api-config";
-import { createApiClient } from "@/lib/api-config/src/client";
+import { createApiClient, ENDPOINTS, extractApiErrorMessage } from "@/lib/api-config";
 import { APIService, APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
 import { EXPERIENCE_OPTIONS, MAX_RESUME_SIZE_MB, ROLE_OPTIONS } from "@/lib/constants";
@@ -88,17 +87,14 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
           }
           retries--;
         }
+      } catch (error: unknown) {
         toast.dismiss("resume-poll");
-      } catch (error: any) {
-        toast.dismiss("resume-poll");
-        const errorData = error?.response?.data;
-        const serverMessage =
-          typeof errorData?.detail === "string"
-            ? errorData.detail
-            : errorData?.message ||
-              "Failed to process resume. Please ensure the file is an unencrypted, valid PDF.";
+        const serverMessage = extractApiErrorMessage(
+          error,
+          "Failed to process resume. Please ensure the file is an unencrypted, valid PDF."
+        );
         setResumeError(serverMessage);
-        // Don't prevent form submission if extraction fails
+        return; // Stop submission so candidate can read the error and re-upload or remove the file
       }
     }
 
