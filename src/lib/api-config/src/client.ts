@@ -27,14 +27,14 @@ interface UseQueryApiProps<TData> {
 }
 
 interface APIError {
-  message: string;
-  success: boolean;
+  message?: string;
+  success?: boolean;
   // FastAPI's actual error shape ({"detail": "..."}) - several call sites
   // already read error.response.data.detail at runtime (it works, since
   // that's genuinely what the backend sends), but this type didn't declare
   // it, so any caller using the properly-typed mutation.error had to cast
   // around it instead of getting a real type error caught the honest way.
-  detail?: string;
+  detail?: string | { message?: string } | Array<{ msg?: string }>;
 }
 
 interface UseMutationApiProps<TData, TParams> {
@@ -45,6 +45,7 @@ interface UseMutationApiProps<TData, TParams> {
   options?: Omit<UseMutationOptions<TData, AxiosError<APIError>, TParams>, "mutationFn">;
   successMessage?: string;
   errorMessage?: string;
+  showToastError?: boolean;
 }
 
 const baseUrls = {
@@ -70,6 +71,7 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
     options,
     successMessage,
     errorMessage,
+    showToastError = true,
   }: UseMutationApiProps<TData, TParams>) => {
     const queryClient = useQueryClient();
     const [cookies] = useCookies(["token"]);
@@ -140,15 +142,34 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
             error.response?.headers?.["x-request-id"] || error.config?.headers?.["x-request-id"],
         });
 
-        if (errorMessage) toast.error(errorMessage);
+        // Extract server-provided error message if available
+        const errorData = error.response?.data;
+        let serverMessage: string | null = null;
 
-        // } else if (typeof error.response?.data?.detail === 'string') {
-        //   toast.error(error.response?.data?.detail);
-        // } else if (error.response?.data?.detail?.message) {
-        //   toast.error(error.response?.data?.detail?.message);
-        // } else {
-        //   toast.error('Something went wrong. Please try again.');
-        // }
+        if (typeof errorData?.detail === "string" && errorData.detail.trim().length > 0) {
+          serverMessage = errorData.detail;
+        } else if (Array.isArray(errorData?.detail) && errorData.detail.length > 0) {
+          const firstDetail = errorData.detail[0];
+          if (typeof firstDetail === "string") {
+            serverMessage = firstDetail;
+          } else if (firstDetail && typeof firstDetail === "object" && "msg" in firstDetail) {
+            serverMessage = (firstDetail as { msg?: string }).msg || null;
+          }
+        } else if (
+          errorData?.detail &&
+          typeof errorData.detail === "object" &&
+          "message" in errorData.detail
+        ) {
+          serverMessage = (errorData.detail as { message?: string }).message || null;
+        } else if (typeof errorData?.message === "string" && errorData.message.trim().length > 0) {
+          serverMessage = errorData.message;
+        }
+
+        if (showToastError) {
+          const messageToShow =
+            serverMessage || errorMessage || "Something went wrong. Please try again.";
+          toast.error(messageToShow);
+        }
       },
       ...options,
     });
