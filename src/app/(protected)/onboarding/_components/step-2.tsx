@@ -1,7 +1,6 @@
 "use client";
 
-import { ENDPOINTS } from "@/lib/api-config";
-import { createApiClient } from "@/lib/api-config/src/client";
+import { createApiClient, ENDPOINTS, extractApiErrorMessage } from "@/lib/api-config";
 import { APIService, APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
 import { EXPERIENCE_OPTIONS, MAX_RESUME_SIZE_MB, ROLE_OPTIONS } from "@/lib/constants";
@@ -35,6 +34,7 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
   const [role, setRole] = useState("");
   const [experience, setExperience] = useState("");
   const [resume, setResume] = useState<File | null>(null);
+  const [resumeError, setResumeError] = useState<string | null>(null);
 
   const experiences = EXPERIENCE_OPTIONS;
 
@@ -51,7 +51,7 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
     url: ENDPOINTS.RESUME.EXTRACT,
     method: "post",
     successMessage: "Resume processed successfully!",
-    errorMessage: "Failed to process resume. Please try again.",
+    showToastError: false,
     config: {
       headers: {
         "Content-Type": "multipart/form-data",
@@ -87,11 +87,14 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
           }
           retries--;
         }
+      } catch (error: unknown) {
         toast.dismiss("resume-poll");
-      } catch {
-        toast.error("Resume extraction failed");
-        toast.dismiss("resume-poll");
-        // Don't prevent form submission if extraction fails
+        const serverMessage = extractApiErrorMessage(
+          error,
+          "Failed to process resume. Please ensure the file is an unencrypted, valid PDF."
+        );
+        setResumeError(serverMessage);
+        return; // Stop submission so candidate can read the error and re-upload or remove the file
       }
     }
 
@@ -105,15 +108,26 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
   const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setResumeError(null);
+      const fileName = file.name.toLowerCase();
+      const isPdfExt = fileName.endsWith(".pdf");
+      const isPdfMime = !file.type || file.type === "application/pdf";
+
       // Check file type - only allow PDF
-      if (file.type !== "application/pdf") {
-        toast.error("Please select a PDF file only");
+      if (!isPdfExt || !isPdfMime) {
+        setResumeError(`Invalid file format (${file.name}). Only .pdf files are allowed.`);
+        e.target.value = "";
+        setResume(null);
         return;
       }
 
       // Check file size
       if (file.size > MAX_RESUME_SIZE_MB * 1024 * 1024) {
-        toast.error(`File size must be less than ${MAX_RESUME_SIZE_MB}MB`);
+        setResumeError(
+          `File size exceeds ${MAX_RESUME_SIZE_MB}MB limit (selected: ${(file.size / (1024 * 1024)).toFixed(1)}MB). Please upload a smaller PDF.`
+        );
+        e.target.value = "";
+        setResume(null);
         return;
       }
 
@@ -123,6 +137,7 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
 
   const handleRemoveResume = () => {
     setResume(null);
+    setResumeError(null);
     // Reset the file input
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
     if (fileInput) {
@@ -221,6 +236,7 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
               </button>
             </div>
           )}
+          {resumeError && <p className="mt-2 text-sm text-error font-medium">{resumeError}</p>}
         </div>
 
         <button

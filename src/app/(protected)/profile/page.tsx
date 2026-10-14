@@ -1,15 +1,13 @@
 "use client";
 
 import { useAuth } from "@/components/providers/auth-provider";
-import { ENDPOINTS } from "@/lib/api-config";
-import { createApiClient } from "@/lib/api-config/src/client";
+import { createApiClient, ENDPOINTS, extractApiErrorMessage } from "@/lib/api-config";
 import { APIService } from "@/lib/api-config/src/config";
 import {
   APP_VERSION,
   DEGREE_OPTIONS,
   EXPERIENCE_OPTIONS,
   MAX_PROFILE_RESUME_SIZE_MB,
-  RESUME_FILE_TYPES,
   ROLE_OPTIONS,
   UNIVERSITY_OPTIONS,
 } from "@/lib/constants";
@@ -54,6 +52,8 @@ export default function ProfilePage() {
   const { user, signOut } = useAuth();
   const queryClient = useQueryClient();
   const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const [atsError, setAtsError] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<EditableField | null>(null);
   const [customUniversity, setCustomUniversity] = useState("");
   const [tempData, setTempData] = useState<ProfileFormData>({
@@ -62,7 +62,7 @@ export default function ProfilePage() {
     degree: "",
     university: "",
   });
-  const [errors, setErrors] = useState<Partial<ProfileFormData>>({});
+  const [errors, setErrors] = useState<Partial<Record<EditableField, string>>>({});
   const [isDownloadingResume, setIsDownloadingResume] = useState(false);
 
   // Force refetch on mount to ensure resumes are always up to date
@@ -107,7 +107,7 @@ export default function ProfilePage() {
     url: ENDPOINTS.USERS.PROFILE,
     method: "put",
     successMessage: "Profile updated successfully!",
-    errorMessage: "Failed to update profile. Please try again.",
+    showToastError: false,
     keyToInvalidate: {
       queryKey: [ENDPOINTS.AUTH.ABOUT_ME],
     },
@@ -118,7 +118,7 @@ export default function ProfilePage() {
     url: ENDPOINTS.RESUME.EXTRACT,
     method: "post",
     successMessage: "Resume uploaded successfully!",
-    errorMessage: "Failed to upload resume. Please try again.",
+    showToastError: false,
     keyToInvalidate: { queryKey: [ENDPOINTS.AUTH.ABOUT_ME] },
     config: {
       headers: { "Content-Type": "multipart/form-data" },
@@ -131,12 +131,14 @@ export default function ProfilePage() {
     url: ENDPOINTS.RESUME.SET_ACTIVE,
     method: "post",
     successMessage: "ATS resume is now your active resume!",
-    errorMessage: "Failed to set ATS resume as active.",
+    showToastError: false,
     keyToInvalidate: { queryKey: [ENDPOINTS.AUTH.ABOUT_ME] },
   });
 
   const startEditing = (field: EditableField) => {
     trackProfileEditButtonClick(field);
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+    setAtsError(null);
     if (field === "university") {
       const currentUniversity = user?.authorizedUser.university || "";
       const isCustom =
@@ -159,20 +161,20 @@ export default function ProfilePage() {
   };
 
   const cancelEditing = () => {
-    if (editingField && editingField !== "resume") {
+    if (editingField) {
       setErrors((prev) => ({ ...prev, [editingField]: undefined }));
     }
     if (editingField === "resume") setResumeFile(null);
+    setAtsError(null);
     setCustomUniversity("");
     setEditingField(null);
   };
 
   const handleFieldSave = async (field: EditableField) => {
     trackProfileUpdateButtonClick(field);
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
 
     if (field !== "resume") {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-
       const fieldValidation = profileSchema.pick({ [field]: true } as any);
       const validationResult = fieldValidation.safeParse({
         [field]: tempData[field],
@@ -189,10 +191,35 @@ export default function ProfilePage() {
 
     if (field === "resume") {
       if (!resumeFile) {
-        setEditingField(null);
+        setErrors((prev) => ({
+          ...prev,
+          resume: "Please select a resume file (.pdf) before saving.",
+        }));
         return;
       }
+
+      const fileName = resumeFile.name.toLowerCase();
+      const isPdfExt = fileName.endsWith(".pdf");
+      const isPdfMime = !resumeFile.type || resumeFile.type === "application/pdf";
+
+      if (!isPdfExt || !isPdfMime) {
+        setErrors((prev) => ({
+          ...prev,
+          resume: `Invalid file format (${resumeFile.name}). Only PDF files (.pdf) are allowed.`,
+        }));
+        return;
+      }
+
+      if (resumeFile.size > MAX_PROFILE_RESUME_SIZE_MB * 1024 * 1024) {
+        setErrors((prev) => ({
+          ...prev,
+          resume: `File size exceeds ${MAX_PROFILE_RESUME_SIZE_MB}MB limit (selected: ${(resumeFile.size / (1024 * 1024)).toFixed(1)}MB).`,
+        }));
+        return;
+      }
+
       // Upload via POST /extract-resume (same as onboarding, overwrites onboarding resume)
+      setIsUploadingResume(true);
       try {
         const formData = new FormData();
         formData.append("file", resumeFile);
@@ -220,6 +247,15 @@ export default function ProfilePage() {
       } catch (error) {
         toast.dismiss("resume-poll");
         console.error("Resume upload failed:", error);
+        setErrors((prev) => ({
+          ...prev,
+          resume: extractApiErrorMessage(
+            error,
+            "Failed to parse resume. Please ensure the file is an unencrypted, valid PDF."
+          ),
+        }));
+      } finally {
+        setIsUploadingResume(false);
       }
       return;
     }
@@ -244,23 +280,51 @@ export default function ProfilePage() {
       setEditingField(null);
     } catch (error) {
       console.error(`Field update failed for ${field}:`, error);
+      setErrors((prev) => ({
+        ...prev,
+        [field]: extractApiErrorMessage(error, `Failed to update ${field}. Please try again.`),
+      }));
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.size <= MAX_PROFILE_RESUME_SIZE_MB * 1024 * 1024) {
-      setResumeFile(file);
-    } else if (file) {
-      alert(`File size must be less than ${MAX_PROFILE_RESUME_SIZE_MB}MB`);
+    if (!file) return;
+
+    setErrors((prev) => ({ ...prev, resume: undefined }));
+
+    const fileName = file.name.toLowerCase();
+    const isPdfExt = fileName.endsWith(".pdf");
+    const isPdfMime = !file.type || file.type === "application/pdf";
+
+    if (!isPdfExt || !isPdfMime) {
+      setErrors((prev) => ({
+        ...prev,
+        resume: `Invalid file format (${file.name}). Only .pdf files are allowed. Please rename or select a valid PDF file.`,
+      }));
+      e.target.value = "";
+      setResumeFile(null);
+      return;
     }
+
+    if (file.size > MAX_PROFILE_RESUME_SIZE_MB * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        resume: `File size exceeds ${MAX_PROFILE_RESUME_SIZE_MB}MB limit (selected: ${(file.size / (1024 * 1024)).toFixed(1)}MB). Please upload a smaller PDF.`,
+      }));
+      e.target.value = "";
+      setResumeFile(null);
+      return;
+    }
+
+    setResumeFile(file);
   };
 
   const handleInputChange = (field: string, value: string) => {
     trackProfileFieldValueChanged(field, value);
     setTempData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field as keyof ProfileFormData]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    if (errors[field as EditableField]) {
+      setErrors((prev) => ({ ...prev, [field as EditableField]: undefined }));
     }
   };
 
@@ -310,9 +374,17 @@ export default function ProfilePage() {
               <button
                 onClick={() => handleFieldSave(editingField)}
                 className="btn btn-xs btn-success"
-                disabled={updateProfileMutation.isPending}
+                disabled={
+                  updateProfileMutation.isPending ||
+                  extractResumeMutation.isPending ||
+                  isUploadingResume
+                }
               >
-                {updateProfileMutation.isPending ? "Saving..." : "Update"}
+                {updateProfileMutation.isPending ||
+                extractResumeMutation.isPending ||
+                isUploadingResume
+                  ? "Saving..."
+                  : "Update"}
               </button>
             )}
           </div>
@@ -468,15 +540,20 @@ export default function ProfilePage() {
                       {/* Option 1: Upload a new resume → POST /extract-resume */}
                       <div className="flex flex-col gap-1">
                         <p className="text-xs text-gray-500">
-                          Upload a new resume (replaces current)
+                          Upload a new resume (PDF only, max 5MB, replaces current)
                         </p>
                         <input
                           type="file"
-                          className="file-input file-input-sm w-full"
-                          accept="application/pdf"
+                          className={`file-input file-input-sm w-full ${errors.resume ? "file-input-error" : ""}`}
+                          accept=".pdf,application/pdf"
                           onChange={handleFileChange}
                         />
-                        {resumeFile && (
+                        {errors.resume && (
+                          <span className="label-text-alt text-error font-medium mt-1">
+                            {errors.resume}
+                          </span>
+                        )}
+                        {resumeFile && !errors.resume && (
                           <span className="label-text-alt text-success flex items-center gap-1 mt-1">
                             <DocumentTextIcon className="size-3" />
                             {resumeFile.name} selected
@@ -502,6 +579,7 @@ export default function ProfilePage() {
                             title={!user.authorizedUser.atsResumeId ? "No ATS resume yet" : ""}
                             onClick={async () => {
                               if (!user.authorizedUser.atsResumeId) return;
+                              setAtsError(null);
                               try {
                                 await setActiveResumeMutation.mutateAsync({
                                   user_resume_id: user.authorizedUser.atsResumeId,
@@ -509,6 +587,12 @@ export default function ProfilePage() {
                                 setEditingField(null);
                               } catch (error) {
                                 console.error("Failed to set ATS resume as active:", error);
+                                setAtsError(
+                                  extractApiErrorMessage(
+                                    error,
+                                    "Failed to set ATS resume as active."
+                                  )
+                                );
                               }
                             }}
                             className="btn btn-sm btn-outline btn-primary w-full disabled:opacity-40 disabled:cursor-not-allowed"
@@ -519,6 +603,11 @@ export default function ProfilePage() {
                               "Replace with ATS Resume"
                             )}
                           </button>
+                          {atsError && (
+                            <span className="label-text-alt text-error font-medium mt-1">
+                              {atsError}
+                            </span>
+                          )}
                         </div>
                       </>
                     </div>

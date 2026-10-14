@@ -27,14 +27,14 @@ interface UseQueryApiProps<TData> {
 }
 
 interface APIError {
-  message: string;
-  success: boolean;
+  message?: string;
+  success?: boolean;
   // FastAPI's actual error shape ({"detail": "..."}) - several call sites
   // already read error.response.data.detail at runtime (it works, since
   // that's genuinely what the backend sends), but this type didn't declare
   // it, so any caller using the properly-typed mutation.error had to cast
   // around it instead of getting a real type error caught the honest way.
-  detail?: string;
+  detail?: string | { message?: string } | Array<{ msg?: string }>;
 }
 
 interface UseMutationApiProps<TData, TParams> {
@@ -45,7 +45,43 @@ interface UseMutationApiProps<TData, TParams> {
   options?: Omit<UseMutationOptions<TData, AxiosError<APIError>, TParams>, "mutationFn">;
   successMessage?: string;
   errorMessage?: string;
+  showToastError?: boolean;
 }
+
+export const extractApiErrorMessage = (
+  error: unknown,
+  fallback = "Something went wrong. Please try again."
+): string => {
+  const axiosError = error as AxiosError<APIError>;
+  const errorData = axiosError?.response?.data;
+
+  if (typeof errorData?.detail === "string" && errorData.detail.trim().length > 0) {
+    return errorData.detail;
+  }
+  if (Array.isArray(errorData?.detail) && errorData.detail.length > 0) {
+    const firstDetail = errorData.detail[0];
+    if (typeof firstDetail === "string") {
+      return firstDetail;
+    }
+    if (firstDetail && typeof firstDetail === "object" && "msg" in firstDetail) {
+      return (firstDetail as { msg?: string }).msg || fallback;
+    }
+  }
+  if (errorData?.detail && typeof errorData.detail === "object" && "message" in errorData.detail) {
+    const message = (errorData.detail as { message?: string }).message;
+    if (message && message.trim().length > 0) {
+      return message;
+    }
+  }
+  if (typeof errorData?.message === "string" && errorData.message.trim().length > 0) {
+    return errorData.message;
+  }
+  if (typeof axiosError?.message === "string" && axiosError.message.trim().length > 0) {
+    return axiosError.message;
+  }
+
+  return fallback;
+};
 
 const baseUrls = {
   [APIService.AUTH]: AUTH_BASE_URL || "",
@@ -70,6 +106,7 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
     options,
     successMessage,
     errorMessage,
+    showToastError,
   }: UseMutationApiProps<TData, TParams>) => {
     const queryClient = useQueryClient();
     const [cookies] = useCookies(["token"]);
@@ -140,15 +177,17 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
             error.response?.headers?.["x-request-id"] || error.config?.headers?.["x-request-id"],
         });
 
-        if (errorMessage) toast.error(errorMessage);
+        // Only show a toast if an error toast was specifically intended
+        // (i.e. if errorMessage is defined, or showToastError is explicitly true)
+        const shouldToast = showToastError !== undefined ? showToastError : Boolean(errorMessage);
 
-        // } else if (typeof error.response?.data?.detail === 'string') {
-        //   toast.error(error.response?.data?.detail);
-        // } else if (error.response?.data?.detail?.message) {
-        //   toast.error(error.response?.data?.detail?.message);
-        // } else {
-        //   toast.error('Something went wrong. Please try again.');
-        // }
+        if (shouldToast) {
+          const messageToShow = extractApiErrorMessage(
+            error,
+            errorMessage || "Something went wrong. Please try again."
+          );
+          toast.error(messageToShow);
+        }
       },
       ...options,
     });
