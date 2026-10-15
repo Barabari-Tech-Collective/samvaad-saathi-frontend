@@ -13,6 +13,11 @@ export interface GenerateQuestionsResponse {
     isFollowUp: boolean;
     parentQuestionId: number | null;
     followUpStrategy: string | null;
+    questionAttemptId?: number | null;
+    answerSaved?: boolean;
+    answerVersion?: number;
+    answerKind?: "audio" | "text" | null;
+    transcriptionStatus?: "pending" | "processing" | "transcribed" | "failed" | null;
     audioUrl?: string;
     supplement: {
       content: string;
@@ -30,6 +35,14 @@ export interface GenerateQuestionsResponse {
 
 export interface StartQuestionAttemptResponse {
   questionAttemptId: number;
+  created?: boolean;
+}
+
+export interface InterviewSessionLeaseResponse {
+  interviewId: number;
+  leaseToken: string;
+  leaseExpiresAt: string;
+  state: "acquired" | "renewed" | "taken_over";
 }
 
 export interface FollowUpQuestion {
@@ -45,4 +58,13 @@ export interface TranscribeResponse {
   questionAttemptId: number;
   followUpGenerated?: boolean;
   followUpQuestion?: FollowUpQuestion;
+  answerVersion?: number;
+  transcriptionStatus?: "pending" | "processing" | "transcribed" | "failed";
+}
+
+export interface TextAnswerResponse {
+  saved: boolean;
+  questionAttemptId: number;
+  answerVersion: number;
+  transcriptionStatus: "transcribed";
 }

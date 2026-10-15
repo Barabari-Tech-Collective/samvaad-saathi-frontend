@@ -27,6 +27,9 @@ export const ENDPOINTS = {
     CREATE: "interviews/create",
     GENERATE_QUESTIONS: "interviews/generate-questions",
     COMPLETE: "interviews/complete",
+    PAUSE: "interviews/pause",
+    CLAIM_SESSION: "interviews/session/claim",
+    HEARTBEAT_SESSION: "interviews/session/heartbeat",
     PROCTORING_VIOLATION: "interviews/proctoring-violation",
     QUESTIONS: (interviewId: string) => `interviews/${interviewId}/questions`,
     QUESTION_ATTEMPTS: (interviewId: string) => `interviews/${interviewId}/question-attempts`,
@@ -36,6 +39,7 @@ export const ENDPOINTS = {
   },
   TRANSCRIBE: {
     WHISPER: "transcribe-whisper",
+    TEXT_ANSWER: "answers/text",
   },
   ANALYSIS: {
     COMPLETE: "complete-analysis",
@@ -60,6 +64,20 @@ export const ENDPOINTS = {
     UPDATE: (resumeId: string) => `resume-builder/${resumeId}`,
     GET_DOWNLOAD: (resumeId: string) => `resume-builder/${resumeId}/download`,
     SYNC_TO_PROFILE: (resumeId: string) => `resume-builder/${resumeId}/sync-to-profile`,
+  },
+  BULK_ATS: {
+    ME: "bulk-ats/me",
+    BATCHES: "bulk-ats/batches",
+    BATCH: (batchId: number) => `bulk-ats/batches/${batchId}`,
+    RESUMES: (batchId: number) => `bulk-ats/batches/${batchId}/resumes`,
+    IMPORT_LINKS: (batchId: number) => `bulk-ats/batches/${batchId}/import-links`,
+    CANDIDATES: (batchId: number) => `bulk-ats/batches/${batchId}/candidates`,
+    CANDIDATE: (candidateId: number) => `bulk-ats/candidates/${candidateId}`,
+    RERUN: (candidateId: number) => `bulk-ats/candidates/${candidateId}/rerun`,
+    REVIEW: (candidateId: number) => `bulk-ats/candidates/${candidateId}/review`,
+    DRIVE_STATUS: "bulk-ats/google-drive/status",
+    DRIVE_CONNECT: "bulk-ats/google-drive/connect",
+    DRIVE_CONNECTION: "bulk-ats/google-drive/connection",
   },
 };
 

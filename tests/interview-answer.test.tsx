@@ -5,7 +5,13 @@ import { useInterviewAnswer } from "@/hooks/useInterviewAnswer";
 import { useQuestionAttempt } from "@/hooks/useQuestionAttempt";
 import Footer from "@/app/(protected)/interview/_components/Footer";
 
-const mocks = vi.hoisted(() => ({ upload: vi.fn(), analyze: vi.fn(), convert: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  upload: vi.fn(),
+  saveText: vi.fn(),
+  analyze: vi.fn(),
+  convert: vi.fn(),
+  analyzing: false,
+}));
 vi.mock("@/lib/audio-utils", () => ({
   AUDIO_CONSTRAINTS_16KHZ: {},
   resampleAudioTo16kHz: mocks.convert,
@@ -26,8 +32,12 @@ vi.mock("@/lib/posthog/tracking.utils", () => ({
 vi.mock("@/lib/api-config/src/client", () => ({
   createApiClient: () => ({
     useMutation: ({ url }: { url: string }) => ({
-      mutateAsync: url.includes("transcribe") ? mocks.upload : mocks.analyze,
-      isPending: false,
+      mutateAsync: url.includes("transcribe")
+        ? mocks.upload
+        : url.includes("answers/text")
+          ? mocks.saveText
+          : mocks.analyze,
+      isPending: url.includes("analysis") ? mocks.analyzing : false,
     }),
   }),
 }));
@@ -61,8 +71,16 @@ class Recorder {
 }
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.analyzing = false;
+  window.sessionStorage.clear();
   mocks.convert.mockResolvedValue(new Blob(["wav"], { type: "audio/wav" }));
   mocks.upload.mockResolvedValue({ saved: true, questionAttemptId: 42 });
+  mocks.saveText.mockResolvedValue({
+    saved: true,
+    questionAttemptId: 42,
+    answerVersion: 1,
+    transcriptionStatus: "transcribed",
+  });
   mocks.analyze.mockResolvedValue({});
   vi.stubGlobal("MediaRecorder", Recorder);
   Object.defineProperty(navigator, "mediaDevices", {
@@ -152,6 +170,39 @@ describe("recording recovery", () => {
     expect(trackStop).toHaveBeenCalled();
     expect(save).not.toHaveBeenCalled();
   });
+  it("restores a locally saved recording after a reload and clears it after retry", async () => {
+    const draft = new Blob(["locally saved answer"], { type: "audio/webm" });
+    const store = {
+      get: vi.fn().mockResolvedValue(draft),
+      put: vi.fn().mockResolvedValue(undefined),
+      delete: vi.fn().mockResolvedValue(undefined),
+    };
+    const save = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() =>
+      useInterviewAnswer({ save, draftKey: "attempt-42", draftStore: store })
+    );
+    await waitFor(() => expect(result.current.phase).toBe("failed"));
+    expect(result.current.error).toContain("saved on this device");
+    await act(() => result.current.retry());
+    expect(save).toHaveBeenCalledTimes(1);
+    expect(store.delete).toHaveBeenCalledWith("attempt-42");
+    expect(result.current.phase).toBe("saved");
+  });
+  it("keeps the server acknowledgement when local draft cleanup fails", async () => {
+    const store = {
+      get: vi.fn().mockResolvedValue(null),
+      put: vi.fn().mockResolvedValue(undefined),
+      delete: vi.fn().mockRejectedValue(Error("storage unavailable")),
+    };
+    const save = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() =>
+      useInterviewAnswer({ save, draftKey: "attempt-42", draftStore: store })
+    );
+    await act(() => result.current.start());
+    await act(() => result.current.stop());
+    expect(result.current.phase).toBe("saved");
+    expect(result.current.error).toBeNull();
+  });
 });
 
 describe("answer controls", () => {
@@ -197,6 +248,36 @@ describe("answer controls", () => {
     render(<Footer />);
     expect(screen.getByRole("button", { name: "Answer" })).toBeDisabled();
   });
+  it("sends the active Practice session token with recorded answers", async () => {
+    render(<Footer question_attempt_id={42} sessionLeaseToken="lease-token-1234567890" />);
+    await record();
+    await screen.findByText("Answer saved.");
+    const body = mocks.upload.mock.calls[0][0] as FormData;
+    expect(body.get("session_lease_token")).toBe("lease-token-1234567890");
+  });
+  it("restores a server-saved answer as ready to continue", () => {
+    const next = vi.fn();
+    render(<Footer question_attempt_id={42} initiallyAnswered onNext={next} />);
+    expect(screen.getByText("Answer saved.")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Redo" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+  it("saves and exits only after the parent pause request succeeds", async () => {
+    const pause = vi.fn().mockResolvedValue(undefined);
+    render(<Footer question_attempt_id={42} onSaveAndExit={pause} />);
+    fireEvent.click(screen.getByRole("button", { name: "Save and exit" }));
+    await waitFor(() => expect(pause).toHaveBeenCalledTimes(1));
+  });
+  it("keeps the student on the interview when pausing fails", async () => {
+    const pause = vi.fn().mockRejectedValue(Error("offline"));
+    render(<Footer question_attempt_id={42} onSaveAndExit={pause} />);
+    fireEvent.click(screen.getByRole("button", { name: "Save and exit" }));
+    await screen.findByText(
+      "We could not pause this interview. Your saved answers are safe. Check your connection and try again."
+    );
+    expect(screen.getByRole("button", { name: "Save and exit" })).toBeEnabled();
+  });
   it("lets Done work even if question playback changes while recording", async () => {
     const { rerender } = render(<Footer question_attempt_id={42} />);
     fireEvent.click(screen.getByRole("button", { name: "Answer" }));
@@ -224,6 +305,83 @@ describe("answer controls", () => {
     await screen.findByRole("button", { name: "Retry feedback" });
     expect(screen.getByText("Answer saved.")).toBeVisible();
     expect(screen.getByRole("button", { name: "Next" })).toBeEnabled();
+  });
+  it("lets the student continue when transcription fails after durable storage", async () => {
+    mocks.upload.mockResolvedValueOnce({
+      saved: true,
+      questionAttemptId: 42,
+      transcriptionStatus: "failed",
+    });
+    const next = vi.fn();
+    render(<Footer question_attempt_id={42} onNext={next} />);
+    await record();
+    await screen.findByText(
+      "Your answer is saved. Speech feedback is delayed, but you can continue safely."
+    );
+    expect(screen.queryByRole("button", { name: "Retry feedback" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+  it("does not block navigation while AI feedback is still processing", async () => {
+    mocks.analyzing = true;
+    const next = vi.fn();
+    render(<Footer question_attempt_id={42} onNext={next} />);
+    await record();
+    await screen.findByText("Answer saved.");
+    expect(screen.getByText("Answer saved. Preparing feedback…")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+  it("saves a typed answer when the microphone cannot be used", async () => {
+    const next = vi.fn();
+    render(<Footer question_attempt_id={42} onNext={next} />);
+    fireEvent.click(screen.getByRole("button", { name: "Type answer instead" }));
+    fireEvent.change(screen.getByLabelText("Type your answer"), {
+      target: { value: "I solved the problem by checking the logs first." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save typed answer" }));
+    await screen.findByText("Typed answer saved. Speech feedback will be limited.");
+    expect(mocks.saveText).toHaveBeenCalledWith({
+      questionAttemptId: 42,
+      text: "I solved the problem by checking the logs first.",
+      language: "en",
+    });
+    await waitFor(() =>
+      expect(mocks.analyze).toHaveBeenCalledWith({
+        question_attempt_id: 42,
+        analysisTypes: ["domain"],
+        answerVersion: 1,
+      })
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+  it("sends the active Practice session token with typed answers", async () => {
+    render(<Footer question_attempt_id={42} sessionLeaseToken="lease-token-1234567890" />);
+    fireEvent.click(screen.getByRole("button", { name: "Type answer instead" }));
+    fireEvent.change(screen.getByLabelText("Type your answer"), {
+      target: { value: "A typed response." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save typed answer" }));
+    await screen.findByText("Typed answer saved. Speech feedback will be limited.");
+    expect(mocks.saveText).toHaveBeenCalledWith({
+      questionAttemptId: 42,
+      text: "A typed response.",
+      language: "en",
+      sessionLeaseToken: "lease-token-1234567890",
+    });
+  });
+  it("restores an unsaved typed answer after refresh and clears it after save", async () => {
+    window.sessionStorage.setItem(
+      "practice-text-answer:42",
+      "My connection dropped, but this draft survived."
+    );
+    render(<Footer question_attempt_id={42} />);
+    const textarea = await screen.findByLabelText("Type your answer");
+    expect(textarea).toHaveValue("My connection dropped, but this draft survived.");
+    fireEvent.click(screen.getByRole("button", { name: "Save typed answer" }));
+    await screen.findByText("Typed answer saved. Speech feedback will be limited.");
+    expect(window.sessionStorage.getItem("practice-text-answer:42")).toBeNull();
   });
 });
 
@@ -288,4 +446,49 @@ it("stays pending without failing while the question list is still loading", () 
   expect(result.current.pending).toBe(true);
   expect(result.current.failed).toBe(false);
   expect(start).not.toHaveBeenCalled();
+});
+
+it("reuses one client attempt id across retries", async () => {
+  const start = vi.fn().mockRejectedValueOnce(Error("offline")).mockResolvedValue({
+    questionAttemptId: 77,
+  });
+  const { result } = renderHook(() => useQuestionAttempt(5, 9, start));
+  await waitFor(() => expect(result.current.failed).toBe(true));
+  await act(() => result.current.retry());
+  const firstId = start.mock.calls[0][0].clientAttemptId;
+  const secondId = start.mock.calls[1][0].clientAttemptId;
+  expect(firstId).toBe(secondId);
+  expect(firstId).toContain("practice-5-9-");
+});
+
+it("uses the server attempt checkpoint without creating a duplicate attempt", async () => {
+  const start = vi.fn();
+  const { result } = renderHook(() => useQuestionAttempt(5, 9, start, 123));
+  await waitFor(() => expect(result.current.id).toBe(123));
+  expect(result.current.pending).toBe(false);
+  expect(start).not.toHaveBeenCalled();
+});
+
+it("sends the Practice session token when creating a question attempt", async () => {
+  const start = vi.fn().mockResolvedValue({ questionAttemptId: 77 });
+  const { result } = renderHook(() =>
+    useQuestionAttempt(5, 9, start, null, "lease-token-1234567890")
+  );
+  await waitFor(() => expect(result.current.id).toBe(77));
+  expect(start).toHaveBeenCalledWith(
+    expect.objectContaining({ sessionLeaseToken: "lease-token-1234567890" })
+  );
+});
+
+it("does not create an attempt until the Practice session is writable", async () => {
+  const start = vi.fn().mockResolvedValue({ questionAttemptId: 77 });
+  const { result, rerender } = renderHook(
+    ({ enabled }) => useQuestionAttempt(5, 9, start, null, null, enabled),
+    { initialProps: { enabled: false } }
+  );
+  expect(result.current.pending).toBe(true);
+  expect(start).not.toHaveBeenCalled();
+  rerender({ enabled: true });
+  await waitFor(() => expect(result.current.id).toBe(77));
+  expect(start).toHaveBeenCalledTimes(1);
 });
