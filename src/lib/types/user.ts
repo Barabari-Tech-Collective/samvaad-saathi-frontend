@@ -18,5 +18,9 @@ export interface UserProfile {
     atsResumeId?: number | null;
     isOnboarded: boolean;
     totalAttempts: number;
+    isAdmin?: boolean;
+    isSuperAdmin?: boolean;
+    role?: "admin" | "recruiter" | "placement_staff" | null;
+    canUseBulkAts?: boolean;
   };
 }

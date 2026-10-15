@@ -1,7 +1,14 @@
 "use client";
 
 import { trackBottomNavClick } from "@/lib/posthog/tracking.utils";
-import { HomeIcon, ListBulletIcon, UserIcon, DocumentTextIcon } from "@heroicons/react/24/solid";
+import { useAuth } from "@/components/providers/auth-provider";
+import {
+  BriefcaseIcon,
+  DocumentTextIcon,
+  HomeIcon,
+  ListBulletIcon,
+  UserIcon,
+} from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { TargetPracticeIcon } from "./icons";
@@ -12,6 +19,7 @@ import { TargetPracticeIcon } from "./icons";
  */
 export default function BottomNav({ className = "" }: { className?: string }) {
   const pathname = usePathname();
+  const { user } = useAuth();
 
   // Determine which nav item should be active based on pathname
   const getActiveNav = () => {
@@ -19,6 +27,7 @@ export default function BottomNav({ className = "" }: { className?: string }) {
     if (pathname.startsWith("/history")) return "history";
     if (pathname.startsWith("/practice")) return "practice";
     if (pathname.startsWith("/ai-resume")) return "ai-resume";
+    if (pathname.startsWith("/bulk-ats")) return "bulk-ats";
     if (pathname.startsWith("/profile")) return "profile";
     return undefined;
   };
@@ -73,6 +82,17 @@ export default function BottomNav({ className = "" }: { className?: string }) {
       >
         <DocumentTextIcon className="size-7" />
       </Link>
+
+      {user?.authorizedUser.canUseBulkAts && (
+        <Link
+          href="/bulk-ats"
+          className={`${baseItemClass} ${isActive("bulk-ats") ? "text-white" : "text-gray-400"}`}
+          onClick={() => handleClick("bulk-ats")}
+          aria-label="Open Bulk ATS"
+        >
+          <BriefcaseIcon className="size-7" />
+        </Link>
+      )}
 
       <Link
         href="/profile"
