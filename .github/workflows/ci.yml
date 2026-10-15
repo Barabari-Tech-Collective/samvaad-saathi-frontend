@@ -41,7 +41,9 @@ jobs:
         run: npm run build
 
       - name: Check production release script syntax
-        run: python3 -m py_compile ops/release.py
+        run: >-
+          python3 -m py_compile ops/release.py ops/test_release.py &&
+          python3 -m unittest ops.test_release
 
       - name: Install browser
         run: npx playwright install --with-deps chromium
