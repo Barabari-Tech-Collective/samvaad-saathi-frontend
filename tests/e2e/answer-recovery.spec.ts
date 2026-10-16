@@ -33,3 +33,40 @@ test("real MediaRecorder retains a failed answer and retries the same WAV before
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Next question" })).toBeVisible();
 });
+
+test("a durable answer can advance while speech feedback is still processing", async ({ page }) => {
+  await page.route("**/api/transcribe-whisper", (route) =>
+    route.fulfill({
+      status: 202,
+      json: {
+        saved: true,
+        questionAttemptId: 42,
+        answerVersion: 1,
+        transcriptionStatus: "pending",
+      },
+    })
+  );
+  await page.route("**/api/audio/attempts/42/transcription", (route) =>
+    route.fulfill({
+      status: 200,
+      json: {
+        questionAttemptId: 42,
+        status: "processing",
+        isTerminal: false,
+        saved: true,
+        answerVersion: 1,
+      },
+    })
+  );
+
+  await page.goto("/");
+  await page.getByRole("button", { name: "Answer", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Listening…" })).toBeVisible();
+  await page.waitForTimeout(1200);
+  await page.getByRole("button", { name: "Done", exact: true }).click();
+
+  await expect(page.getByText("Answer saved. Preparing speech feedback…")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Next", exact: true })).toBeEnabled();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Next question" })).toBeVisible();
+});

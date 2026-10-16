@@ -761,6 +761,9 @@ const InterviewPage = () => {
             }
             question_attempt_id={attempt.id}
             initiallyAnswered={questions?.[currentQuestionIndex]?.answerSaved === true}
+            initialTranscriptionStatus={
+              questions?.[currentQuestionIndex]?.transcriptionStatus ?? null
+            }
             followUpStrategy={questions?.[currentQuestionIndex]?.followUpStrategy ?? null}
             isCurrentQuestionFollowUp={questions?.[currentQuestionIndex]?.isFollowUp ?? false}
             onNext={handleNextQuestion}

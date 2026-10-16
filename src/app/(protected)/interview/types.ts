@@ -62,6 +62,19 @@ export interface TranscribeResponse {
   transcriptionStatus?: "pending" | "processing" | "transcribed" | "failed";
 }
 
+export interface TranscriptionStatusResponse {
+  questionAttemptId: number;
+  status: "pending" | "processing" | "transcribed" | "failed";
+  isTerminal: boolean;
+  saved: boolean;
+  answerVersion: number;
+  transcription?: { text?: string; language?: string } | null;
+  wordCount?: number | null;
+  error?: string | null;
+  followUpQuestion?: FollowUpQuestion | null;
+  updatedAt?: string | null;
+}
+
 export interface TextAnswerResponse {
   saved: boolean;
   questionAttemptId: number;

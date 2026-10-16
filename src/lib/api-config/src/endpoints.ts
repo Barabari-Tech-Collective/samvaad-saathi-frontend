@@ -40,6 +40,8 @@ export const ENDPOINTS = {
   TRANSCRIBE: {
     WHISPER: "transcribe-whisper",
     TEXT_ANSWER: "answers/text",
+    STATUS: (questionAttemptId: number) => `audio/attempts/${questionAttemptId}/transcription`,
+    RETRY: (questionAttemptId: number) => `audio/attempts/${questionAttemptId}/transcription/retry`,
   },
   ANALYSIS: {
     COMPLETE: "complete-analysis",

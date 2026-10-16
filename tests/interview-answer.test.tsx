@@ -9,8 +9,25 @@ const mocks = vi.hoisted(() => ({
   upload: vi.fn(),
   saveText: vi.fn(),
   analyze: vi.fn(),
+  retrySpeech: vi.fn(),
   convert: vi.fn(),
   analyzing: false,
+  transcription: undefined as
+    | {
+        questionAttemptId: number;
+        status: "pending" | "processing" | "transcribed" | "failed";
+        isTerminal: boolean;
+        saved: boolean;
+        answerVersion: number;
+        followUpQuestion?: {
+          interviewQuestionId: number;
+          questionAttemptId: number;
+          parentQuestionId: number;
+          text: string;
+          strategy: string;
+        };
+      }
+    | undefined,
 }));
 vi.mock("@/lib/audio-utils", () => ({
   AUDIO_CONSTRAINTS_16KHZ: {},
@@ -31,12 +48,15 @@ vi.mock("@/lib/posthog/tracking.utils", () => ({
 }));
 vi.mock("@/lib/api-config/src/client", () => ({
   createApiClient: () => ({
+    useQuery: () => ({ data: mocks.transcription }),
     useMutation: ({ url }: { url: string }) => ({
-      mutateAsync: url.includes("transcribe")
-        ? mocks.upload
-        : url.includes("answers/text")
-          ? mocks.saveText
-          : mocks.analyze,
+      mutateAsync: url.includes("/retry")
+        ? mocks.retrySpeech
+        : url.includes("transcribe-whisper")
+          ? mocks.upload
+          : url.includes("answers/text")
+            ? mocks.saveText
+            : mocks.analyze,
       isPending: url.includes("analysis") ? mocks.analyzing : false,
     }),
   }),
@@ -72,6 +92,7 @@ class Recorder {
 beforeEach(() => {
   vi.clearAllMocks();
   mocks.analyzing = false;
+  mocks.transcription = undefined;
   window.sessionStorage.clear();
   mocks.convert.mockResolvedValue(new Blob(["wav"], { type: "audio/wav" }));
   mocks.upload.mockResolvedValue({ saved: true, questionAttemptId: 42 });
@@ -82,6 +103,13 @@ beforeEach(() => {
     transcriptionStatus: "transcribed",
   });
   mocks.analyze.mockResolvedValue({});
+  mocks.retrySpeech.mockResolvedValue({
+    questionAttemptId: 42,
+    status: "pending",
+    isTerminal: false,
+    saved: true,
+    answerVersion: 1,
+  });
   vi.stubGlobal("MediaRecorder", Recorder);
   Object.defineProperty(navigator, "mediaDevices", {
     configurable: true,
@@ -318,9 +346,110 @@ describe("answer controls", () => {
     await screen.findByText(
       "Your answer is saved. Speech feedback is delayed, but you can continue safely."
     );
-    expect(screen.queryByRole("button", { name: "Retry feedback" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Retry speech feedback" })).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
     expect(next).toHaveBeenCalledTimes(1);
+  });
+  it("unblocks Next as soon as a recording is durable while speech feedback runs", async () => {
+    mocks.upload.mockResolvedValueOnce({
+      saved: true,
+      questionAttemptId: 42,
+      answerVersion: 1,
+      transcriptionStatus: "pending",
+    });
+    const next = vi.fn();
+    render(<Footer question_attempt_id={42} onNext={next} />);
+    await record();
+    await screen.findByText("Answer saved. Preparing speech feedback…");
+    expect(screen.getByRole("button", { name: "Next" })).toBeEnabled();
+    expect(mocks.analyze).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+  it("explains the tradeoff before leaving an adaptive question still processing", async () => {
+    mocks.upload.mockResolvedValueOnce({
+      saved: true,
+      questionAttemptId: 42,
+      answerVersion: 1,
+      transcriptionStatus: "processing",
+    });
+    const next = vi.fn();
+    render(
+      <Footer question_attempt_id={42} followUpStrategy="llm_transcription_based" onNext={next} />
+    );
+    await record();
+    fireEvent.click(await screen.findByRole("button", { name: "Next" }));
+    expect(
+      screen.getByRole("heading", { name: "Continue before the follow-up is ready?" })
+    ).toBeVisible();
+    expect(next).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Continue without follow-up" }));
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+  it("reattaches to background work and consumes a completed follow-up once", async () => {
+    const onFollowUpQuestion = vi.fn();
+    mocks.transcription = {
+      questionAttemptId: 42,
+      status: "transcribed",
+      isTerminal: true,
+      saved: true,
+      answerVersion: 4,
+      followUpQuestion: {
+        interviewQuestionId: 70,
+        questionAttemptId: 71,
+        parentQuestionId: 10,
+        text: "What did you learn from that incident?",
+        strategy: "llm_transcription_based",
+      },
+    };
+    const { rerender } = render(
+      <Footer
+        question_attempt_id={42}
+        initiallyAnswered
+        initialTranscriptionStatus="processing"
+        onFollowUpQuestion={onFollowUpQuestion}
+      />
+    );
+    await waitFor(() => expect(onFollowUpQuestion).toHaveBeenCalledTimes(1));
+    await waitFor(() =>
+      expect(mocks.analyze).toHaveBeenCalledWith({
+        question_attempt_id: 42,
+        analysisTypes: ["domain", "communication", "pace", "pause"],
+        answerVersion: 4,
+      })
+    );
+    rerender(
+      <Footer
+        question_attempt_id={42}
+        initiallyAnswered
+        initialTranscriptionStatus="processing"
+        onFollowUpQuestion={onFollowUpQuestion}
+      />
+    );
+    expect(onFollowUpQuestion).toHaveBeenCalledTimes(1);
+  });
+  it("retries only speech feedback without re-uploading the saved recording", async () => {
+    mocks.upload.mockResolvedValueOnce({
+      saved: true,
+      questionAttemptId: 42,
+      answerVersion: 1,
+      transcriptionStatus: "failed",
+    });
+    render(<Footer question_attempt_id={42} />);
+    await record();
+    fireEvent.click(await screen.findByRole("button", { name: "Retry speech feedback" }));
+    await waitFor(() => expect(mocks.retrySpeech).toHaveBeenCalledTimes(1));
+    expect(mocks.upload).toHaveBeenCalledTimes(1);
+    await screen.findByText("Answer saved. Preparing speech feedback…");
+  });
+  it("restores a failed speech job after refresh with a separate retry", async () => {
+    render(
+      <Footer question_attempt_id={42} initiallyAnswered initialTranscriptionStatus="failed" />
+    );
+    expect(screen.getByRole("button", { name: "Next" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "Retry speech feedback" }));
+    await waitFor(() => expect(mocks.retrySpeech).toHaveBeenCalledTimes(1));
+    expect(mocks.upload).not.toHaveBeenCalled();
   });
   it("does not block navigation while AI feedback is still processing", async () => {
     mocks.analyzing = true;
