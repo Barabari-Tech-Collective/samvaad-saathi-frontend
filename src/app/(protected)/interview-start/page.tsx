@@ -12,6 +12,7 @@ import {
   offeredDifficulties,
   unavailableDifficultyMessage,
 } from "@/lib/interview-difficulty";
+import { profilesForMode, type InterviewMode } from "@/lib/interview-mode";
 import { setInterviewQuestions } from "@/lib/interview-session-storage";
 import {
   trackDifficultySelected,
@@ -48,6 +49,7 @@ interface JobProfile {
   title: string;
   description: string;
   category?: string;
+  interviewMode?: InterviewMode;
   created_at: string;
   /**
    * Difficulties the facilitator has published enough questions for, easiest
@@ -102,8 +104,6 @@ const HR_SELECT_PREFIX = "hr::";
  * one dropdown with no label distinguishing them, so a student had no way to
  * know which kind of interview they were about to start.
  */
-type InterviewMode = "practice" | "assessment";
-
 function readInterviewMode(value: string | null): InterviewMode {
   return value === "assessment" ? "assessment" : "practice";
 }
@@ -127,6 +127,7 @@ export default function InterviewStartPage() {
     });
 
   const jobProfiles = jobProfilesData?.items ?? [];
+  const assessmentProfiles = profilesForMode(jobProfiles, "assessment");
 
   // A selection made under one mode must not carry into the other - the two
   // pools use the same "hr::" value shape, so without this a leftover
@@ -231,6 +232,16 @@ export default function InterviewStartPage() {
   const handleSubmit = async () => {
     if (!selection) return;
 
+    if (
+      mode === "assessment" &&
+      (selection.kind !== "hr" || selectedProfile?.interviewMode !== "assessment")
+    ) {
+      toast.error(
+        "This role is not configured for a formal assessment. Please select an assessment role."
+      );
+      return;
+    }
+
     // The picker already disables these, but a stale profile list or a mid-session
     // change by the facilitator can still leave an unavailable level selected.
     // Saying so here is better than submitting and surfacing a server refusal.
@@ -267,6 +278,12 @@ export default function InterviewStartPage() {
         const data = await createInterview({ track, difficulty, jobProfileId });
         // console.log("Data to create interview", data);
         if (data?.interviewId) {
+          if (mode === "assessment" && data.interviewMode !== "assessment") {
+            toast.error(
+              "The selected role is no longer configured for assessment. Please choose another role."
+            );
+            return;
+          }
           router.push(
             `/interview?interviewId=${data.interviewId}&useResume=${useResume}&role=${encodeURIComponent(track)}&interviewMode=${data.interviewMode ?? "practice"}`
           );
@@ -278,6 +295,12 @@ export default function InterviewStartPage() {
           useResume,
         });
         if (result?.interviewId) {
+          if (mode === "assessment" && result.interviewMode !== "assessment") {
+            toast.error(
+              "The selected role is no longer configured for assessment. Please choose another role."
+            );
+            return;
+          }
           setInterviewQuestions(result.interviewId, result.items);
           router.push(
             `/interview?interviewId=${result.interviewId}&useResume=${useResume}&role=${encodeURIComponent(selection.jobName)}&resumed=true&interviewMode=${result.interviewMode ?? "practice"}`
@@ -306,7 +329,7 @@ export default function InterviewStartPage() {
 
       <div>
         <label className="block text-[14px] font-noto font-[500] text-black mb-2">Role</label>
-        {mode === "assessment" && !isLoadingProfiles && jobProfiles.length === 0 ? (
+        {mode === "assessment" && !isLoadingProfiles && assessmentProfiles.length === 0 ? (
           <p className="text-[13px] text-gray-600 font-noto">
             No assessment roles are available yet. Check back once your facilitator has published
             one.
@@ -328,9 +351,9 @@ export default function InterviewStartPage() {
                 </option>
               ))}
             {mode === "assessment" &&
-              jobProfiles.length > 0 &&
+              assessmentProfiles.length > 0 &&
               Object.entries(
-                jobProfiles.reduce(
+                assessmentProfiles.reduce(
                   (acc, profile) => {
                     const category = profile.category || "HR & Non-Technical";
                     if (!acc[category]) acc[category] = [];
