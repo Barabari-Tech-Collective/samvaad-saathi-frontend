@@ -21,7 +21,12 @@ import {
   trackSkipQuestionClick,
   trackSubmitInterviewClick,
 } from "@/lib/posthog/tracking.utils";
-import type { FollowUpQuestion, TextAnswerResponse, TranscribeResponse } from "../types";
+import type {
+  FollowUpQuestion,
+  TextAnswerResponse,
+  TranscribeResponse,
+  TranscriptionStatusResponse,
+} from "../types";
 
 interface Recognition {
   continuous: boolean;
@@ -47,6 +52,7 @@ interface FooterProps {
   isIntroStep?: boolean;
   timerExpired?: boolean;
   initiallyAnswered?: boolean;
+  initialTranscriptionStatus?: TranscriptionStatusResponse["status"] | null;
   onSaveAndExit?: () => Promise<void>;
   sessionLeaseToken?: string | null;
   onSessionConflict?: () => void;
@@ -65,15 +71,18 @@ export default function Footer({
   isIntroStep = false,
   timerExpired = false,
   initiallyAnswered = false,
+  initialTranscriptionStatus = null,
   onSaveAndExit,
   sessionLeaseToken,
   onSessionConflict,
 }: FooterProps) {
-  const [modal, setModal] = useState<"skip" | "submit" | "discard" | null>(null);
+  const [modal, setModal] = useState<"skip" | "submit" | "discard" | "continue" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [analysisError, setAnalysisError] = useState(false);
-  const [speechFeedbackDelayed, setSpeechFeedbackDelayed] = useState(false);
+  const [speechFeedbackDelayed, setSpeechFeedbackDelayed] = useState(
+    initialTranscriptionStatus === "failed"
+  );
   const [waveformBars, setWaveformBars] = useState<number[]>(Array(20).fill(8));
   const [caption, setCaption] = useState("");
   const [typedMode, setTypedMode] = useState(false);
@@ -82,6 +91,9 @@ export default function Footer({
   const [typedSaving, setTypedSaving] = useState(false);
   const [typedError, setTypedError] = useState<string | null>(null);
   const [serverAnswered, setServerAnswered] = useState(initiallyAnswered);
+  const [transcriptionStatus, setTranscriptionStatus] = useState<
+    TranscriptionStatusResponse["status"] | null
+  >(initialTranscriptionStatus);
   const [isPausing, setIsPausing] = useState(false);
   const [pauseError, setPauseError] = useState<string | null>(null);
   const analysisRef = useRef<AudioAnalysisContext | null>(null);
@@ -93,6 +105,7 @@ export default function Footer({
   const skipFirstTypedDraftSyncRef = useRef(true);
   const analysisTypesRef = useRef(["domain", "communication", "pace", "pause"]);
   const answerVersionRef = useRef<number | undefined>(undefined);
+  const terminalTranscriptionHandledRef = useRef(false);
   const api = createApiClient(APIService.TRANSCRIBE);
   const typedDraftKey = question_attempt_id
     ? `practice-text-answer:${question_attempt_id}`
@@ -109,6 +122,26 @@ export default function Footer({
     { questionAttemptId: number; text: string; language: string; sessionLeaseToken?: string }
   >({
     url: ENDPOINTS.TRANSCRIBE.TEXT_ANSWER,
+    method: "post",
+  });
+  const shouldPollTranscription =
+    Boolean(question_attempt_id) &&
+    (transcriptionStatus === "pending" || transcriptionStatus === "processing");
+  const { data: transcriptionProgress } = api.useQuery<TranscriptionStatusResponse>({
+    key: ["answer-transcription", question_attempt_id],
+    url: ENDPOINTS.TRANSCRIBE.STATUS(question_attempt_id ?? 0),
+    enabled: shouldPollTranscription,
+    options: {
+      staleTime: 0,
+      refetchInterval: shouldPollTranscription ? 1500 : false,
+      retry: 3,
+    },
+  });
+  const { mutateAsync: retrySpeechFeedback, isPending: isRetryingSpeechFeedback } = api.useMutation<
+    TranscriptionStatusResponse,
+    undefined
+  >({
+    url: ENDPOINTS.TRANSCRIBE.RETRY(question_attempt_id ?? 0),
     method: "post",
   });
 
@@ -173,13 +206,19 @@ export default function Footer({
       setTypedSaved(false);
       // Scoring can be retried separately after the answer is durably acknowledged.
       trackAnswerRecorded(Math.round((Date.now() - startedAtRef.current) / 1000));
-      if (result.followUpGenerated && result.followUpQuestion)
-        onFollowUpQuestion?.(result.followUpQuestion);
-      if (result.transcriptionStatus !== "failed") {
+      const status = result.transcriptionStatus ?? "transcribed";
+      answerVersionRef.current = result.answerVersion;
+      setTranscriptionStatus(status);
+      terminalTranscriptionHandledRef.current = status === "transcribed";
+      if (status === "transcribed") {
+        if (result.followUpGenerated && result.followUpQuestion)
+          onFollowUpQuestion?.(result.followUpQuestion);
         setSpeechFeedbackDelayed(false);
         void analyze(["domain", "communication", "pace", "pause"], result.answerVersion);
-      } else {
+      } else if (status === "failed") {
         setSpeechFeedbackDelayed(true);
+      } else {
+        setSpeechFeedbackDelayed(false);
       }
     },
     onStream: (stream) => {
@@ -221,6 +260,39 @@ export default function Footer({
     onStop: stopVisuals,
   });
 
+  useEffect(() => {
+    if (!transcriptionProgress || transcriptionProgress.questionAttemptId !== question_attempt_id)
+      return;
+    setTranscriptionStatus(transcriptionProgress.status);
+    if (transcriptionProgress.status === "failed") {
+      setSpeechFeedbackDelayed(true);
+      return;
+    }
+    if (!transcriptionProgress.isTerminal) {
+      setSpeechFeedbackDelayed(false);
+      return;
+    }
+    if (transcriptionProgress.status !== "transcribed" || terminalTranscriptionHandledRef.current)
+      return;
+    terminalTranscriptionHandledRef.current = true;
+    setSpeechFeedbackDelayed(false);
+    if (transcriptionProgress.followUpQuestion)
+      onFollowUpQuestion?.(transcriptionProgress.followUpQuestion);
+    void analyze(["domain", "communication", "pace", "pause"], transcriptionProgress.answerVersion);
+  }, [transcriptionProgress, question_attempt_id, onFollowUpQuestion]);
+
+  async function retryDelayedSpeechFeedback() {
+    if (!question_attempt_id || isRetryingSpeechFeedback) return;
+    try {
+      const result = await retrySpeechFeedback(undefined);
+      terminalTranscriptionHandledRef.current = false;
+      setTranscriptionStatus(result.status);
+      setSpeechFeedbackDelayed(result.status === "failed");
+    } catch {
+      setSpeechFeedbackDelayed(true);
+    }
+  }
+
   const busy = ["requesting", "saving"].includes(answer.phase) || isSubmitting || typedSaving;
   // "unsaved" means captured audio that is not yet durably stored, so it must gate
   // Next and Submit. A pending microphone prompt has captured nothing, and
@@ -250,6 +322,7 @@ export default function Footer({
       setTypedMode(false);
       setTypedAnswer("");
       setSpeechFeedbackDelayed(false);
+      setTranscriptionStatus("transcribed");
       void analyze(["domain"], result.answerVersion);
     } catch (error) {
       if (getSessionLeaseErrorCode(error)) onSessionConflict?.();
@@ -357,6 +430,14 @@ export default function Footer({
     // Moving on abandons any microphone prompt still waiting for an answer.
     if (answer.phase === "requesting") answer.cancel();
     if (answered) {
+      if (
+        followUpStrategy === "llm_transcription_based" &&
+        !isCurrentQuestionFollowUp &&
+        (transcriptionStatus === "pending" || transcriptionStatus === "processing")
+      ) {
+        setModal("continue");
+        return;
+      }
       trackButtonClick("next_question", "interview_footer");
       onNext?.();
     } else setModal("skip");
@@ -409,9 +490,16 @@ export default function Footer({
         </div>
       )}
       {speechFeedbackDelayed && (
-        <p role="status" className="text-amber-800">
-          Your answer is saved. Speech feedback is delayed, but you can continue safely.
-        </p>
+        <div role="status" className="text-amber-800">
+          Your answer is saved. Speech feedback is delayed, but you can continue safely.{" "}
+          <button
+            className="btn btn-sm"
+            onClick={() => void retryDelayedSpeechFeedback()}
+            disabled={isRetryingSpeechFeedback}
+          >
+            {isRetryingSpeechFeedback ? "Retrying…" : "Retry speech feedback"}
+          </button>
+        </div>
       )}
       {answer.phase === "failed" && (
         <button className="btn btn-primary" onClick={() => void answer.retry()}>
@@ -424,6 +512,9 @@ export default function Footer({
         </button>
       )}
       {isAnalyzing && <p role="status">Answer saved. Preparing feedback…</p>}
+      {(transcriptionStatus === "pending" || transcriptionStatus === "processing") && (
+        <p role="status">Answer saved. Preparing speech feedback…</p>
+      )}
       {answer.phase === "saving" && (
         <p role="status">
           {followUpStrategy === "llm_transcription_based" && !isCurrentQuestionFollowUp
@@ -436,9 +527,11 @@ export default function Footer({
           Allow microphone access in your browser. This will time out if no permission is given.
         </p>
       )}
-      {(answer.phase === "saved" || (serverAnswered && answer.phase === "idle")) && (
-        <p role="status">{isIntroStep ? "Introduction complete." : "Answer saved."}</p>
-      )}
+      {(answer.phase === "saved" || (serverAnswered && answer.phase === "idle")) &&
+        transcriptionStatus !== "pending" &&
+        transcriptionStatus !== "processing" && (
+          <p role="status">{isIntroStep ? "Introduction complete." : "Answer saved."}</p>
+        )}
       {typedSaved && <p role="status">Typed answer saved. Speech feedback will be limited.</p>}
       {isLoading ? (
         <p role="status">Loading question…</p>
@@ -580,14 +673,18 @@ export default function Footer({
                 ? "Discard this unsaved recording?"
                 : modal === "skip"
                   ? "Skip this question?"
-                  : "Submit interview?"}
+                  : modal === "continue"
+                    ? "Continue before the follow-up is ready?"
+                    : "Submit interview?"}
             </h3>
             <p className="py-4">
               {modal === "discard"
                 ? "This recording has not been saved and will be lost. You can cancel and retry saving it instead."
                 : modal === "skip"
                   ? "This question will have no recorded answer."
-                  : "Your saved answers will be submitted for review."}
+                  : modal === "continue"
+                    ? "Your answer is saved. Speech feedback and an adaptive follow-up are still being prepared. You can wait, or continue without answering that follow-up now."
+                    : "Your saved answers will be submitted for review."}
             </p>
             <div className="modal-action">
               <button className="btn btn-ghost" onClick={() => setModal(null)}>
@@ -601,7 +698,11 @@ export default function Footer({
                     answer.discard();
                     setModal(null);
                   } else if (modal === "submit") void submit();
-                  else {
+                  else if (modal === "continue") {
+                    trackButtonClick("continue_without_follow_up", "interview_footer");
+                    setModal(null);
+                    onNext?.();
+                  } else {
                     trackSkipQuestionClick();
                     setModal(null);
                     onNext?.();
@@ -612,7 +713,9 @@ export default function Footer({
                   ? "Yes, discard recording"
                   : modal === "skip"
                     ? "Yes, Skip"
-                    : "Yes, Submit"}
+                    : modal === "continue"
+                      ? "Continue without follow-up"
+                      : "Yes, Submit"}
               </button>
             </div>
           </div>
