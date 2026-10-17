@@ -34,7 +34,7 @@ export default function BottomNav({ className = "" }: { className?: string }) {
 
   const active = getActiveNav();
   const baseItemClass =
-    "flex flex-col items-center justify-center cursor-pointer transition-colors duration-200 hover:text-white";
+    "flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 text-[10px] font-semibold cursor-pointer transition-colors duration-200 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
   const isActive = (key: string) => active === key;
 
   // Handle tracking on navigation
@@ -53,7 +53,8 @@ export default function BottomNav({ className = "" }: { className?: string }) {
         onClick={() => handleClick("home")}
         aria-label="Go to home"
       >
-        <HomeIcon className="size-7" />
+        <HomeIcon className="size-6" />
+        <span>Home</span>
       </Link>
 
       <Link
@@ -62,7 +63,8 @@ export default function BottomNav({ className = "" }: { className?: string }) {
         onClick={() => handleClick("history")}
         aria-label="Go to history"
       >
-        <ListBulletIcon className="size-7" />
+        <ListBulletIcon className="size-6" />
+        <span>History</span>
       </Link>
 
       <Link
@@ -71,7 +73,8 @@ export default function BottomNav({ className = "" }: { className?: string }) {
         onClick={() => handleClick("practice")}
         aria-label="Go to target practice"
       >
-        <TargetPracticeIcon className="size-10" />
+        <TargetPracticeIcon className="size-8" />
+        <span>Practice</span>
       </Link>
 
       <Link
@@ -80,7 +83,8 @@ export default function BottomNav({ className = "" }: { className?: string }) {
         onClick={() => handleClick("ai-resume")}
         aria-label="Go to AI Resume"
       >
-        <DocumentTextIcon className="size-7" />
+        <DocumentTextIcon className="size-6" />
+        <span>Resume</span>
       </Link>
 
       {user?.authorizedUser.canUseBulkAts && (
@@ -90,7 +94,8 @@ export default function BottomNav({ className = "" }: { className?: string }) {
           onClick={() => handleClick("bulk-ats")}
           aria-label="Open Bulk ATS"
         >
-          <BriefcaseIcon className="size-7" />
+          <BriefcaseIcon className="size-6" />
+          <span>ATS</span>
         </Link>
       )}
 
@@ -100,7 +105,8 @@ export default function BottomNav({ className = "" }: { className?: string }) {
         onClick={() => handleClick("profile")}
         aria-label="Go to profile"
       >
-        <UserIcon className="size-7" />
+        <UserIcon className="size-6" />
+        <span>Profile</span>
       </Link>
     </nav>
   );
