@@ -33,6 +33,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { ProfileFieldRow } from "./_components/ProfileFieldRow";
 import { ProfileSkeleton } from "./_components/ProfileSkeleton";
+import PracticeConsentCard from "./_components/PracticeConsentCard";
 import { VoiceSelector } from "./_components/VoiceSelector";
 
 const usersApiClient = createApiClient(APIService.USERS);
@@ -365,6 +366,8 @@ export default function ProfilePage() {
         </div>
 
         <div className="divider" />
+
+        <PracticeConsentCard />
 
         {/* Profile Information */}
         <div className="space-y-4 my-4">
