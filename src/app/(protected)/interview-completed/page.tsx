@@ -1,4 +1,5 @@
 "use client";
+
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS, ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
@@ -6,117 +7,118 @@ import {
   trackReportGenerationError,
   trackReportGenerationStart,
 } from "@/lib/posthog/tracking.utils";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 
-const InterviewCompleted = () => {
+export default function InterviewCompleted() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const interviewId = searchParams.get("interviewId");
-  const role = searchParams.get("role") || "Interview";
-
+  const role = searchParams.get("role") || "practice";
+  const startedRef = useRef(false);
   const apiClient = createApiClient(APIServiceV2.INTERVIEWS);
 
-  // Generate final report mutation
-  const { mutateAsync: generateFinalReport, isPending: isGeneratingReport } = apiClient.useMutation<
-    unknown,
-    { interviewId: number }
-  >({
+  const {
+    mutateAsync: generateReport,
+    isPending,
+    isError,
+  } = apiClient.useMutation<unknown, { interviewId: number }>({
     url: ENDPOINTS_V2.SUMMARY_REPORT,
     method: "post",
-    successMessage: "Report generated successfully!",
-    errorMessage: "Failed to generate report. Please try again.",
+    showToastError: false,
     options: {
-      onSuccess: () => {
-        router.push(`/report-summary?interviewId=${interviewId}`);
-      },
-      onError: (error) => {
-        // Track report generation error
-        trackReportGenerationError(error?.message || "Unknown error occurred");
-      },
+      onSuccess: () => router.replace(`/report-summary?interviewId=${interviewId}`),
+      onError: (error) => trackReportGenerationError(error.message || "Unknown report error"),
     },
     keyToInvalidate: {
       queryKey: [ENDPOINTS.INTERVIEWS.LIST, ENDPOINTS.INTERVIEWS.WITH_SUMMARY],
     },
   });
 
-  const generateReport = async () => {
-    try {
-      console.log("interviewId for generating report:", interviewId);
-      if (interviewId) {
-        await generateFinalReport({
-          interviewId: parseInt(interviewId),
-        });
-      } else {
-        toast.error("Interview ID is required for generating report");
-      }
-    } catch (error) {
-      console.error("Failed to generate final report:", error);
-      console.log("Failed to generate final report:", error);
-      toast.error("Failed to generate final report");
-    }
-  };
-
-  // Track screen view on component mount
-  useEffect(() => {
-    if (!interviewId) {
+  const prepareReport = useCallback(async () => {
+    const parsedId = Number(interviewId);
+    if (!Number.isInteger(parsedId) || parsedId <= 0) {
+      toast.error("This interview could not be identified. Open it again from History.");
       return;
     }
-
-    // Track report generation start
     trackReportGenerationStart();
+    try {
+      await generateReport({ interviewId: parsedId });
+    } catch {
+      // The mutation owns error tracking; the screen keeps an explicit recovery action available.
+    }
+  }, [generateReport, interviewId]);
 
-    generateReport();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [interviewId]);
+  useEffect(() => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    void prepareReport();
+  }, [prepareReport]);
 
   return (
-    <div className="hero">
-      <div className="hero-content text-center">
-        <div className="max-w-md">
-          {/* Lottie Animation */}
-          <div className="mb-8">
-            <DotLottieReact src="assets/lottie/Trophy.lottie" autoplay />
+    <main className="mx-auto flex min-h-[70vh] w-full max-w-2xl items-center py-10">
+      <section
+        className="w-full rounded-3xl border border-[#D6E0FB] bg-white p-6 text-center shadow-[0_18px_50px_rgba(31,40,91,0.08)] sm:p-10"
+        aria-live="polite"
+      >
+        <CheckCircleIcon className="mx-auto size-14 text-emerald-600" aria-hidden="true" />
+        <p className="mt-5 text-sm font-bold uppercase tracking-[0.14em] text-[#344499]">
+          Interview saved
+        </p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+          You completed your {role} interview
+        </h1>
+        <p className="mx-auto mt-4 max-w-xl leading-7 text-gray-600">
+          Your answers are already saved. You can leave this page safely while we prepare
+          evidence-based coaching.
+        </p>
+
+        <div className="mx-auto mt-7 max-w-md rounded-2xl bg-[#F9FAFB] p-5 text-left">
+          <div className="flex items-start gap-3">
+            <ClockIcon
+              className={`mt-0.5 size-6 shrink-0 text-[#344499] ${isPending ? "animate-pulse" : ""}`}
+              aria-hidden="true"
+            />
+            <div>
+              <h2 className="font-bold">
+                {isError ? "Coaching is delayed" : "Checking transcripts and evidence"}
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-gray-600">
+                {isError
+                  ? "Nothing was lost. You can retry now or check History later."
+                  : "We validate each answer before showing a score. Missing evidence will be labelled instead of guessed."}
+              </p>
+            </div>
           </div>
-
-          {/* Congratulations Message */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold italic">
-            Congratulations!
-          </h1>
-
-          {/* Success Message */}
-          <p className="py-4 sm:py-6 text-base sm:text-lg md:text-xl">
-            You have successfully completed your{" "}
-            <span className="text-primary font-semibold">{role}</span> interview
-          </p>
-
-          {/* Loading State */}
-          {isGeneratingReport ? (
-            <>
-              <p className="text-sm sm:text-base md:text-lg text-base-content/70 mb-6 sm:mb-8">
-                Generating your performance report...
-              </p>
-              <div className="flex justify-center">
-                <span className="loading loading-spinner loading-lg"></span>
-              </div>
-              <p className="mt-4 text-sm text-base-content/60">
-                Please wait while we analyze your interview
-              </p>
-            </>
-          ) : (
-            <>
-              {/* Performance Report Message */}
-              <p className="text-sm sm:text-base md:text-lg text-base-content/70 mb-6 sm:mb-8">
-                Your performance report is being prepared...
-              </p>
-            </>
-          )}
         </div>
-      </div>
-    </div>
-  );
-};
 
-export default InterviewCompleted;
+        <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+          {isError && (
+            <button
+              type="button"
+              onClick={() => void prepareReport()}
+              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#FFCC33] px-6 font-bold text-[#1F285B]"
+            >
+              Retry report
+            </button>
+          )}
+          <Link
+            className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#1F285B] px-6 font-bold text-[#1F285B]"
+            href="/history"
+          >
+            View history
+          </Link>
+          <Link
+            className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#D6E0FB] px-6 font-bold text-[#344499]"
+            href="/practice"
+          >
+            Continue practising
+          </Link>
+        </div>
+      </section>
+    </main>
+  );
+}
