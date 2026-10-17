@@ -1,81 +1,92 @@
-// API Response Types
+export type ReportStatus = "ready" | "partial" | "needs_review" | "insufficient_evidence";
+export type EvidenceConfidence = "high" | "medium" | "low" | "insufficient";
+export type QuestionEvidenceStatus =
+  | "evaluated"
+  | "needs_review"
+  | "insufficient"
+  | "unavailable"
+  | "not_attempted";
+export type PracticeModule = "structure" | "pronunciation" | "pace" | "warm_up" | "think_fast";
+
+interface ScoreDimension {
+  score: number;
+  maxScore: number;
+  average: number;
+  maxAverage: number;
+  percentage: number;
+  criteria: Record<string, number>;
+}
+
 export interface ReportResponse {
   reportId: string;
+  reportVersion?: string;
+  reportStatus?: ReportStatus;
+  generatedAt?: string | null;
   candidateInfo: {
-    name: string;
+    name: string | null;
     interviewDate: string;
     roleTopic: string;
-    duration: string;
-    durationFeedback: string;
+    duration?: string | null;
+    durationFeedback?: string | null;
   };
   scoreSummary: {
-    knowledgeCompetence: {
-      score: number;
-      maxScore: number;
-      average: number;
-      maxAverage: number;
-      percentage: number;
-      criteria: {
-        accuracy: number;
-        depth: number;
-        relevance: number;
-        examples: number;
-        terminology: number;
-      };
-    };
-    speechAndStructure: {
-      score: number;
-      maxScore: number;
-      average: number;
-      maxAverage: number;
-      percentage: number;
-      criteria: {
-        fluency: number;
-        structure: number;
-        pacing: number;
-        grammar: number;
-      };
-    };
-  };
+    knowledgeCompetence?: ScoreDimension | null;
+    speechAndStructure: ScoreDimension;
+  } | null;
+  evidenceSummary?: {
+    totalQuestions: number;
+    savedAnswers: number;
+    usableAnswers: number;
+    evaluatedAnswers: number;
+    minimumRequired: number;
+    coveragePercentage: number;
+    confidence: EvidenceConfidence;
+    statusMessage: string;
+  } | null;
+  uncertaintyNotice?: string | null;
   questionAnalysis: Array<{
     id: number;
     totalQuestions: number;
     type: string;
     question: string;
-    /** The candidate's answer transcript that the feedback below was generated from (absent/null if not attempted). */
     transcript?: string | null;
     feedback: {
-      strengths: string;
-      areasOfImprovement: string;
+      strengths?: string | null;
+      areasOfImprovement?: string | null;
+    } | null;
+    evidence?: {
+      status: QuestionEvidenceStatus;
+      observation?: string | null;
+      interpretation?: string | null;
+      uncertainty?: string | null;
     } | null;
   }>;
-  recommendedPractice: {
+  recommendedPractice?: {
+    module?: PracticeModule;
     title: string;
     description: string;
-  };
-  speechFluencyFeedback: {
+    href?: string;
+    reason?: string;
+    evidenceAnswerCount?: number;
+  } | null;
+  speechFluencyFeedback?: {
     strengths: string;
     areasOfImprovement: string;
     ratingEmoji: string;
     ratingTitle: string;
     ratingDescription: string;
-  };
-  nextSteps: Array<{
-    title: string;
-  }>;
-  finalTip: {
-    title: string;
-    description: string;
-  };
+  } | null;
+  nextSteps?: Array<{ title: string }> | null;
+  finalTip?: { title: string; description: string } | null;
 }
 
 export type OverallScoreSummaryProps = {
-  knowledgeCompetence: ReportResponse["scoreSummary"]["knowledgeCompetence"];
-  speechAndStructure: ReportResponse["scoreSummary"]["speechAndStructure"];
+  knowledgeCompetence?: ScoreDimension | null;
+  speechAndStructure: ScoreDimension;
 };
 
 export type FinalSummaryProps = {
-  speechFluencyFeedback: ReportResponse["speechFluencyFeedback"];
+  speechFluencyFeedback: NonNullable<ReportResponse["speechFluencyFeedback"]>;
 };
 
 export type PerQuestionAnalysisProps = {
