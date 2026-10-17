@@ -191,8 +191,8 @@ export default function PracticePage() {
             <>
               <h2 className="mt-4 text-xl font-bold">Your personalised focus is taking shape</h2>
               <p className="mt-2 leading-6 text-gray-700">
-                Complete at least {hub.focusEvidenceRequired} spoken or typed answers. We only
-                recommend a focus when there is enough evidence.
+                Complete at least {hub.focusEvidenceRequired} spoken answers. We only recommend a
+                focus when there is enough evidence.
               </p>
               <div
                 className="mt-5 h-2 overflow-hidden rounded-full bg-white/70"

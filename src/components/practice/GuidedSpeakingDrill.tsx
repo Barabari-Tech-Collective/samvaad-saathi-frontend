@@ -36,7 +36,7 @@ interface DrillCompletionPayload {
   module: "warm_up" | "think_fast";
   level: SpeakingDrillLevel["key"];
   clientCompletionId: string;
-  evidenceKind: "audio" | "text";
+  evidenceKind: "audio";
   evidenceUnits: number;
 }
 
@@ -73,7 +73,6 @@ function savePendingCompletions(values: DrillCompletionPayload[]): void {
   }
 }
 
-type CaptureMode = "voice" | "type";
 type DrillState = "ready" | "preparing" | "answering" | "review" | "complete";
 
 function formatTime(seconds: number): string {
@@ -92,10 +91,8 @@ export default function GuidedSpeakingDrill({
   const apiClient = createApiClient(APIService.INTERVIEWS);
   const [levelKey, setLevelKey] = useState<SpeakingDrillLevel["key"]>("beginner");
   const [promptIndex, setPromptIndex] = useState(0);
-  const [mode, setMode] = useState<CaptureMode>("voice");
   const [state, setState] = useState<DrillState>("ready");
   const [secondsLeft, setSecondsLeft] = useState(0);
-  const [typedAnswer, setTypedAnswer] = useState("");
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [micError, setMicError] = useState<string | null>(null);
   const [checkedItems, setCheckedItems] = useState<string[]>([]);
@@ -115,7 +112,7 @@ export default function GuidedSpeakingDrill({
 
   const level = levels.find((item) => item.key === levelKey) ?? levels[0];
   const prompt = level.prompts[promptIndex % level.prompts.length];
-  const hasEvidence = mode === "voice" ? Boolean(audioUrl) : typedAnswer.trim().length >= 20;
+  const hasEvidence = Boolean(audioUrl);
 
   const stopStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
@@ -177,7 +174,6 @@ export default function GuidedSpeakingDrill({
     stopRecording();
     if (audioUrl) URL.revokeObjectURL(audioUrl);
     setAudioUrl(null);
-    setTypedAnswer("");
     setMicError(null);
     setCheckedItems([]);
     setState("ready");
@@ -194,43 +190,36 @@ export default function GuidedSpeakingDrill({
     trackEvent("practice_drill_started", {
       module,
       level: level.key,
-      answer_mode: mode,
+      answer_mode: "voice",
     });
-    if (mode === "type") {
-      setState("review");
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+      setMicError(
+        "Voice recording is not available in this browser. Open this page in the latest Chrome or Edge on a device with a microphone."
+      );
       return;
     }
-    if (mode === "voice") {
-      if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
-        setMicError(
-          "Voice recording is not available in this browser. You can type your answer instead."
-        );
-        setMode("type");
-        return;
-      }
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        streamRef.current = stream;
-        chunksRef.current = [];
-        const recorder = new MediaRecorder(stream);
-        recorderRef.current = recorder;
-        recorder.ondataavailable = (event) => {
-          if (event.data.size > 0) chunksRef.current.push(event.data);
-        };
-        recorder.onstop = () => {
-          const blob = new Blob(chunksRef.current, {
-            type: recorder.mimeType || "audio/webm",
-          });
-          if (blob.size > 0) setAudioUrl(URL.createObjectURL(blob));
-          stopStream();
-        };
-        if (level.thinkSeconds === 0) recorder.start(500);
-      } catch {
-        setMicError(
-          "We could not use your microphone. Allow access in the browser, or continue by typing."
-        );
-        return;
-      }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      chunksRef.current = [];
+      const recorder = new MediaRecorder(stream);
+      recorderRef.current = recorder;
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) chunksRef.current.push(event.data);
+      };
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, {
+          type: recorder.mimeType || "audio/webm",
+        });
+        if (blob.size > 0) setAudioUrl(URL.createObjectURL(blob));
+        stopStream();
+      };
+      if (level.thinkSeconds === 0) recorder.start(500);
+    } catch {
+      setMicError(
+        "We could not use your microphone. Allow microphone access in browser settings, then try again."
+      );
+      return;
     }
     setSecondsLeft(level.thinkSeconds || level.durationSeconds);
     setState(level.thinkSeconds > 0 ? "preparing" : "answering");
@@ -247,14 +236,11 @@ export default function GuidedSpeakingDrill({
       module,
       level: level.key,
       clientCompletionId: completionIdRef.current,
-      evidenceKind: mode === "voice" ? "audio" : "text",
-      evidenceUnits:
-        mode === "voice"
-          ? Math.max(
-              1,
-              chunksRef.current.reduce((total, chunk) => total + chunk.size, 0)
-            )
-          : typedAnswer.trim().length,
+      evidenceKind: "audio",
+      evidenceUnits: Math.max(
+        1,
+        chunksRef.current.reduce((total, chunk) => total + chunk.size, 0)
+      ),
     };
     try {
       await recordCompletion(completion);
@@ -267,7 +253,7 @@ export default function GuidedSpeakingDrill({
     trackEvent("practice_drill_completed", {
       module,
       level: level.key,
-      answer_mode: mode,
+      answer_mode: "voice",
       self_review_items: checkedItems.length,
     });
     try {
@@ -276,7 +262,7 @@ export default function GuidedSpeakingDrill({
         JSON.stringify({
           completedAt: new Date().toISOString(),
           level: level.key,
-          mode,
+          mode: "voice",
           selfReviewCount: checkedItems.length,
         })
       );
@@ -288,9 +274,9 @@ export default function GuidedSpeakingDrill({
 
   const timerLabel = useMemo(() => {
     if (state === "preparing") return "Think time";
-    if (state === "answering") return mode === "voice" ? "Recording" : "Answer time";
+    if (state === "answering") return "Recording";
     return "";
-  }, [mode, state]);
+  }, [state]);
 
   if (state === "complete") {
     return (
@@ -388,66 +374,21 @@ export default function GuidedSpeakingDrill({
 
         {state === "ready" && (
           <div className="mt-7">
-            <fieldset>
-              <legend className="font-bold">How would you like to answer?</legend>
-              <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-                <label className="flex min-h-12 flex-1 cursor-pointer items-center gap-3 rounded-xl border border-gray-200 px-4 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[#344499]">
-                  <input
-                    type="radio"
-                    name="capture-mode"
-                    checked={mode === "voice"}
-                    onChange={() => setMode("voice")}
-                    className="radio radio-sm"
-                  />
-                  <MicrophoneIcon className="size-5" aria-hidden="true" />
-                  Record my answer
-                </label>
-                <label className="flex min-h-12 flex-1 cursor-pointer items-center gap-3 rounded-xl border border-gray-200 px-4 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[#344499]">
-                  <input
-                    type="radio"
-                    name="capture-mode"
-                    checked={mode === "type"}
-                    onChange={() => setMode("type")}
-                    className="radio radio-sm"
-                  />
-                  Type my answer
-                </label>
-              </div>
-            </fieldset>
-            {mode === "type" && (
-              <textarea
-                value={typedAnswer}
-                onChange={(event) => setTypedAnswer(event.target.value)}
-                rows={6}
-                placeholder="Write what you would say aloud. You can still learn the answer structure, but voice feedback is unavailable."
-                className="mt-4 w-full rounded-xl border border-gray-300 p-4 text-base focus:border-[#344499] focus:outline-none focus:ring-2 focus:ring-[#344499]/20"
-              />
-            )}
+            <p className="flex min-h-12 items-center gap-3 rounded-xl border border-gray-200 px-4 font-semibold">
+              <MicrophoneIcon className="size-5" aria-hidden="true" /> Record my answer
+            </p>
             {micError && (
               <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4" role="alert">
                 <p className="text-sm text-amber-950">{micError}</p>
-                <button
-                  type="button"
-                  onClick={() => setMode("type")}
-                  className="mt-3 min-h-11 rounded-lg border border-amber-400 px-4 font-semibold text-amber-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
-                >
-                  Continue by typing
-                </button>
               </div>
             )}
             <button
               type="button"
               onClick={() => void begin()}
-              disabled={mode === "type" && typedAnswer.trim().length < 20}
               className="mt-5 min-h-12 w-full rounded-xl bg-[#FFCC33] px-6 font-bold text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500 sm:w-auto"
             >
-              {mode === "voice" ? "Start practice" : "Review typed answer"}
+              Start practice
             </button>
-            {mode === "type" && typedAnswer.trim().length < 20 && (
-              <p className="mt-2 text-sm text-gray-600">
-                Write at least 20 characters to review this attempt.
-              </p>
-            )}
           </div>
         )}
 
@@ -458,7 +399,7 @@ export default function GuidedSpeakingDrill({
           >
             <p className="font-semibold text-[#344499]">{timerLabel}</p>
             <p className="mt-2 text-5xl font-bold tabular-nums">{formatTime(secondsLeft)}</p>
-            {state === "answering" && mode === "voice" && (
+            {state === "answering" && (
               <p className="mt-3 inline-flex items-center gap-2 text-sm text-red-700">
                 <span className="size-2 animate-pulse rounded-full bg-red-600" /> Recording now
               </p>
@@ -479,21 +420,17 @@ export default function GuidedSpeakingDrill({
         {state === "review" && (
           <div className="mt-7">
             <h2 className="text-xl font-bold">Review one thing before you finish</h2>
-            {mode === "voice" && audioUrl ? (
+            {audioUrl ? (
               <div className="mt-4 rounded-xl border border-gray-200 p-4">
                 <p className="mb-3 flex items-center gap-2 font-semibold">
                   <SpeakerWaveIcon className="size-5" aria-hidden="true" /> Listen to your answer
                 </p>
                 <audio controls src={audioUrl} className="w-full" />
               </div>
-            ) : mode === "voice" ? (
-              <p className="mt-3 rounded-xl bg-amber-50 p-4 text-amber-950" role="status">
-                No audio was captured. Try again or use the typed option.
-              </p>
             ) : (
-              <blockquote className="mt-4 rounded-xl border-l-4 border-[#344499] bg-gray-50 p-4 text-gray-700">
-                {typedAnswer}
-              </blockquote>
+              <p className="mt-3 rounded-xl bg-amber-50 p-4 text-amber-950" role="status">
+                No audio was captured. Check microphone access and try recording again.
+              </p>
             )}
             <fieldset className="mt-5">
               <legend className="font-bold">What did you notice?</legend>
