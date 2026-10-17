@@ -38,6 +38,10 @@ export const ENDPOINTS = {
     WITH_SUMMARY: "interviews-with-summary",
     RESUME_INTERVIEW: `interviews/resume`,
   },
+  PRACTICE: {
+    HUB: "practice/hub",
+    COMPLETE_DRILL: "practice/drills/complete",
+  },
   TRANSCRIBE: {
     WHISPER: "transcribe-whisper",
     TEXT_ANSWER: "answers/text",

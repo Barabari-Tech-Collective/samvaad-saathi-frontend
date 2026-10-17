@@ -16,6 +16,7 @@ import { profilesForMode, type InterviewMode } from "@/lib/interview-mode";
 import { setInterviewQuestions } from "@/lib/interview-session-storage";
 import {
   trackDifficultySelected,
+  trackEvent,
   trackResumeToggleClick,
   trackRoleSelected,
   trackStartInterviewButtonClick,
@@ -24,6 +25,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/components/providers/auth-provider";
+import PracticePreflight from "@/components/practice/PracticePreflight";
 
 interface CreateInterviewRequest {
   track: string;
@@ -92,6 +94,14 @@ type RoleSelection =
   | null;
 
 const HR_SELECT_PREFIX = "hr::";
+const GENERAL_PRACTICE_ROLE = "General interview";
+
+const LEVEL_EXAMPLES: Record<string, string> = {
+  easy: "Fundamentals and familiar interview questions",
+  medium: "Applied questions using project examples",
+  hard: "Complex situations and trade-offs",
+  expert: "Leadership, scale and deep decisions",
+};
 
 /**
  * Practice and Assessment are two different products sharing one page.
@@ -113,8 +123,9 @@ export default function InterviewStartPage() {
   const mode = readInterviewMode(searchParams.get("mode"));
 
   const [selection, setSelection] = useState<RoleSelection>(null);
-  const [difficulty, setDifficulty] = useState("medium");
+  const [difficulty, setDifficulty] = useState("easy");
   const [useResume, setUseResume] = useState(false);
+  const [showPreflight, setShowPreflight] = useState(false);
 
   const router = useRouter();
   const { user } = useAuth();
@@ -134,6 +145,7 @@ export default function InterviewStartPage() {
   // selection could silently submit as the wrong kind of interview.
   useEffect(() => {
     setSelection(null);
+    setShowPreflight(false);
   }, [mode]);
 
   const selectedProfile =
@@ -192,6 +204,7 @@ export default function InterviewStartPage() {
     });
 
   const handleSelectChange = (value: string) => {
+    setShowPreflight(false);
     if (!value) {
       setSelection(null);
       return;
@@ -229,8 +242,8 @@ export default function InterviewStartPage() {
     }
   };
 
-  const handleSubmit = async () => {
-    if (!selection) return;
+  const validateSelection = (): boolean => {
+    if (!selection) return false;
 
     if (
       mode === "assessment" &&
@@ -239,33 +252,49 @@ export default function InterviewStartPage() {
       toast.error(
         "This role is not configured for a formal assessment. Please select an assessment role."
       );
-      return;
+      return false;
     }
 
-    // The picker already disables these, but a stale profile list or a mid-session
-    // change by the facilitator can still leave an unavailable level selected.
-    // Saying so here is better than submitting and surfacing a server refusal.
     const refusal = unavailableDifficultyMessage(difficulty, offered);
     if (refusal) {
       toast.error(refusal);
-      return;
+      return false;
     }
 
-    if (isTechFlow && difficulty === "medium" && !useResume) {
-      const trackLabel = selection.kind === "tech" ? selection.track : selection.jobName;
+    const selectedTrack = selection.kind === "tech" ? selection.track : selection.jobName;
+    const resumeRequired =
+      isTechFlow && selectedTrack === FULL_STACK_ROLE && difficulty === "medium";
+    if (resumeRequired && !useResume) {
       toast.error(
-        `Please toggle 'Use Resume for Interview' and ensure your resume is uploaded for Medium level ${trackLabel} interviews.`
+        "Medium Full Stack practice uses your resume. Turn on resume personalisation or choose another level."
       );
-      return;
+      return false;
     }
+    if (resumeRequired && !user?.authorizedUser?.hasResume) {
+      toast.error(
+        "Save a resume from the Resume section before starting Medium Full Stack practice, or choose another level."
+      );
+      return false;
+    }
+    return true;
+  };
 
-    if (isTechFlow && difficulty === "medium" && !user?.authorizedUser?.hasResume) {
-      const trackLabel = selection.kind === "tech" ? selection.track : selection.jobName;
-      toast.error(
-        `You must save a resume first before starting a Medium level ${trackLabel} interview. If you want to upload your resume, please use the ATS feature (the document icon beside the profile icon) in the bottom navigation bar.`
-      );
+  const handleReviewSetup = () => {
+    if (!validateSelection()) return;
+    if (mode === "practice") {
+      trackEvent("practice_setup_started", {
+        role_type: selection?.kind ?? "unknown",
+        level: difficulty,
+        resume_enabled: useResume,
+      });
+      setShowPreflight(true);
       return;
     }
+    void handleSubmit();
+  };
+
+  const handleSubmit = async () => {
+    if (!selection || !validateSelection()) return;
 
     const trackLabel = selection.kind === "tech" ? selection.track : selection.jobName;
     trackStartInterviewButtonClick(trackLabel, difficulty, useResume);
@@ -313,153 +342,191 @@ export default function InterviewStartPage() {
   };
 
   const isPending = isCreatingInterview || isGeneratingNonTech;
+  const selectedTrack = selection?.kind === "tech" ? selection.track : selection?.jobName;
+  const questionCount = selectedTrack === FULL_STACK_ROLE ? 7 : 5;
+
+  if (showPreflight && mode === "practice" && selection && selectedTrack) {
+    return (
+      <PracticePreflight
+        role={selectedTrack}
+        level={difficulty}
+        questionCount={questionCount}
+        durationMinutes={questionCount === 7 ? 20 : 15}
+        isStarting={isPending}
+        onBack={() => setShowPreflight(false)}
+        onStart={() => void handleSubmit()}
+      />
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-[#111827]">
       <div className="space-y-2">
-        <h2 className="text-center text-[20px] font-bold leading-6">
+        <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#344499]">
+          {mode === "assessment" ? "Formal sitting" : "Practice setup"}
+        </p>
+        <h1 className="text-3xl font-bold leading-tight">
           {mode === "assessment" ? "Assessment Interview" : "Practice Interview"}
-        </h2>
-        <p className="text-center text-[13px] text-gray-600 font-noto px-2">
+        </h1>
+        <p className="max-w-2xl text-base leading-7 text-gray-600">
           {mode === "assessment"
             ? "Questions are set by your facilitator and reviewed as a formal result."
-            : "Free practice with AI-generated questions and feedback. Your facilitator may see your scores and invite you to a formal assessment based on them."}
+            : "Choose what you want to practise. This is private coaching, not an exam, and ordinary interruptions will not punish you."}
         </p>
       </div>
 
-      <div>
-        <label className="block text-[14px] font-noto font-[500] text-black mb-2">Role</label>
-        {mode === "assessment" && !isLoadingProfiles && assessmentProfiles.length === 0 ? (
-          <p className="text-[13px] text-gray-600 font-noto">
-            No assessment roles are available yet. Check back once your facilitator has published
-            one.
-          </p>
-        ) : (
-          <select
-            value={getSelectValue()}
-            onChange={(e) => handleSelectChange(e.target.value)}
-            className="select select-bordered w-full"
-            disabled={isLoadingProfiles}
-          >
-            <option value="" disabled>
-              {isLoadingProfiles ? "Loading roles..." : "Select a role"}
-            </option>
-            {mode === "practice" &&
-              ROLE_OPTIONS.map((role) => (
-                <option key={role} value={role}>
-                  {role}
-                </option>
-              ))}
-            {mode === "assessment" &&
-              assessmentProfiles.length > 0 &&
-              Object.entries(
-                assessmentProfiles.reduce(
-                  (acc, profile) => {
-                    const category = profile.category || "HR & Non-Technical";
-                    if (!acc[category]) acc[category] = [];
-                    acc[category].push(profile);
-                    return acc;
-                  },
-                  {} as Record<string, JobProfile[]>
-                )
-              ).map(([category, profiles]) => (
-                <optgroup
-                  key={category}
-                  label={category.charAt(0).toUpperCase() + category.slice(1)}
-                >
-                  {profiles.map((profile) => (
-                    <option
-                      key={profile.id}
-                      value={`${HR_SELECT_PREFIX}${profile.id}::${profile.title}`}
-                    >
-                      {profile.title}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-          </select>
-        )}
-      </div>
-
-      {/* Hidden for the non-tech flow, which fixes its own difficulty server-side. */}
-      {isTechFlow && (
-        <div className="space-y-3">
-          <label className="block text-[14px] font-noto font-[500] text-black">
-            Difficulty Level
+      <section className="rounded-3xl border border-[#D6E0FB] bg-white p-5 sm:p-7">
+        <div>
+          <label className="mb-2 block text-base font-bold text-black">
+            What role are you practising for?
           </label>
-
-          <div className="space-y-2">
-            {DIFFICULTY_LEVEL.map((opt) => {
-              const available = isDifficultyOffered(opt.key, offered);
-              return (
-                <label
-                  key={opt.key}
-                  className={`flex items-center gap-3 ${
-                    available ? "cursor-pointer" : "cursor-not-allowed opacity-50"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="difficulty"
-                    value={opt.key}
-                    checked={difficulty === opt.key}
-                    disabled={!available}
-                    onChange={(e) => {
-                      setDifficulty(e.target.value);
-                      trackDifficultySelected(e.target.value);
-                    }}
-                    className="radio radio-sm"
-                  />
-                  <span className="text-[14px] text-black font-noto">{opt.label}</span>
-                  {!available && (
-                    <span className="text-[12px] text-gray-500 font-noto">Not available yet</span>
-                  )}
-                </label>
-              );
-            })}
-          </div>
-
-          {offered?.length === 0 && (
-            <p className="text-[13px] text-gray-600 font-noto">
-              This role has no interview levels ready yet. Your facilitator needs to add more
-              questions before it can be started.
+          {mode === "practice" && (
+            <p className="mb-3 text-sm text-gray-600">
+              Not sure yet? Choose General interview and start with common questions.
             </p>
           )}
+          {mode === "assessment" && !isLoadingProfiles && assessmentProfiles.length === 0 ? (
+            <p className="text-[13px] text-gray-600 font-noto">
+              No assessment roles are available yet. Check back once your facilitator has published
+              one.
+            </p>
+          ) : (
+            <select
+              value={getSelectValue()}
+              onChange={(e) => handleSelectChange(e.target.value)}
+              className="select select-bordered w-full"
+              disabled={isLoadingProfiles}
+            >
+              <option value="" disabled>
+                {isLoadingProfiles ? "Loading roles..." : "Select a role"}
+              </option>
+              {mode === "practice" && (
+                <option value={GENERAL_PRACTICE_ROLE}>I am not sure — General interview</option>
+              )}
+              {mode === "practice" &&
+                ROLE_OPTIONS.map((role) => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
+              {mode === "assessment" &&
+                assessmentProfiles.length > 0 &&
+                Object.entries(
+                  assessmentProfiles.reduce(
+                    (acc, profile) => {
+                      const category = profile.category || "HR & Non-Technical";
+                      if (!acc[category]) acc[category] = [];
+                      acc[category].push(profile);
+                      return acc;
+                    },
+                    {} as Record<string, JobProfile[]>
+                  )
+                ).map(([category, profiles]) => (
+                  <optgroup
+                    key={category}
+                    label={category.charAt(0).toUpperCase() + category.slice(1)}
+                  >
+                    {profiles.map((profile) => (
+                      <option
+                        key={profile.id}
+                        value={`${HR_SELECT_PREFIX}${profile.id}::${profile.title}`}
+                      >
+                        {profile.title}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+            </select>
+          )}
         </div>
-      )}
 
-      <div className="pt-2">
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            <label className="text-[14px] font-noto font-[500] text-black">
-              Use Resume for Interview
-            </label>
-            <span className="text-[12px] text-gray-600 font-noto">
-              {useResume
-                ? "Resume will be considered for this interview"
-                : "Resume will not be considered for this interview"}
-            </span>
+        {/* Hidden for the non-tech flow, which fixes its own difficulty server-side. */}
+        {isTechFlow && (
+          <div className="space-y-3">
+            <label className="block text-base font-bold text-black">Choose a level</label>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {DIFFICULTY_LEVEL.map((opt) => {
+                const available = isDifficultyOffered(opt.key, offered);
+                return (
+                  <label
+                    key={opt.key}
+                    className={`flex min-h-20 items-start gap-3 rounded-2xl border p-4 ${
+                      difficulty === opt.key ? "border-[#344499] bg-[#F5F7FF]" : "border-gray-200"
+                    } ${available ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`}
+                  >
+                    <input
+                      type="radio"
+                      name="difficulty"
+                      value={opt.key}
+                      checked={difficulty === opt.key}
+                      disabled={!available}
+                      onChange={(e) => {
+                        setDifficulty(e.target.value);
+                        trackDifficultySelected(e.target.value);
+                      }}
+                      className="radio radio-sm"
+                    />
+                    <span>
+                      <span className="block font-bold text-black">{opt.label}</span>
+                      <span className="mt-1 block text-sm leading-5 text-gray-600">
+                        {LEVEL_EXAMPLES[opt.key]}
+                      </span>
+                    </span>
+                    {!available && (
+                      <span className="text-[12px] text-gray-500 font-noto">Not available yet</span>
+                    )}
+                  </label>
+                );
+              })}
+            </div>
+
+            {offered?.length === 0 && (
+              <p className="text-[13px] text-gray-600 font-noto">
+                This role has no interview levels ready yet. Your facilitator needs to add more
+                questions before it can be started.
+              </p>
+            )}
           </div>
+        )}
 
-          <input
-            type="checkbox"
-            checked={useResume}
-            onChange={(e) => handleToggleResume(e.target.checked)}
-            className="toggle toggle-sm"
-            aria-label="Toggle resume usage"
-          />
+        <div className="mt-6 border-t border-gray-200 pt-6">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              <label className="text-[14px] font-noto font-[500] text-black">
+                Personalise with my resume
+              </label>
+              <span className="text-[12px] text-gray-600 font-noto">
+                {useResume
+                  ? "Your saved resume will help tailor the questions."
+                  : "Optional for most roles. You can practise without it."}
+              </span>
+            </div>
+
+            <input
+              type="checkbox"
+              checked={useResume}
+              onChange={(e) => handleToggleResume(e.target.checked)}
+              className="toggle toggle-sm"
+              aria-label="Toggle resume usage"
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="pt-4">
-        <button
-          onClick={handleSubmit}
-          disabled={isPending || !selection}
-          className="btn btn-neutral btn-block btn-lg cursor-pointer"
-        >
-          {isPending ? "Starting Interview..." : "Start Interview"}
-        </button>
-      </div>
+        <div className="pt-4">
+          <button
+            onClick={handleReviewSetup}
+            disabled={isPending || !selection}
+            className="btn btn-neutral btn-block btn-lg cursor-pointer"
+          >
+            {isPending
+              ? "Starting interview…"
+              : mode === "practice"
+                ? "Continue to device check"
+                : "Start assessment"}
+          </button>
+        </div>
+      </section>
     </div>
   );
 }
