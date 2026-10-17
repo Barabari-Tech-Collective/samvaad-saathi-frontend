@@ -57,7 +57,7 @@ function renderDrill() {
   );
 }
 
-describe("Gate 2 Practice fallbacks", () => {
+describe("Gate 2 Practice audio-only contract", () => {
   beforeEach(() => {
     const values = new Map<string, string>();
     vi.stubGlobal("localStorage", {
@@ -70,22 +70,26 @@ describe("Gate 2 Practice fallbacks", () => {
 
   afterEach(() => vi.unstubAllGlobals());
 
-  it("lets a student complete the guided flow without microphone access", () => {
+  it("keeps guided practice audio-only when microphone access is unavailable", async () => {
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia: vi.fn().mockRejectedValue(Error("denied")) },
+    });
+    vi.stubGlobal("MediaRecorder", class {});
     renderDrill();
 
-    fireEvent.click(screen.getByLabelText("Type my answer"));
-    fireEvent.change(screen.getByRole("textbox"), {
-      target: { value: "I am a student who enjoys solving real community problems." },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Review typed answer" }));
-
+    expect(screen.queryByText("Type my answer")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Start practice" }));
     expect(
-      screen.getByRole("heading", { name: "Review one thing before you finish" })
+      await screen.findByText(
+        "We could not use your microphone. Allow microphone access in browser settings, then try again."
+      )
     ).toBeVisible();
-    expect(screen.getByRole("button", { name: "Complete this practice" })).toBeEnabled();
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Start practice" })).toBeEnabled();
   });
 
-  it("allows typed Practice after connection and storage checks without voice checks", () => {
+  it("does not allow Practice to start without microphone and playback checks", () => {
     const onStart = vi.fn();
     render(
       <PracticePreflight
@@ -100,10 +104,9 @@ describe("Gate 2 Practice fallbacks", () => {
     );
 
     expect(screen.getByRole("button", { name: "Start practice interview" })).toBeDisabled();
-    fireEvent.click(screen.getByLabelText("Use typed answers"));
-    const start = screen.getByRole("button", { name: "Start practice interview" });
-    expect(start).toBeEnabled();
-    fireEvent.click(start);
-    expect(onStart).toHaveBeenCalledOnce();
+    expect(screen.queryByLabelText("Use typed answers")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Check microphone" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Play test sound" })).toBeEnabled();
+    expect(onStart).not.toHaveBeenCalled();
   });
 });

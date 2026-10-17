@@ -7,7 +7,6 @@ import Footer from "@/app/(protected)/interview/_components/Footer";
 
 const mocks = vi.hoisted(() => ({
   upload: vi.fn(),
-  saveText: vi.fn(),
   analyze: vi.fn(),
   retrySpeech: vi.fn(),
   convert: vi.fn(),
@@ -54,9 +53,7 @@ vi.mock("@/lib/api-config/src/client", () => ({
         ? mocks.retrySpeech
         : url.includes("transcribe-whisper")
           ? mocks.upload
-          : url.includes("answers/text")
-            ? mocks.saveText
-            : mocks.analyze,
+          : mocks.analyze,
       isPending: url.includes("analysis") ? mocks.analyzing : false,
     }),
   }),
@@ -96,12 +93,6 @@ beforeEach(() => {
   window.sessionStorage.clear();
   mocks.convert.mockResolvedValue(new Blob(["wav"], { type: "audio/wav" }));
   mocks.upload.mockResolvedValue({ saved: true, questionAttemptId: 42 });
-  mocks.saveText.mockResolvedValue({
-    saved: true,
-    questionAttemptId: 42,
-    answerVersion: 1,
-    transcriptionStatus: "transcribed",
-  });
   mocks.analyze.mockResolvedValue({});
   mocks.retrySpeech.mockResolvedValue({
     questionAttemptId: 42,
@@ -474,56 +465,15 @@ describe("answer controls", () => {
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
     expect(next).toHaveBeenCalledTimes(1);
   });
-  it("saves a typed answer when the microphone cannot be used", async () => {
-    const next = vi.fn();
-    render(<Footer question_attempt_id={42} onNext={next} />);
-    fireEvent.click(screen.getByRole("button", { name: "Type answer instead" }));
-    fireEvent.change(screen.getByLabelText("Type your answer"), {
-      target: { value: "I solved the problem by checking the logs first." },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Save typed answer" }));
-    await screen.findByText("Typed answer saved. Speech feedback will be limited.");
-    expect(mocks.saveText).toHaveBeenCalledWith({
-      questionAttemptId: 42,
-      text: "I solved the problem by checking the logs first.",
-      language: "en",
-    });
-    await waitFor(() =>
-      expect(mocks.analyze).toHaveBeenCalledWith({
-        question_attempt_id: 42,
-        analysisTypes: ["domain"],
-        answerVersion: 1,
-      })
-    );
-    fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    expect(next).toHaveBeenCalledTimes(1);
-  });
-  it("sends the active Practice session token with typed answers", async () => {
-    render(<Footer question_attempt_id={42} sessionLeaseToken="lease-token-1234567890" />);
-    fireEvent.click(screen.getByRole("button", { name: "Type answer instead" }));
-    fireEvent.change(screen.getByLabelText("Type your answer"), {
-      target: { value: "A typed response." },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Save typed answer" }));
-    await screen.findByText("Typed answer saved. Speech feedback will be limited.");
-    expect(mocks.saveText).toHaveBeenCalledWith({
-      questionAttemptId: 42,
-      text: "A typed response.",
-      language: "en",
-      sessionLeaseToken: "lease-token-1234567890",
-    });
-  });
-  it("restores an unsaved typed answer after refresh and clears it after save", async () => {
+  it("does not expose or restore typed answers", () => {
     window.sessionStorage.setItem(
       "practice-text-answer:42",
       "My connection dropped, but this draft survived."
     );
     render(<Footer question_attempt_id={42} />);
-    const textarea = await screen.findByLabelText("Type your answer");
-    expect(textarea).toHaveValue("My connection dropped, but this draft survived.");
-    fireEvent.click(screen.getByRole("button", { name: "Save typed answer" }));
-    await screen.findByText("Typed answer saved. Speech feedback will be limited.");
-    expect(window.sessionStorage.getItem("practice-text-answer:42")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Type answer instead" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Answer" })).toBeEnabled();
   });
 });
 

@@ -115,13 +115,9 @@ export interface TranscriptionStatusResponse {
   transcription?: { text?: string; language?: string } | null;
   wordCount?: number | null;
   error?: string | null;
+  evidenceStatus?: "usable" | "unavailable" | null;
+  evidenceReason?: string | null;
+  retryable?: boolean;
   followUpQuestion?: FollowUpQuestion | null;
   updatedAt?: string | null;
-}
-
-export interface TextAnswerResponse {
-  saved: boolean;
-  questionAttemptId: number;
-  answerVersion: number;
-  transcriptionStatus: "transcribed";
 }

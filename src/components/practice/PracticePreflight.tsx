@@ -92,10 +92,9 @@ export default function PracticePreflight({
   const [storage, setStorage] = useState<CheckStatus>("idle");
   const [microphone, setMicrophone] = useState<CheckStatus>("idle");
   const [microphoneDetail, setMicrophoneDetail] = useState(
-    "Check that the browser can hear you. You may choose typed answers instead."
+    "Check that the browser can hear you before starting the interview."
   );
   const [playback, setPlayback] = useState<CheckStatus>("idle");
-  const [typedFallback, setTypedFallback] = useState(false);
 
   const runBasicChecks = () => {
     const networkStatus = navigator.onLine ? "passed" : "failed";
@@ -124,7 +123,9 @@ export default function PracticePreflight({
     setMicrophone("checking");
     if (!navigator.mediaDevices?.getUserMedia) {
       setMicrophone("failed");
-      setMicrophoneDetail("This browser does not support microphone recording. Use typed answers.");
+      setMicrophoneDetail(
+        "This browser cannot record audio. Open Samvaad Saathi in the latest Chrome or Edge on a device with a microphone."
+      );
       trackEvent("practice_device_check_result", {
         check: "microphone",
         status: "unsupported",
@@ -166,7 +167,7 @@ export default function PracticePreflight({
     } catch {
       setMicrophone("failed");
       setMicrophoneDetail(
-        "Microphone access was denied or unavailable. Allow it in browser settings, or use typed answers."
+        "Microphone access was denied or unavailable. Allow microphone access in browser settings, then check again."
       );
       trackEvent("practice_device_check_result", {
         check: "microphone",
@@ -207,10 +208,7 @@ export default function PracticePreflight({
   };
 
   const voiceReady = microphone === "passed" || microphone === "warning";
-  const ready =
-    network === "passed" &&
-    storage === "passed" &&
-    (typedFallback || (voiceReady && playback === "passed"));
+  const ready = network === "passed" && storage === "passed" && voiceReady && playback === "passed";
 
   return (
     <div className="mx-auto w-full max-w-3xl pb-8 text-[#111827]">
@@ -271,63 +269,33 @@ export default function PracticePreflight({
           status={storage}
           action={{ label: "Check again", onClick: runBasicChecks }}
         />
-        {!typedFallback && (
-          <>
-            <CheckRow
-              title="Microphone and background noise"
-              detail={microphoneDetail}
-              status={microphone}
-              action={{
-                label: microphone === "checking" ? "Checking…" : "Check microphone",
-                onClick: () => void testMicrophone(),
-                disabled: microphone === "checking",
-              }}
-            />
-            <CheckRow
-              title="Speaker playback"
-              detail={
-                playback === "passed"
-                  ? "Test sound played. Questions are also always shown as text."
-                  : playback === "failed"
-                    ? "The test sound could not play. Check your device volume or use typed answers."
-                    : "Play a short sound to check your speaker or headphones."
-              }
-              status={playback}
-              action={{
-                label: playback === "checking" ? "Playing…" : "Play test sound",
-                onClick: () => void testPlayback(),
-                disabled: playback === "checking",
-              }}
-            />
-          </>
-        )}
-      </section>
-
-      <label
-        htmlFor="practice-typed-fallback"
-        className="mt-5 flex min-h-11 cursor-pointer gap-3 rounded-2xl border border-[#D6E0FB] p-4 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[#344499]"
-      >
-        <input
-          id="practice-typed-fallback"
-          type="checkbox"
-          aria-label="Use typed answers"
-          checked={typedFallback}
-          onChange={(event) => {
-            setTypedFallback(event.target.checked);
-            trackEvent("practice_typed_fallback_changed", {
-              enabled: event.target.checked,
-            });
+        <CheckRow
+          title="Microphone and background noise"
+          detail={microphoneDetail}
+          status={microphone}
+          action={{
+            label: microphone === "checking" ? "Checking…" : "Check microphone",
+            onClick: () => void testMicrophone(),
+            disabled: microphone === "checking",
           }}
-          className="checkbox checkbox-sm mt-0.5"
         />
-        <span>
-          <span className="block font-bold">Use typed answers</span>
-          <span className="mt-1 block text-sm leading-5 text-gray-600">
-            Choose this if speaking is not possible. We can assess answer content, but not voice
-            pace or pronunciation.
-          </span>
-        </span>
-      </label>
+        <CheckRow
+          title="Speaker playback"
+          detail={
+            playback === "passed"
+              ? "Test sound played. Questions are also always shown as text."
+              : playback === "failed"
+                ? "The test sound could not play. Check your device volume, speaker output, or headphones, then try again."
+                : "Play a short sound to check your speaker or headphones."
+          }
+          status={playback}
+          action={{
+            label: playback === "checking" ? "Playing…" : "Play test sound",
+            onClick: () => void testPlayback(),
+            disabled: playback === "checking",
+          }}
+        />
+      </section>
 
       <section className="mt-6 rounded-2xl bg-[#FFE4BF] p-5">
         <h2 className="font-bold">Before you begin</h2>
@@ -344,7 +312,7 @@ export default function PracticePreflight({
           type="button"
           onClick={() => {
             trackEvent("practice_preflight_completed", {
-              answer_mode: typedFallback ? "text" : "voice",
+              answer_mode: "voice",
               microphone_status: microphone,
               network_status: network,
               storage_status: storage,
@@ -358,8 +326,7 @@ export default function PracticePreflight({
         </button>
         {!ready && (
           <p className="mt-3 text-center text-sm text-gray-600">
-            Complete the connection and storage checks, then check voice and playback or choose
-            typed answers.
+            Complete the connection and storage checks, then check your microphone and playback.
           </p>
         )}
       </div>
