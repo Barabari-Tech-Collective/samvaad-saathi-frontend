@@ -285,11 +285,14 @@ describe("answer controls", () => {
   });
   it("restores a server-saved answer as ready to continue", () => {
     const next = vi.fn();
-    render(<Footer question_attempt_id={42} initiallyAnswered onNext={next} />);
+    render(
+      <Footer question_attempt_id={42} initiallyAnswered initialAnswerVersion={3} onNext={next} />
+    );
     expect(screen.getByText("Answer saved.")).toBeVisible();
     expect(screen.getByRole("button", { name: "Redo" })).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
     expect(next).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledWith("answer_saved", 3);
   });
   it("saves and exits only after the parent pause request succeeds", async () => {
     const pause = vi.fn().mockResolvedValue(undefined);
@@ -385,6 +388,16 @@ describe("answer controls", () => {
     expect(next).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Continue without follow-up" }));
     expect(next).toHaveBeenCalledTimes(1);
+    expect(next).toHaveBeenCalledWith("continue_without_follow_up", 1);
+  });
+
+  it("persists an explicit skip instead of advancing only in browser state", async () => {
+    const next = vi.fn().mockResolvedValue(undefined);
+    render(<Footer question_attempt_id={42} onNext={next} />);
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(screen.getByRole("heading", { name: "Skip this question?" })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Yes, Skip" }));
+    await waitFor(() => expect(next).toHaveBeenCalledWith("skip", undefined));
   });
   it("reattaches to background work and consumes a completed follow-up once", async () => {
     const onFollowUpQuestion = vi.fn();
