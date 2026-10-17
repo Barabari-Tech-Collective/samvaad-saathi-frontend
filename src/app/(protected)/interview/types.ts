@@ -18,6 +18,15 @@ export interface GenerateQuestionsResponse {
     answerVersion?: number;
     answerKind?: "audio" | "text" | null;
     transcriptionStatus?: "pending" | "processing" | "transcribed" | "failed" | null;
+    attemptState?: "in_progress" | "answer_saved" | "skipped" | null;
+    skipped?: boolean;
+    followUpDisposition?:
+      | "pending"
+      | "generated"
+      | "not_generated"
+      | "not_applicable"
+      | "skipped"
+      | null;
     audioUrl?: string;
     supplement: {
       content: string;
@@ -36,6 +45,41 @@ export interface GenerateQuestionsResponse {
 export interface StartQuestionAttemptResponse {
   questionAttemptId: number;
   created?: boolean;
+  stateVersion: number;
+  currentQuestionId: number | null;
+}
+
+export type AdvanceInterviewAction = "answer_saved" | "skip" | "continue_without_follow_up";
+
+export interface PracticeNavigationResponse {
+  interviewId: number;
+  status: string;
+  stateVersion: number;
+  questionSetVersion: number;
+  currentQuestionId: number | null;
+  currentQuestionIndex: number | null;
+  completeReady: boolean;
+  duplicate: boolean;
+  questions: GenerateQuestionsResponse["items"];
+}
+
+export interface ResumeInterviewResponse {
+  interviewId: number;
+  track: string;
+  difficulty: string;
+  questions: GenerateQuestionsResponse["items"];
+  totalQuestions: number;
+  attemptedQuestions: number;
+  remainingQuestions: number;
+  answeredQuestions: number;
+  resumeQuestionIndex: number | null;
+  stateVersion: number;
+  questionSetVersion: number;
+  currentQuestionId: number | null;
+  currentQuestionIndex: number | null;
+  completeReady: boolean;
+  status: string;
+  interviewMode?: "practice" | "assessment";
 }
 
 export interface InterviewSessionLeaseResponse {

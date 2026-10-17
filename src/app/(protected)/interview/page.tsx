@@ -28,9 +28,16 @@ import { getSessionLeaseErrorCode } from "@/lib/interview-session-lease";
 import { trackEvent, trackInterviewQuestionView } from "@/lib/posthog/tracking.utils";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CodeView, Footer, Header, Question, Welcome } from "./_components";
-import { FollowUpQuestion, GenerateQuestionsResponse, StartQuestionAttemptResponse } from "./types";
+import {
+  type AdvanceInterviewAction,
+  type FollowUpQuestion,
+  type GenerateQuestionsResponse,
+  type PracticeNavigationResponse,
+  type ResumeInterviewResponse,
+  type StartQuestionAttemptResponse,
+} from "./types";
 
 const InterviewPage = () => {
   const router = useRouter();
@@ -60,6 +67,12 @@ const InterviewPage = () => {
   const [isTextToSpeechPreparing, setIsTextToSpeechPreparing] = useState(false);
   const [pendingStart, setPendingStart] = useState(false);
   const [resumeError, setResumeError] = useState<string | null>(null);
+  const [navigationError, setNavigationError] = useState<string | null>(null);
+  const [stateVersion, setStateVersion] = useState<number | null>(null);
+  const [completeReady, setCompleteReady] = useState(false);
+  const stateVersionRef = useRef<number | null>(null);
+  const transitionRef = useRef<{ signature: string; id: string } | null>(null);
+  const generationSyncRef = useRef<{ interviewId: number; pending: boolean } | null>(null);
   const questionStartTimeRef = useRef<number>(0);
   const [lastTrackedIndex, setLastTrackedIndex] = useState<number>(-1);
   // Only set by the resume response, which is the one case where the URL
@@ -149,19 +162,6 @@ const InterviewPage = () => {
     },
   });
 
-  interface ResumeInterviewResponse {
-    interviewId: number;
-    track: string;
-    difficulty: string;
-    questions: GenerateQuestionsResponse["items"];
-    totalQuestions: number;
-    attemptedQuestions: number;
-    remainingQuestions: number;
-    answeredQuestions: number;
-    resumeQuestionIndex: number | null;
-    status: string;
-    interviewMode?: "practice" | "assessment";
-  }
   const { mutateAsync: resumeInterview, isPending: isResuming } = interviewsV1Client.useMutation<
     ResumeInterviewResponse,
     { interviewId: number }
@@ -169,6 +169,37 @@ const InterviewPage = () => {
     url: ENDPOINTS.INTERVIEWS.RESUME_INTERVIEW,
     method: "post",
   });
+  const { mutateAsync: advanceInterview, isPending: isAdvancing } = interviewsV1Client.useMutation<
+    PracticeNavigationResponse,
+    {
+      interviewId: number;
+      fromQuestionId: number;
+      expectedStateVersion: number;
+      transitionId: string;
+      action: AdvanceInterviewAction;
+      answerVersion?: number;
+      sessionLeaseToken?: string;
+    }
+  >({
+    url: ENDPOINTS.INTERVIEWS.ADVANCE,
+    method: "post",
+    config: { timeout: 20_000 },
+  });
+
+  const applyCheckpoint = useCallback(
+    (response: ResumeInterviewResponse | PracticeNavigationResponse) => {
+      setInterviewQuestions(response.interviewId, response.questions);
+      setQuestions(response.questions);
+      const nextIndex =
+        response.currentQuestionIndex ??
+        (response.currentQuestionId === null ? Math.max(0, response.questions.length - 1) : 0);
+      setCurrentQuestionIndex(nextIndex);
+      stateVersionRef.current = response.stateVersion;
+      setStateVersion(response.stateVersion);
+      setCompleteReady(response.completeReady);
+    },
+    []
+  );
 
   // The single point every pendingStart resolution goes through. A plain
   // "setHasStarted(true)" at each site - which is what this replaced - was
@@ -207,11 +238,7 @@ const InterviewPage = () => {
             setResumeError("This interview has ended and cannot be resumed.");
             return;
           }
-          setInterviewQuestions(response.interviewId, response.questions);
-          setQuestions(response.questions);
-          setCurrentQuestionIndex(
-            response.resumeQuestionIndex ?? Math.max(0, response.questions.length - 1)
-          );
+          applyCheckpoint(response);
           const mode = response.interviewMode === "assessment" ? "assessment" : "practice";
           setResumedInterviewMode(mode);
           if (pendingStart) {
@@ -248,7 +275,16 @@ const InterviewPage = () => {
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [interviewId, resumed, reattempt, pendingStart, role, router, resumeInterview]);
+  }, [
+    applyCheckpoint,
+    interviewId,
+    resumed,
+    reattempt,
+    pendingStart,
+    role,
+    router,
+    resumeInterview,
+  ]);
 
   // Parse selectedQuestions from URL if present (fallback for old links; skip when using session storage)
   useEffect(() => {
@@ -258,29 +294,63 @@ const InterviewPage = () => {
         decodeURIComponent(selectedQuestionsParam)
       ) as GenerateQuestionsResponse["items"];
       if (Array.isArray(parsedQuestions) && parsedQuestions.length > 0) {
-        setQuestions(parsedQuestions);
-        if (pendingStart) {
-          finishStart(interviewModeValue);
-        }
+        const id = Number(interviewId);
+        resumeInterview({ interviewId: id })
+          .then((response) => {
+            applyCheckpoint(response);
+            if (pendingStart) finishStart(interviewModeValue);
+          })
+          .catch(() => {
+            setResumeError(
+              "We could not confirm the saved question order. Check your connection and try again."
+            );
+          });
       }
     } catch (error) {
       // Handle URL parsing error silently
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedQuestionsParam, pendingStart, resumed, reattempt]);
+  }, [
+    selectedQuestionsParam,
+    pendingStart,
+    resumed,
+    reattempt,
+    interviewId,
+    resumeInterview,
+    applyCheckpoint,
+    interviewModeValue,
+  ]);
 
   // Update local questions state when generatedQuestions changes
   useEffect(() => {
     if (generatedQuestions?.items && generatedQuestions.items.length > 0) {
-      setQuestions(generatedQuestions.items);
-      // Start interview if user has clicked the start button
-      if (pendingStart) {
-        const mode = generatedQuestions.interviewMode === "assessment" ? "assessment" : "practice";
-        finishStart(mode);
-      }
+      const id = Number(interviewId ?? generatedQuestions.interviewId);
+      if (
+        generationSyncRef.current?.interviewId === id &&
+        (generationSyncRef.current.pending || stateVersionRef.current !== null)
+      )
+        return;
+      generationSyncRef.current = { interviewId: id, pending: true };
+      setResumeError(null);
+      resumeInterview({ interviewId: id })
+        .then((response) => {
+          generationSyncRef.current = { interviewId: id, pending: false };
+          applyCheckpoint(response);
+          if (pendingStart) {
+            const mode =
+              generatedQuestions.interviewMode === "assessment" ? "assessment" : "practice";
+            finishStart(mode);
+          }
+        })
+        .catch(() => {
+          generationSyncRef.current = null;
+          setResumeError(
+            "Your questions were prepared, but we could not confirm the saved interview checkpoint. Check your connection and try again."
+          );
+        });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [generatedQuestions?.items, pendingStart]);
+  }, [generatedQuestions?.items, pendingStart, applyCheckpoint, interviewId, resumeInterview]);
 
   // Use current question id so we don't re-run when questions array reference changes (e.g. when adding follow-up)
   const currentQuestionId = questions?.[currentQuestionIndex]?.interviewQuestionId;
@@ -401,10 +471,82 @@ const InterviewPage = () => {
     setPendingStart(false);
   };
 
-  const handleNextQuestion = () => {
-    if (questions && currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
+  const runNavigation = async (
+    action: AdvanceInterviewAction,
+    answerVersion?: number
+  ): Promise<PracticeNavigationResponse | null> => {
+    if (interviewModeValue === "assessment") {
+      if (currentQuestionIndex < questions.length - 1) {
+        setCurrentQuestionIndex((previous) => previous + 1);
+      }
+      return null;
     }
+    const id = Number(interviewId);
+    const current = questions[currentQuestionIndex];
+    const version = stateVersionRef.current;
+    if (!Number.isSafeInteger(id) || id <= 0 || !current || version === null) {
+      setNavigationError(
+        "We could not confirm your saved checkpoint. Restore the interview before continuing."
+      );
+      throw new Error("PRACTICE_CHECKPOINT_NOT_READY");
+    }
+
+    const signature = `${id}:${current.interviewQuestionId}:${version}:${action}:${answerVersion ?? 0}`;
+    if (transitionRef.current?.signature !== signature) {
+      const random =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      transitionRef.current = {
+        signature,
+        id: `nav-${id}-${random}`.slice(0, 64),
+      };
+    }
+
+    setNavigationError(null);
+    try {
+      const response = await advanceInterview({
+        interviewId: id,
+        fromQuestionId: current.interviewQuestionId,
+        expectedStateVersion: version,
+        transitionId: transitionRef.current.id,
+        action,
+        ...(answerVersion !== undefined ? { answerVersion } : {}),
+        ...(sessionLease.token ? { sessionLeaseToken: sessionLease.token } : {}),
+      });
+      transitionRef.current = null;
+      applyCheckpoint(response);
+      return response;
+    } catch (error) {
+      const detail = (
+        error as {
+          response?: { data?: { detail?: { code?: string; message?: string } } };
+        }
+      ).response?.data?.detail;
+      const code = detail?.code;
+      if (getSessionLeaseErrorCode(error)) sessionLease.markConflict();
+      if (code === "INTERVIEW_STATE_CONFLICT" || code === "QUESTION_CHECKPOINT_CHANGED") {
+        transitionRef.current = null;
+        const checkpoint = await resumeInterview({ interviewId: id });
+        applyCheckpoint(checkpoint);
+        setNavigationError(
+          "This interview moved in another tab. We restored the latest saved question; no answer was lost."
+        );
+        return null;
+      }
+      if (code === "FOLLOW_UP_PENDING") {
+        setNavigationError(
+          "Your answer is saved. The follow-up is still being prepared—wait a moment or choose Continue without follow-up."
+        );
+      } else if (detail?.message) {
+        setNavigationError(detail.message);
+      }
+      throw error;
+    }
+  };
+
+  const handleNextQuestion = async (action: AdvanceInterviewAction, answerVersion?: number) => {
+    await runNavigation(action, answerVersion);
   };
 
   const handleFollowUpQuestion = (followUpQuestion: FollowUpQuestion) => {
@@ -423,25 +565,14 @@ const InterviewPage = () => {
 
     // Insert the follow-up question right after the current question
     setQuestions((prev) => {
+      if (
+        prev.some(
+          (question) => question.interviewQuestionId === followUpQuestion.interviewQuestionId
+        )
+      )
+        return prev;
       const newQuestions = [...prev];
       newQuestions.splice(currentQuestionIndex + 1, 0, transformedQuestion);
-
-      // Enforce the 7 question limit for Full Stack Role on the frontend
-      // by popping the last unasked base question if we add a follow-up.
-      if (role === "Full Stack Developer" && newQuestions.length > 7) {
-        let lastUnaskedBaseIndex = -1;
-        // Search backwards for the last base question
-        for (let i = newQuestions.length - 1; i > currentQuestionIndex + 1; i--) {
-          if (!newQuestions[i].isFollowUp) {
-            lastUnaskedBaseIndex = i;
-            break;
-          }
-        }
-        if (lastUnaskedBaseIndex !== -1) {
-          newQuestions.splice(lastUnaskedBaseIndex, 1);
-        }
-      }
-
       return newQuestions;
     });
   };
@@ -461,7 +592,10 @@ const InterviewPage = () => {
     },
   });
 
-  const handleInterviewSubmit = async () => {
+  const handleInterviewSubmit = async (
+    action: AdvanceInterviewAction = "skip",
+    answerVersion?: number
+  ) => {
     if (interviewId) {
       // Track time for the final question before submitting
       if (questionStartTimeRef.current !== 0) {
@@ -480,6 +614,13 @@ const InterviewPage = () => {
       }
 
       try {
+        if (interviewModeValue === "practice" && !completeReady) {
+          const transition = await runNavigation(action, answerVersion);
+          // A conflict reloads the canonical checkpoint and intentionally
+          // stops submission. If another question exists, the response has
+          // already moved the UI there instead of completing prematurely.
+          if (!transition?.completeReady) return;
+        }
         await completeInterview({
           interviewId: Number(interviewId),
           ...(sessionLease.token ? { sessionLeaseToken: sessionLease.token } : {}),
@@ -572,6 +713,14 @@ const InterviewPage = () => {
           >
             Reconnect
           </button>
+        </div>
+      )}
+      {navigationError && (
+        <div
+          role="status"
+          className="mx-auto mb-4 max-w-2xl rounded-xl border border-amber-200 bg-amber-50 p-4 text-center text-amber-950"
+        >
+          {navigationError}
         </div>
       )}
       {!hasStarted ? (
@@ -754,13 +903,16 @@ const InterviewPage = () => {
             isLoading={isGeneratingQuestions}
             disabled={
               attempt.pending ||
+              isAdvancing ||
               isTextToSpeechSpeaking ||
               isTextToSpeechPreparing ||
               !attempt.id ||
+              (interviewModeValue === "practice" && stateVersion === null) ||
               (leaseEnabled && !sessionLease.canWrite)
             }
             question_attempt_id={attempt.id}
             initiallyAnswered={questions?.[currentQuestionIndex]?.answerSaved === true}
+            initialAnswerVersion={questions?.[currentQuestionIndex]?.answerVersion ?? 0}
             initialTranscriptionStatus={
               questions?.[currentQuestionIndex]?.transcriptionStatus ?? null
             }

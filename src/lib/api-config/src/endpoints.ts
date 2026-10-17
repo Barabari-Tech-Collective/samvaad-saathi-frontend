@@ -34,6 +34,7 @@ export const ENDPOINTS = {
     QUESTIONS: (interviewId: string) => `interviews/${interviewId}/questions`,
     QUESTION_ATTEMPTS: (interviewId: string) => `interviews/${interviewId}/question-attempts`,
     START_QUESTION_ATTEMPT: "interviews/question-attempts",
+    ADVANCE: "interviews/navigation/advance",
     WITH_SUMMARY: "interviews-with-summary",
     RESUME_INTERVIEW: `interviews/resume`,
   },

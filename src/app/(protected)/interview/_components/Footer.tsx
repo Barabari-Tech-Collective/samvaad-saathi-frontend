@@ -22,6 +22,7 @@ import {
   trackSubmitInterviewClick,
 } from "@/lib/posthog/tracking.utils";
 import type {
+  AdvanceInterviewAction,
   FollowUpQuestion,
   TextAnswerResponse,
   TranscribeResponse,
@@ -45,13 +46,14 @@ interface FooterProps {
   question_attempt_id?: number;
   followUpStrategy?: string | null;
   isCurrentQuestionFollowUp?: boolean;
-  onNext?: () => void;
+  onNext?: (action: AdvanceInterviewAction, answerVersion?: number) => Promise<void> | void;
   isLastQuestion?: boolean;
-  onSubmit?: () => Promise<void>;
+  onSubmit?: (action: AdvanceInterviewAction, answerVersion?: number) => Promise<void>;
   onFollowUpQuestion?: (question: FollowUpQuestion) => void;
   isIntroStep?: boolean;
   timerExpired?: boolean;
   initiallyAnswered?: boolean;
+  initialAnswerVersion?: number;
   initialTranscriptionStatus?: TranscriptionStatusResponse["status"] | null;
   onSaveAndExit?: () => Promise<void>;
   sessionLeaseToken?: string | null;
@@ -71,6 +73,7 @@ export default function Footer({
   isIntroStep = false,
   timerExpired = false,
   initiallyAnswered = false,
+  initialAnswerVersion = 0,
   initialTranscriptionStatus = null,
   onSaveAndExit,
   sessionLeaseToken,
@@ -104,7 +107,9 @@ export default function Footer({
   const autoSubmitAttemptedRef = useRef(false);
   const skipFirstTypedDraftSyncRef = useRef(true);
   const analysisTypesRef = useRef(["domain", "communication", "pace", "pause"]);
-  const answerVersionRef = useRef<number | undefined>(undefined);
+  const answerVersionRef = useRef<number | undefined>(
+    initialAnswerVersion > 0 ? initialAnswerVersion : undefined
+  );
   const terminalTranscriptionHandledRef = useRef(false);
   const api = createApiClient(APIService.TRANSCRIBE);
   const typedDraftKey = question_attempt_id
@@ -323,6 +328,7 @@ export default function Footer({
       setTypedAnswer("");
       setSpeechFeedbackDelayed(false);
       setTranscriptionStatus("transcribed");
+      answerVersionRef.current = result.answerVersion;
       void analyze(["domain"], result.answerVersion);
     } catch (error) {
       if (getSessionLeaseErrorCode(error)) onSessionConflict?.();
@@ -334,7 +340,7 @@ export default function Footer({
     }
   }
 
-  async function submit() {
+  async function submit(action: AdvanceInterviewAction = answered ? "answer_saved" : "skip") {
     if (submittingRef.current || unsaved || !onSubmit) return;
     submittingRef.current = true;
     setIsSubmitting(true);
@@ -342,7 +348,7 @@ export default function Footer({
     setModal(null);
     try {
       trackSubmitInterviewClick();
-      await onSubmit();
+      await onSubmit(action, answerVersionRef.current);
     } catch {
       setSubmitError(
         "The interview could not be submitted. Your saved answers are safe. Select Submit to try again."
@@ -425,6 +431,24 @@ export default function Footer({
     return () => window.removeEventListener("beforeunload", warnBeforeLeaving);
   }, [typedDraftUnsaved]);
 
+  async function advance(action: AdvanceInterviewAction) {
+    if (!onNext || submittingRef.current) return;
+    submittingRef.current = true;
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setModal(null);
+    try {
+      await onNext(action, answerVersionRef.current);
+    } catch {
+      setSubmitError(
+        "We could not move to the next question. Your saved answer is safe. Select Next to try again."
+      );
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
+    }
+  }
+
   function next() {
     if (unsaved || isSubmitting || timerExpired) return;
     // Moving on abandons any microphone prompt still waiting for an answer.
@@ -439,7 +463,7 @@ export default function Footer({
         return;
       }
       trackButtonClick("next_question", "interview_footer");
-      onNext?.();
+      void advance("answer_saved");
     } else setModal("skip");
   }
   const fillerCount = caption
@@ -650,7 +674,18 @@ export default function Footer({
             <button
               className="btn btn-primary"
               disabled={unsaved || isSubmitting}
-              onClick={() => setModal("submit")}
+              onClick={() => {
+                if (
+                  answered &&
+                  followUpStrategy === "llm_transcription_based" &&
+                  !isCurrentQuestionFollowUp &&
+                  (transcriptionStatus === "pending" || transcriptionStatus === "processing")
+                ) {
+                  setModal("continue");
+                } else {
+                  setModal("submit");
+                }
+              }}
             >
               {isSubmitting ? "Submitting…" : "Submit"}
             </button>
@@ -700,12 +735,11 @@ export default function Footer({
                   } else if (modal === "submit") void submit();
                   else if (modal === "continue") {
                     trackButtonClick("continue_without_follow_up", "interview_footer");
-                    setModal(null);
-                    onNext?.();
+                    if (isLastQuestion) void submit("continue_without_follow_up");
+                    else void advance("continue_without_follow_up");
                   } else {
                     trackSkipQuestionClick();
-                    setModal(null);
-                    onNext?.();
+                    void advance("skip");
                   }
                 }}
               >
