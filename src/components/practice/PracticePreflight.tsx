@@ -303,6 +303,10 @@ export default function PracticePreflight({
           <li>Practice is private coaching, not a formal assessment.</li>
           <li>Refreshing, reconnecting, receiving a call or changing tabs will not punish you.</li>
           <li>You can save and exit. Answers confirmed as saved remain on your account.</li>
+          <li>
+            Your voice recording is stored securely so delayed speech feedback can be retried, then
+            deleted according to the programme retention policy.
+          </li>
           <li>Your facilitator may see coaching summaries according to your consent settings.</li>
         </ul>
       </section>
