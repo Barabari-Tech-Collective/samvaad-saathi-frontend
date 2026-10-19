@@ -1,5 +1,6 @@
 "use client";
 
+import { CoachingAssignments } from "@/components/practice/CoachingAssignments";
 import { useAuth } from "@/components/providers/auth-provider";
 import { apiClient, ENDPOINTS } from "@/lib/api-config";
 import {
@@ -120,6 +121,8 @@ export default function PracticePage() {
           <span>{activitySummary(hub.activity)}</span>
         </p>
       </header>
+
+      <CoachingAssignments />
 
       {isError && (
         <section

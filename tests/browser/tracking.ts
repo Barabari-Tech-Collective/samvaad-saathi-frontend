@@ -6,3 +6,5 @@ export const trackRedoButtonClick = () => {};
 export const trackSkipQuestionClick = () => {};
 export const trackSubmitInterviewClick = () => {};
 export const trackApiError = () => {};
+
+export const trackEvent = () => {};

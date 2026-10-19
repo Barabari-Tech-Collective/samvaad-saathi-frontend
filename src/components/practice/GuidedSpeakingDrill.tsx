@@ -38,9 +38,11 @@ interface DrillCompletionPayload {
   clientCompletionId: string;
   evidenceKind: "audio";
   evidenceUnits: number;
+  assignmentId?: number;
 }
 
 interface DrillCompletionResponse {
+  assignmentId?: number | null;
   completionId: number;
   created: boolean;
   completedAt: string;
@@ -89,6 +91,19 @@ export default function GuidedSpeakingDrill({
   levels,
 }: GuidedSpeakingDrillProps) {
   const apiClient = createApiClient(APIService.INTERVIEWS);
+  const [assignmentId, setAssignmentId] = useState<number | undefined>();
+  const [assignmentError, setAssignmentError] = useState<string | null>(null);
+  useEffect(() => {
+    const value = new URLSearchParams(window.location.search).get("assignment");
+    if (value !== null) {
+      if (/^[1-9]\d*$/.test(value) && Number.isSafeInteger(Number(value)))
+        setAssignmentId(Number(value));
+      else
+        setAssignmentError(
+          "This assignment link is invalid. Return to Practice and open your follow-up again."
+        );
+    }
+  }, []);
   const [levelKey, setLevelKey] = useState<SpeakingDrillLevel["key"]>("beginner");
   const [promptIndex, setPromptIndex] = useState(0);
   const [state, setState] = useState<DrillState>("ready");
@@ -108,6 +123,13 @@ export default function GuidedSpeakingDrill({
     url: ENDPOINTS.PRACTICE.COMPLETE_DRILL,
     method: "post",
     showToastError: false,
+  });
+
+  const assignmentQuery = apiClient.useQuery<{ module: string; status: string }>({
+    url: `v2/coaching-assignments/me/${assignmentId}`,
+    key: ["coaching-assignment-start", assignmentId],
+    enabled: Boolean(assignmentId),
+    options: { staleTime: 0, gcTime: 0, retry: false },
   });
 
   const level = levels.find((item) => item.key === levelKey) ?? levels[0];
@@ -231,9 +253,11 @@ export default function GuidedSpeakingDrill({
   };
 
   const complete = async () => {
-    if (!hasEvidence) return;
+    if (!hasEvidence || (assignmentError && !assignmentId)) return;
+    setAssignmentError(null);
     const completion: DrillCompletionPayload = {
       module,
+      ...(assignmentId ? { assignmentId } : {}),
       level: level.key,
       clientCompletionId: completionIdRef.current,
       evidenceKind: "audio",
@@ -243,8 +267,16 @@ export default function GuidedSpeakingDrill({
       ),
     };
     try {
-      await recordCompletion(completion);
+      const receipt = await recordCompletion(completion);
+      if (assignmentId && receipt.assignmentId !== assignmentId)
+        throw new Error("Assignment receipt was not confirmed");
     } catch {
+      if (assignmentId) {
+        setAssignmentError(
+          "Assignment completion could not be confirmed. It may have been cancelled or your enrollment may have changed. Retry saving, or return to Practice to check its status."
+        );
+        return;
+      }
       const pending = readPendingCompletions();
       if (!pending.some((item) => item.clientCompletionId === completion.clientCompletionId)) {
         savePendingCompletions([...pending, completion]);
@@ -278,24 +310,74 @@ export default function GuidedSpeakingDrill({
     return "";
   }, [state]);
 
+  if (assignmentId && state === "ready") {
+    if (assignmentQuery.isFetching || (!assignmentQuery.data && !assignmentQuery.isError))
+      return <output>Checking your assignment…</output>;
+    if (
+      assignmentQuery.isError ||
+      assignmentQuery.data?.status !== "assigned" ||
+      assignmentQuery.data?.module !== module
+    ) {
+      return (
+        <div role="alert" className="mx-auto max-w-3xl space-y-4 rounded-2xl border p-6">
+          <p>
+            This assignment cannot be started. It may be closed, unavailable for this drill, or your
+            enrollment may have changed.
+          </p>
+          <Link className="text-[#344499] underline" href="/practice">
+            Return to Practice
+          </Link>
+        </div>
+      );
+    }
+  }
+
+  if (assignmentError) {
+    return (
+      <div
+        role="alert"
+        className="mx-auto max-w-3xl space-y-4 rounded-2xl border border-[#DEE8FB] bg-white p-6"
+      >
+        <p>{assignmentError}</p>
+        {assignmentId && (
+          <button
+            type="button"
+            disabled={isSavingCompletion}
+            className="min-h-11 rounded-xl bg-black px-4 text-white"
+            onClick={() => void complete()}
+          >
+            Retry saving assignment completion
+          </button>
+        )}
+        <Link href="/practice" className="block text-[#344499] underline">
+          Return to Practice
+        </Link>
+      </div>
+    );
+  }
+
   if (state === "complete") {
     return (
       <div className="mx-auto max-w-3xl py-4 text-[#111827]">
         <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-7 text-center sm:p-10">
           <CheckCircleIcon className="mx-auto size-14 text-emerald-600" aria-hidden="true" />
-          <h1 className="mt-4 text-3xl font-bold">Practice complete</h1>
+          <h1 className="mt-4 text-3xl font-bold">
+            {assignmentId ? "Assignment complete" : "Practice complete"}
+          </h1>
           <p className="mx-auto mt-3 max-w-xl leading-7 text-gray-700">
             You completed one practice answer. Listen to yourself and use your checklist—this short
             drill does not give an AI score.
           </p>
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={resetEvidence}
-              className="min-h-12 rounded-xl bg-[#FFCC33] px-6 font-bold text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
-            >
-              Practise again
-            </button>
+            {!assignmentId && (
+              <button
+                type="button"
+                onClick={resetEvidence}
+                className="min-h-12 rounded-xl bg-[#FFCC33] px-6 font-bold text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
+              >
+                Practise again
+              </button>
+            )}
             <Link
               href="/practice"
               className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#1F285B] px-6 font-bold text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"

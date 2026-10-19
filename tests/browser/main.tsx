@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CookiesProvider } from "react-cookie";
+import { CoachingAssignments } from "@/components/practice/CoachingAssignments";
+import GuidedSpeakingDrill from "@/components/practice/GuidedSpeakingDrill";
 import Footer from "@/app/(protected)/interview/_components/Footer";
 
 function Fixture() {
@@ -23,7 +25,28 @@ function Fixture() {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={new QueryClient()}>
     <CookiesProvider>
-      {location.search.includes("fixture=guide") ? (
+      {location.search.includes("fixture=assignments") ? (
+        <CoachingAssignments />
+      ) : location.search.includes("fixture=drill") ? (
+        <GuidedSpeakingDrill
+          module="warm_up"
+          storageKey="test-drill"
+          eyebrow="Practice"
+          title="Speaking follow-up"
+          description="Practise your introduction"
+          levels={[
+            {
+              key: "beginner",
+              label: "Beginner",
+              example: "Introduce yourself",
+              durationSeconds: 60,
+              thinkSeconds: 0,
+              prompts: ["Tell me about yourself"],
+              checklist: ["I explained my goal"],
+            },
+          ]}
+        />
+      ) : location.search.includes("fixture=guide") ? (
         <main>
           <h1>Guide browser fixture</h1>
           <a href="#next" id="practice-target">

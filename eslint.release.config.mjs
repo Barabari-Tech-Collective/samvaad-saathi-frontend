@@ -3,6 +3,8 @@ import nextTypeScript from "eslint-config-next/typescript";
 // Enforce real TypeScript linting on this release. The legacy global config
 // only has ignores; expanding enforcement across legacy modules is separate work.
 const files = [
+  "src/components/practice/**/*.tsx",
+  "src/app/(protected)/practice/page.tsx",
   "src/hooks/useProctoring.tsx",
   "src/components/guides/**/*.tsx",
   "src/app/layout.tsx",
