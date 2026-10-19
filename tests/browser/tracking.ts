@@ -8,3 +8,8 @@ export const trackSubmitInterviewClick = () => {};
 export const trackApiError = () => {};
 
 export const trackEvent = () => {};
+
+export const trackDifficultySelected = () => {};
+export const trackResumeToggleClick = () => {};
+export const trackRoleSelected = () => {};
+export const trackStartInterviewButtonClick = () => {};

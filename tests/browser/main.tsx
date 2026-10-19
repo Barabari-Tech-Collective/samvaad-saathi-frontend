@@ -1,3 +1,5 @@
+import StartPage from "@/app/(protected)/interview-start/page";
+import ReattemptPage from "@/app/(protected)/reattempt-interview/page";
 import CompletedPage from "@/app/(protected)/interview-completed/page";
 import HistoryPage from "@/app/(protected)/history/page";
 import ReportPage from "@/app/(protected)/report-summary/page";
@@ -42,7 +44,15 @@ window.addEventListener("practice-test-refresh", () => {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={client}>
     <CookiesProvider>
-      {location.search.includes("fixture=completed") ? (
+      {location.search.includes("fixture=start") ? (
+        <main className="p-4">
+          <StartPage />
+        </main>
+      ) : location.search.includes("fixture=reattempt") ? (
+        <main className="p-4">
+          <ReattemptPage />
+        </main>
+      ) : location.search.includes("fixture=completed") ? (
         <main className="p-4">
           <CompletedPage />
         </main>
