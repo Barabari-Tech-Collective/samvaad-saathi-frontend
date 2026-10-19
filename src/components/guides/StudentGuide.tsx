@@ -29,5 +29,5 @@ export default function StudentGuide() {
   if (loading || !user || !["/home", "/practice", "/history", "/profile"].includes(path))
     return null;
   const key = guideStorageKey(String(user.userId), "student", "student", 1);
-  return <WorkspaceGuide key={key} storageKey={key} steps={steps} />;
+  return <WorkspaceGuide key={`${key}:${path}`} storageKey={key} steps={steps} />;
 }

@@ -1,4 +1,4 @@
-import { WorkspaceGuide } from "@/components/guides/WorkspaceGuide";
+import { GuideFixture } from "./guide-fixture";
 import "./workspace.css";
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -47,27 +47,7 @@ createRoot(document.getElementById("root")!).render(
           ]}
         />
       ) : location.search.includes("fixture=guide") ? (
-        <main>
-          <h1>Guide browser fixture</h1>
-          <a href="#next" id="practice-target">
-            Practice
-          </a>
-          <WorkspaceGuide
-            storageKey="browser-guide-v1"
-            steps={[
-              {
-                title: "Start with practice",
-                body: "Use practice to improve one skill at a time.",
-                target: "#practice-target",
-              },
-              {
-                title: "Saved progress",
-                body: "Answers remain saved when you return.",
-                target: "#missing-target",
-              },
-            ]}
-          />
-        </main>
+        <GuideFixture />
       ) : (
         <Fixture />
       )}

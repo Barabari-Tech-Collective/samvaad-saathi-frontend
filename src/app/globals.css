@@ -224,3 +224,57 @@ h6 {
 [lang="ne"]:not(html) {
   font-family: var(--font-noto-sans-devanagari), var(--font-inter), sans-serif;
 }
+
+/* First-use invitation: no automatic modal or focus movement. */
+.workspace-guide-invite {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right, 0px));
+  bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  z-index: 55;
+  width: min(22rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 7rem);
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+  border: 1px solid #dee8fb;
+  border-top: 3px solid #ffcc33;
+  border-radius: 18px;
+  padding: 20px;
+  background: #fff;
+  color: #1f285b;
+  box-shadow: 0 8px 32px #1f285b18;
+}
+.workspace-guide-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  color: #344499;
+}
+.workspace-guide-invite h2 {
+  margin: 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.workspace-guide-invite p {
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.workspace-guide-invite .workspace-guide-actions {
+  margin-top: 16px;
+}
+.workspace-guide-content {
+  overflow-wrap: anywhere;
+}
+.workspace-guide-content h2:focus {
+  outline: none;
+}
+.workspace-guide-trigger[hidden] {
+  display: none;
+}
+@media (max-height: 400px) {
+  .workspace-guide-invite {
+    bottom: 1rem;
+    max-height: calc(100dvh - 2rem);
+  }
+}
