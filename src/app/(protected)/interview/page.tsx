@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/components/providers/auth-provider";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MicPermissionModal, useMicPermission } from "@/hooks/useMicPermission";
 import {
@@ -41,6 +42,7 @@ import {
 
 const InterviewPage = () => {
   const router = useRouter();
+  const { user, loading: loadingIdentity } = useAuth();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   const searchParams = useSearchParams();
@@ -151,6 +153,8 @@ const InterviewPage = () => {
   >({
     url: ENDPOINTS.INTERVIEWS.PROCTORING_VIOLATION,
     method: "post",
+    showToastError: false,
+    options: { retry: false },
   });
   const { mutateAsync: pauseInterview } = interviewsV1Client.useMutation<
     { interviewId: number; status: "paused"; pausedAt?: string; expiresAt?: string },
@@ -161,7 +165,9 @@ const InterviewPage = () => {
   });
 
   const proctoring = useProctoring({
-    enabled: interviewModeValue === "assessment",
+    enabled:
+      interviewModeValue === "assessment" && !loadingIdentity && !!user?.userId && !timerExpired,
+    scopeKey: String(user?.userId ?? ""),
     interviewId: interviewId ? Number(interviewId) : null,
     reportViolation: reportProctoringViolation,
   });
@@ -491,8 +497,14 @@ const InterviewPage = () => {
   };
 
   const handleBeginProctoredSession = async () => {
-    await proctoring.beginProctoredSession();
-    await activatePreparedInterview();
+    if (!(await proctoring.beginProctoredSession())) return;
+    try {
+      await activatePreparedInterview();
+    } catch {
+      setResumeError(
+        "The prepared assessment could not be started. Check your connection and saved session before trying again."
+      );
+    }
   };
 
   const runNavigation = async (
@@ -682,6 +694,7 @@ const InterviewPage = () => {
     <div className="px-3 pt-4 sm:px-6 lg:px-8">
       <ProctoringPreflightModal
         isOpen={proctoring.showPreflight}
+        isStarting={proctoring.isBeginning}
         onBegin={handleBeginProctoredSession}
         onCancel={proctoring.closePreflight}
       />

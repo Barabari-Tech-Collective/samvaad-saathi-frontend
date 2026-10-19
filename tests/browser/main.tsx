@@ -4,6 +4,7 @@ import CompletedPage from "@/app/(protected)/interview-completed/page";
 import HistoryPage from "@/app/(protected)/history/page";
 import ReportPage from "@/app/(protected)/report-summary/page";
 import PracticePage from "@/app/(protected)/practice/page";
+import { AssessmentFixture } from "./assessment-fixture";
 import { GuideFixture } from "./guide-fixture";
 import "./workspace.css";
 import React, { useState } from "react";
@@ -44,7 +45,9 @@ window.addEventListener("practice-test-refresh", () => {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={client}>
     <CookiesProvider>
-      {location.search.includes("fixture=start") ? (
+      {location.search.includes("fixture=assessment") ? (
+        <AssessmentFixture />
+      ) : location.search.includes("fixture=start") ? (
         <main className="p-4">
           <StartPage />
         </main>
