@@ -101,3 +101,31 @@ it("malformed focus module objects cannot throw while validating JSON", () => {
     })
   ).toBeNull();
 });
+
+it.each(["enrollment_revoked", "enrollment_unverified", "plan_unavailable"] as const)(
+  "allows explicitly unknown counts for %s without inventing zero",
+  (readiness) => {
+    const hub = practiceHub();
+    hub.resume!.readiness = readiness;
+    hub.resume!.answeredQuestions = null;
+    hub.resume!.totalQuestions = null;
+    expect(parsePracticeHub(hub)).toBe(hub);
+  }
+);
+it.each(["ready", "preparing", "unexpected"])(
+  "rejects unknown counts for readiness %s",
+  (readiness) => {
+    const hub = practiceHub();
+    expect(
+      parsePracticeHub({
+        ...hub,
+        resume: { ...hub.resume, readiness, answeredQuestions: null, totalQuestions: null },
+      })
+    ).toBeNull();
+  }
+);
+it("reads older server responses without assuming continuation is confirmed", () => {
+  const hub = practiceHub();
+  delete hub.resume!.readiness;
+  expect(parsePracticeHub(hub)).toBe(hub);
+});

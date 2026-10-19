@@ -33,3 +33,5 @@ HUB-ACCESS-01: the current hub payload has no per-session course-access readines
 Authenticated shell navigation, actual central identities/enrollment updates, supported devices, screen readers, provider faults and measured load remain acceptance gates. This batch is practice entry, not completion of all history/report or staff screens. Preferences and the companion roadmap from earlier builds are unchanged. AWS relocation remains deferred.
 
 Build 22 is the sixth batch against the post-Build-16 estimate in REMAINING-DELIVERY.md; it does not reset that estimate.
+
+Follow-up: Build 23 implements HUB-COUNT-01 and HUB-ACCESS-01 in the release candidate. See BUILD-23.md for readiness semantics, compatibility and remaining acceptance gates.

@@ -4,6 +4,7 @@ import {
   activitySummary,
   focusProgress,
   savedPracticeExpired,
+  practiceReadinessMessage,
   type PracticeHubResponse,
 } from "@/lib/practice-hub";
 import { trackButtonClick } from "@/lib/posthog/tracking.utils";
@@ -95,13 +96,17 @@ export function PracticeHubView({
   const verified = status === "ready" ? hub : null;
   const expired = savedPracticeExpired(verified?.resume ?? null, now);
   const resume = !expired ? verified?.resume : null;
+  const canResume = resume?.readiness === "ready";
+  const readinessMessage = practiceReadinessMessage(resume?.readiness);
   const enoughEvidence =
     !!verified && verified.focusEvidenceAnswerCount >= verified.focusEvidenceRequired;
   const progress = verified
     ? focusProgress(verified.focusEvidenceAnswerCount, verified.focusEvidenceRequired)
     : 0;
   const primaryHref = resume
-    ? `/interview?interviewId=${resume.interviewId}&resumed=true&interviewMode=practice`
+    ? canResume
+      ? `/interview?interviewId=${resume.interviewId}&resumed=true&interviewMode=practice`
+      : "/history"
     : status === "error"
       ? "/history"
       : "/interview-start?mode=practice";
@@ -176,23 +181,29 @@ export function PracticeHubView({
           <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.12em] text-[#344499]">
             <SparklesIcon className="size-5" aria-hidden="true" />
             {resume
-              ? "Continue where you stopped"
+              ? canResume
+                ? "Continue where you stopped"
+                : "Saved practice"
               : status === "error"
                 ? "Saved progress unavailable"
                 : "Mock interview"}
           </div>
           <h2 className="mt-4 text-2xl font-bold sm:text-3xl">
             {resume
-              ? `Continue your ${resume.track} practice`
+              ? canResume
+                ? `Continue your ${resume.track} practice`
+                : readinessMessage.title
               : status === "error"
                 ? "Pick up your practice safely"
                 : "Start a full practice sitting"}
           </h2>
           <p className="mt-3 max-w-2xl text-base leading-7 text-gray-600">
             {resume
-              ? resume.totalQuestions > 0
-                ? `${resume.answeredQuestions} of ${resume.totalQuestions} answers are saved. Your questions will stay in the same order.`
-                : "Your session is saved. Reopen it to check question preparation."
+              ? !canResume
+                ? readinessMessage.body
+                : (resume.totalQuestions ?? 0) > 0
+                  ? `${resume.answeredQuestions} of ${resume.totalQuestions} answers are saved. Your questions will stay in the same order.`
+                  : "Your session is saved. Reopen it to check question preparation."
               : status === "error"
                 ? "Open History to check your saved sessions before starting another round, or choose a skill builder below."
                 : "Practise spoken answers with AI coaching. Before you begin, check your microphone and the plan for the round."}
@@ -205,7 +216,9 @@ export function PracticeHubView({
               onClick={() =>
                 trackButtonClick(
                   resume
-                    ? "continue_practice_interview"
+                    ? canResume
+                      ? "continue_practice_interview"
+                      : "view_saved_practice"
                     : status === "error"
                       ? "find_saved_practice"
                       : "begin_mock_interview",
@@ -215,13 +228,22 @@ export function PracticeHubView({
               className="mt-7 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-black px-6 py-3 text-base font-semibold text-white transition hover:bg-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#344499] sm:w-auto"
             >
               {resume
-                ? resume.totalQuestions > 0
+                ? canResume
                   ? "Continue saved interview"
-                  : "Reopen saved session"
+                  : "View saved session"
                 : status === "error"
                   ? "Find saved interviews"
                   : "Begin mock interview"}
             </Link>
+          )}
+          {resume && !canResume && (
+            <button
+              type="button"
+              onClick={onRefresh}
+              className="mt-4 flex min-h-11 items-center rounded-xl border border-[#C0CFF2] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
+            >
+              Check again
+            </button>
           )}
           <p className="mt-4 text-sm text-gray-600">
             Refreshing or changing tabs will not end a Practice interview.

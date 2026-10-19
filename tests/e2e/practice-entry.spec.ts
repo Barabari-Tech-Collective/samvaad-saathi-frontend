@@ -122,3 +122,52 @@ test("a new student's verified zero state differs from malformed data", async ({
   await expect(page.getByRole("link", { name: "Find saved interviews" })).toBeVisible();
   await expect(page.getByText("0 mocks · 0 drills this week")).toHaveCount(0);
 });
+
+for (const readiness of [
+  "preparing",
+  "enrollment_revoked",
+  "enrollment_unverified",
+  "plan_unavailable",
+] as const) {
+  test(`saved session readiness ${readiness} preserves recovery without a continue link`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 740 });
+    const hub = practiceHub();
+    hub.resume!.readiness = readiness;
+    if (readiness === "plan_unavailable") {
+      hub.resume!.answeredQuestions = null;
+      hub.resume!.totalQuestions = null;
+    }
+    await page.route("**/api/practice/hub", (route) => route.fulfill({ json: hub }));
+    await page.goto("/?fixture=practice-hub");
+    await expect(page.getByRole("link", { name: "View saved session" })).toHaveAttribute(
+      "href",
+      "/history"
+    );
+    await expect(page.getByRole("link", { name: "Continue saved interview" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Begin mock interview" })).toHaveCount(0);
+    await expect(page.getByText(/2 of 5 answers are saved/)).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Check again" })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
+      true
+    );
+  });
+}
+
+test("restoring course readiness re-enables the original saved session", async ({ page }) => {
+  let restored = false;
+  await page.route("**/api/practice/hub", (route) => {
+    const hub = practiceHub();
+    if (!restored) hub.resume!.readiness = "enrollment_revoked";
+    return route.fulfill({ json: hub });
+  });
+  await page.goto("/?fixture=practice-hub");
+  await expect(page.getByRole("heading", { name: "Check your course enrollment" })).toBeVisible();
+  restored = true;
+  await page.getByRole("button", { name: "Check again" }).click();
+  await expect(page.getByRole("link", { name: "Continue saved interview" })).toHaveAttribute(
+    "href",
+    "/interview?interviewId=42&resumed=true&interviewMode=practice"
+  );
+});

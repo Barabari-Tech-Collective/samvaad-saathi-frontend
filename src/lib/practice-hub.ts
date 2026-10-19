@@ -8,9 +8,15 @@ export interface PracticeHubResumeCard {
   interviewId: number;
   track: string;
   difficulty: string;
-  status: "active" | "paused";
-  answeredQuestions: number;
-  totalQuestions: number;
+  status: "active" | "paused" | "preparing";
+  readiness?:
+    | "ready"
+    | "preparing"
+    | "enrollment_revoked"
+    | "enrollment_unverified"
+    | "plan_unavailable";
+  answeredQuestions: number | null;
+  totalQuestions: number | null;
   expiresAt: string | null;
 }
 
@@ -88,10 +94,27 @@ export function parsePracticeHub(value: unknown): PracticeHubResponse | null {
       resume.interviewId === 0 ||
       !text(resume.track) ||
       !text(resume.difficulty) ||
-      !["active", "paused"].includes(resume.status) ||
-      !count(resume.answeredQuestions) ||
-      !count(resume.totalQuestions) ||
-      resume.answeredQuestions > resume.totalQuestions ||
+      !["active", "paused", "preparing"].includes(resume.status) ||
+      (resume.readiness !== undefined &&
+        ![
+          "ready",
+          "preparing",
+          "enrollment_revoked",
+          "enrollment_unverified",
+          "plan_unavailable",
+        ].includes(resume.readiness)) ||
+      !(
+        (count(resume.answeredQuestions) &&
+          count(resume.totalQuestions) &&
+          resume.answeredQuestions <= resume.totalQuestions) ||
+        (resume.answeredQuestions === null &&
+          resume.totalQuestions === null &&
+          ["plan_unavailable", "enrollment_revoked", "enrollment_unverified"].includes(
+            resume.readiness ?? ""
+          ))
+      ) ||
+      (resume.readiness === "ready" &&
+        (resume.totalQuestions === 0 || resume.status === "preparing")) ||
       !(
         resume.expiresAt === null ||
         (typeof resume.expiresAt === "string" && Number.isFinite(Date.parse(resume.expiresAt)))
@@ -117,4 +140,34 @@ export function parsePracticeHub(value: unknown): PracticeHubResponse | null {
 
 export function savedPracticeExpired(resume: PracticeHubResumeCard | null, now: number): boolean {
   return !!resume?.expiresAt && Date.parse(resume.expiresAt) <= now;
+}
+
+export function practiceReadinessMessage(readiness: PracticeHubResumeCard["readiness"]) {
+  switch (readiness) {
+    case "preparing":
+      return {
+        title: "Your questions are being prepared",
+        body: "Your saved session is retained. Check again shortly, or open it in History. A new round is not needed.",
+      };
+    case "enrollment_revoked":
+      return {
+        title: "Check your course enrollment",
+        body: "This session cannot continue with the current enrollment. Your saved answers are retained. Ask your program team to check access, then try again.",
+      };
+    case "enrollment_unverified":
+      return {
+        title: "Course access needs a fresh check",
+        body: "Current enrollment could not be verified. Your saved answers are retained. Ask your program team to refresh enrollment, then check again.",
+      };
+    case "plan_unavailable":
+      return {
+        title: "Your saved plan needs checking",
+        body: "The saved question plan could not be verified. Your answers are retained. Open History or ask your program team for help; do not start a replacement round to recover it.",
+      };
+    default:
+      return {
+        title: "Check your saved session",
+        body: "This server has not confirmed whether the saved session can continue. Open History to check it. Your saved answers are retained.",
+      };
+  }
 }

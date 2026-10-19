@@ -44,8 +44,9 @@ describe("practice entry", () => {
     const hub = practiceHub();
     hub.resume!.answeredQuestions = 0;
     hub.resume!.totalQuestions = 0;
+    hub.resume!.readiness = "preparing";
     render(view("ready", hub));
-    expect(screen.getByRole("link", { name: "Reopen saved session" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "View saved session" })).toBeVisible();
     expect(screen.queryByText(/0 of 0/)).toBeNull();
   });
   it("removes an expired resume action while the page stays open", () => {
@@ -67,4 +68,30 @@ it("does not ask for the same minimum again when evidence exists without a clear
   render(view("ready", hub));
   expect(screen.getByRole("heading", { name: "Keep exploring your skills" })).toBeVisible();
   expect(screen.getByText(/no single focus stands out/)).toBeVisible();
+});
+
+it.each([
+  "preparing",
+  "enrollment_revoked",
+  "enrollment_unverified",
+  "plan_unavailable",
+  undefined,
+] as const)("keeps a %s session visible without offering unchecked continuation", (readiness) => {
+  const hub = practiceHub();
+  hub.resume!.readiness = readiness;
+  if (readiness === "plan_unavailable") {
+    hub.resume!.answeredQuestions = null;
+    hub.resume!.totalQuestions = null;
+  }
+  const retry = vi.fn();
+  render(<PracticeHubView hub={hub} status="ready" name="Riya" onRefresh={retry} />);
+  expect(screen.queryByRole("link", { name: "Continue saved interview" })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Begin mock interview" })).toBeNull();
+  expect(screen.queryByText(/2 of 5 answers are saved/)).toBeNull();
+  expect(screen.getByRole("link", { name: "View saved session" })).toHaveAttribute(
+    "href",
+    "/history"
+  );
+  fireEvent.click(screen.getByRole("button", { name: "Check again" }));
+  expect(retry).toHaveBeenCalledOnce();
 });

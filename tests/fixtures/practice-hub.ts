@@ -7,6 +7,7 @@ export function practiceHub(): PracticeHubResponse {
       track: "Communication",
       difficulty: "medium",
       status: "paused",
+      readiness: "ready",
       answeredQuestions: 2,
       totalQuestions: 5,
       expiresAt: null,
