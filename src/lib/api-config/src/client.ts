@@ -269,7 +269,18 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
     return queryResult;
   };
 
+  // Cancellable reads for TanStack infinite queries; share token refresh and
+  // the same Axios transport used by the existing hooks.
+  const get = async <TData>(url: string, config: AxiosRequestConfig = {}): Promise<TData> => {
+    const token = getTokenFromCookies();
+    const response = await axiosInstance.get<TData>(url, {
+      ...config,
+      headers: { ...config.headers, ...(token && { Authorization: `Bearer ${token}` }) },
+    });
+    return response.data;
+  };
   return {
+    get,
     useQuery: useQueryApi,
     useMutation: useMutationApi,
   };

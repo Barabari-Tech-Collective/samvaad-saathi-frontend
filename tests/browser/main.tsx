@@ -1,3 +1,5 @@
+import HistoryPage from "@/app/(protected)/history/page";
+import ReportPage from "@/app/(protected)/report-summary/page";
 import PracticePage from "@/app/(protected)/practice/page";
 import { GuideFixture } from "./guide-fixture";
 import "./workspace.css";
@@ -24,13 +26,25 @@ function Fixture() {
   );
 }
 const client = new QueryClient();
+window.addEventListener("history-test-refresh", () => {
+  void client.invalidateQueries({ queryKey: ["interview-history"] });
+});
+window.addEventListener("report-test-refresh", () => {
+  void client.invalidateQueries({ queryKey: ["practice-report"] });
+});
 window.addEventListener("practice-test-refresh", () => {
   void client.invalidateQueries({ queryKey: ["practice/hub"] });
 });
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={client}>
     <CookiesProvider>
-      {location.search.includes("fixture=practice-hub") ? (
+      {location.search.includes("fixture=history") ? (
+        <main className="p-4 sm:p-6">
+          <HistoryPage />
+        </main>
+      ) : location.search.includes("fixture=report") ? (
+        <ReportPage />
+      ) : location.search.includes("fixture=practice-hub") ? (
         <main className="p-4 sm:p-6">
           <PracticePage />
         </main>

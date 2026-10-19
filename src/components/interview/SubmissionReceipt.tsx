@@ -1,5 +1,7 @@
 "use client";
 
+import { useAuth } from "@/components/providers/auth-provider";
+import { validInterviewId } from "@/lib/interview-history";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService } from "@/lib/api-config/src/config";
 
@@ -34,12 +36,14 @@ export function ReceiptSummary({ receipt }: { receipt: SubmissionReceiptData }) 
 }
 
 export default function SubmissionReceipt({ interviewId }: { interviewId: string | null }) {
+  const { user, loading } = useAuth();
+  const account = user?.userId;
   const client = createApiClient(APIService.INTERVIEWS);
   const { data, error, refetch } = client.useQuery<{ receipt: SubmissionReceiptData | null }>({
-    key: ["submission-receipt", interviewId],
+    key: ["submission-receipt", String(account), interviewId],
     url: `interviews/${interviewId}/receipt`,
-    enabled: Number.isSafeInteger(Number(interviewId)) && Number(interviewId) > 0,
-    options: { staleTime: 60_000, retry: 1 },
+    enabled: !!account && !loading && validInterviewId(interviewId),
+    options: { staleTime: 0, gcTime: 0, retry: false },
   });
   if (error)
     return (
