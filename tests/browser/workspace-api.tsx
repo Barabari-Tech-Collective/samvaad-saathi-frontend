@@ -8,8 +8,9 @@ const navigate = (url: string) => {
   history.pushState({}, "", url);
   window.dispatchEvent(new Event("popstate"));
 };
+const router = { push: navigate, replace: navigate };
 export function useRouter() {
-  return { push: navigate, replace: navigate };
+  return router;
 }
 export function useSearchParams() {
   return new URLSearchParams(useSyncExternalStore(subscribe, () => window.location.search));

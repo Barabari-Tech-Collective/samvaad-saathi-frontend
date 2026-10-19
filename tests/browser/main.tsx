@@ -1,3 +1,4 @@
+import ActivePage from "@/app/(protected)/interview/page";
 import StartPage from "@/app/(protected)/interview-start/page";
 import ReattemptPage from "@/app/(protected)/reattempt-interview/page";
 import CompletedPage from "@/app/(protected)/interview-completed/page";
@@ -45,7 +46,9 @@ window.addEventListener("practice-test-refresh", () => {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={client}>
     <CookiesProvider>
-      {location.search.includes("fixture=assessment") ? (
+      {location.search.includes("fixture=active") ? (
+        <ActivePage />
+      ) : location.search.includes("fixture=assessment") ? (
         <AssessmentFixture />
       ) : location.search.includes("fixture=start") ? (
         <main className="p-4">

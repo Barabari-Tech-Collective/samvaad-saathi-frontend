@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MicrophoneIcon } from "@heroicons/react/24/solid";
+import { useViewLifetime } from "@/hooks/useViewLifetime";
 import { useInterviewAnswer } from "@/hooks/useInterviewAnswer";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService } from "@/lib/api-config/src/config";
@@ -80,6 +81,7 @@ export default function Footer({
   sessionLeaseToken,
   onSessionConflict,
 }: FooterProps) {
+  const lifetime = useViewLifetime();
   const [modal, setModal] = useState<"skip" | "submit" | "discard" | "continue" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -111,10 +113,13 @@ export default function Footer({
   const api = createApiClient(APIService.TRANSCRIBE);
   const { mutateAsync: uploadAudio } = api.useMutation<TranscribeResponse, FormData>({
     url: ENDPOINTS.TRANSCRIBE.WHISPER,
-    config: { headers: { "Content-Type": "multipart/form-data" } },
+    config: { ...lifetime.requestConfig, headers: { "Content-Type": "multipart/form-data" } },
+    showToastError: false,
   });
   const { mutateAsync: completeAnalysis, isPending: isAnalyzing } = api.useMutation({
     url: ENDPOINTS.ANALYSIS.COMPLETE,
+    config: lifetime.requestConfig,
+    showToastError: false,
   });
   const shouldPollTranscription =
     Boolean(question_attempt_id) &&
@@ -137,13 +142,15 @@ export default function Footer({
   >({
     url: ENDPOINTS.TRANSCRIBE.RETRY(question_attempt_id ?? 0),
     method: "post",
+    config: lifetime.requestConfig,
+    showToastError: false,
   });
 
   async function analyze(
     analysisTypes = analysisTypesRef.current,
     answerVersion = answerVersionRef.current
   ) {
-    if (!question_attempt_id) return;
+    if (!question_attempt_id || !lifetime.isCurrent()) return;
     analysisTypesRef.current = analysisTypes;
     answerVersionRef.current = answerVersion;
     setAnalysisError(false);
@@ -154,6 +161,7 @@ export default function Footer({
         ...(answerVersion ? { answerVersion } : {}),
       });
     } catch {
+      if (!lifetime.isCurrent()) return;
       setAnalysisError(true);
     }
   }
@@ -180,6 +188,7 @@ export default function Footer({
   const answer = useInterviewAnswer({
     draftKey: question_attempt_id ? `practice-answer:${question_attempt_id}` : undefined,
     save: async (file) => {
+      lifetime.requireCurrent();
       if (isIntroStep) return;
       if (!question_attempt_id) throw new Error("ATTEMPT_NOT_READY");
       const data = new FormData();
@@ -194,6 +203,7 @@ export default function Footer({
         if (getSessionLeaseErrorCode(error)) onSessionConflict?.();
         throw error;
       }
+      lifetime.requireCurrent();
       if (result.saved !== true || result.questionAttemptId !== question_attempt_id)
         throw new Error("ANSWER_NOT_SAVED");
       setServerAnswered(true);
@@ -282,7 +292,9 @@ export default function Footer({
   async function retryDelayedSpeechFeedback() {
     if (!question_attempt_id || isRetryingSpeechFeedback) return;
     try {
+      lifetime.requireCurrent();
       const result = await retrySpeechFeedback(undefined);
+      lifetime.requireCurrent();
       terminalTranscriptionHandledRef.current = false;
       setTranscriptionStatus(result.status);
       setSpeechFeedbackDelayed(result.status === "failed");

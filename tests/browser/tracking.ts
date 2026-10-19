@@ -13,3 +13,5 @@ export const trackDifficultySelected = () => {};
 export const trackResumeToggleClick = () => {};
 export const trackRoleSelected = () => {};
 export const trackStartInterviewButtonClick = () => {};
+
+export const trackInterviewQuestionView = () => {};

@@ -6,6 +6,7 @@ export default defineConfig({
   resolve: {
     dedupe: ["react", "react-dom", "@tanstack/react-query"],
     alias: {
+      "@lottiefiles/dotlottie-react": fileURLToPath(new URL("./lottie.tsx", import.meta.url)),
       "@/components/providers/auth-provider": fileURLToPath(
         new URL("./practice-auth.ts", import.meta.url)
       ),
