@@ -40,6 +40,7 @@ interface Recognition {
 }
 
 interface FooterProps {
+  allowRerecord?: boolean;
   isLoading?: boolean;
   disabled?: boolean;
   question_attempt_id?: number;
@@ -60,6 +61,7 @@ interface FooterProps {
 }
 
 export default function Footer({
+  allowRerecord = true,
   isLoading = false,
   disabled = false,
   question_attempt_id,
@@ -514,27 +516,29 @@ export default function Footer({
       ) : (
         <div className="flex w-full items-center justify-between">
           <div className="flex flex-wrap gap-2">
-            <button
-              className="btn btn-primary"
-              disabled={
-                disabled ||
-                busy ||
-                answer.phase === "failed" ||
-                timerExpired ||
-                (!isIntroStep && !question_attempt_id)
-              }
-              onClick={() => {
-                if (answered && question_attempt_id)
-                  trackRedoButtonClick(String(question_attempt_id), 1);
-                else trackAnswerStartClick();
-                setSpeechFeedbackDelayed(false);
-                setSpeechFeedbackMessage(null);
-                setSpeechFeedbackRetryable(true);
-                void answer.start();
-              }}
-            >
-              {answered ? "Redo" : "Answer"} <MicrophoneIcon className="h-5 w-5" />
-            </button>
+            {(!answered || allowRerecord) && (
+              <button
+                className="btn btn-primary"
+                disabled={
+                  disabled ||
+                  busy ||
+                  answer.phase === "failed" ||
+                  timerExpired ||
+                  (!isIntroStep && !question_attempt_id)
+                }
+                onClick={() => {
+                  if (answered && question_attempt_id)
+                    trackRedoButtonClick(String(question_attempt_id), 1);
+                  else trackAnswerStartClick();
+                  setSpeechFeedbackDelayed(false);
+                  setSpeechFeedbackMessage(null);
+                  setSpeechFeedbackRetryable(true);
+                  void answer.start();
+                }}
+              >
+                {answered ? "Redo" : "Answer"} <MicrophoneIcon className="h-5 w-5" />
+              </button>
+            )}
             {onSaveAndExit && (
               <button
                 className="btn btn-ghost"

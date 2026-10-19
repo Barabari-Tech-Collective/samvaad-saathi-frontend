@@ -1,5 +1,6 @@
 "use client";
 
+import SubmissionReceipt from "@/components/interview/SubmissionReceipt";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
@@ -24,6 +25,13 @@ export default function ReportSummaryPage() {
     url: `${ENDPOINTS_V2.SUMMARY_REPORT}/${interviewId || ""}`,
     enabled: Boolean(interviewId),
     options: { retry: 1, staleTime: 60_000 },
+  });
+
+  const { data: attemptMeta } = apiClient.useQuery<{ interviewMode: "practice" | "assessment" }>({
+    key: ["submission-receipt", interviewId],
+    url: `interviews/${interviewId}/receipt`,
+    enabled: Boolean(interviewId),
+    options: { staleTime: 60_000, retry: 1 },
   });
 
   if (!interviewId) {
@@ -85,7 +93,11 @@ export default function ReportSummaryPage() {
       <header className="rounded-3xl bg-[#1F285B] p-6 text-white sm:p-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#FFCC33]">
-            Practice coaching
+            {attemptMeta?.interviewMode === "assessment"
+              ? "Assessment feedback"
+              : attemptMeta?.interviewMode === "practice"
+                ? "Practice coaching"
+                : "Interview feedback"}
           </p>
           <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold">
             {reportStatusCopy(status)}
@@ -99,6 +111,7 @@ export default function ReportSummaryPage() {
           {data.candidateInfo.duration ? ` · ${data.candidateInfo.duration}` : ""}
         </p>
       </header>
+      <SubmissionReceipt interviewId={interviewId} />
 
       {data.evidenceSummary && <EvidenceSummary evidence={data.evidenceSummary} />}
 

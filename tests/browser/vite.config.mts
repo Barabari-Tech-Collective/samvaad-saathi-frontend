@@ -1,9 +1,20 @@
 import { defineConfig } from "vite";
 import { fileURLToPath } from "node:url";
 export default defineConfig({
+  oxc: { jsx: { runtime: "automatic" } },
   root: fileURLToPath(new URL("./", import.meta.url)),
   resolve: {
+    dedupe: ["react", "react-dom", "@tanstack/react-query"],
     alias: {
+      "@/lib/api/config": fileURLToPath(new URL("./workspace-api.tsx", import.meta.url)),
+      "@/samvaad/lib/api/hooks/useAuth": fileURLToPath(
+        new URL("./workspace-api.tsx", import.meta.url)
+      ),
+      "@/samvaad/lib/api/hooks/analytics/useJobProfiles": fileURLToPath(
+        new URL("./workspace-api.tsx", import.meta.url)
+      ),
+      "next/navigation": fileURLToPath(new URL("./workspace-api.tsx", import.meta.url)),
+      "next/link": fileURLToPath(new URL("./workspace-api.tsx", import.meta.url)),
       "@/lib/posthog/tracking.utils": fileURLToPath(new URL("./tracking.ts", import.meta.url)),
       "@": fileURLToPath(new URL("../../src", import.meta.url)),
     },

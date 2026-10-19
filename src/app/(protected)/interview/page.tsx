@@ -3,7 +3,7 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MicPermissionModal, useMicPermission } from "@/hooks/useMicPermission";
 import {
   ProctoringPreflightModal,
-  ProctoringTerminatedOverlay,
+  AssessmentInterruptionNotice,
   useProctoring,
 } from "@/hooks/useProctoring";
 import { useTextToSpeech } from "@/hooks/useTextToSpeech";
@@ -70,6 +70,10 @@ const InterviewPage = () => {
   const [navigationError, setNavigationError] = useState<string | null>(null);
   const [stateVersion, setStateVersion] = useState<number | null>(null);
   const [completeReady, setCompleteReady] = useState(false);
+  const [plannedQuestionCount, setPlannedQuestionCount] = useState<number | null>(null);
+  const plannedCountRef = useRef<number | null>(null);
+  const [answerDeadlineAt, setAnswerDeadlineAt] = useState<string | null | undefined>(undefined);
+  const [serverClockOffsetMs, setServerClockOffsetMs] = useState(0);
   const stateVersionRef = useRef<number | null>(null);
   const transitionRef = useRef<{ signature: string; id: string } | null>(null);
   const generationSyncRef = useRef<{ interviewId: number; pending: boolean } | null>(null);
@@ -134,13 +138,16 @@ const InterviewPage = () => {
     startQuestionAttempt,
     questions[currentQuestionIndex]?.questionAttemptId,
     sessionLease.token,
-    interviewModeValue === "assessment" || sessionLease.canWrite,
+    hasStarted &&
+      !isIntroducing &&
+      !isUserIntroducing &&
+      (interviewModeValue === "assessment" || sessionLease.canWrite),
     sessionLease.markConflict
   );
 
   const { mutateAsync: reportProctoringViolation } = interviewsV1Client.useMutation<
     unknown,
-    { interviewId: number; reason: "tab_switch" | "fullscreen_exit" }
+    { interviewId: number; reason: "tab_switch" | "fullscreen_exit"; eventId: string }
   >({
     url: ENDPOINTS.INTERVIEWS.PROCTORING_VIOLATION,
     method: "post",
@@ -157,9 +164,6 @@ const InterviewPage = () => {
     enabled: interviewModeValue === "assessment",
     interviewId: interviewId ? Number(interviewId) : null,
     reportViolation: reportProctoringViolation,
-    onTerminated: () => {
-      setHasStarted(false);
-    },
   });
 
   const { mutateAsync: resumeInterview, isPending: isResuming } = interviewsV1Client.useMutation<
@@ -186,10 +190,31 @@ const InterviewPage = () => {
     config: { timeout: 20_000 },
   });
 
+  const { mutateAsync: beginFixedInterview } = interviewsV1Client.useMutation<
+    { plannedQuestionCount: number | null; answerDeadlineAt: string | null; serverTime: string },
+    { interviewId: number }
+  >({ url: "interviews/begin", method: "post" });
+
+  const activatePreparedInterview = async () => {
+    if (plannedCountRef.current !== null) {
+      const started = await beginFixedInterview({ interviewId: Number(interviewId) });
+      setAnswerDeadlineAt(started.answerDeadlineAt);
+      setServerClockOffsetMs(Date.parse(started.serverTime) - Date.now());
+    }
+    setHasStarted(true);
+    setIsIntroducing(plannedCountRef.current === null && !resumed);
+    if (plannedCountRef.current !== null || resumed) setIsUserIntroducing(false);
+    setPendingStart(false);
+  };
+
   const applyCheckpoint = useCallback(
     (response: ResumeInterviewResponse | PracticeNavigationResponse) => {
       setInterviewQuestions(response.interviewId, response.questions);
       setQuestions(response.questions);
+      if (response.plannedQuestionCount !== undefined) {
+        plannedCountRef.current = response.plannedQuestionCount;
+        setPlannedQuestionCount(response.plannedQuestionCount);
+      }
       const nextIndex =
         response.currentQuestionIndex ??
         (response.currentQuestionId === null ? Math.max(0, response.questions.length - 1) : 0);
@@ -215,10 +240,11 @@ const InterviewPage = () => {
       // once the student accepts the preflight and fullscreen engages.
       return;
     }
-    setHasStarted(true);
-    setIsIntroducing(!resumed);
-    if (resumed) setIsUserIntroducing(false);
-    setPendingStart(false);
+    void activatePreparedInterview().catch(() => {
+      setResumeError(
+        "We could not start the prepared interview. Reconnect and try again; your questions remain saved."
+      );
+    });
   };
 
   // Read questions from session storage when resumed or reattempt
@@ -466,16 +492,14 @@ const InterviewPage = () => {
 
   const handleBeginProctoredSession = async () => {
     await proctoring.beginProctoredSession();
-    setHasStarted(true);
-    setIsIntroducing(true);
-    setPendingStart(false);
+    await activatePreparedInterview();
   };
 
   const runNavigation = async (
     action: AdvanceInterviewAction,
     answerVersion?: number
   ): Promise<PracticeNavigationResponse | null> => {
-    if (interviewModeValue === "assessment") {
+    if (interviewModeValue === "assessment" && plannedCountRef.current === null) {
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex((previous) => previous + 1);
       }
@@ -550,6 +574,7 @@ const InterviewPage = () => {
   };
 
   const handleFollowUpQuestion = (followUpQuestion: FollowUpQuestion) => {
+    if (plannedCountRef.current !== null) return;
     // Transform the follow-up question to match the items structure
     const transformedQuestion: GenerateQuestionsResponse["items"][0] = {
       interviewQuestionId: followUpQuestion.interviewQuestionId,
@@ -614,7 +639,11 @@ const InterviewPage = () => {
       }
 
       try {
-        if (interviewModeValue === "practice" && !completeReady) {
+        if (
+          (interviewModeValue === "practice" || plannedCountRef.current !== null) &&
+          !completeReady &&
+          !timerExpired
+        ) {
           const transition = await runNavigation(action, answerVersion);
           // A conflict reloads the canonical checkpoint and intentionally
           // stops submission. If another question exists, the response has
@@ -650,16 +679,20 @@ const InterviewPage = () => {
   };
 
   return (
-    <div className="px-8 pt-4">
+    <div className="px-3 pt-4 sm:px-6 lg:px-8">
       <ProctoringPreflightModal
         isOpen={proctoring.showPreflight}
         onBegin={handleBeginProctoredSession}
         onCancel={proctoring.closePreflight}
       />
-      {proctoring.isTerminated && (
-        <ProctoringTerminatedOverlay
-          reason={proctoring.terminationReason}
-          onLeave={() => router.push("/home")}
+      {proctoring.notice && (
+        <AssessmentInterruptionNotice
+          reason={proctoring.notice}
+          reportState={proctoring.reportState}
+          onRetry={() => {
+            void proctoring.retryReport();
+          }}
+          onContinue={proctoring.acknowledge}
         />
       )}
       {leaseEnabled && sessionLease.status === "conflict" && (
@@ -734,6 +767,7 @@ const InterviewPage = () => {
             </div>
           )}
           <Welcome
+            plannedQuestionCount={plannedQuestionCount}
             role={role || ""}
             onInterviewStart={handleInterviewStart}
             isPreparing={
@@ -777,6 +811,8 @@ const InterviewPage = () => {
           <Header
             role={role || ""}
             hasStarted={hasStarted}
+            deadlineAt={answerDeadlineAt}
+            serverClockOffsetMs={serverClockOffsetMs}
             interviewId={interviewId}
             onTimerExpire={() => setTimerExpired(true)}
           />
@@ -784,7 +820,9 @@ const InterviewPage = () => {
           <div className="flex flex-col items-center mt-12 max-w-4xl mx-auto px-4">
             <div className="w-full py-6">
               <div className="mb-2">
-                <span className="text-lg text-slate-900 font-medium">Question 0:</span>
+                <span className="text-lg text-slate-900 font-medium">
+                  Microphone warm-up (unscored):
+                </span>
               </div>
               <div className="mb-4">
                 <p className="text-xl leading-[1.4] text-slate-900 font-normal">
@@ -800,6 +838,7 @@ const InterviewPage = () => {
 
             <div className="w-full mt-4">
               <Footer
+                allowRerecord={interviewModeValue === "practice"}
                 key="introduction"
                 timerExpired={timerExpired}
                 onSubmit={handleInterviewSubmit}
@@ -822,6 +861,8 @@ const InterviewPage = () => {
           <Header
             role={role || ""}
             hasStarted={hasStarted}
+            deadlineAt={answerDeadlineAt}
+            serverClockOffsetMs={serverClockOffsetMs}
             interviewId={interviewId}
             onTimerExpire={() => setTimerExpired(true)}
           />
@@ -836,7 +877,7 @@ const InterviewPage = () => {
                 isLoading={isGeneratingQuestions}
                 question={questions?.[currentQuestionIndex]}
                 currentQuestionIndex={currentQuestionIndex}
-                totalQuestions={questions?.length || 0}
+                totalQuestions={plannedQuestionCount ?? (questions?.length || 0)}
                 onSpeakingChange={setIsTextToSpeechSpeaking}
                 onPreparingChange={setIsTextToSpeechPreparing}
                 role={role || ""}
@@ -861,7 +902,7 @@ const InterviewPage = () => {
                     isLoading={isGeneratingQuestions}
                     question={questions?.[currentQuestionIndex]}
                     currentQuestionIndex={currentQuestionIndex}
-                    totalQuestions={questions?.length || 0}
+                    totalQuestions={plannedQuestionCount ?? (questions?.length || 0)}
                     onSpeakingChange={setIsTextToSpeechSpeaking}
                     onPreparingChange={setIsTextToSpeechPreparing}
                     role={role || ""}
@@ -898,6 +939,7 @@ const InterviewPage = () => {
             </p>
           )}
           <Footer
+            allowRerecord={interviewModeValue === "practice"}
             key={`${interviewId}:${currentQuestionId}`}
             timerExpired={timerExpired}
             isLoading={isGeneratingQuestions}

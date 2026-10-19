@@ -267,6 +267,14 @@ describe("answer controls", () => {
     render(<Footer />);
     expect(screen.getByRole("button", { name: "Answer" })).toBeDisabled();
   });
+  it("keeps a committed formal answer available without offering a re-record", () => {
+    render(
+      <Footer question_attempt_id={42} initiallyAnswered allowRerecord={false} onNext={vi.fn()} />
+    );
+    expect(screen.getByText("Answer saved.")).toBeVisible();
+    expect(screen.queryByRole("button", { name: "Redo" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Next" })).toBeEnabled();
+  });
   it("sends the active Practice session token with recorded answers", async () => {
     render(<Footer question_attempt_id={42} sessionLeaseToken="lease-token-1234567890" />);
     await record();

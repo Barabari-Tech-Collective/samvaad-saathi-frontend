@@ -7,18 +7,28 @@
 :root {
   --color-primary: #1f285b;
   --color-error: #d40303;
-  --font-heading: var(--font-noto-sans-devanagari);
-  --font-body: var(--font-anek-devanagari);
-  --font-orbitron: var(--font-orbitron);
+  --font-heading: var(--font-poppins);
+  --font-body: var(--font-inter);
+  --font-orbitron: var(--font-poppins);
+  --font-anek-devanagari: var(--font-inter);
+  --brand-navy: #1f285b;
+  --brand-blue: #344499;
+  --brand-yellow: #ffcc33;
+  --brand-gold: #ffb800;
+  --brand-blue-light: #3c5ea4;
+  --brand-peach: #ffe4bf;
+  --surface: #ffffff;
+  --surface-subtle: #f5f9ff;
+  --border-subtle: #dee8fb;
 }
 
 /* Font utility classes */
 .font-heading {
-  font-family: var(--font-heading), sans-serif;
+  font-family: var(--font-heading), var(--font-noto-sans-devanagari), sans-serif;
 }
 
 .font-body {
-  font-family: var(--font-body), sans-serif;
+  font-family: var(--font-body), var(--font-noto-sans-devanagari), sans-serif;
 }
 
 .font-orbitron {
@@ -27,10 +37,11 @@
 
 /* Apply body font to all text by default */
 body {
-  font-family: var(--font-body), sans-serif;
+  font-family: var(--font-body), var(--font-noto-sans-devanagari), sans-serif;
   margin: 0;
   padding: 0;
-  background-image: url("/background-image.jpeg");
+  background-color: var(--surface-subtle);
+  color: #111827;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -45,7 +56,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-heading), sans-serif;
+  font-family: var(--font-heading), var(--font-noto-sans-devanagari), sans-serif;
 }
 
 /* Override background for auth pages */
@@ -114,4 +125,102 @@ h6 {
   word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: pre-wrap;
+}
+
+/* Versioned workspace help: native dialog provides focus containment and Escape. */
+.workspace-guide-trigger {
+  position: fixed;
+  bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  right: 1rem;
+  z-index: 55;
+  border: 1px solid #c0cff2;
+  border-radius: 999px;
+  background: #fff;
+  color: #1f285b;
+  padding: 0.65rem 1rem;
+  min-height: 44px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  box-shadow: 0 4px 16px #1f285b12;
+}
+.workspace-guide-dialog {
+  position: fixed;
+  inset: auto 0 max(1rem, env(safe-area-inset-bottom, 0px)) 0;
+  margin: 0 auto;
+  width: min(440px, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  border: 1px solid #dee8fb;
+  border-radius: 20px;
+  background: #fff;
+  color: #111827;
+  padding: 0;
+  box-shadow: 0 20px 80px #1f285b26;
+}
+.workspace-guide-dialog::backdrop {
+  background: #1f285b38;
+}
+.workspace-guide-content {
+  padding: clamp(20px, 4vw, 28px);
+}
+.workspace-guide-progress {
+  color: #344499;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.workspace-guide-content h2 {
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 12px;
+}
+.workspace-guide-content p:not(.workspace-guide-progress) {
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.workspace-guide-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+.workspace-guide-actions button {
+  min-height: 44px;
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.workspace-guide-next {
+  background: #000;
+  color: #fff;
+}
+.workspace-guide-trigger:focus-visible,
+.workspace-guide-actions button:focus-visible {
+  outline: 3px solid #344499;
+  outline-offset: 3px;
+}
+[data-guide-highlight="true"] {
+  outline: 3px solid #ffcc33 !important;
+  outline-offset: 4px;
+}
+@media (min-width: 768px) {
+  .workspace-guide-dialog {
+    inset: auto 24px 24px auto;
+    margin: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-guide-dialog * {
+    scroll-behavior: auto;
+  }
+}
+
+[lang="hi"]:not(html),
+[lang="mr"]:not(html),
+[lang="ne"]:not(html) {
+  font-family: var(--font-noto-sans-devanagari), var(--font-inter), sans-serif;
 }

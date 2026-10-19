@@ -54,5 +54,32 @@ class HostedSmokeTest(unittest.TestCase):
         self.assertEqual(captured["timeout"], 30)
 
 
+class DestinationAccountTest(unittest.TestCase):
+    def test_matching_account(self):
+        release = load_release_module()
+        with mock.patch.dict(os.environ, {"AWS_EXPECTED_ACCOUNT_ID": "222222222222", "AWS_REGION": "eu-west-1"}), mock.patch.object(release, "command", return_value={"Account": "222222222222"}):
+            self.assertEqual(release.verify_aws_destination(), "222222222222")
+
+    def test_other_account_is_blocked(self):
+        release = load_release_module()
+        with mock.patch.dict(os.environ, {"AWS_EXPECTED_ACCOUNT_ID": "222222222222", "AWS_REGION": "eu-west-1"}), mock.patch.object(release, "command", return_value={"Account": "111111111111"}):
+            with self.assertRaisesRegex(RuntimeError, "account mismatch"):
+                release.verify_aws_destination()
+
+    def test_missing_account_is_blocked_without_an_aws_call(self):
+        release = load_release_module()
+        with mock.patch.dict(os.environ, {}, clear=True), mock.patch.object(release, "command") as command:
+            with self.assertRaisesRegex(RuntimeError, "AWS_EXPECTED_ACCOUNT_ID"):
+                release.verify_aws_destination()
+            command.assert_not_called()
+
+    def test_malformed_account_is_blocked_without_an_aws_call(self):
+        release = load_release_module()
+        with mock.patch.dict(os.environ, {"AWS_EXPECTED_ACCOUNT_ID": "invalid", "AWS_REGION": "eu-west-1"}), mock.patch.object(release, "command") as command:
+            with self.assertRaisesRegex(RuntimeError, "12 digits"):
+                release.verify_aws_destination()
+            command.assert_not_called()
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,6 @@
 "use client";
 
+import SubmissionReceipt from "@/components/interview/SubmissionReceipt";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS, ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
@@ -69,13 +70,16 @@ export default function InterviewCompleted() {
           Interview saved
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-          You completed your {role} interview
+          Your {role} interview is saved
         </h1>
         <p className="mx-auto mt-4 max-w-xl leading-7 text-gray-600">
           Your answers are already saved. You can leave this page safely while we prepare
-          evidence-based coaching.
+          evidence-based feedback.
         </p>
 
+        <div className="mt-6">
+          <SubmissionReceipt interviewId={interviewId} />
+        </div>
         <div className="mx-auto mt-7 max-w-md rounded-2xl bg-[#F9FAFB] p-5 text-left">
           <div className="flex items-start gap-3">
             <ClockIcon
@@ -84,7 +88,7 @@ export default function InterviewCompleted() {
             />
             <div>
               <h2 className="font-bold">
-                {isError ? "Coaching is delayed" : "Checking transcripts and evidence"}
+                {isError ? "Feedback is delayed" : "Checking transcripts and evidence"}
               </h2>
               <p className="mt-1 text-sm leading-6 text-gray-600">
                 {isError

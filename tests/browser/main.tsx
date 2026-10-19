@@ -1,3 +1,5 @@
+import { WorkspaceGuide } from "@/components/guides/WorkspaceGuide";
+import "./workspace.css";
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -21,7 +23,31 @@ function Fixture() {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={new QueryClient()}>
     <CookiesProvider>
-      <Fixture />
+      {location.search.includes("fixture=guide") ? (
+        <main>
+          <h1>Guide browser fixture</h1>
+          <a href="#next" id="practice-target">
+            Practice
+          </a>
+          <WorkspaceGuide
+            storageKey="browser-guide-v1"
+            steps={[
+              {
+                title: "Start with practice",
+                body: "Use practice to improve one skill at a time.",
+                target: "#practice-target",
+              },
+              {
+                title: "Saved progress",
+                body: "Answers remain saved when you return.",
+                target: "#missing-target",
+              },
+            ]}
+          />
+        </main>
+      ) : (
+        <Fixture />
+      )}
     </CookiesProvider>
   </QueryClientProvider>
 );

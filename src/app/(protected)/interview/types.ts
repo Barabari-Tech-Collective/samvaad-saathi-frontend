@@ -1,4 +1,5 @@
 export interface GenerateQuestionsResponse {
+  plannedQuestionCount?: number | null;
   interviewId: number;
   track: string;
   count: number;
@@ -52,6 +53,7 @@ export interface StartQuestionAttemptResponse {
 export type AdvanceInterviewAction = "answer_saved" | "skip" | "continue_without_follow_up";
 
 export interface PracticeNavigationResponse {
+  plannedQuestionCount?: number | null;
   interviewId: number;
   status: string;
   stateVersion: number;
@@ -64,6 +66,9 @@ export interface PracticeNavigationResponse {
 }
 
 export interface ResumeInterviewResponse {
+  plannedQuestionCount?: number | null;
+  answerDeadlineAt?: string | null;
+  startedAt?: string | null;
   interviewId: number;
   track: string;
   difficulty: string;

@@ -28,12 +28,15 @@ import { useAuth } from "@/components/providers/auth-provider";
 import PracticePreflight from "@/components/practice/PracticePreflight";
 
 interface CreateInterviewRequest {
+  clientContract: "fixed-round-v1";
   track: string;
   difficulty: string;
   jobProfileId?: number;
+  questionCount?: number;
 }
 
 interface CreateInterviewResponse {
+  plannedQuestionCount?: number | null;
   interviewId: string;
   /**
    * Snapshotted on the interview at creation - never re-read from the job
@@ -47,6 +50,7 @@ interface CreateInterviewResponse {
 }
 
 interface JobProfile {
+  questionsPerInterview?: number | null;
   id: number;
   title: string;
   description: string;
@@ -76,12 +80,14 @@ interface JobProfilesResponse {
 }
 
 interface GenerateNonTechRequest {
+  clientContract: "fixed-round-v1";
   jobProfileId: number;
   difficulty: string;
   useResume: boolean;
 }
 
 interface GenerateNonTechResponse {
+  plannedQuestionCount?: number | null;
   interviewId: number;
   track: string;
   interviewMode?: "practice" | "assessment";
@@ -125,6 +131,7 @@ export default function InterviewStartPage() {
   const [selection, setSelection] = useState<RoleSelection>(null);
   const [difficulty, setDifficulty] = useState("easy");
   const [useResume, setUseResume] = useState(false);
+  const [freeQuestionCount, setFreeQuestionCount] = useState(5);
   const [showPreflight, setShowPreflight] = useState(false);
 
   const router = useRouter();
@@ -139,6 +146,7 @@ export default function InterviewStartPage() {
 
   const jobProfiles = jobProfilesData?.items ?? [];
   const assessmentProfiles = profilesForMode(jobProfiles, "assessment");
+  const selectableProfiles = profilesForMode(jobProfiles, mode);
 
   // A selection made under one mode must not carry into the other - the two
   // pools use the same "hr::" value shape, so without this a leftover
@@ -244,6 +252,17 @@ export default function InterviewStartPage() {
 
   const validateSelection = (): boolean => {
     if (!selection) return false;
+    if (selection.kind === "hr" && selectedProfile?.interviewMode !== mode) {
+      toast.error("Select a role published for this interview purpose.");
+      return false;
+    }
+    if (
+      selection.kind === "tech" &&
+      (!Number.isInteger(freeQuestionCount) || freeQuestionCount < 1 || freeQuestionCount > 10)
+    ) {
+      toast.error("Choose a whole number from 1 to 10 questions.");
+      return false;
+    }
 
     if (
       mode === "assessment" &&
@@ -263,7 +282,7 @@ export default function InterviewStartPage() {
 
     const selectedTrack = selection.kind === "tech" ? selection.track : selection.jobName;
     const resumeRequired =
-      isTechFlow && selectedTrack === FULL_STACK_ROLE && difficulty === "medium";
+      selection.kind === "tech" && selectedTrack === FULL_STACK_ROLE && difficulty === "medium";
     if (resumeRequired && !useResume) {
       toast.error(
         "Medium Full Stack practice uses your resume. Turn on resume personalisation or choose another level."
@@ -304,9 +323,23 @@ export default function InterviewStartPage() {
         const track = selection.kind === "tech" ? selection.track : selection.jobName;
         const jobProfileId = selection.kind === "hr" ? selection.jobProfileId : undefined;
 
-        const data = await createInterview({ track, difficulty, jobProfileId });
+        const data = await createInterview({
+          clientContract: "fixed-round-v1",
+          track,
+          difficulty,
+          jobProfileId,
+          ...(selection.kind === "tech" ? { questionCount: freeQuestionCount } : {}),
+        });
         // console.log("Data to create interview", data);
         if (data?.interviewId) {
+          const expected =
+            selection.kind === "tech" ? freeQuestionCount : selectedProfile?.questionsPerInterview;
+          if (expected != null && data.plannedQuestionCount !== expected) {
+            toast.error(
+              "The server could not confirm the selected question count. Refresh the app before starting."
+            );
+            return;
+          }
           if (mode === "assessment" && data.interviewMode !== "assessment") {
             toast.error(
               "The selected role is no longer configured for assessment. Please choose another role."
@@ -319,11 +352,21 @@ export default function InterviewStartPage() {
         }
       } else {
         const result = await generateNonTechQuestions({
+          clientContract: "fixed-round-v1",
           jobProfileId: selection.jobProfileId,
           difficulty,
           useResume,
         });
         if (result?.interviewId) {
+          if (
+            selectedProfile?.questionsPerInterview != null &&
+            result.plannedQuestionCount !== selectedProfile.questionsPerInterview
+          ) {
+            toast.error(
+              "The server could not confirm this round's question count. Refresh before starting."
+            );
+            return;
+          }
           if (mode === "assessment" && result.interviewMode !== "assessment") {
             toast.error(
               "The selected role is no longer configured for assessment. Please choose another role."
@@ -343,7 +386,8 @@ export default function InterviewStartPage() {
 
   const isPending = isCreatingInterview || isGeneratingNonTech;
   const selectedTrack = selection?.kind === "tech" ? selection.track : selection?.jobName;
-  const questionCount = selectedTrack === FULL_STACK_ROLE ? 7 : 5;
+  const questionCount =
+    selection?.kind === "hr" ? (selectedProfile?.questionsPerInterview ?? 5) : freeQuestionCount;
 
   if (showPreflight && mode === "practice" && selection && selectedTrack) {
     return (
@@ -351,7 +395,7 @@ export default function InterviewStartPage() {
         role={selectedTrack}
         level={difficulty}
         questionCount={questionCount}
-        durationMinutes={questionCount === 7 ? 20 : 15}
+        durationMinutes={questionCount * 3}
         isStarting={isPending}
         onBack={() => setShowPreflight(false)}
         onStart={() => void handleSubmit()}
@@ -378,7 +422,9 @@ export default function InterviewStartPage() {
       <section className="rounded-3xl border border-[#D6E0FB] bg-white p-5 sm:p-7">
         <div>
           <label className="mb-2 block text-base font-bold text-black">
-            What role are you practising for?
+            {mode === "assessment"
+              ? "Which assessment are you joining?"
+              : "What role are you practising for?"}
           </label>
           {mode === "practice" && (
             <p className="mb-3 text-sm text-gray-600">
@@ -409,10 +455,9 @@ export default function InterviewStartPage() {
                     {role}
                   </option>
                 ))}
-              {mode === "assessment" &&
-                assessmentProfiles.length > 0 &&
+              {selectableProfiles.length > 0 &&
                 Object.entries(
-                  assessmentProfiles.reduce(
+                  selectableProfiles.reduce(
                     (acc, profile) => {
                       const category = profile.category || "HR & Non-Technical";
                       if (!acc[category]) acc[category] = [];
@@ -424,7 +469,7 @@ export default function InterviewStartPage() {
                 ).map(([category, profiles]) => (
                   <optgroup
                     key={category}
-                    label={category.charAt(0).toUpperCase() + category.slice(1)}
+                    label={`${mode === "practice" ? "Curated practice · " : ""}${category.charAt(0).toUpperCase() + category.slice(1)}`}
                   >
                     {profiles.map((profile) => (
                       <option
@@ -513,6 +558,35 @@ export default function InterviewStartPage() {
           </div>
         </div>
 
+        <div className="mt-5 border-t border-[#DEE8FB] pt-5">
+          {selection?.kind === "tech" ? (
+            <label className="block font-semibold">
+              Questions in this practice round
+              <input
+                type="number"
+                min={1}
+                max={10}
+                step={1}
+                value={Number.isFinite(freeQuestionCount) ? freeQuestionCount : ""}
+                onChange={(event) =>
+                  setFreeQuestionCount(
+                    event.target.value === "" ? Number.NaN : Number(event.target.value)
+                  )
+                }
+                className="mt-2 block min-h-12 w-full rounded-lg border border-[#9CA3AF] px-3 text-base sm:max-w-xs"
+              />
+            </label>
+          ) : selectedProfile ? (
+            <p className="font-semibold">
+              {questionCount} approved questions · about {questionCount * 3} minutes
+            </p>
+          ) : null}
+          {selection?.kind === "tech" && (
+            <p className="mt-2 text-sm text-gray-600">
+              Choose 1–10 questions. You can save and return to practice.
+            </p>
+          )}
+        </div>
         <div className="pt-4">
           <button
             onClick={handleReviewSetup}
