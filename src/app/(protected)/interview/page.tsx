@@ -734,8 +734,8 @@ const InterviewPage = () => {
           className="mx-auto mb-4 max-w-2xl rounded-xl bg-amber-50 p-4 text-center text-amber-900"
         >
           <p>
-            We cannot safely save answers until this interview reconnects. Your current draft stays
-            on this device.
+            {sessionLease.accessMessage ??
+              "We cannot safely save answers until this interview reconnects. Your current draft stays on this device."}
           </p>
           <button
             className="btn btn-sm mt-3"
@@ -744,7 +744,7 @@ const InterviewPage = () => {
               void sessionLease.retry();
             }}
           >
-            Reconnect
+            {sessionLease.accessMessage ? "Check enrollment again" : "Reconnect"}
           </button>
         </div>
       )}

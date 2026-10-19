@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService } from "@/lib/api-config/src/config";
 import { ENDPOINTS } from "@/lib/api-config/src/endpoints";
+import { courseAccessMessage } from "@/lib/interview-course-access";
 import { getSessionLeaseErrorCode } from "@/lib/interview-session-lease";
 import type { InterviewSessionLeaseResponse } from "@/app/(protected)/interview/types";
 
@@ -58,6 +59,7 @@ export function useInterviewSessionLease({
   >({ url: ENDPOINTS.INTERVIEWS.HEARTBEAT_SESSION, method: "post" });
 
   const [status, setStatus] = useState<LeaseStatus>(enabled ? "acquiring" : "idle");
+  const [accessMessage, setAccessMessage] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const tokenRef = useRef<string | null>(null);
   const operationVersion = useRef(0);
@@ -84,6 +86,7 @@ export function useInterviewSessionLease({
       tokenRef.current = nextToken;
       setToken(nextToken);
       writeToken(interviewId, nextToken);
+      setAccessMessage(null);
       setStatus("active");
     },
     [interviewId]
@@ -116,6 +119,12 @@ export function useInterviewSessionLease({
           interviewRef.current !== interviewId
         )
           return;
+        const access = courseAccessMessage(error);
+        if (access) {
+          setAccessMessage(access);
+          setStatus("error");
+          return;
+        }
         const code = getSessionLeaseErrorCode(error);
         if (code === "SESSION_ACTIVE_ELSEWHERE" || code === "SESSION_LEASE_REPLACED") {
           setStatus("conflict");
@@ -135,6 +144,7 @@ export function useInterviewSessionLease({
       operationVersion.current++;
       tokenRef.current = null;
       setToken(null);
+      setAccessMessage(null);
       setStatus("idle");
       return;
     }
@@ -182,6 +192,12 @@ export function useInterviewSessionLease({
           activate(result.leaseToken);
       } catch (error) {
         if (stopped || operation !== operationVersion.current || tokenRef.current !== token) return;
+        const access = courseAccessMessage(error);
+        if (access) {
+          setAccessMessage(access);
+          setStatus("error");
+          return;
+        }
         const code = getSessionLeaseErrorCode(error);
         if (code === "SESSION_LEASE_REPLACED" || code === "SESSION_ACTIVE_ELSEWHERE") {
           markConflict();
@@ -234,6 +250,7 @@ export function useInterviewSessionLease({
   }, [interviewId]);
 
   return {
+    accessMessage,
     status,
     token,
     canWrite: !enabled || (status === "active" && Boolean(token)),

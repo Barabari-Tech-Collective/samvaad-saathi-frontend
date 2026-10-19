@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { courseAccessMessage } from "@/lib/interview-course-access";
 import { AUDIO_CONSTRAINTS_16KHZ, resampleAudioTo16kHz } from "@/lib/audio-utils";
 import { browserAnswerDraftStore, type AnswerDraftStore } from "@/lib/interview-answer-drafts";
 
@@ -89,12 +90,14 @@ export function useInterviewAnswer({
       draftPersistedRef.current = false;
       transition("saved");
       return true;
-    } catch {
+    } catch (error) {
       if (mountedRef.current) {
         setError(
-          recordingRef.current?.size
-            ? "Your answer has not been saved. Keep this page open and select Retry save."
-            : "No audio was captured. Please record your answer again."
+          courseAccessMessage(error)
+            ? `${courseAccessMessage(error)} This recording has not been saved to your account. Keep this page open so you can retry after access is restored.`
+            : recordingRef.current?.size
+              ? "Your answer has not been saved. Keep this page open and select Retry save."
+              : "No audio was captured. Please record your answer again."
         );
         transition(recordingRef.current?.size ? "failed" : "idle");
       }
