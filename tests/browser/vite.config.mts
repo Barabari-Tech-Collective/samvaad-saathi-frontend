@@ -6,6 +6,9 @@ export default defineConfig({
   resolve: {
     dedupe: ["react", "react-dom", "@tanstack/react-query"],
     alias: {
+      "@/components/providers/auth-provider": fileURLToPath(
+        new URL("./practice-auth.ts", import.meta.url)
+      ),
       "@/lib/api/config": fileURLToPath(new URL("./workspace-api.tsx", import.meta.url)),
       "@/samvaad/lib/api/hooks/useAuth": fileURLToPath(
         new URL("./workspace-api.tsx", import.meta.url)

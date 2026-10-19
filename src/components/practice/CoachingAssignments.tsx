@@ -20,11 +20,11 @@ interface AssignmentPage {
   notice: string;
 }
 
-export function CoachingAssignments() {
+export function CoachingAssignments({ accountKey = "current" }: { accountKey?: string }) {
   const [page, setPage] = useState(1);
   const query = apiClient.useQuery<AssignmentPage>({
     url: `v2/coaching-assignments/me?page=${page}&limit=10`,
-    key: ["my-coaching-assignments", page],
+    key: ["my-coaching-assignments", accountKey, page],
     options: { staleTime: 0, gcTime: 0, retry: false },
   });
   const data = query.isError || query.isFetching ? undefined : query.data;
@@ -49,7 +49,13 @@ export function CoachingAssignments() {
       ) : (
         <>
           <p className="text-sm text-gray-600">{data.notice}</p>
-          {!data.items.length && <p>No coaching follow-ups on this page.</p>}
+          {!data.items.length && (
+            <p>
+              {page === 1
+                ? "Nothing assigned right now. Choose a skill to practise independently."
+                : "No coaching follow-ups on this page."}
+            </p>
+          )}
           <ul className="divide-y divide-[#DEE8FB]">
             {data.items.map((row) => (
               <li key={row.id} className="space-y-2 py-4">
@@ -80,25 +86,27 @@ export function CoachingAssignments() {
               </li>
             ))}
           </ul>
-          <nav aria-label="Your follow-up pages" className="flex flex-wrap items-center gap-4">
-            <button
-              className="min-h-11 disabled:opacity-40"
-              disabled={page === 1}
-              onClick={() => setPage((value) => value - 1)}
-            >
-              Previous follow-ups
-            </button>
-            <span className="text-sm">
-              Page {page} · {data.total} follow-ups
-            </span>
-            <button
-              className="min-h-11 disabled:opacity-40"
-              disabled={page * 10 >= data.total}
-              onClick={() => setPage((value) => value + 1)}
-            >
-              Next follow-ups
-            </button>
-          </nav>
+          {(page > 1 || data.total > 10) && (
+            <nav aria-label="Your follow-up pages" className="flex flex-wrap items-center gap-4">
+              <button
+                className="min-h-11 disabled:opacity-40"
+                disabled={page === 1}
+                onClick={() => setPage((value) => value - 1)}
+              >
+                Previous follow-ups
+              </button>
+              <span className="text-sm">
+                Page {page} · {data.total} follow-ups
+              </span>
+              <button
+                className="min-h-11 disabled:opacity-40"
+                disabled={page * 10 >= data.total}
+                onClick={() => setPage((value) => value + 1)}
+              >
+                Next follow-ups
+              </button>
+            </nav>
+          )}
         </>
       )}
     </section>

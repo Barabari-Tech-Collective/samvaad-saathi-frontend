@@ -1,3 +1,4 @@
+import PracticePage from "@/app/(protected)/practice/page";
 import { GuideFixture } from "./guide-fixture";
 import "./workspace.css";
 import React, { useState } from "react";
@@ -22,10 +23,18 @@ function Fixture() {
     </main>
   );
 }
+const client = new QueryClient();
+window.addEventListener("practice-test-refresh", () => {
+  void client.invalidateQueries({ queryKey: ["practice/hub"] });
+});
 createRoot(document.getElementById("root")!).render(
-  <QueryClientProvider client={new QueryClient()}>
+  <QueryClientProvider client={client}>
     <CookiesProvider>
-      {location.search.includes("fixture=assignments") ? (
+      {location.search.includes("fixture=practice-hub") ? (
+        <main className="p-4 sm:p-6">
+          <PracticePage />
+        </main>
+      ) : location.search.includes("fixture=assignments") ? (
         <CoachingAssignments />
       ) : location.search.includes("fixture=drill") ? (
         <GuidedSpeakingDrill
