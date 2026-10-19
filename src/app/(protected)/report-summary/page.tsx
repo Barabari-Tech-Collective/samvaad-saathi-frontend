@@ -7,7 +7,7 @@ import SubmissionReceipt from "@/components/interview/SubmissionReceipt";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
-import { reportStatusCopy, safeDrillHref } from "@/lib/practice-report";
+import { hasReportEnvelope, reportStatusCopy, safeDrillHref } from "@/lib/practice-report";
 import { trackButtonClick } from "@/lib/posthog/tracking.utils";
 import { formatDate } from "@/lib/utils";
 import { ArrowRightIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
@@ -57,16 +57,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
     const kind = code === 404 ? "missing" : code === 401 || code === 403 ? "denied" : "unavailable";
     return <ReportRecovery kind={kind} interviewId={interviewId} onRetry={() => void refetch()} />;
   }
-  if (
-    !data.candidateInfo ||
-    typeof data.candidateInfo.roleTopic !== "string" ||
-    typeof data.candidateInfo.interviewDate !== "string" ||
-    !Number.isFinite(Date.parse(data.candidateInfo.interviewDate)) ||
-    (data.reportStatus !== undefined &&
-      !["ready", "partial", "needs_review", "insufficient_evidence"].includes(data.reportStatus)) ||
-    !Array.isArray(data.questionAnalysis) ||
-    data.questionAnalysis.some((item) => !item || typeof item.question !== "string")
-  ) {
+  if (!hasReportEnvelope(data)) {
     return (
       <ReportRecovery kind="malformed" interviewId={interviewId} onRetry={() => void refetch()} />
     );

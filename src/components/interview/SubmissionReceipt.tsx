@@ -5,14 +5,7 @@ import { validInterviewId } from "@/lib/interview-history";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService } from "@/lib/api-config/src/config";
 
-export interface SubmissionReceiptData {
-  planned: number;
-  answered: number;
-  skipped: number;
-  unresolved: number;
-  unreached: number;
-  reason: string;
-}
+import { parseSubmissionReceipt, type SubmissionReceiptData } from "@/lib/submission-receipt";
 
 export function ReceiptSummary({ receipt }: { receipt: SubmissionReceiptData }) {
   return (
@@ -39,13 +32,28 @@ export default function SubmissionReceipt({ interviewId }: { interviewId: string
   const { user, loading } = useAuth();
   const account = user?.userId;
   const client = createApiClient(APIService.INTERVIEWS);
-  const { data, error, refetch } = client.useQuery<{ receipt: SubmissionReceiptData | null }>({
+  const { data, error, refetch, isFetching } = client.useQuery<{
+    receipt: SubmissionReceiptData | null;
+  }>({
     key: ["submission-receipt", String(account), interviewId],
     url: `interviews/${interviewId}/receipt`,
     enabled: !!account && !loading && validInterviewId(interviewId),
     options: { staleTime: 0, gcTime: 0, retry: false },
   });
-  if (error)
+  if (isFetching)
+    return (
+      <p role="status" className="text-sm text-gray-600">
+        Checking receipt details…
+      </p>
+    );
+  let receipt: SubmissionReceiptData | null = null;
+  let malformed = false;
+  try {
+    if (data?.receipt) receipt = parseSubmissionReceipt(data.receipt, interviewId ?? undefined);
+  } catch {
+    malformed = true;
+  }
+  if (error || malformed)
     return (
       <p className="text-sm text-gray-600">
         Receipt details could not be loaded.{" "}
@@ -54,5 +62,5 @@ export default function SubmissionReceipt({ interviewId }: { interviewId: string
         </button>
       </p>
     );
-  return data?.receipt ? <ReceiptSummary receipt={data.receipt} /> : null;
+  return receipt ? <ReceiptSummary receipt={receipt} /> : null;
 }

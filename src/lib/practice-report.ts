@@ -92,3 +92,26 @@ export function reportRecoveryCopy(
       };
   }
 }
+
+export function hasReportEnvelope(value: unknown): boolean {
+  if (!value || typeof value !== "object") return false;
+  const row = value as Record<string, unknown>;
+  const candidate = row.candidateInfo as Record<string, unknown> | null | undefined;
+  return (
+    !!candidate &&
+    typeof candidate.roleTopic === "string" &&
+    typeof candidate.interviewDate === "string" &&
+    Number.isFinite(Date.parse(candidate.interviewDate)) &&
+    (row.reportStatus === undefined ||
+      ["ready", "partial", "needs_review", "insufficient_evidence"].includes(
+        row.reportStatus as string
+      )) &&
+    Array.isArray(row.questionAnalysis) &&
+    row.questionAnalysis.every(
+      (item) =>
+        !!item &&
+        typeof item === "object" &&
+        typeof (item as Record<string, unknown>).question === "string"
+    )
+  );
+}

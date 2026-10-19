@@ -1,3 +1,4 @@
+import CompletedPage from "@/app/(protected)/interview-completed/page";
 import HistoryPage from "@/app/(protected)/history/page";
 import ReportPage from "@/app/(protected)/report-summary/page";
 import PracticePage from "@/app/(protected)/practice/page";
@@ -26,6 +27,9 @@ function Fixture() {
   );
 }
 const client = new QueryClient();
+window.addEventListener("completion-test-refresh", () => {
+  void client.invalidateQueries({ queryKey: ["completion-status"] });
+});
 window.addEventListener("history-test-refresh", () => {
   void client.invalidateQueries({ queryKey: ["interview-history"] });
 });
@@ -38,7 +42,11 @@ window.addEventListener("practice-test-refresh", () => {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={client}>
     <CookiesProvider>
-      {location.search.includes("fixture=history") ? (
+      {location.search.includes("fixture=completed") ? (
+        <main className="p-4">
+          <CompletedPage />
+        </main>
+      ) : location.search.includes("fixture=history") ? (
         <main className="p-4 sm:p-6">
           <HistoryPage />
         </main>

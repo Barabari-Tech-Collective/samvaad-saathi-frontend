@@ -1,128 +1,271 @@
 "use client";
 
-import SubmissionReceipt from "@/components/interview/SubmissionReceipt";
+import { useAuth } from "@/components/providers/auth-provider";
+import { ReceiptSummary } from "@/components/interview/SubmissionReceipt";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIServiceV2 } from "@/lib/api-config/src/config";
-import { ENDPOINTS, ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
-import {
-  trackReportGenerationError,
-  trackReportGenerationStart,
-} from "@/lib/posthog/tracking.utils";
-import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/outline";
+import { ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
+import { hasReportEnvelope } from "@/lib/practice-report";
+import { responseStatus, validInterviewId } from "@/lib/interview-history";
+import { parseCompletionEnvelope } from "@/lib/submission-receipt";
+import { trackEvent } from "@/lib/posthog/tracking.utils";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef } from "react";
-import toast from "react-hot-toast";
+import { useLayoutEffect, useRef, useState } from "react";
 
-export default function InterviewCompleted() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const interviewId = searchParams.get("interviewId");
-  const role = searchParams.get("role") || "practice";
-  const startedRef = useRef(false);
-  const apiClient = createApiClient(APIServiceV2.INTERVIEWS);
+const action =
+  "inline-flex min-h-12 items-center justify-center rounded-xl bg-black px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]";
 
-  const {
-    mutateAsync: generateReport,
-    isPending,
-    isError,
-  } = apiClient.useMutation<unknown, { interviewId: number }>({
-    url: ENDPOINTS_V2.SUMMARY_REPORT,
-    method: "post",
-    showToastError: false,
-    options: {
-      onSuccess: () => router.replace(`/report-summary?interviewId=${interviewId}`),
-      onError: (error) => trackReportGenerationError(error.message || "Unknown report error"),
-    },
-    keyToInvalidate: {
-      queryKey: [ENDPOINTS.INTERVIEWS.LIST, ENDPOINTS.INTERVIEWS.WITH_SUMMARY],
-    },
-  });
-
-  const prepareReport = useCallback(async () => {
-    const parsedId = Number(interviewId);
-    if (!Number.isInteger(parsedId) || parsedId <= 0) {
-      toast.error("This interview could not be identified. Open it again from History.");
-      return;
-    }
-    trackReportGenerationStart();
-    try {
-      await generateReport({ interviewId: parsedId });
-    } catch {
-      // The mutation owns error tracking; the screen keeps an explicit recovery action available.
-    }
-  }, [generateReport, interviewId]);
-
-  useEffect(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
-    void prepareReport();
-  }, [prepareReport]);
-
+function CompletionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <main className="mx-auto flex min-h-[70vh] w-full max-w-2xl items-center py-10">
-      <section
-        className="w-full rounded-3xl border border-[#D6E0FB] bg-white p-6 text-center shadow-[0_18px_50px_rgba(31,40,91,0.08)] sm:p-10"
-        aria-live="polite"
-      >
-        <CheckCircleIcon className="mx-auto size-14 text-emerald-600" aria-hidden="true" />
-        <p className="mt-5 text-sm font-bold uppercase tracking-[0.14em] text-[#344499]">
-          Interview saved
+    <main className="mx-auto w-full min-w-0 max-w-2xl py-6 [overflow-wrap:anywhere] sm:py-10">
+      <section className="space-y-5 rounded-3xl border border-[#DEE8FB] bg-white p-5 sm:p-9">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#344499]">
+          Interview submission
         </p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-          Your {role} interview is saved
-        </h1>
-        <p className="mx-auto mt-4 max-w-xl leading-7 text-gray-600">
-          Your answers are already saved. You can leave this page safely while we prepare
-          evidence-based feedback.
-        </p>
-
-        <div className="mt-6">
-          <SubmissionReceipt interviewId={interviewId} />
-        </div>
-        <div className="mx-auto mt-7 max-w-md rounded-2xl bg-[#F9FAFB] p-5 text-left">
-          <div className="flex items-start gap-3">
-            <ClockIcon
-              className={`mt-0.5 size-6 shrink-0 text-[#344499] ${isPending ? "animate-pulse" : ""}`}
-              aria-hidden="true"
-            />
-            <div>
-              <h2 className="font-bold">
-                {isError ? "Feedback is delayed" : "Checking transcripts and evidence"}
-              </h2>
-              <p className="mt-1 text-sm leading-6 text-gray-600">
-                {isError
-                  ? "Nothing was lost. You can retry now or check History later."
-                  : "We validate each answer before showing a score. Missing evidence will be labelled instead of guessed."}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-          {isError && (
-            <button
-              type="button"
-              onClick={() => void prepareReport()}
-              className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#FFCC33] px-6 font-bold text-[#1F285B]"
-            >
-              Retry report
-            </button>
-          )}
+        <h1 className="text-3xl font-bold tracking-tight text-[#1F285B]">{title}</h1>
+        {children}
+        <div className="flex flex-wrap gap-3">
           <Link
-            className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#1F285B] px-6 font-bold text-[#1F285B]"
             href="/history"
+            className="inline-flex min-h-11 items-center rounded-xl border border-[#344499] px-5 py-3 font-semibold text-[#344499]"
           >
             View history
           </Link>
           <Link
-            className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#D6E0FB] px-6 font-bold text-[#344499]"
             href="/practice"
+            className="inline-flex min-h-11 items-center px-5 py-3 font-semibold text-[#344499]"
           >
-            Continue practising
+            Back to practice
           </Link>
         </div>
       </section>
     </main>
+  );
+}
+
+export default function InterviewCompleted() {
+  const interviewId = useSearchParams().get("interviewId");
+  const { user, loading } = useAuth();
+  if (!validInterviewId(interviewId))
+    return (
+      <CompletionCard title="Check this interview link">
+        <p role="alert">
+          This link does not identify a valid interview. Open your session from History.
+        </p>
+      </CompletionCard>
+    );
+  if (loading || !user?.userId)
+    return (
+      <CompletionCard title="Checking your session">
+        <p role="status">
+          Sign in to the account that owns this interview before checking its submission.
+        </p>
+      </CompletionCard>
+    );
+  return (
+    <VerifiedCompletion
+      key={`${user.userId}:${interviewId}`}
+      account={String(user.userId)}
+      interviewId={interviewId}
+    />
+  );
+}
+
+function VerifiedCompletion({ account, interviewId }: { account: string; interviewId: string }) {
+  const router = useRouter();
+  const client = createApiClient(APIServiceV2.INTERVIEWS);
+  const current = useRef(true);
+  const inFlight = useRef(false);
+  const [retryWarning, setRetryWarning] = useState(false);
+  const [generation, setGeneration] = useState<"idle" | "pending" | "uncertain" | "confirmed">(
+    "idle"
+  );
+  const completion = useQuery({
+    queryKey: ["completion-status", account, interviewId],
+    queryFn: async ({ signal }) =>
+      parseCompletionEnvelope(
+        await client.get<unknown>(`interviews/${interviewId}/receipt`, { signal }),
+        interviewId
+      ),
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+  });
+  const verified =
+    !completion.isFetching && !completion.isError && completion.data?.status === "completed";
+  const verifiedNow = useRef(false);
+  useLayoutEffect(() => {
+    verifiedNow.current = verified;
+  }, [verified]);
+  const existing = useQuery({
+    queryKey: ["completion-report", account, interviewId],
+    queryFn: async ({ signal }) => {
+      const value = await client.get<unknown>(`${ENDPOINTS_V2.SUMMARY_REPORT}/${interviewId}`, {
+        signal,
+      });
+      if (!hasReportEnvelope(value)) throw new Error("Feedback details could not be verified.");
+      return value;
+    },
+    enabled: verified,
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+  });
+  useLayoutEffect(() => {
+    current.current = true;
+    return () => {
+      current.current = false;
+    };
+  }, []);
+  const post = client.useMutation<unknown, { interviewId: number }>({
+    url: ENDPOINTS_V2.SUMMARY_REPORT,
+    method: "post",
+    showToastError: false,
+    options: { retry: false },
+  });
+
+  if (completion.isFetching || (!completion.data && !completion.error))
+    return (
+      <CompletionCard title="Checking submission">
+        <p role="status">Confirming the session status from your account…</p>
+      </CompletionCard>
+    );
+  if (completion.isError || !completion.data) {
+    const code = responseStatus(completion.error);
+    return (
+      <CompletionCard title="Submission could not be verified">
+        <p role="alert">
+          {code === 401 || code === 403 || code === 404
+            ? "This session is unavailable to your account. Check History and your sign-in before continuing."
+            : "The saved status could not be loaded or verified. This page cannot confirm completion yet."}
+        </p>
+        <button type="button" className={action} onClick={() => void completion.refetch()}>
+          Check submission again
+        </button>
+      </CompletionCard>
+    );
+  }
+  if (!verified)
+    return (
+      <CompletionCard title="Completion is not confirmed">
+        <p role="status">
+          The server has not marked this session completed. Return through History to check its
+          current state. Opening this page does not submit or reopen an interview.
+        </p>
+        <button type="button" className={action} onClick={() => void completion.refetch()}>
+          Check submission again
+        </button>
+      </CompletionCard>
+    );
+  const receipt = completion.data.receipt;
+  const missing = responseStatus(existing.error) === 404;
+  const denied = [401, 403].includes(responseStatus(existing.error) ?? 0);
+  const canPrepare = missing && generation === "idle" && !existing.isFetching;
+  return (
+    <CompletionCard
+      title={
+        completion.data.interviewMode === "assessment"
+          ? "Assessment submission confirmed"
+          : completion.data.interviewMode === "practice"
+            ? "Practice submission confirmed"
+            : "Interview submission confirmed"
+      }
+    >
+      <p>
+        The server confirms this session is completed. Feedback availability is checked separately.
+      </p>
+      {receipt ? (
+        <ReceiptSummary receipt={receipt} />
+      ) : (
+        <p role="status">
+          This completed session has no detailed receipt. Saved-answer counts cannot be confirmed
+          from this response.
+        </p>
+      )}
+      {retryWarning && (
+        <p role="status" className="text-sm text-gray-600">
+          An earlier request may still finish. Another preparation request may repeat processing;
+          you can wait and check feedback again.
+        </p>
+      )}
+      <div className="space-y-3 rounded-2xl bg-[#F5F9FF] p-5" aria-live="polite">
+        {generation === "pending" ? (
+          <p role="status">
+            Preparing feedback. You can check History if you leave this page; leaving does not
+            cancel an accepted request.
+          </p>
+        ) : existing.isFetching ? (
+          <p role="status">Checking for saved feedback…</p>
+        ) : existing.isSuccess ? (
+          <>
+            <p>Saved feedback is available.</p>
+            <Link href={`/report-summary?interviewId=${interviewId}`} className={action}>
+              Open feedback
+            </Link>
+          </>
+        ) : (
+          <>
+            <p role={missing ? "status" : "alert"}>
+              {denied
+                ? "Feedback access could not be verified. Check your account and History."
+                : generation === "uncertain"
+                  ? "Preparation was not confirmed. Check for saved feedback before sending another preparation request."
+                  : missing
+                    ? "No saved feedback was found. You can request preparation for this completed session."
+                    : "Feedback availability could not be checked. Retry the check before requesting preparation."}
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                className={action}
+                disabled={existing.isFetching}
+                onClick={async () => {
+                  const result = await existing.refetch();
+                  if (current.current && result.isError && responseStatus(result.error) === 404)
+                    setGeneration("idle");
+                }}
+              >
+                Check feedback again
+              </button>
+              {canPrepare && (
+                <button
+                  type="button"
+                  className={action}
+                  onClick={async () => {
+                    if (inFlight.current) return;
+                    inFlight.current = true;
+                    setGeneration("pending");
+                    trackEvent("feedback_preparation_requested", { source: "verified_completion" });
+                    try {
+                      await post.mutateAsync({ interviewId: Number(interviewId) });
+                      if (!current.current) return;
+                      if (!verifiedNow.current) {
+                        setGeneration("uncertain");
+                        setRetryWarning(true);
+                        return;
+                      }
+                      setGeneration("confirmed");
+                      // The report view performs its own fresh read and schema checks.
+                      router.replace(`/report-summary?interviewId=${interviewId}`);
+                    } catch {
+                      if (current.current) {
+                        setGeneration("uncertain");
+                        setRetryWarning(true);
+                      }
+                    } finally {
+                      inFlight.current = false;
+                    }
+                  }}
+                >
+                  Prepare feedback
+                </button>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </CompletionCard>
   );
 }
