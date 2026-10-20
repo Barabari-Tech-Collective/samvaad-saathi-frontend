@@ -148,6 +148,18 @@ describe("speech callback lifetime", () => {
     expect(result.current.isSpeaking).toBe(true);
     expect(AudioStub.instances[0].pause).not.toHaveBeenCalled();
   });
+  it("muting an active question stops playback immediately", async () => {
+    transport.convert.mockResolvedValue(blob());
+    const { result, rerender } = renderHook(
+      ({ muted }) => useTextToSpeech({ text: "Practice question", disabled: muted }),
+      { initialProps: { muted: false } }
+    );
+    await act(async () => {});
+    expect(result.current.isSpeaking).toBe(true);
+    rerender({ muted: true });
+    expect(result.current.isSpeaking).toBe(false);
+    expect(AudioStub.instances[0].pause).toHaveBeenCalled();
+  });
   it("blocked voice preference storage falls back safely", () => {
     vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
       throw new Error("Blocked");

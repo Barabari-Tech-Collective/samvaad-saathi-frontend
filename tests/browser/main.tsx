@@ -1,3 +1,4 @@
+import { useCompanionPreferences } from "@/hooks/useCompanionPreferences";
 import ActivePage from "@/app/(protected)/interview/page";
 import StartPage from "@/app/(protected)/interview-start/page";
 import ReattemptPage from "@/app/(protected)/reattempt-interview/page";
@@ -30,6 +31,21 @@ function Fixture() {
     </main>
   );
 }
+function CompanionFixture() {
+  const controls = useCompanionPreferences("1");
+  return (
+    <main className="mx-auto max-w-4xl p-3 sm:p-6">
+      <h1 className="text-2xl">Practice answer fixture</h1>
+      <Footer
+        question_attempt_id={42}
+        companion={{
+          ...controls,
+          speech: location.search.includes("speaking=true") ? "speaking" : "idle",
+        }}
+      />
+    </main>
+  );
+}
 const client = new QueryClient();
 window.addEventListener("completion-test-refresh", () => {
   void client.invalidateQueries({ queryKey: ["completion-status"] });
@@ -46,7 +62,9 @@ window.addEventListener("practice-test-refresh", () => {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={client}>
     <CookiesProvider>
-      {location.search.includes("fixture=active") ? (
+      {location.search.includes("fixture=companion") ? (
+        <CompanionFixture />
+      ) : location.search.includes("fixture=active") ? (
         <ActivePage />
       ) : location.search.includes("fixture=assessment") ? (
         <AssessmentFixture />

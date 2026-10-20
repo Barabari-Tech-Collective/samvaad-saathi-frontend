@@ -11,6 +11,10 @@ describe("Fixed interview deadline and receipt", () => {
   });
   afterEach(() => vi.useRealTimers());
 
+  it("never labels an untimed assessment as practice", () => {
+    render(<Header mode="assessment" hasStarted deadlineAt={null} />);
+    expect(screen.getByLabelText("Interview time")).toHaveTextContent("Assessment · no time limit");
+  });
   it("uses the pinned server deadline, rather than a new 25-minute timer", () => {
     render(
       <Header role="Assessment" hasStarted interviewId="8" deadlineAt="2026-10-19T00:24:00Z" />

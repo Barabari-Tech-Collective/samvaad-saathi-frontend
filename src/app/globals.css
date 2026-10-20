@@ -278,3 +278,24 @@ h6 {
     max-height: calc(100dvh - 2rem);
   }
 }
+
+/* Companion animation follows actual playback; OS reduced motion always wins. */
+@keyframes saathi-speaking {
+  0%,
+  100% {
+    transform: scaleY(0.55);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+[data-companion-motion="true"][data-companion-state="speaking"] .saathi-mouth {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: saathi-speaking 0.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .saathi-face * {
+    animation: none !important;
+  }
+}

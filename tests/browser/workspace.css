@@ -2,3 +2,6 @@
 @source "../../src/components/guides";
 
 @source "../../src/components/practice";
+
+@source "../../src/components/companion";
+@source "../../src/app/(protected)/interview";

@@ -40,7 +40,12 @@ interface Recognition {
   stop(): void;
 }
 
+import PracticeCompanion, {
+  type PracticeCompanionControls,
+} from "@/components/companion/PracticeCompanion";
+
 interface FooterProps {
+  companion?: PracticeCompanionControls;
   allowRerecord?: boolean;
   isLoading?: boolean;
   disabled?: boolean;
@@ -62,6 +67,7 @@ interface FooterProps {
 }
 
 export default function Footer({
+  companion,
   allowRerecord = true,
   isLoading = false,
   disabled = false,
@@ -165,6 +171,9 @@ export default function Footer({
       setAnalysisError(true);
     }
   }
+
+  const analyzeLatestRef = useRef(analyze);
+  analyzeLatestRef.current = analyze;
 
   function stopVisuals() {
     animationRef.current?.();
@@ -286,7 +295,10 @@ export default function Footer({
     setSpeechFeedbackDelayed(false);
     if (transcriptionProgress.followUpQuestion)
       onFollowUpQuestion?.(transcriptionProgress.followUpQuestion);
-    void analyze(["domain", "communication", "pace", "pause"], transcriptionProgress.answerVersion);
+    void analyzeLatestRef.current(
+      ["domain", "communication", "pace", "pause"],
+      transcriptionProgress.answerVersion
+    );
   }, [transcriptionProgress, question_attempt_id, onFollowUpQuestion]);
 
   async function retryDelayedSpeechFeedback() {
@@ -411,6 +423,17 @@ export default function Footer({
       className="mx-auto flex w-full max-w-5xl flex-col items-center gap-4 py-4"
       aria-busy={busy}
     >
+      {companion && (
+        <PracticeCompanion
+          controls={{
+            ...companion,
+            blocked: companion.blocked || timerExpired || isSubmitting || isPausing || isLoading,
+          }}
+          answer={answer.phase}
+          working={isAnalyzing}
+          saved={serverAnswered}
+        />
+      )}
       {timerExpired && (
         <p role="status">
           Time is up. We will save your current answer before submitting. Keep this page open.

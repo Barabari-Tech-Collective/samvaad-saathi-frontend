@@ -1,9 +1,10 @@
 "use client";
+
+import { useCompanionPreferences } from "@/hooks/useCompanionPreferences";
 import { useViewLifetime } from "@/hooks/useViewLifetime";
 import { validInterviewId } from "@/lib/interview-history";
 import Link from "next/link";
 import { useAuth } from "@/components/providers/auth-provider";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { MicPermissionModal, useMicPermission } from "@/hooks/useMicPermission";
 import {
   ProctoringPreflightModal,
@@ -35,8 +36,9 @@ import {
 const InterviewPage = () => {
   const router = useRouter();
   const lifetime = useViewLifetime();
+  const requireCurrentView = lifetime.requireCurrent;
   const { user, loading: loadingIdentity } = useAuth();
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const companion = useCompanionPreferences(user?.userId ? String(user.userId) : null);
 
   const searchParams = useSearchParams();
   const interviewId = searchParams.get("interviewId");
@@ -99,7 +101,7 @@ const InterviewPage = () => {
   });
 
   const showCodeView = role
-    ? ROLE_OPTIONS.includes(role as any) && role !== FULL_STACK_ROLE
+    ? ROLE_OPTIONS.some((option) => option === role) && role !== FULL_STACK_ROLE
     : false;
 
   // mic permission utils
@@ -224,7 +226,7 @@ const InterviewPage = () => {
 
   const applyCheckpoint = useCallback(
     (response: ResumeInterviewResponse | PracticeNavigationResponse) => {
-      lifetime.requireCurrent();
+      requireCurrentView();
       if (String(response.interviewId) !== interviewId || !Array.isArray(response.questions))
         throw new Error("The saved checkpoint belongs to another sitting or is incomplete.");
       if ("track" in response) {
@@ -245,7 +247,7 @@ const InterviewPage = () => {
       setStateVersion(response.stateVersion);
       setCompleteReady(response.completeReady);
     },
-    [interviewId, lifetime.requireCurrent]
+    [interviewId, requireCurrentView]
   );
 
   // The single point every pendingStart resolution goes through. A plain
@@ -366,20 +368,18 @@ const InterviewPage = () => {
   // Use current question id so we don't re-run when questions array reference changes (e.g. when adding follow-up)
   const currentQuestionId = questions?.[currentQuestionIndex]?.interviewQuestionId;
 
+  const currentQuestionIsFollowUp = questions[currentQuestionIndex]?.isFollowUp === true;
   useEffect(() => {
     if (currentQuestionId && interviewId) {
-      // Track question view
-      const question = questions?.[currentQuestionIndex];
-      if (question) {
-        trackInterviewQuestionView(
-          question.interviewQuestionId.toString(),
-          currentQuestionIndex + 1,
-          question.isFollowUp ? "follow-up" : "main",
-          interviewId
-        );
-      }
+      trackInterviewQuestionView(
+        String(currentQuestionId),
+        currentQuestionIndex + 1,
+        currentQuestionIsFollowUp ? "follow-up" : "main",
+        interviewId
+      );
     }
-    // Reset text-to-speech speaking state when question changes
+  }, [interviewId, currentQuestionIndex, currentQuestionId, currentQuestionIsFollowUp]);
+  useEffect(() => {
     setIsTextToSpeechSpeaking(false);
   }, [interviewId, currentQuestionIndex, currentQuestionId]);
 
@@ -437,6 +437,7 @@ const InterviewPage = () => {
     generatedQuestions,
     generateQuestionsError,
     useResume,
+    interviewId,
     generateQuestions,
   ]);
 
@@ -827,6 +828,7 @@ const InterviewPage = () => {
       ) : isUserIntroducing ? (
         <div>
           <Header
+            mode={interviewModeValue}
             role={role || ""}
             hasStarted={hasStarted}
             deadlineAt={answerDeadlineAt}
@@ -877,6 +879,7 @@ const InterviewPage = () => {
       ) : (
         <div>
           <Header
+            mode={interviewModeValue}
             role={role || ""}
             hasStarted={hasStarted}
             deadlineAt={answerDeadlineAt}
@@ -885,12 +888,16 @@ const InterviewPage = () => {
             onTimerExpire={() => setTimerExpired(true)}
           />
 
-          {isMobile ? (
-            <>
-              <div className="size-24 mx-auto mb-4">
-                <DotLottieReact src="/assets/lottie/Speaker.lottie" autoplay loop />
-              </div>
-
+          <section
+            aria-label="Current interview question"
+            className={`mx-auto mt-6 grid max-w-6xl gap-5 ${showCodeView ? "lg:grid-cols-[minmax(0,1fr)_minmax(0,.8fr)]" : ""}`}
+          >
+            <div className="min-w-0 rounded-2xl border border-[var(--border-subtle)] bg-white px-5 py-2 sm:px-8 sm:py-4">
+              <p className="mt-4 text-sm font-medium text-[var(--brand-blue)]">
+                {interviewModeValue === "practice"
+                  ? "Practice interview"
+                  : "Assessment · AI interviewer"}
+              </p>
               <Question
                 isLoading={isGeneratingQuestions}
                 question={questions?.[currentQuestionIndex]}
@@ -899,45 +906,22 @@ const InterviewPage = () => {
                 onSpeakingChange={setIsTextToSpeechSpeaking}
                 onPreparingChange={setIsTextToSpeechPreparing}
                 role={role || ""}
-                allowSpeech={!isIntroducing}
+                allowSpeech={
+                  !isIntroducing &&
+                  (interviewModeValue === "assessment" ||
+                    (companion.preferences.ready && !companion.preferences.muted))
+                }
               />
-              {showCodeView && (
+            </div>
+            {showCodeView && (
+              <div className="min-w-0 overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-white p-4">
                 <CodeView
                   isLoading={isGeneratingQuestions}
                   supplement={questions?.[currentQuestionIndex]?.supplement || null}
                 />
-              )}
-            </>
-          ) : (
-            <>
-              <div className="grid grid-cols-6 gap-4 mt-24">
-                <div className="size-24 mx-auto mb-4 col-span-1">
-                  <DotLottieReact src="/assets/lottie/Speaker.lottie" autoplay loop />
-                </div>
-
-                <div className={!showCodeView ? "col-span-5" : "col-span-3"}>
-                  <Question
-                    isLoading={isGeneratingQuestions}
-                    question={questions?.[currentQuestionIndex]}
-                    currentQuestionIndex={currentQuestionIndex}
-                    totalQuestions={plannedQuestionCount ?? (questions?.length || 0)}
-                    onSpeakingChange={setIsTextToSpeechSpeaking}
-                    onPreparingChange={setIsTextToSpeechPreparing}
-                    role={role || ""}
-                    allowSpeech={!isIntroducing}
-                  />
-                </div>
-                {showCodeView && (
-                  <div className="col-span-2">
-                    <CodeView
-                      isLoading={isGeneratingQuestions}
-                      supplement={questions?.[currentQuestionIndex]?.supplement || null}
-                    />
-                  </div>
-                )}
               </div>
-            </>
-          )}
+            )}
+          </section>
 
           {attempt.failed && (
             <div role="alert" className="my-4 text-center text-red-700">
@@ -959,6 +943,24 @@ const InterviewPage = () => {
           <Footer
             allowRerecord={interviewModeValue === "practice"}
             key={`${interviewId}:${currentQuestionId}`}
+            companion={
+              interviewModeValue === "practice"
+                ? {
+                    ...companion,
+                    blocked:
+                      attempt.pending ||
+                      isAdvancing ||
+                      !attempt.id ||
+                      stateVersion === null ||
+                      (leaseEnabled && !sessionLease.canWrite),
+                    speech: isTextToSpeechSpeaking
+                      ? "speaking"
+                      : isTextToSpeechPreparing
+                        ? "preparing"
+                        : "idle",
+                  }
+                : undefined
+            }
             timerExpired={timerExpired}
             isLoading={isGeneratingQuestions}
             disabled={

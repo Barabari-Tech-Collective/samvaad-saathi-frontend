@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const Header = ({
+  mode = "practice",
   role,
   hasStarted,
   interviewId,
@@ -10,6 +11,7 @@ const Header = ({
   deadlineAt,
   serverClockOffsetMs = 0,
 }: {
+  mode?: "practice" | "assessment";
   role?: string;
   hasStarted: boolean;
   interviewId?: string | null;
@@ -100,7 +102,7 @@ const Header = ({
   };
 
   return (
-    <header className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[#DEE8FB] bg-white p-4 sm:p-5">
+    <header className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center rounded-xl border border-[#DEE8FB] bg-white p-4 sm:p-5">
       <div className="min-w-0 flex-1">
         <p className="text-xs font-semibold text-[#6B7280]">Interview room</p>
         <h3 className="mt-1 break-words text-xl font-semibold text-[#1F285B] sm:text-2xl">
@@ -108,10 +110,12 @@ const Header = ({
         </h3>
       </div>
       <p
-        className="rounded-lg bg-[#F5F9FF] px-4 py-3 text-base font-semibold tabular-nums text-[#1F285B]"
+        className="self-start rounded-lg bg-[#F5F9FF] px-4 py-3 text-base font-semibold tabular-nums text-[#1F285B] sm:self-auto"
         aria-label="Interview time"
       >
-        {deadlineAt === null ? "Practice · no time limit" : formatTime(timeLeft)}
+        {deadlineAt === null
+          ? `${mode === "assessment" ? "Assessment" : "Practice"} · no time limit`
+          : formatTime(timeLeft)}
       </p>
     </header>
   );
