@@ -4,6 +4,8 @@ import reactHooks from "eslint-plugin-react-hooks";
 // Enforce real TypeScript linting on this release. The legacy global config
 // only has ignores; expanding enforcement across legacy modules is separate work.
 const files = [
+  "src/components/human-interviews/**/*.tsx",
+  "src/app/(protected)/human-interviews/page.tsx",
   "src/components/companion/**/*.tsx",
   "src/hooks/useCompanionPreferences.ts",
   "src/lib/interview-companion.ts",

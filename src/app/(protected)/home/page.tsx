@@ -150,6 +150,13 @@ export default function HomePage() {
         </div>
       </div>
 
+      <Link
+        href="/human-interviews"
+        className="mt-6 inline-flex min-h-11 items-center justify-between gap-3 rounded-2xl border border-[#DEE8FB] bg-white p-5 font-semibold text-[#1F285B]"
+      >
+        Human interviews <span className="text-sm font-normal">View appointments →</span>
+      </Link>
+
       <div className="my-6">
         <h2 className="text-2xl font-bold">Recent Interviews</h2>
 

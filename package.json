@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "lint:release": "eslint --config eslint.release.config.mjs src/hooks/useInterviewAnswer.ts src/hooks/useQuestionAttempt.ts 'src/app/(protected)/interview/_components/Footer.tsx' tests src/hooks/useProctoring.tsx src/components/guides src/app/layout.tsx 'src/app/(protected)/layout.tsx' src/components/practice 'src/app/(protected)/practice/page.tsx'",
+    "lint:release": "eslint --config eslint.release.config.mjs src/components/human-interviews 'src/app/(protected)/human-interviews/page.tsx' src/hooks/useInterviewAnswer.ts src/hooks/useQuestionAttempt.ts 'src/app/(protected)/interview/_components/Footer.tsx' tests src/hooks/useProctoring.tsx src/components/guides src/app/layout.tsx 'src/app/(protected)/layout.tsx' src/components/practice 'src/app/(protected)/practice/page.tsx'",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
