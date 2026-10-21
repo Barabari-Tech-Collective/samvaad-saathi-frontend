@@ -7,18 +7,28 @@
 :root {
   --color-primary: #1f285b;
   --color-error: #d40303;
-  --font-heading: var(--font-noto-sans-devanagari);
-  --font-body: var(--font-anek-devanagari);
-  --font-orbitron: var(--font-orbitron);
+  --font-heading: var(--font-poppins);
+  --font-body: var(--font-inter);
+  --font-orbitron: var(--font-poppins);
+  --font-anek-devanagari: var(--font-inter);
+  --brand-navy: #1f285b;
+  --brand-blue: #344499;
+  --brand-yellow: #ffcc33;
+  --brand-gold: #ffb800;
+  --brand-blue-light: #3c5ea4;
+  --brand-peach: #ffe4bf;
+  --surface: #ffffff;
+  --surface-subtle: #f5f9ff;
+  --border-subtle: #dee8fb;
 }
 
 /* Font utility classes */
 .font-heading {
-  font-family: var(--font-heading), sans-serif;
+  font-family: var(--font-heading), var(--font-noto-sans-devanagari), sans-serif;
 }
 
 .font-body {
-  font-family: var(--font-body), sans-serif;
+  font-family: var(--font-body), var(--font-noto-sans-devanagari), sans-serif;
 }
 
 .font-orbitron {
@@ -27,10 +37,11 @@
 
 /* Apply body font to all text by default */
 body {
-  font-family: var(--font-body), sans-serif;
+  font-family: var(--font-body), var(--font-noto-sans-devanagari), sans-serif;
   margin: 0;
   padding: 0;
-  background-image: url("/background-image.jpeg");
+  background-color: var(--surface-subtle);
+  color: #111827;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -45,7 +56,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-heading), sans-serif;
+  font-family: var(--font-heading), var(--font-noto-sans-devanagari), sans-serif;
 }
 
 /* Override background for auth pages */
@@ -114,4 +125,374 @@ h6 {
   word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: pre-wrap;
+}
+
+/* Versioned workspace help: native dialog provides focus containment and Escape. */
+.workspace-guide-trigger {
+  position: fixed;
+  bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  right: 1rem;
+  z-index: 55;
+  border: 1px solid #c0cff2;
+  border-radius: 999px;
+  background: #fff;
+  color: #1f285b;
+  padding: 0.65rem 1rem;
+  min-height: 44px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  box-shadow: 0 4px 16px #1f285b12;
+}
+.workspace-guide-dialog {
+  position: fixed;
+  inset: auto 0 max(1rem, env(safe-area-inset-bottom, 0px)) 0;
+  margin: 0 auto;
+  width: min(440px, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  border: 1px solid #dee8fb;
+  border-radius: 20px;
+  background: #fff;
+  color: #111827;
+  padding: 0;
+  box-shadow: 0 20px 80px #1f285b26;
+}
+.workspace-guide-dialog::backdrop {
+  background: #1f285b38;
+}
+.workspace-guide-content {
+  padding: clamp(20px, 4vw, 28px);
+}
+.workspace-guide-progress {
+  color: #344499;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.workspace-guide-content h2 {
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 12px;
+}
+.workspace-guide-content p:not(.workspace-guide-progress) {
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.workspace-guide-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+.workspace-guide-actions button {
+  min-height: 44px;
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.workspace-guide-next {
+  background: #000;
+  color: #fff;
+}
+.workspace-guide-trigger:focus-visible,
+.workspace-guide-actions button:focus-visible {
+  outline: 3px solid #344499;
+  outline-offset: 3px;
+}
+[data-guide-highlight="true"] {
+  outline: 3px solid #ffcc33 !important;
+  outline-offset: 4px;
+}
+@media (min-width: 768px) {
+  .workspace-guide-dialog {
+    inset: auto 24px 24px auto;
+    margin: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-guide-dialog * {
+    scroll-behavior: auto;
+  }
+}
+
+[lang="hi"]:not(html),
+[lang="mr"]:not(html),
+[lang="ne"]:not(html) {
+  font-family: var(--font-noto-sans-devanagari), var(--font-inter), sans-serif;
+}
+
+/* First-use invitation: no automatic modal or focus movement. */
+.workspace-guide-invite {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right, 0px));
+  bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  z-index: 55;
+  width: min(22rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 7rem);
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  box-sizing: border-box;
+  border: 1px solid #dee8fb;
+  border-top: 3px solid #ffcc33;
+  border-radius: 18px;
+  padding: 20px;
+  background: #fff;
+  color: #1f285b;
+  box-shadow: 0 8px 32px #1f285b18;
+}
+.workspace-guide-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  color: #344499;
+}
+.workspace-guide-invite h2 {
+  margin: 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.workspace-guide-invite p {
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.workspace-guide-invite .workspace-guide-actions {
+  margin-top: 16px;
+}
+.workspace-guide-content {
+  overflow-wrap: anywhere;
+}
+.workspace-guide-content h2:focus {
+  outline: none;
+}
+.workspace-guide-trigger[hidden] {
+  display: none;
+}
+@media (max-height: 400px) {
+  .workspace-guide-invite {
+    bottom: 1rem;
+    max-height: calc(100dvh - 2rem);
+  }
+}
+
+/* Companion animation follows actual playback; OS reduced motion always wins. */
+@keyframes saathi-speaking {
+  0%,
+  100% {
+    transform: scaleY(0.55);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+[data-companion-motion="true"][data-companion-state="speaking"] .saathi-mouth {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: saathi-speaking 0.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .saathi-face * {
+    animation: none !important;
+  }
+}
+
+/* Workspace foundations: the same tasks reflow without changing permission or media state. */
+:root {
+  --workspace-ink: #111827;
+  --workspace-muted: #4b5563;
+  --workspace-border: #c0cff2;
+  --workspace-radius: 1.25rem;
+}
+.student-workspace {
+  min-height: 100dvh;
+}
+.student-main {
+  min-width: 0;
+  max-width: 100%;
+  padding: 5.5rem 1rem calc(6rem + env(safe-area-inset-bottom));
+  outline: none;
+}
+.student-main > :not(.workspace-guide-trigger):not(dialog) {
+  max-width: 80rem;
+  margin-inline: auto;
+}
+.student-main :is(h1, h2, h3, p, li, label) {
+  overflow-wrap: anywhere;
+}
+.student-main h1 {
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+  color: var(--brand-navy);
+}
+.student-topbar {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 4.5rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  padding-inline: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  background: #fff;
+}
+.student-sidebar {
+  display: none;
+}
+.student-bottom-nav {
+  height: calc(4.5rem + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 40;
+  border-radius: 0;
+}
+.student-bottom-nav [aria-current="page"] {
+  color: #ffcc33;
+}
+.workspace-skip {
+  position: fixed;
+  z-index: 100;
+  top: 0.5rem;
+  left: 1rem;
+  transform: translateY(-180%);
+  padding: 0.8rem 1rem;
+  background: #fff;
+  border: 2px solid #344499;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  color: #1f285b;
+}
+.workspace-skip:focus {
+  transform: translateY(0);
+}
+.workspace-eyebrow {
+  color: #344499;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+}
+.student-workspace :is(a, button, input, select, textarea, summary):focus-visible {
+  outline: 3px solid #344499;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 2px white;
+}
+.student-bottom-nav a:focus-visible {
+  outline-color: #ffcc33;
+  outline-offset: 0;
+  box-shadow: none;
+}
+.student-main
+  :is(
+    button:not([role="switch"]),
+    a.btn,
+    select,
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]):not(
+        [type="file"]
+      )
+  ) {
+  min-height: 2.75rem;
+}
+.student-main :is(input, select, textarea) {
+  max-width: 100%;
+  font-size: 1rem;
+}
+.student-main :is(input, textarea)::placeholder {
+  color: #6b7280;
+  opacity: 1;
+}
+.student-main [role="alert"] {
+  border-inline-start: 3px solid #9f1239;
+  padding-inline-start: 1rem;
+}
+.student-workspace-immersive .student-main {
+  padding: 0;
+  max-width: none;
+}
+@media (min-width: 640px) {
+  .student-main {
+    padding-inline: 2rem;
+  }
+  .student-topbar {
+    padding-inline: 2rem;
+  }
+}
+@media (min-width: 1024px) {
+  .student-main {
+    margin-left: 15.5rem;
+    padding: 6.5rem 2.5rem 3rem;
+  }
+  .student-sidebar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    inset: 4.5rem auto 0 0;
+    width: 15.5rem;
+    padding: 1.75rem 1rem;
+    background: white;
+    border-right: 1px solid #dee8fb;
+    overflow-y: auto;
+  }
+  .student-sidebar-intro {
+    padding: 0 0.75rem 1.5rem;
+  }
+  .student-sidebar-intro p {
+    margin-top: 0.65rem;
+    font-weight: 600;
+    color: #1f285b;
+    line-height: 1.6;
+  }
+  .student-sidebar nav ul {
+    display: grid;
+    gap: 0.4rem;
+  }
+  .student-sidebar nav a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.75rem;
+    border: 1px solid transparent;
+    border-radius: 0.8rem;
+    color: #374151;
+    font-weight: 600;
+  }
+  .student-sidebar nav small {
+    font-weight: 400;
+    color: #4b5563;
+    font-size: 0.75rem;
+  }
+  .student-sidebar nav a:hover {
+    background: #f5f9ff;
+  }
+  .student-sidebar nav a[aria-current="page"] {
+    border-color: #c0cff2;
+    background: #f5f9ff;
+    color: #344499;
+    box-shadow: inset 3px 0 #344499;
+  }
+  .student-sidebar-note {
+    margin-top: auto;
+    padding: 2rem 0.75rem 0;
+    font-size: 0.75rem;
+    color: #4b5563;
+  }
+  .student-workspace-immersive .student-main {
+    margin-left: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .student-workspace *,
+  .student-workspace *::before,
+  .student-workspace *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media (forced-colors: active) {
+  .student-workspace [aria-current="page"] {
+    outline: 2px solid Highlight;
+  }
 }

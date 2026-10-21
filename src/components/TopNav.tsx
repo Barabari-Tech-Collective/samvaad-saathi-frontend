@@ -17,9 +17,7 @@ export default function TopNav({
   className?: string;
 }) {
   return (
-    <div
-      className={`fixed top-0 left-0 w-full h-16 bg-primary z-50 flex items-center px-4 ${className}`}
-    >
+    <header className={`student-topbar ${className}`}>
       <div className="flex-1 flex items-center">
         {/* App Logo and Name */}
         <div className="flex items-center gap-3">
@@ -32,16 +30,16 @@ export default function TopNav({
             priority
             unoptimized
           />
-          <h1 className="text-white text-xl font-bold">Samvaad Saathi</h1>
+          <span className="text-[#1F285B] text-lg font-semibold">Samvaad Saathi</span>
         </div>
 
         {/* Optional Title */}
         {title && (
           <div className="ml-8">
-            <h2 className="text-white text-lg font-medium">{title}</h2>
+            <h2 className="text-[#1F285B] text-lg font-medium">{title}</h2>
           </div>
         )}
       </div>
-    </div>
+    </header>
   );
 }

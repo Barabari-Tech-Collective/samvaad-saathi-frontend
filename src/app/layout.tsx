@@ -4,7 +4,7 @@ import { AuthProvider } from "@/components/providers/auth-provider";
 import { LimitedToaster } from "@/components/providers/limited-toaster";
 import { PostHogPageView } from "@/components/providers/posthog-page-view";
 import type { Metadata } from "next";
-import { Anek_Devanagari, Noto_Sans_Devanagari, Orbitron } from "next/font/google";
+import { Inter, Noto_Sans_Devanagari, Poppins } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 
@@ -14,16 +14,12 @@ const notoSansDevanagari = Noto_Sans_Devanagari({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
 });
 
-const anekDevanagari = Anek_Devanagari({
-  variable: "--font-anek-devanagari",
-  subsets: ["devanagari"],
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800"],
-});
-
-const orbitron = Orbitron({
-  variable: "--font-orbitron",
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"], display: "swap" });
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -162,7 +158,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${notoSansDevanagari.variable} ${anekDevanagari.variable} ${orbitron.variable} antialiased`}
+        className={`${notoSansDevanagari.variable} ${inter.variable} ${poppins.variable} antialiased`}
       >
         <AppProvider>
           <AuthProvider>

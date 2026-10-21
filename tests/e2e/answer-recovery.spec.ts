@@ -70,3 +70,35 @@ test("a durable answer can advance while speech feedback is still processing", a
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Next question" })).toBeVisible();
 });
+
+test("enrollment denial keeps recorded audio unsaved and retryable after access is restored", async ({
+  page,
+}) => {
+  const bodies: Buffer[] = [];
+  await page.route("**/api/transcribe-whisper", async (route) => {
+    bodies.push(route.request().postDataBuffer()!);
+    return route.fulfill({
+      status: bodies.length === 1 ? 403 : 202,
+      json:
+        bodies.length === 1
+          ? { detail: { code: "COURSE_ACCESS_REVOKED", message: "Enrollment revoked" } }
+          : { saved: true, questionAttemptId: 42 },
+    });
+  });
+  await page.route("**/api/complete-analysis", (route) => route.fulfill({ json: {} }));
+  await page.goto("/");
+  await page.getByRole("button", { name: "Answer", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Listening…" })).toBeVisible();
+  await page.waitForTimeout(1200);
+  await page.getByRole("button", { name: "Done", exact: true }).click();
+  await expect(
+    page.getByText("This recording has not been saved to your account.", { exact: false })
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "Next", exact: true })).toBeDisabled();
+  await page.getByRole("button", { name: "Retry save", exact: true }).click();
+  await expect(page.getByText("Answer saved.", { exact: true })).toBeVisible();
+  const wav = (body: Buffer) =>
+    body.subarray(body.indexOf(Buffer.from("RIFF")), body.lastIndexOf(Buffer.from("\r\n--")));
+  expect(bodies).toHaveLength(2);
+  expect(wav(bodies[0])).toEqual(wav(bodies[1]));
+});

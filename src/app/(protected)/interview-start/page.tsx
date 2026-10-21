@@ -2,7 +2,7 @@
 
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIServiceV2 } from "@/lib/api-config/src/config";
-import { ENDPOINTS, ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
+import { ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
 import { ROLE_OPTIONS, FULL_STACK_ROLE } from "@/lib/constants";
 import {
   DIFFICULTY_LEVEL,
@@ -13,7 +13,10 @@ import {
   unavailableDifficultyMessage,
 } from "@/lib/interview-difficulty";
 import { profilesForMode, type InterviewMode } from "@/lib/interview-mode";
-import { setInterviewQuestions } from "@/lib/interview-session-storage";
+import { createdInterview, publishedQuestionCount } from "@/lib/interview-entry";
+import { responseStatus } from "@/lib/interview-history";
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import {
   trackDifficultySelected,
   trackEvent,
@@ -22,18 +25,21 @@ import {
   trackStartInterviewButtonClick,
 } from "@/lib/posthog/tracking.utils";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/components/providers/auth-provider";
 import PracticePreflight from "@/components/practice/PracticePreflight";
 
 interface CreateInterviewRequest {
+  clientContract: "fixed-round-v1";
   track: string;
   difficulty: string;
   jobProfileId?: number;
+  questionCount?: number;
 }
 
 interface CreateInterviewResponse {
+  plannedQuestionCount?: number | null;
   interviewId: string;
   /**
    * Snapshotted on the interview at creation - never re-read from the job
@@ -47,6 +53,7 @@ interface CreateInterviewResponse {
 }
 
 interface JobProfile {
+  questionsPerInterview?: number | null;
   id: number;
   title: string;
   description: string;
@@ -76,12 +83,14 @@ interface JobProfilesResponse {
 }
 
 interface GenerateNonTechRequest {
+  clientContract: "fixed-round-v1";
   jobProfileId: number;
   difficulty: string;
   useResume: boolean;
 }
 
 interface GenerateNonTechResponse {
+  plannedQuestionCount?: number | null;
   interviewId: number;
   track: string;
   interviewMode?: "practice" | "assessment";
@@ -103,50 +112,106 @@ const LEVEL_EXAMPLES: Record<string, string> = {
   expert: "Leadership, scale and deep decisions",
 };
 
-/**
- * Practice and Assessment are two different products sharing one page.
- *
- * Practice generates questions freely and is never seen by anyone but the
- * student - it is the ROLE_OPTIONS tracks. Assessment is every job-profile
- * role: a facilitator published a specific set of questions for it, a score
- * means something to them, and the backend refuses to substitute AI content
- * for one (see interview_eligibility.py). Before this split both pools sat in
- * one dropdown with no label distinguishing them, so a student had no way to
- * know which kind of interview they were about to start.
- */
-function readInterviewMode(value: string | null): InterviewMode {
-  return value === "assessment" ? "assessment" : "practice";
+function EntryRecovery({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-[#DEE8FB] bg-white p-5 text-[#1F285B] sm:p-8">
+      <h1 className="text-3xl font-bold">{title}</h1>
+      {children}
+      <div className="flex flex-wrap gap-4">
+        <Link className="inline-flex min-h-11 items-center font-semibold underline" href="/history">
+          Check History
+        </Link>
+        <Link
+          className="inline-flex min-h-11 items-center font-semibold underline"
+          href="/practice"
+        >
+          Back to practice
+        </Link>
+      </div>
+    </div>
+  );
 }
 
 export default function InterviewStartPage() {
-  const searchParams = useSearchParams();
-  const mode = readInterviewMode(searchParams.get("mode"));
+  const raw = useSearchParams().get("mode");
+  const { user, loading } = useAuth();
+  if (raw !== null && raw !== "practice" && raw !== "assessment")
+    return (
+      <EntryRecovery title="Check this interview purpose">
+        <p role="alert">Choose Practice or Assessment from the platform before starting.</p>
+      </EntryRecovery>
+    );
+  if (loading || !user?.userId)
+    return (
+      <EntryRecovery title="Checking your account">
+        <p role="status">Sign in before choosing an interview.</p>
+      </EntryRecovery>
+    );
+  const mode = raw ?? "practice";
+  return (
+    <InterviewSetup key={`${user.userId}:${mode}`} account={String(user.userId)} mode={mode} />
+  );
+}
 
+function InterviewSetup({ account, mode }: { account: string; mode: InterviewMode }) {
+  const current = useRef(true);
+  const submitting = useRef(false);
+  useLayoutEffect(() => {
+    current.current = true;
+    return () => {
+      current.current = false;
+    };
+  }, []);
+  const [startError, setStartError] = useState("");
+  const [uncertain, setUncertain] = useState(false);
   const [selection, setSelection] = useState<RoleSelection>(null);
   const [difficulty, setDifficulty] = useState("easy");
   const [useResume, setUseResume] = useState(false);
+  const [freeQuestionCount, setFreeQuestionCount] = useState(5);
   const [showPreflight, setShowPreflight] = useState(false);
 
   const router = useRouter();
   const { user } = useAuth();
   const apiClient = createApiClient(APIServiceV2.INTERVIEWS);
 
-  const { data: jobProfilesData, isLoading: isLoadingProfiles } =
-    apiClient.useQuery<JobProfilesResponse>({
-      key: [ENDPOINTS_V2.JOB_PROFILES],
-      url: ENDPOINTS_V2.JOB_PROFILES,
-    });
-
-  const jobProfiles = jobProfilesData?.items ?? [];
+  const catalogue = useQuery<JobProfilesResponse>({
+    queryKey: ["interview-entry-profiles", account, mode],
+    queryFn: async ({ signal }) => {
+      const value = await apiClient.get<JobProfilesResponse>(ENDPOINTS_V2.JOB_PROFILES, { signal });
+      if (
+        !value ||
+        !Array.isArray(value.items) ||
+        value.items.some(
+          (p) =>
+            !p ||
+            !Number.isSafeInteger(p.id) ||
+            p.id < 1 ||
+            typeof p.title !== "string" ||
+            (p.category != null && typeof p.category !== "string") ||
+            (p.availableDifficulties !== undefined &&
+              (!Array.isArray(p.availableDifficulties) ||
+                p.availableDifficulties.some(
+                  (d) => !["easy", "medium", "hard", "expert"].includes(d)
+                )))
+        )
+      )
+        throw new Error("Role catalogue could not be verified.");
+      if (new Set(value.items.map((p) => p.id)).size !== value.items.length)
+        throw new Error("Role catalogue contains duplicate roles.");
+      return value;
+    },
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+  });
+  const catalogueReady = useRef(false);
+  useLayoutEffect(() => {
+    catalogueReady.current = !!catalogue.data && !catalogue.isFetching && !catalogue.isError;
+  }, [catalogue.data, catalogue.isFetching, catalogue.isError]);
+  const jobProfiles = catalogue.data?.items ?? [];
   const assessmentProfiles = profilesForMode(jobProfiles, "assessment");
-
-  // A selection made under one mode must not carry into the other - the two
-  // pools use the same "hr::" value shape, so without this a leftover
-  // selection could silently submit as the wrong kind of interview.
-  useEffect(() => {
-    setSelection(null);
-    setShowPreflight(false);
-  }, [mode]);
+  const selectableProfiles = profilesForMode(jobProfiles, mode);
+  const isLoadingProfiles = catalogue.isFetching;
 
   const selectedProfile =
     selection?.kind === "hr"
@@ -158,13 +223,16 @@ export default function InterviewStartPage() {
 
   const offered = offeredDifficulties({
     isTechFlow,
-    profileAvailableDifficulties: selectedProfile?.availableDifficulties,
+    profileAvailableDifficulties:
+      selection?.kind === "hr" && isTechFlow
+        ? (selectedProfile?.availableDifficulties ?? [])
+        : undefined,
   });
   // A string dep, so the effect below does not re-run on every render just
   // because `find` returned a new array reference.
   const offeredKey = offered?.join(",") ?? "";
 
-  // The default is medium, so without this a facilitator who published only
+  // Correct the current level when a facilitator has published only
   // easy questions would have every student submit an unavailable level and see
   // the server's refusal instead of an interview.
   useEffect(() => {
@@ -178,29 +246,16 @@ export default function InterviewStartPage() {
   >({
     url: ENDPOINTS_V2.CREATE_INTERVIEW,
     method: "post",
-    successMessage: "Interview created successfully!",
-    errorMessage: "Failed to create interview. Please try again.",
-    keyToInvalidate: {
-      queryKey: [
-        ENDPOINTS.AUTH.ABOUT_ME,
-        ENDPOINTS.INTERVIEWS.LIST,
-        ENDPOINTS.INTERVIEWS.WITH_SUMMARY,
-      ],
-    },
+    showToastError: false,
+    options: { retry: false },
   });
 
   const { mutateAsync: generateNonTechQuestions, isPending: isGeneratingNonTech } =
     apiClient.useMutation<GenerateNonTechResponse, GenerateNonTechRequest>({
       url: ENDPOINTS_V2.GENERATE_NON_TECH_QUESTIONS,
       method: "post",
-      errorMessage: "Failed to start HR interview. Please try again.",
-      keyToInvalidate: {
-        queryKey: [
-          ENDPOINTS.AUTH.ABOUT_ME,
-          ENDPOINTS.INTERVIEWS.LIST,
-          ENDPOINTS.INTERVIEWS.WITH_SUMMARY,
-        ],
-      },
+      showToastError: false,
+      options: { retry: false },
     });
 
   const handleSelectChange = (value: string) => {
@@ -243,7 +298,27 @@ export default function InterviewStartPage() {
   };
 
   const validateSelection = (): boolean => {
-    if (!selection) return false;
+    if (!selection || catalogue.isFetching || catalogue.isError || uncertain) return false;
+    if (
+      selection.kind === "hr" &&
+      publishedQuestionCount(selectedProfile?.questionsPerInterview) === null
+    ) {
+      setStartError(
+        "This role does not have a verified published question count. Check the roles again or ask your facilitator."
+      );
+      return false;
+    }
+    if (selection.kind === "hr" && selectedProfile?.interviewMode !== mode) {
+      toast.error("Select a role published for this interview purpose.");
+      return false;
+    }
+    if (
+      selection.kind === "tech" &&
+      (!Number.isInteger(freeQuestionCount) || freeQuestionCount < 1 || freeQuestionCount > 10)
+    ) {
+      toast.error("Choose a whole number from 1 to 10 questions.");
+      return false;
+    }
 
     if (
       mode === "assessment" &&
@@ -263,7 +338,7 @@ export default function InterviewStartPage() {
 
     const selectedTrack = selection.kind === "tech" ? selection.track : selection.jobName;
     const resumeRequired =
-      isTechFlow && selectedTrack === FULL_STACK_ROLE && difficulty === "medium";
+      selection.kind === "tech" && selectedTrack === FULL_STACK_ROLE && difficulty === "medium";
     if (resumeRequired && !useResume) {
       toast.error(
         "Medium Full Stack practice uses your resume. Turn on resume personalisation or choose another level."
@@ -294,7 +369,9 @@ export default function InterviewStartPage() {
   };
 
   const handleSubmit = async () => {
-    if (!selection || !validateSelection()) return;
+    if (submitting.current || !selection || !validateSelection()) return;
+    submitting.current = true;
+    setStartError("");
 
     const trackLabel = selection.kind === "tech" ? selection.track : selection.jobName;
     trackStartInterviewButtonClick(trackLabel, difficulty, useResume);
@@ -304,46 +381,100 @@ export default function InterviewStartPage() {
         const track = selection.kind === "tech" ? selection.track : selection.jobName;
         const jobProfileId = selection.kind === "hr" ? selection.jobProfileId : undefined;
 
-        const data = await createInterview({ track, difficulty, jobProfileId });
-        // console.log("Data to create interview", data);
-        if (data?.interviewId) {
-          if (mode === "assessment" && data.interviewMode !== "assessment") {
-            toast.error(
-              "The selected role is no longer configured for assessment. Please choose another role."
-            );
-            return;
-          }
-          router.push(
-            `/interview?interviewId=${data.interviewId}&useResume=${useResume}&role=${encodeURIComponent(track)}&interviewMode=${data.interviewMode ?? "practice"}`
-          );
-        }
+        const data = await createInterview({
+          clientContract: "fixed-round-v1",
+          track,
+          difficulty,
+          jobProfileId,
+          ...(selection.kind === "tech" ? { questionCount: freeQuestionCount } : {}),
+        });
+        if (!current.current) return;
+        if (!catalogueReady.current)
+          throw new Error("Current role access must be checked in History.");
+        const expected =
+          selection.kind === "tech"
+            ? freeQuestionCount
+            : publishedQuestionCount(selectedProfile?.questionsPerInterview)!;
+        const id = createdInterview(data, mode, expected);
+        router.push(
+          `/interview?${new URLSearchParams({ interviewId: id, useResume: String(useResume), role: track, interviewMode: mode })}`
+        );
       } else {
         const result = await generateNonTechQuestions({
+          clientContract: "fixed-round-v1",
           jobProfileId: selection.jobProfileId,
           difficulty,
           useResume,
         });
-        if (result?.interviewId) {
-          if (mode === "assessment" && result.interviewMode !== "assessment") {
-            toast.error(
-              "The selected role is no longer configured for assessment. Please choose another role."
-            );
-            return;
-          }
-          setInterviewQuestions(result.interviewId, result.items);
-          router.push(
-            `/interview?interviewId=${result.interviewId}&useResume=${useResume}&role=${encodeURIComponent(selection.jobName)}&resumed=true&interviewMode=${result.interviewMode ?? "practice"}`
-          );
-        }
+        if (!current.current) return;
+        if (!catalogueReady.current)
+          throw new Error("Current role access must be checked in History.");
+        const id = createdInterview(
+          result,
+          mode,
+          publishedQuestionCount(selectedProfile?.questionsPerInterview)!
+        );
+        // Resume reads the persisted question snapshot; do not trust/copy a cached subset.
+        router.push(
+          `/interview?${new URLSearchParams({ interviewId: id, useResume: String(useResume), role: selection.jobName, resumed: "true", interviewMode: mode })}`
+        );
       }
     } catch (error) {
-      console.error("Error starting interview:", error);
+      if (!current.current) return;
+      setShowPreflight(false);
+      const status = responseStatus(error);
+      const rejected = status !== undefined && [400, 401, 403, 404, 410, 422, 429].includes(status);
+      if (rejected) {
+        setStartError(
+          "The request was rejected. Check the role, resume and your current access before trying again."
+        );
+        void catalogue.refetch();
+      } else {
+        setUncertain(true);
+        setStartError(
+          "Creation was not confirmed. A sitting may already exist. Check History before starting another interview."
+        );
+      }
+    } finally {
+      submitting.current = false;
     }
   };
 
   const isPending = isCreatingInterview || isGeneratingNonTech;
   const selectedTrack = selection?.kind === "tech" ? selection.track : selection?.jobName;
-  const questionCount = selectedTrack === FULL_STACK_ROLE ? 7 : 5;
+  const questionCount =
+    selection?.kind === "hr"
+      ? (publishedQuestionCount(selectedProfile?.questionsPerInterview) ?? 0)
+      : freeQuestionCount;
+
+  if (uncertain)
+    return (
+      <EntryRecovery title="Check whether your interview was created">
+        <p role="alert">{startError}</p>
+      </EntryRecovery>
+    );
+  if (catalogue.isError)
+    return (
+      <EntryRecovery title="Interview roles could not be loaded">
+        <p role="alert">
+          We could not verify the current roles. This does not mean there are no assessments
+          available.
+        </p>
+        <button
+          type="button"
+          className="min-h-11 rounded-xl bg-black px-5 py-3 font-semibold text-white"
+          onClick={() => void catalogue.refetch()}
+        >
+          Check roles again
+        </button>
+      </EntryRecovery>
+    );
+  if (catalogue.isFetching || !catalogue.data)
+    return (
+      <EntryRecovery title="Checking current interview roles">
+        <p role="status">Loading the roles available to your account…</p>
+      </EntryRecovery>
+    );
 
   if (showPreflight && mode === "practice" && selection && selectedTrack) {
     return (
@@ -351,7 +482,7 @@ export default function InterviewStartPage() {
         role={selectedTrack}
         level={difficulty}
         questionCount={questionCount}
-        durationMinutes={questionCount === 7 ? 20 : 15}
+        durationMinutes={questionCount * 3}
         isStarting={isPending}
         onBack={() => setShowPreflight(false)}
         onStart={() => void handleSubmit()}
@@ -375,10 +506,20 @@ export default function InterviewStartPage() {
         </p>
       </div>
 
-      <section className="rounded-3xl border border-[#D6E0FB] bg-white p-5 sm:p-7">
+      {startError && (
+        <p role="alert" className="rounded-xl border border-[#DEE8FB] bg-white p-4">
+          {startError}
+        </p>
+      )}
+      <fieldset
+        disabled={isPending}
+        className="rounded-3xl border border-[#D6E0FB] bg-white p-5 sm:p-7"
+      >
         <div>
-          <label className="mb-2 block text-base font-bold text-black">
-            What role are you practising for?
+          <label htmlFor="interview-role" className="mb-2 block text-base font-bold text-black">
+            {mode === "assessment"
+              ? "Which assessment are you joining?"
+              : "What role are you practising for?"}
           </label>
           {mode === "practice" && (
             <p className="mb-3 text-sm text-gray-600">
@@ -392,6 +533,7 @@ export default function InterviewStartPage() {
             </p>
           ) : (
             <select
+              id="interview-role"
               value={getSelectValue()}
               onChange={(e) => handleSelectChange(e.target.value)}
               className="select select-bordered w-full"
@@ -409,10 +551,9 @@ export default function InterviewStartPage() {
                     {role}
                   </option>
                 ))}
-              {mode === "assessment" &&
-                assessmentProfiles.length > 0 &&
+              {selectableProfiles.length > 0 &&
                 Object.entries(
-                  assessmentProfiles.reduce(
+                  selectableProfiles.reduce(
                     (acc, profile) => {
                       const category = profile.category || "HR & Non-Technical";
                       if (!acc[category]) acc[category] = [];
@@ -424,11 +565,12 @@ export default function InterviewStartPage() {
                 ).map(([category, profiles]) => (
                   <optgroup
                     key={category}
-                    label={category.charAt(0).toUpperCase() + category.slice(1)}
+                    label={`${mode === "practice" ? "Curated practice · " : ""}${category.charAt(0).toUpperCase() + category.slice(1)}`}
                   >
                     {profiles.map((profile) => (
                       <option
                         key={profile.id}
+                        disabled={publishedQuestionCount(profile.questionsPerInterview) === null}
                         value={`${HR_SELECT_PREFIX}${profile.id}::${profile.title}`}
                       >
                         {profile.title}
@@ -513,10 +655,41 @@ export default function InterviewStartPage() {
           </div>
         </div>
 
+        <div className="mt-5 border-t border-[#DEE8FB] pt-5">
+          {selection?.kind === "tech" ? (
+            <label className="block font-semibold">
+              Questions in this practice round
+              <input
+                type="number"
+                min={1}
+                max={10}
+                step={1}
+                value={Number.isFinite(freeQuestionCount) ? freeQuestionCount : ""}
+                onChange={(event) =>
+                  setFreeQuestionCount(
+                    event.target.value === "" ? Number.NaN : Number(event.target.value)
+                  )
+                }
+                className="mt-2 block min-h-12 w-full rounded-lg border border-[#9CA3AF] px-3 text-base sm:max-w-xs"
+              />
+            </label>
+          ) : selectedProfile ? (
+            <p className="font-semibold">
+              {questionCount
+                ? `${questionCount} approved questions · about ${questionCount * 3} minutes`
+                : "Published question count unavailable"}
+            </p>
+          ) : null}
+          {selection?.kind === "tech" && (
+            <p className="mt-2 text-sm text-gray-600">
+              Choose 1–10 questions. You can save and return to practice.
+            </p>
+          )}
+        </div>
         <div className="pt-4">
           <button
             onClick={handleReviewSetup}
-            disabled={isPending || !selection}
+            disabled={isPending || !selection || (isTechFlow && offered?.length === 0)}
             className="btn btn-neutral btn-block btn-lg cursor-pointer"
           >
             {isPending
@@ -526,7 +699,7 @@ export default function InterviewStartPage() {
                 : "Start assessment"}
           </button>
         </div>
-      </section>
+      </fieldset>
     </div>
   );
 }

@@ -41,6 +41,20 @@ def wait_for(fetch, status, success, failure, timeout=1500):
     raise RuntimeError("Deployment polling timed out; inspect the provider before retrying")
 
 
+def verify_aws_destination():
+    """Read-only identity gate before any release or deployment mutation."""
+    expected = required("AWS_EXPECTED_ACCOUNT_ID")
+    region = required("AWS_REGION")
+    if not re.fullmatch(r"[0-9]{12}", expected):
+        raise RuntimeError("AWS_EXPECTED_ACCOUNT_ID must contain exactly 12 digits")
+    identity = command(
+        "aws", "sts", "get-caller-identity", "--region", region, "--output", "json"
+    )
+    if identity.get("Account") != expected:
+        raise RuntimeError("AWS account mismatch; no release action was started")
+    return expected
+
+
 def verify_production_source(repository, sha):
     repo = command("gh", "api", f"repos/{repository}")
     default_branch = repo["default_branch"]
@@ -117,6 +131,7 @@ def main():
         raise RuntimeError("Invalid release commit")
     if len(required("TEST_EVIDENCE")) < 20:
         raise RuntimeError("Provide a meaningful test record including tester, date, and results")
+    verify_aws_destination()
     verify_production_source(repository, sha)
     payload = {"ref": sha, "environment": "production", "task": "samvaad-release", "auto_merge": False,
                "required_contexts": [], "description": "Verified feature release", "payload": {"test_evidence": required("TEST_EVIDENCE")}}

@@ -6,11 +6,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:a11y": "playwright test --config playwright.accessibility.config.ts",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "lint:release": "eslint --config eslint.release.config.mjs src/hooks/useInterviewAnswer.ts src/hooks/useQuestionAttempt.ts 'src/app/(protected)/interview/_components/Footer.tsx' tests",
+    "lint:release": "eslint --config eslint.release.config.mjs src/components/human-interviews 'src/app/(protected)/human-interviews/page.tsx' src/hooks/useInterviewAnswer.ts src/hooks/useQuestionAttempt.ts 'src/app/(protected)/interview/_components/Footer.tsx' tests src/hooks/useProctoring.tsx src/components/guides src/app/layout.tsx 'src/app/(protected)/layout.tsx' src/components/practice 'src/app/(protected)/practice/page.tsx' src/components/workspace src/components/TopNav.tsx src/components/BottomNav.tsx 'src/app/(protected)/home/page.tsx' 'src/app/(protected)/profile/_components/ProfileFieldRow.tsx' 'src/app/(protected)/profile/_components/VoiceSelector.tsx'",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -45,6 +46,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/eslintrc": "^3",
     "@playwright/test": "^1.64.0",
     "@testing-library/jest-dom": "^7.0.1",

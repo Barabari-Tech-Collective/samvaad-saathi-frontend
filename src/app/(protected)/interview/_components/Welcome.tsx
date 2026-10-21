@@ -3,6 +3,7 @@ import React from "react";
 
 interface WelcomeProps {
   role: string;
+  plannedQuestionCount?: number | null;
   onInterviewStart: () => void;
   isPreparing: boolean;
   blocked?: boolean;
@@ -15,6 +16,7 @@ const Welcome = ({
   isPreparing,
   blocked = false,
   mode = "practice",
+  plannedQuestionCount = null,
 }: WelcomeProps) => {
   const isPractice = mode === "practice";
   return (
@@ -34,10 +36,11 @@ const Welcome = ({
           <div className="card-body items-center text-center py-6">
             <h3 className="card-title text-xl font-medium text-gray-900">Interview Duration</h3>
             <div className="flex items-baseline gap-1 mt-2">
-              <span className="font-orbitron text-2xl font-bold text-gray-900 tracking-wider">
-                25 : 00
+              <span className="text-2xl font-semibold text-gray-900">
+                {isPractice && plannedQuestionCount !== null
+                  ? "No time limit"
+                  : `${plannedQuestionCount !== null ? plannedQuestionCount * 3 : 25} minutes`}
               </span>
-              <span className="text-md font-medium text-gray-600">mins</span>
             </div>
           </div>
         </div>
@@ -52,7 +55,10 @@ const Welcome = ({
               {isPractice ? (
                 <>
                   <li>This is a low-pressure practice interview, not an exam.</li>
-                  <li>You can record an answer or type when your microphone is unavailable.</li>
+                  <li>
+                    Answer by voice. If your microphone is unavailable, check its permissions before
+                    starting.
+                  </li>
                   <li>Your saved answers stay attached to the same questions.</li>
                   <li>
                     You may refresh or reconnect. We will resume from the first unsaved answer.
@@ -62,7 +68,10 @@ const Welcome = ({
                 <>
                   <li>This is a formal assessment interview.</li>
                   <li>Complete it in one sitting and follow the disclosed monitoring rules.</li>
-                  <li>Leaving the tab or fullscreen ends the assessment.</li>
+                  <li>
+                    Tab changes or fullscreen exits may be recorded for review; they do not
+                    automatically end the assessment. Your timer continues.
+                  </li>
                   <li>Your submitted answers remain saved if feedback processing is delayed.</li>
                 </>
               )}

@@ -83,7 +83,9 @@ const Question = ({
       </div>
 
       <div className="mb-4">
-        <p className="text-xl leading-[1.4] text-slate-900 font-normal">{question.text}</p>
+        <p className="break-words text-xl leading-[1.4] text-slate-900 font-normal">
+          {question.text}
+        </p>
       </div>
 
       {!!question?.category ? (

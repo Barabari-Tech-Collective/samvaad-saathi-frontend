@@ -1,0 +1,13 @@
+@import "../../src/app/globals.css";
+@source "../../src/components/guides";
+
+@source "../../src/components/practice";
+
+@source "../../src/components/companion";
+@source "../../src/app/(protected)/interview";
+
+@source "../../src/components/workspace";
+@source "../../src/components/TopNav.tsx";
+@source "../../src/components/BottomNav.tsx";
+@source "../../src/app/(protected)/home";
+@source "../../src/app/(protected)/profile";

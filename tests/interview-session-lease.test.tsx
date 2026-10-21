@@ -159,3 +159,20 @@ it("ignores a late old-token heartbeat after a successful takeover", async () =>
   expect(result.current.status).toBe("active");
   expect(result.current.token).toBe(replacementToken);
 });
+
+it("enrollment denial blocks writing and displays a distinct message without a takeover claim", async () => {
+  mocks.claim.mockRejectedValue({
+    response: { status: 403, data: { detail: { code: "COURSE_ACCESS_REVOKED" } } },
+  });
+  const { result } = renderHook(() => useInterviewSessionLease({ interviewId: 7, enabled: true }));
+  await waitFor(() => expect(result.current.status).toBe("error"));
+  expect(result.current.canWrite).toBe(false);
+  expect(result.current.accessMessage).toContain("program team");
+  expect(mocks.claim).toHaveBeenCalledWith({ interviewId: 7, force: false });
+  mocks.claim.mockResolvedValue(response());
+  await act(async () => {
+    await result.current.retry();
+  });
+  await waitFor(() => expect(result.current.canWrite).toBe(true));
+  expect(result.current.accessMessage).toBeNull();
+});

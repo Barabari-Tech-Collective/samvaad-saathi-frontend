@@ -1,5 +1,6 @@
 "use client";
 
+import { useViewLifetime } from "@/hooks/useViewLifetime";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService } from "@/lib/api-config/src/config";
 import { ENDPOINTS } from "@/lib/api-config/src/endpoints";
@@ -53,9 +54,14 @@ interface TTSRequestBody {
 
 const allowedTtsVoiceIds = new Set<string>(TTS_VOICE_OPTIONS.map((option) => option.id));
 
-function resolveStoredTtsVoiceId(): string {
+export function resolveStoredTtsVoiceId(): string {
   if (typeof window === "undefined") return DEFAULT_TTS_VOICE_ID;
-  const raw = localStorage.getItem(TTS_VOICE_STORAGE_KEY);
+  let raw: string | null = null;
+  try {
+    raw = localStorage.getItem(TTS_VOICE_STORAGE_KEY);
+  } catch {
+    return DEFAULT_TTS_VOICE_ID;
+  }
   if (raw && allowedTtsVoiceIds.has(raw)) return raw;
   return DEFAULT_TTS_VOICE_ID;
 }
@@ -140,11 +146,14 @@ export const useTextToSpeech = ({
   audioUrl,
   useNaturalPauses = true,
 }: UseTextToSpeechOptions) => {
+  const lifetime = useViewLifetime();
   const apiClient = createApiClient(APIService.TTS);
   const { mutateAsync: convertTextToSpeech } = apiClient.useMutation<Blob, TTSRequestBody>({
     url: ENDPOINTS.TTS.CONVERT,
     method: "post",
+    showToastError: false,
     config: {
+      ...lifetime.requestConfig,
       responseType: "blob",
       headers: {
         accept: "audio/mpeg",
@@ -186,8 +195,11 @@ export const useTextToSpeech = ({
     }
 
     if (audioRef.current) {
+      audioRef.current.onended = null;
+      audioRef.current.onerror = null;
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      audioRef.current = null;
     }
 
     if (audioUrlRef.current) {
@@ -198,7 +210,7 @@ export const useTextToSpeech = ({
     if (
       typeof window !== "undefined" &&
       "speechSynthesis" in window &&
-      window.speechSynthesis.speaking
+      (window.speechSynthesis.speaking || window.speechSynthesis.pending || utteranceRef.current)
     ) {
       window.speechSynthesis.cancel();
     }
@@ -208,8 +220,17 @@ export const useTextToSpeech = ({
     setIsPreparing(false);
   }, []);
 
+  const finishPreparing = useCallback(() => {
+    if (preparingTimerRef.current) {
+      clearTimeout(preparingTimerRef.current);
+      preparingTimerRef.current = null;
+    }
+    setIsPreparing(false);
+  }, []);
+
   const speak = useCallback(
     async (textToSpeak: string) => {
+      if (!lifetime.isCurrent()) return;
       if (!isSupported) {
         console.warn("Text-to-speech is not supported in this browser");
         return;
@@ -227,7 +248,7 @@ export const useTextToSpeech = ({
         // will have bumped speakIdRef and armed its own watchdog.
         if (watchdogSpeakId === speakIdRef.current) {
           console.warn("TTS preparing watchdog fired; releasing UI");
-          setIsPreparing(false);
+          stop();
         }
       }, PREPARING_WATCHDOG_MS);
 
@@ -274,19 +295,22 @@ export const useTextToSpeech = ({
         if (loadedAudio && currentSpeakId === speakIdRef.current) {
           audioRef.current = loadedAudio;
           loadedAudio.onended = () => {
+            if (currentSpeakId !== speakIdRef.current || !lifetime.isCurrent()) return;
             setIsSpeaking(false);
           };
           loadedAudio.onerror = () => {
+            if (currentSpeakId !== speakIdRef.current || !lifetime.isCurrent()) return;
             console.warn("Audio playback error, unlocking speaking state");
             setIsSpeaking(false);
           };
 
           setIsSpeaking(true);
-          setIsPreparing(false);
+          finishPreparing();
           try {
             await loadedAudio.play();
             return;
           } catch (playError) {
+            if (currentSpeakId !== speakIdRef.current || !lifetime.isCurrent()) return;
             console.error("Failed to play provided audio URL", playError);
             setIsSpeaking(false);
             return;
@@ -294,6 +318,7 @@ export const useTextToSpeech = ({
         }
       }
 
+      if (currentSpeakId !== speakIdRef.current || !lifetime.isCurrent()) return;
       let audioBlob: Blob | null = null;
       try {
         audioBlob = await convertTextToSpeech({
@@ -318,22 +343,25 @@ export const useTextToSpeech = ({
           audioRef.current = audio;
 
           audio.onended = () => {
+            if (currentSpeakId !== speakIdRef.current || !lifetime.isCurrent()) return;
             setIsSpeaking(false);
           };
 
           audio.onerror = () => {
+            if (currentSpeakId !== speakIdRef.current || !lifetime.isCurrent()) return;
             console.warn("Audio playback error, unlocking speaking state");
             setIsSpeaking(false);
           };
 
           setIsSpeaking(true);
-          setIsPreparing(false);
+          finishPreparing();
           await audio.play();
           return;
         } catch (playError) {
+          if (currentSpeakId !== speakIdRef.current || !lifetime.isCurrent()) return;
           console.error("Failed to play backend TTS audio", playError);
           setIsSpeaking(false);
-          setIsPreparing(false);
+          finishPreparing();
           return;
         }
       }
@@ -341,7 +369,7 @@ export const useTextToSpeech = ({
       // If backend audio was empty (0 bytes) or failed, fall back to Browser Speech Synthesis
       if (typeof window === "undefined" || !("speechSynthesis" in window)) {
         setIsSpeaking(false);
-        setIsPreparing(false);
+        finishPreparing();
         return;
       }
 
@@ -364,24 +392,27 @@ export const useTextToSpeech = ({
         utteranceRef.current = utterance;
 
         utterance.onstart = () => {
+          if (currentSpeakId !== speakIdRef.current || !lifetime.isCurrent()) return;
           setIsSpeaking(true);
-          setIsPreparing(false);
+          finishPreparing();
         };
 
         utterance.onend = () => {
+          if (currentSpeakId !== speakIdRef.current || !lifetime.isCurrent()) return;
           setIsSpeaking(false);
         };
 
         utterance.onerror = () => {
+          if (currentSpeakId !== speakIdRef.current || !lifetime.isCurrent()) return;
           setIsSpeaking(false);
-          setIsPreparing(false);
+          finishPreparing();
         };
 
         window.speechSynthesis.speak(utterance);
       } catch (fallbackError) {
         console.error("Browser TTS fallback failed", fallbackError);
         setIsSpeaking(false);
-        setIsPreparing(false);
+        finishPreparing();
       }
     },
     [
@@ -395,116 +426,10 @@ export const useTextToSpeech = ({
       voiceName,
       audioUrl,
       convertTextToSpeech,
+      lifetime.isCurrent,
+      finishPreparing,
     ]
   );
-  //   const speak = useCallback(
-  //     async (textToSpeak: string) => {
-  //       if (!isSupported) {
-  //         console.warn("Text-to-speech is not supported in this browser");
-  //         return;
-  //       }
-
-  //       if (!textToSpeak) return;
-
-  //       // Cancel any ongoing speech
-  //       stop();
-
-  //       // Preprocess text for natural pauses
-  //       const processedText = useNaturalPauses
-  //         ? preprocessTextForNaturalSpeech(textToSpeak)
-  //         : textToSpeak;
-
-  //       const currentSpeakId = speakIdRef.current;
-
-  //       // First, try to get audio from backend.
-  //       let audioBlob: Blob | null = null;
-  //       const voice_id = resolveStoredTtsVoiceId();
-
-  //       try {
-  //         audioBlob = await convertTextToSpeech({
-  //           text: processedText,
-  //           voice_id,
-  //         });
-  //       } catch (error) {
-  //         console.error("TTS backend request failed, falling back to browser TTS", error);
-  //       }
-
-  //       if (currentSpeakId !== speakIdRef.current) {
-  //         return;
-  //       }
-
-  //       if (audioBlob) {
-  //         // We have backend audio, play it and DO NOT fallback.
-  //         try {
-  //           const audioUrl = URL.createObjectURL(audioBlob);
-  //           audioUrlRef.current = audioUrl;
-
-  //           const audio = new Audio(audioUrl);
-  //           audioRef.current = audio;
-
-  //           audio.onended = () => {
-  //             setIsSpeaking(false);
-  //           };
-
-  //           audio.onerror = () => {
-  //             setIsSpeaking(false);
-  //           };
-
-  //           setIsSpeaking(true);
-  //           await audio.play();
-  //           return;
-  //         } catch (playError) {
-  //           console.error("Failed to play backend TTS audio", playError);
-  //           setIsSpeaking(false);
-  //           return;
-  //         }
-  //       }
-
-  //       // If we reach here, backend audio was not available; use browser fallback.
-  //       if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-  //         setIsSpeaking(false);
-  //         return;
-  //       }
-
-  //       if (currentSpeakId !== speakIdRef.current) {
-  //         return;
-  //       }
-
-  //       try {
-  //         const utterance = new SpeechSynthesisUtterance(processedText);
-  //         utterance.rate = rate;
-  //         utterance.pitch = pitch;
-  //         utterance.volume = volume;
-  //         utterance.lang = lang;
-
-  //         const selectedVoice = findBestVoice(lang, voiceName);
-  //         if (selectedVoice) {
-  //           utterance.voice = selectedVoice;
-  //         }
-
-  //         utteranceRef.current = utterance;
-
-  //         utterance.onstart = () => {
-  //           setIsSpeaking(true);
-  //         };
-
-  //         utterance.onend = () => {
-  //           setIsSpeaking(false);
-  //         };
-
-  //         utterance.onerror = () => {
-  //           setIsSpeaking(false);
-  //         };
-
-  //         window.speechSynthesis.speak(utterance);
-  //       } catch (fallbackError) {
-  //         console.error("Browser TTS fallback failed", fallbackError);
-  //         setIsSpeaking(false);
-  //       }
-  //     },
-  //     [isSupported, useNaturalPauses, stop, rate, pitch, volume, lang, voiceName, convertTextToSpeech]
-  //   );
-
   useEffect(() => {
     // Only speak when text is available and not disabled
     if (disabled || !text) {

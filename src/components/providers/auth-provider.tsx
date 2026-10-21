@@ -87,7 +87,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Clear localStorage
     if (typeof window !== "undefined") {
-      localStorage.clear();
+      // Keep only non-sensitive, account-scoped guide completion across logins.
+      const keys = Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i));
+      for (const key of keys)
+        if (key && !key.startsWith("samvaad-guide:")) localStorage.removeItem(key);
     }
 
     // Clear sessionStorage

@@ -1,235 +1,342 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useProctoring } from "@/hooks/useProctoring";
 
-vi.mock("react-hot-toast", () => ({ default: { error: vi.fn(), success: vi.fn() } }));
-
-/**
- * useProctoring is the client half of ending an Assessment interview on a
- * tab switch or fullscreen exit - deterrence, not unbypassable enforcement
- * (see the hook's own module doc). What these tests pin is the part that is
- * fully this hook's responsibility: it must fire exactly once per sitting,
- * it must never engage for a disabled (practice) interview, and a fullscreen
- * request that the browser silently refuses must not itself look like an
- * exit violation.
- */
-
-function setFullscreenElement(element: Element | null) {
-  Object.defineProperty(document, "fullscreenElement", {
-    configurable: true,
-    get: () => element,
-  });
+function fullscreen(element: Element | null) {
+  Object.defineProperty(document, "fullscreenElement", { configurable: true, value: element });
 }
-
-describe("useProctoring", () => {
-  let requestFullscreenMock: ReturnType<typeof vi.fn>;
-  let exitFullscreenMock: ReturnType<typeof vi.fn>;
-
+function hidden(value: boolean) {
+  Object.defineProperty(document, "hidden", { configurable: true, value });
+}
+const begin = async (enabled = true, reportViolation = vi.fn().mockResolvedValue({})) => {
+  const hook = renderHook(() => useProctoring({ enabled, interviewId: 7, reportViolation }));
+  await act(async () => {
+    await hook.result.current.beginProctoredSession();
+  });
+  return { ...hook, reportViolation };
+};
+describe("non-punitive assessment signals", () => {
   beforeEach(() => {
-    requestFullscreenMock = vi.fn().mockResolvedValue(undefined);
-    exitFullscreenMock = vi.fn().mockResolvedValue(undefined);
+    fullscreen(null);
+    hidden(false);
     Object.defineProperty(document.documentElement, "requestFullscreen", {
       configurable: true,
-      value: requestFullscreenMock,
+      value: vi.fn().mockResolvedValue(undefined),
     });
-    Object.defineProperty(document, "exitFullscreen", {
-      configurable: true,
-      value: exitFullscreenMock,
-    });
-    setFullscreenElement(null);
-    Object.defineProperty(document, "hidden", { configurable: true, value: false });
   });
-
-  afterEach(() => {
-    setFullscreenElement(null);
-  });
-
-  it("does nothing when disabled - a practice interview must never activate", () => {
-    const reportViolation = vi.fn();
+  it("does not open assessment preflight for practice", () => {
     const { result } = renderHook(() =>
-      useProctoring({ enabled: false, interviewId: 1, reportViolation })
+      useProctoring({ enabled: false, interviewId: 7, reportViolation: vi.fn() })
     );
-
     act(() => result.current.openPreflight());
-
     expect(result.current.showPreflight).toBe(false);
   });
-
-  it("opens the preflight when enabled", () => {
-    const reportViolation = vi.fn();
+  it("opens and cancels an assessment preflight", () => {
     const { result } = renderHook(() =>
-      useProctoring({ enabled: true, interviewId: 1, reportViolation })
+      useProctoring({ enabled: true, interviewId: 7, reportViolation: vi.fn() })
     );
-
     act(() => result.current.openPreflight());
-
     expect(result.current.showPreflight).toBe(true);
-  });
-
-  it("requests fullscreen and activates on beginProctoredSession", async () => {
-    const reportViolation = vi.fn();
-    const { result } = renderHook(() =>
-      useProctoring({ enabled: true, interviewId: 1, reportViolation })
-    );
-
-    await act(async () => {
-      await result.current.beginProctoredSession();
-    });
-
-    expect(requestFullscreenMock).toHaveBeenCalledOnce();
-    expect(result.current.isActive).toBe(true);
+    act(() => result.current.closePreflight());
     expect(result.current.showPreflight).toBe(false);
   });
-
-  it("terminates with tab_switch and reports it when the tab is hidden", async () => {
-    const reportViolation = vi.fn().mockResolvedValue(undefined);
-    const { result } = renderHook(() =>
-      useProctoring({ enabled: true, interviewId: 7, reportViolation })
-    );
-
-    await act(async () => {
-      await result.current.beginProctoredSession();
-    });
-
+  it("records a tab switch without terminating or stopping the round", async () => {
+    const { result, reportViolation } = await begin();
     act(() => {
-      Object.defineProperty(document, "hidden", { configurable: true, value: true });
+      hidden(true);
       document.dispatchEvent(new Event("visibilitychange"));
     });
-
-    expect(result.current.isTerminated).toBe(true);
-    expect(result.current.terminationReason).toBe("tab_switch");
-    expect(result.current.isActive).toBe(false);
-    await waitFor(() =>
-      expect(reportViolation).toHaveBeenCalledWith({ interviewId: 7, reason: "tab_switch" })
-    );
-  });
-
-  it("terminates with fullscreen_exit when fullscreen was engaged and then dropped", async () => {
-    const reportViolation = vi.fn().mockResolvedValue(undefined);
-    const { result } = renderHook(() =>
-      useProctoring({ enabled: true, interviewId: 7, reportViolation })
-    );
-
-    await act(async () => {
-      setFullscreenElement(document.documentElement);
-      await result.current.beginProctoredSession();
+    await waitFor(() => expect(result.current.reportState).toBe("saved"));
+    expect(result.current.isActive).toBe(true);
+    expect(result.current.notice).toBe("tab_switch");
+    expect(reportViolation).toHaveBeenCalledWith({
+      interviewId: 7,
+      reason: "tab_switch",
+      eventId: expect.any(String),
     });
-
+    act(() => result.current.acknowledge());
+    expect(result.current.notice).toBeNull();
+  });
+  it("does not classify blur or permission prompts as misconduct", async () => {
+    const { reportViolation } = await begin();
     act(() => {
-      setFullscreenElement(null);
+      window.dispatchEvent(new Event("blur"));
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+    expect(reportViolation).not.toHaveBeenCalled();
+  });
+  it("records fullscreen exit only after fullscreen was engaged", async () => {
+    const { result, reportViolation } = await begin();
+    act(() => document.dispatchEvent(new Event("fullscreenchange")));
+    expect(reportViolation).not.toHaveBeenCalled();
+    act(() => {
+      fullscreen(document.documentElement);
+      document.dispatchEvent(new Event("fullscreenchange"));
+      fullscreen(null);
       document.dispatchEvent(new Event("fullscreenchange"));
     });
-
-    expect(result.current.terminationReason).toBe("fullscreen_exit");
-    await waitFor(() =>
-      expect(reportViolation).toHaveBeenCalledWith({ interviewId: 7, reason: "fullscreen_exit" })
-    );
+    await waitFor(() => expect(result.current.notice).toBe("fullscreen_exit"));
+    expect(result.current.isActive).toBe(true);
   });
+  it("can continue when fullscreen is denied", async () => {
+    Object.defineProperty(document.documentElement, "requestFullscreen", {
+      configurable: true,
+      value: vi.fn().mockRejectedValue(new Error("denied")),
+    });
+    const { result, reportViolation } = await begin();
+    expect(result.current.isActive).toBe(true);
+    expect(reportViolation).not.toHaveBeenCalled();
+  });
+  it("retries a failed signal with the same event ID", async () => {
+    const report = vi.fn().mockRejectedValueOnce(new Error("offline")).mockResolvedValue({});
+    const { result } = await begin(true, report);
+    act(() => {
+      hidden(true);
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+    await waitFor(() => expect(result.current.reportState).toBe("failed"));
+    await act(async () => {
+      await result.current.retryReport();
+    });
+    expect(report.mock.calls[0][0].eventId).toBe(report.mock.calls[1][0].eventId);
+    expect(result.current.isActive).toBe(true);
+    expect(result.current.reportState).toBe("saved");
+  });
+  it("does not double-report bursts of browser events", async () => {
+    const { reportViolation } = await begin();
+    act(() => {
+      hidden(true);
+      for (let i = 0; i < 6; i++) document.dispatchEvent(new Event("visibilitychange"));
+    });
+    await waitFor(() => expect(reportViolation).toHaveBeenCalledTimes(1));
+  });
+  it("never monitors practice even if begin is called", async () => {
+    const { reportViolation } = await begin(false);
+    act(() => {
+      hidden(true);
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+    expect(reportViolation).not.toHaveBeenCalled();
+  });
+  it("removes monitoring when the session unmounts", async () => {
+    const { unmount, reportViolation } = await begin();
+    unmount();
+    act(() => {
+      hidden(true);
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+    expect(reportViolation).not.toHaveBeenCalled();
+  });
+});
 
-  it("does not treat a refused fullscreen request as an exit violation", async () => {
-    requestFullscreenMock.mockRejectedValue(new Error("not allowed"));
-    const reportViolation = vi.fn();
-    const { result } = renderHook(() =>
-      useProctoring({ enabled: true, interviewId: 7, reportViolation })
+describe("assessment observation ownership", () => {
+  beforeEach(() => {
+    fullscreen(null);
+    hidden(false);
+    Object.defineProperty(document.documentElement, "requestFullscreen", {
+      configurable: true,
+      value: vi.fn().mockResolvedValue(undefined),
+    });
+  });
+  const visibility = () =>
+    act(() => {
+      hidden(true);
+      document.dispatchEvent(new Event("visibilitychange"));
+    });
+  function deferred() {
+    let resolve!: () => void;
+    const promise = new Promise<void>((r) => {
+      resolve = r;
+    });
+    return { promise, resolve };
+  }
+  it.each([null, 0, -1, 1.5, NaN, Number.MAX_SAFE_INTEGER + 1])(
+    "invalid sitting %s cannot activate monitoring",
+    async (interviewId) => {
+      const report = vi.fn();
+      const { result } = renderHook(() =>
+        useProctoring({ enabled: true, interviewId, scopeKey: "a", reportViolation: report })
+      );
+      await act(async () => expect(await result.current.beginProctoredSession()).toBe(false));
+      visibility();
+      expect(report).not.toHaveBeenCalled();
+    }
+  );
+  it("clears an old pending event when the sitting changes", async () => {
+    const report = vi.fn().mockRejectedValue(new Error("offline"));
+    const { result, rerender } = renderHook(
+      ({ id }) =>
+        useProctoring({ enabled: true, interviewId: id, scopeKey: "a", reportViolation: report }),
+      { initialProps: { id: 7 } }
     );
-
     await act(async () => {
       await result.current.beginProctoredSession();
+    });
+    visibility();
+    await waitFor(() => expect(result.current.reportState).toBe("failed"));
+    rerender({ id: 8 });
+    expect(result.current.isActive).toBe(false);
+    expect(result.current.notice).toBeNull();
+    expect(result.current.reportState).toBe("idle");
+    act(() => window.dispatchEvent(new Event("online")));
+    await act(async () => {
+      await result.current.retryReport();
+    });
+    expect(report).toHaveBeenCalledTimes(1);
+  });
+  it("late success cannot mark the new account's signal saved or release its in-flight fence", async () => {
+    const first = deferred();
+    const second = deferred();
+    const report = vi
+      .fn()
+      .mockImplementationOnce(() => first.promise)
+      .mockImplementationOnce(() => second.promise);
+    const { result, rerender } = renderHook(
+      ({ account }) =>
+        useProctoring({
+          enabled: true,
+          interviewId: 7,
+          scopeKey: account,
+          reportViolation: report,
+        }),
+      { initialProps: { account: "a" } }
+    );
+    await act(async () => {
+      await result.current.beginProctoredSession();
+    });
+    visibility();
+    rerender({ account: "b" });
+    await act(async () => {
+      await result.current.beginProctoredSession();
+    });
+    visibility();
+    expect(report).toHaveBeenCalledTimes(2);
+    await act(async () => {
+      first.resolve();
+      await first.promise;
+    });
+    expect(result.current.reportState).toBe("saving");
+    await act(async () => {
+      await result.current.retryReport();
+    });
+    expect(report).toHaveBeenCalledTimes(2);
+    await act(async () => {
+      second.resolve();
+      await second.promise;
+    });
+    expect(result.current.reportState).toBe("saved");
+  });
+  it("disabling and re-enabling requires a fresh begin and does not retry old events", async () => {
+    const report = vi.fn().mockRejectedValue(new Error("offline"));
+    const { result, rerender } = renderHook(
+      ({ enabled }) => useProctoring({ enabled, interviewId: 7, reportViolation: report }),
+      { initialProps: { enabled: true } }
+    );
+    await act(async () => {
+      await result.current.beginProctoredSession();
+    });
+    visibility();
+    await waitFor(() => expect(result.current.reportState).toBe("failed"));
+    rerender({ enabled: false });
+    expect(result.current.isActive).toBe(false);
+    expect(result.current.notice).toBeNull();
+    rerender({ enabled: true });
+    visibility();
+    act(() => window.dispatchEvent(new Event("online")));
+    expect(result.current.isActive).toBe(false);
+    expect(report).toHaveBeenCalledTimes(1);
+  });
+  it("cancelling one fullscreen request cannot accidentally accept a later request", async () => {
+    const first = deferred();
+    const second = deferred();
+    Object.defineProperty(document.documentElement, "requestFullscreen", {
+      configurable: true,
+      value: vi
+        .fn()
+        .mockImplementationOnce(() => first.promise)
+        .mockImplementationOnce(() => second.promise),
+    });
+    const { result } = renderHook(() =>
+      useProctoring({ enabled: true, interviewId: 7, reportViolation: vi.fn() })
+    );
+    let a!: Promise<boolean>;
+    let b!: Promise<boolean>;
+    act(() => {
+      a = result.current.beginProctoredSession();
+    });
+    expect(result.current.isBeginning).toBe(true);
+    act(() => {
+      result.current.closePreflight();
+      result.current.openPreflight();
+      b = result.current.beginProctoredSession();
+    });
+    await act(async () => {
+      first.resolve();
+      expect(await a).toBe(false);
+    });
+    expect(result.current.isActive).toBe(false);
+    expect(result.current.isBeginning).toBe(true);
+    await act(async () => {
+      second.resolve();
+      expect(await b).toBe(true);
     });
     expect(result.current.isActive).toBe(true);
-
-    // A browser that never engaged fullscreen can still emit the change
-    // event; it must not look like the student left a lock that was never on.
-    act(() => {
-      document.dispatchEvent(new Event("fullscreenchange"));
-    });
-
-    expect(result.current.isTerminated).toBe(false);
-    expect(reportViolation).not.toHaveBeenCalled();
   });
-
-  it("fires the termination report exactly once even if both detectors fire", async () => {
-    const reportViolation = vi.fn().mockResolvedValue(undefined);
-    const { result } = renderHook(() =>
-      useProctoring({ enabled: true, interviewId: 7, reportViolation })
+  it("context changes and unmount reject pending fullscreen acceptance", async () => {
+    const pending = deferred();
+    Object.defineProperty(document.documentElement, "requestFullscreen", {
+      configurable: true,
+      value: () => pending.promise,
+    });
+    const { result, rerender, unmount } = renderHook(
+      ({ id }) => useProctoring({ enabled: true, interviewId: id, reportViolation: vi.fn() }),
+      { initialProps: { id: 7 } }
     );
-
+    let start!: Promise<boolean>;
+    act(() => {
+      start = result.current.beginProctoredSession();
+    });
+    rerender({ id: 8 });
+    expect(result.current.isActive).toBe(false);
+    unmount();
     await act(async () => {
-      setFullscreenElement(document.documentElement);
-      await result.current.beginProctoredSession();
+      pending.resolve();
+      expect(await start).toBe(false);
     });
-
-    act(() => {
-      Object.defineProperty(document, "hidden", { configurable: true, value: true });
-      document.dispatchEvent(new Event("visibilitychange"));
-      setFullscreenElement(null);
-      document.dispatchEvent(new Event("fullscreenchange"));
-    });
-
-    await waitFor(() => expect(reportViolation).toHaveBeenCalledTimes(1));
-    expect(result.current.terminationReason).toBe("tab_switch");
   });
-
-  it("calls onTerminated once, after the violation is recorded", async () => {
-    const reportViolation = vi.fn().mockResolvedValue(undefined);
-    const onTerminated = vi.fn();
-    const { result } = renderHook(() =>
-      useProctoring({ enabled: true, interviewId: 7, reportViolation, onTerminated })
+  it("uses the current reporter for same-context retries with the original event ID", async () => {
+    const first = vi.fn().mockRejectedValue(new Error("offline"));
+    const second = vi.fn().mockResolvedValue({});
+    const { result, rerender } = renderHook(
+      ({ report }) => useProctoring({ enabled: true, interviewId: 7, reportViolation: report }),
+      { initialProps: { report: first } }
     );
-
     await act(async () => {
       await result.current.beginProctoredSession();
     });
-    act(() => {
-      Object.defineProperty(document, "hidden", { configurable: true, value: true });
-      document.dispatchEvent(new Event("visibilitychange"));
-    });
-
-    expect(onTerminated).toHaveBeenCalledExactlyOnceWith("tab_switch");
-  });
-
-  it("blocks copy, cut, paste and right-click once active, without terminating", async () => {
-    const reportViolation = vi.fn();
-    const { result } = renderHook(() =>
-      useProctoring({ enabled: true, interviewId: 7, reportViolation })
-    );
-
+    visibility();
+    await waitFor(() => expect(result.current.reportState).toBe("failed"));
+    rerender({ report: second });
     await act(async () => {
-      await result.current.beginProctoredSession();
+      await result.current.retryReport();
     });
-
-    const copyEvent = new Event("copy", { cancelable: true }) as ClipboardEvent;
-    const pasteEvent = new Event("paste", { cancelable: true }) as ClipboardEvent;
-    const contextMenuEvent = new Event("contextmenu", { cancelable: true }) as MouseEvent;
-
-    act(() => {
-      document.dispatchEvent(copyEvent);
-      document.dispatchEvent(pasteEvent);
-      document.dispatchEvent(contextMenuEvent);
-    });
-
-    expect(copyEvent.defaultPrevented).toBe(true);
-    expect(pasteEvent.defaultPrevented).toBe(true);
-    expect(contextMenuEvent.defaultPrevented).toBe(true);
-    expect(result.current.isTerminated).toBe(false);
-    expect(reportViolation).not.toHaveBeenCalled();
+    expect(second).toHaveBeenCalledWith(first.mock.calls[0][0]);
+    expect(result.current.reportState).toBe("saved");
   });
-
-  it("does not report a violation when interviewId is not yet known", async () => {
-    const reportViolation = vi.fn();
-    const { result } = renderHook(() =>
-      useProctoring({ enabled: true, interviewId: null, reportViolation })
+  it("empty account scope cannot begin and unsupported fullscreen is not misconduct", async () => {
+    Object.defineProperty(document.documentElement, "requestFullscreen", {
+      configurable: true,
+      value: undefined,
+    });
+    const report = vi.fn();
+    const { result, rerender } = renderHook(
+      ({ scope }) =>
+        useProctoring({ enabled: true, interviewId: 7, scopeKey: scope, reportViolation: report }),
+      { initialProps: { scope: "" } }
     );
-
-    await act(async () => {
-      await result.current.beginProctoredSession();
-    });
-    act(() => {
-      Object.defineProperty(document, "hidden", { configurable: true, value: true });
-      document.dispatchEvent(new Event("visibilitychange"));
-    });
-
-    expect(result.current.isTerminated).toBe(true);
-    expect(reportViolation).not.toHaveBeenCalled();
+    await act(async () => expect(await result.current.beginProctoredSession()).toBe(false));
+    rerender({ scope: "a" });
+    await act(async () => expect(await result.current.beginProctoredSession()).toBe(true));
+    expect(report).not.toHaveBeenCalled();
   });
 });

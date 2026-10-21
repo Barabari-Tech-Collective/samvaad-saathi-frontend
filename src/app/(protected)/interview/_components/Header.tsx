@@ -1,23 +1,27 @@
 "use client";
 
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useEffect, useRef, useState } from "react";
 
 const Header = ({
+  mode = "practice",
   role,
   hasStarted,
   interviewId,
   onTimerExpire,
+  deadlineAt,
+  serverClockOffsetMs = 0,
 }: {
+  mode?: "practice" | "assessment";
   role?: string;
   hasStarted: boolean;
   interviewId?: string | null;
   onTimerExpire?: () => void;
+  deadlineAt?: string | null;
+  serverClockOffsetMs?: number;
 }) => {
   const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 minutes in seconds
   const hasExpiredRef = useRef(false);
   const onTimerExpireRef = useRef(onTimerExpire);
-  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Keep the ref updated with the latest callback
   useEffect(() => {
@@ -27,6 +31,24 @@ const Header = ({
   useEffect(() => {
     // Only start timer when interview has actually started
     if (!hasStarted || !interviewId) return;
+
+    if (deadlineAt !== undefined) {
+      if (deadlineAt === null) return;
+      const update = () => {
+        const remaining = Math.max(
+          0,
+          Math.ceil((Date.parse(deadlineAt) - Date.now() - serverClockOffsetMs) / 1000)
+        );
+        setTimeLeft(remaining);
+        if (remaining === 0 && !hasExpiredRef.current) {
+          hasExpiredRef.current = true;
+          onTimerExpireRef.current?.();
+        }
+      };
+      update();
+      const timer = setInterval(update, 1000);
+      return () => clearInterval(timer);
+    }
 
     // Reset expired flag when interview starts (new interview)
     hasExpiredRef.current = false;
@@ -71,7 +93,7 @@ const Header = ({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [hasStarted, interviewId]);
+  }, [hasStarted, interviewId, deadlineAt, serverClockOffsetMs]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -80,26 +102,22 @@ const Header = ({
   };
 
   return (
-    <div
-      className={`flex items-center justify-between p-4 gap-4 ${
-        isMobile ? "" : "bg-[#ACADF1]/20 rounded-lg"
-      }`}
-    >
-      <h3 className="text-[#1f285b] text-2xl font-bold uppercase tracking-wide">
-        {role || "Developer"}
-      </h3>
-
-      <div className="flex-none pr-4">
-        {/* Timer Container with Gradient Border */}
-        <div className="relative p-[2px] rounded-xl bg-gradient-to-r from-pink-500 to-blue-600 shadow-md">
-          <div className="bg-slate-50 rounded-[10px] px-6 py-2 min-w-[100px] flex items-center justify-center">
-            <p className="font-orbitron text-2xl font-semibold text-slate-900 tracking-widest">
-              {formatTime(timeLeft)}
-            </p>
-          </div>
-        </div>
+    <header className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center rounded-xl border border-[#DEE8FB] bg-white p-4 sm:p-5">
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-semibold text-[#6B7280]">Interview room</p>
+        <h3 className="mt-1 break-words text-xl font-semibold text-[#1F285B] sm:text-2xl">
+          {role || "Interview"}
+        </h3>
       </div>
-    </div>
+      <p
+        className="self-start rounded-lg bg-[#F5F9FF] px-4 py-3 text-base font-semibold tabular-nums text-[#1F285B] sm:self-auto"
+        aria-label="Interview time"
+      >
+        {deadlineAt === null
+          ? `${mode === "assessment" ? "Assessment" : "Practice"} · no time limit`
+          : formatTime(timeLeft)}
+      </p>
+    </header>
   );
 };
 

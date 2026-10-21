@@ -1,6 +1,6 @@
 export function ProfileSkeleton() {
   return (
-    <main className="max-w-md mx-auto">
+    <div className="max-w-md mx-auto">
       <section className="card bg-base-200 shadow-xl">
         <div className="card-body items-center text-center">
           <div className="avatar">
@@ -45,6 +45,6 @@ export function ProfileSkeleton() {
           ))}
         </div>
       </section>
-    </main>
+    </div>
   );
 }

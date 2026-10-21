@@ -1,196 +1,190 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import toast from "react-hot-toast";
-
-/**
- * Proctoring for an Assessment interview: fullscreen lock, tab/window blur
- * detection, and copy/paste/right-click blocking.
- *
- * This is deterrence, not unbypassable enforcement - no web page can force-
- * close a browser extension or stop a sufficiently technical student from
- * disabling JavaScript. What this hook can do, and does: make leaving the
- * monitored view (switching tabs, exiting fullscreen) immediately and
- * irreversibly end the sitting, with the backend as the authority on whether
- * that's allowed to happen at all - see reportViolation's caller, which reads
- * interview_mode from the interview's own stored snapshot, never from the
- * client. A student who fakes this hook's state client-side still can't make
- * the backend terminate a practice interview, and can't make it *not*
- * terminate a real one once this hook's report actually reaches the server.
- */
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 export type ProctoringViolationReason = "tab_switch" | "fullscreen_exit";
-
-type ReportViolation = (input: {
-  interviewId: number;
-  reason: ProctoringViolationReason;
-}) => Promise<unknown>;
-
-type ProctoringOptions = {
-  /** Only ever true for an Assessment interview. Practice must never pass this. */
+type Signal = { interviewId: number; reason: ProctoringViolationReason; eventId: string };
+type Options = {
   enabled: boolean;
   interviewId: number | null;
-  reportViolation: ReportViolation;
-  /** Called once, right after termination is reported - stop timers, recording, etc. */
-  onTerminated?: (reason: ProctoringViolationReason) => void;
+  scopeKey?: string;
+  reportViolation: (input: Signal) => Promise<unknown>;
+};
+type Session = {
+  key: string;
+  alive: boolean;
+  active: boolean;
+  beginning: number;
+  serial: number;
+  pending: Signal | null;
+  saving: boolean;
+  fullscreen: boolean;
+  lastSignal: number;
 };
 
+/** Browser observations are uncertain evidence, never an automatic verdict. */
 export function useProctoring({
   enabled,
   interviewId,
+  scopeKey = "default",
   reportViolation,
-  onTerminated,
-}: ProctoringOptions) {
-  const [showPreflight, setShowPreflight] = useState(false);
-  const [isActive, setIsActive] = useState(false);
-  const [isTerminated, setIsTerminated] = useState(false);
-  const [terminationReason, setTerminationReason] = useState<ProctoringViolationReason | null>(
-    null
-  );
-
-  // Refs, not state, for values read inside event listeners: a listener
-  // attached with a stale closure over state would keep checking an outdated
-  // "have we already terminated" flag and could fire the report twice.
-  const hasTerminatedRef = useRef(false);
-  const fullscreenEngagedRef = useRef(false);
-  const reportViolationRef = useRef(reportViolation);
-  reportViolationRef.current = reportViolation;
-  const onTerminatedRef = useRef(onTerminated);
-  onTerminatedRef.current = onTerminated;
-  const lastBlockToastAtRef = useRef(0);
-
-  const terminate = useCallback(
-    (reason: ProctoringViolationReason) => {
-      if (hasTerminatedRef.current) return;
-      hasTerminatedRef.current = true;
-      setIsActive(false);
-      setIsTerminated(true);
-      setTerminationReason(reason);
-
-      if (document.fullscreenElement) {
-        // Best-effort: a failed exitFullscreen must not block reporting the
-        // violation, which is the part that actually matters.
-        document.exitFullscreen().catch(() => {});
-      }
-
-      if (interviewId) {
-        reportViolationRef.current({ interviewId, reason }).catch(() => {
-          // The interview is already locked client-side regardless of whether
-          // this network call succeeds - the backend independently enforces
-          // the same rule on every other endpoint touching this interview,
-          // so a lost report delays the facilitator-visible remark, it does
-          // not let the student continue.
-        });
-      }
-
-      onTerminatedRef.current?.(reason);
-    },
-    [interviewId]
-  );
-
-  const blockAndWarn = useCallback((message: string) => {
-    const now = Date.now();
-    // Throttled: a student holding Ctrl+C would otherwise spawn a toast per
-    // keystroke repeat.
-    if (now - lastBlockToastAtRef.current > 2000) {
-      lastBlockToastAtRef.current = now;
-      toast.error(message);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isActive) return;
-
-    const handleVisibilityChange = () => {
-      if (document.hidden) terminate("tab_switch");
+}: Options) {
+  const valid =
+    enabled && Number.isSafeInteger(interviewId) && Number(interviewId) > 0 && !!scopeKey;
+  const key = JSON.stringify([valid, interviewId, scopeKey]);
+  const [view, setView] = useState({
+    key,
+    showPreflight: false,
+    isActive: false,
+    isBeginning: false,
+    notice: null as ProctoringViolationReason | null,
+    reportState: "idle" as "idle" | "saving" | "saved" | "failed",
+  });
+  const session = useRef<Session | null>(null);
+  const reportRef = useRef(reportViolation);
+  useLayoutEffect(() => {
+    reportRef.current = reportViolation;
+  }, [reportViolation]);
+  useLayoutEffect(() => {
+    const owner: Session = {
+      key,
+      alive: true,
+      active: false,
+      beginning: 0,
+      serial: 0,
+      pending: null,
+      saving: false,
+      fullscreen: false,
+      lastSignal: -Infinity,
     };
-    const handleBlur = () => {
-      // visibilitychange alone misses some window-manager-level tab/app
-      // switches on certain browsers; blur is the backstop. A window losing
-      // focus because the student opened dev tools docked in the same window
-      // is an accepted false positive - same tradeoff any browser-based proctoring makes.
-      if (document.hidden) terminate("tab_switch");
-    };
-    const handleFullscreenChange = () => {
-      if (document.fullscreenElement) {
-        fullscreenEngagedRef.current = true;
-        return;
-      }
-      // Only a violation if fullscreen was actually engaged - otherwise a
-      // browser that silently refused the original request would terminate
-      // the student immediately for a lock that never engaged.
-      if (fullscreenEngagedRef.current) terminate("fullscreen_exit");
-    };
-    const handleCopy = (e: ClipboardEvent) => {
-      e.preventDefault();
-      blockAndWarn("Copying is disabled during the assessment.");
-    };
-    const handleCut = (e: ClipboardEvent) => {
-      e.preventDefault();
-      blockAndWarn("Cutting is disabled during the assessment.");
-    };
-    const handlePaste = (e: ClipboardEvent) => {
-      e.preventDefault();
-      blockAndWarn("Pasting is disabled during the assessment.");
-    };
-    const handleContextMenu = (e: MouseEvent) => {
-      e.preventDefault();
-      blockAndWarn("Right-click is disabled during the assessment.");
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("blur", handleBlur);
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    document.addEventListener("copy", handleCopy);
-    document.addEventListener("cut", handleCut);
-    document.addEventListener("paste", handlePaste);
-    document.addEventListener("contextmenu", handleContextMenu);
-
+    session.current = owner;
+    setView({
+      key,
+      showPreflight: false,
+      isActive: false,
+      isBeginning: false,
+      notice: null,
+      reportState: "idle",
+    });
     return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("blur", handleBlur);
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-      document.removeEventListener("copy", handleCopy);
-      document.removeEventListener("cut", handleCut);
-      document.removeEventListener("paste", handlePaste);
-      document.removeEventListener("contextmenu", handleContextMenu);
+      owner.alive = false;
+      owner.active = false;
+      owner.pending = null;
     };
-  }, [isActive, terminate, blockAndWarn]);
-
-  const openPreflight = useCallback(() => {
-    if (!enabled) return;
-    setShowPreflight(true);
-  }, [enabled]);
-
-  const closePreflight = useCallback(() => {
-    setShowPreflight(false);
+  }, [key]);
+  const update = useCallback((owner: Session, change: Partial<typeof view>) => {
+    if (owner.alive && session.current === owner)
+      setView((previous) => ({ ...previous, ...change, key: owner.key }));
   }, []);
-
-  const beginProctoredSession = useCallback(async () => {
-    hasTerminatedRef.current = false;
-    fullscreenEngagedRef.current = false;
+  const saveSignal = useCallback(async () => {
+    const owner = session.current;
+    if (
+      !valid ||
+      !owner ||
+      owner.key !== key ||
+      !owner.alive ||
+      !owner.active ||
+      !owner.pending ||
+      owner.saving
+    )
+      return;
+    owner.saving = true;
+    const signal = owner.pending;
+    update(owner, { reportState: "saving" });
     try {
-      await document.documentElement.requestFullscreen();
-      // handleFullscreenChange sets fullscreenEngagedRef, but that only fires
-      // once the browser's fullscreenchange event delivers - set it here too
-      // so a fullscreen-exit a moment later is never missed to a timing gap.
-      fullscreenEngagedRef.current = true;
+      await reportRef.current(signal);
+      if (owner.pending === signal) owner.pending = null;
+      update(owner, { reportState: "saved" });
     } catch {
-      toast.error(
-        "Your browser didn't allow fullscreen mode. The assessment will continue, but stay on this tab - switching away still ends it."
-      );
+      update(owner, { reportState: "failed" });
+    } finally {
+      owner.saving = false;
     }
-    setShowPreflight(false);
-    setIsActive(true);
-  }, []);
+  }, [key, valid, update]);
 
+  const isActive = valid && view.key === key && view.isActive;
+  useEffect(() => {
+    const owner = session.current;
+    if (!isActive || !owner || owner.key !== key || !interviewId) return;
+    const observe = (reason: ProctoringViolationReason) => {
+      if (
+        !owner.alive ||
+        session.current !== owner ||
+        !owner.active ||
+        Date.now() - owner.lastSignal < 2000 ||
+        owner.pending
+      )
+        return;
+      owner.lastSignal = Date.now();
+      owner.pending = { interviewId, reason, eventId: crypto.randomUUID() };
+      update(owner, { notice: reason });
+      void saveSignal();
+    };
+    const visibility = () => {
+      if (document.hidden) observe("tab_switch");
+    };
+    const fullscreen = () => {
+      if (document.fullscreenElement) owner.fullscreen = true;
+      else if (owner.fullscreen) {
+        owner.fullscreen = false;
+        observe("fullscreen_exit");
+      }
+    };
+    const retry = () => {
+      void saveSignal();
+    };
+    document.addEventListener("visibilitychange", visibility);
+    document.addEventListener("fullscreenchange", fullscreen);
+    window.addEventListener("online", retry);
+    return () => {
+      document.removeEventListener("visibilitychange", visibility);
+      document.removeEventListener("fullscreenchange", fullscreen);
+      window.removeEventListener("online", retry);
+    };
+  }, [isActive, key, interviewId, saveSignal, update]);
+
+  const beginProctoredSession = useCallback(async (): Promise<boolean> => {
+    const owner = session.current;
+    if (!valid || !owner || owner.key !== key || !owner.alive || owner.beginning) return false;
+    if (owner.active) return true;
+    const ticket = ++owner.serial;
+    owner.beginning = ticket;
+    update(owner, { isBeginning: true });
+    try {
+      await document.documentElement.requestFullscreen?.();
+    } catch {
+      /* Unsupported/denied fullscreen is not misconduct. */
+    }
+    if (!owner.alive || session.current !== owner || owner.beginning !== ticket) return false;
+    owner.beginning = 0;
+    owner.active = true;
+    owner.fullscreen = !!document.fullscreenElement;
+    update(owner, { showPreflight: false, isActive: true, isBeginning: false });
+    return true;
+  }, [key, valid, update]);
+  const visible = valid && view.key === key;
   return {
-    showPreflight,
+    showPreflight: visible && view.showPreflight,
     isActive,
-    isTerminated,
-    terminationReason,
-    openPreflight,
-    closePreflight,
+    isBeginning: visible && view.isBeginning,
+    notice: visible ? view.notice : null,
+    reportState: visible ? view.reportState : "idle",
+    openPreflight: () => {
+      const owner = session.current;
+      if (valid && owner?.key === key && !owner.active) update(owner, { showPreflight: true });
+    },
+    closePreflight: () => {
+      const owner = session.current;
+      if (owner?.key === key) {
+        owner.beginning = 0;
+        update(owner, { showPreflight: false, isBeginning: false });
+      }
+    },
+    acknowledge: () => {
+      const owner = session.current;
+      if (owner?.key === key) update(owner, { notice: null });
+    },
+    retryReport: saveSignal,
     beginProctoredSession,
   };
 }
@@ -199,67 +193,135 @@ export function ProctoringPreflightModal({
   isOpen,
   onBegin,
   onCancel,
+  isStarting = false,
 }: {
   isOpen: boolean;
   onBegin: () => void;
   onCancel: () => void;
+  isStarting?: boolean;
 }) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const node = dialog.current;
+    if (!isOpen || !node) return;
+    const previous = document.activeElement;
+    if (node.showModal) node.showModal();
+    else node.setAttribute("open", "");
+    return () => {
+      if (node.open && node.close) node.close();
+      else node.removeAttribute("open");
+      if (previous instanceof HTMLElement && previous.isConnected) previous.focus();
+    };
+  }, [isOpen]);
   if (!isOpen) return null;
-
   return (
-    <div className="modal modal-open">
-      <div className="modal-box">
-        <h3 className="font-bold text-lg">This is a proctored assessment</h3>
-        <ul className="list-disc list-inside py-4 space-y-2 text-sm">
-          <li>Your browser will enter fullscreen for the duration of the assessment.</li>
-          <li>Switching to another tab or window ends your assessment immediately.</li>
-          <li>Exiting fullscreen ends your assessment immediately.</li>
-          <li>Copy, paste and right-click are disabled.</li>
+    <dialog
+      ref={dialog}
+      className="m-auto w-[calc(100%_-_2rem)] max-w-lg rounded-2xl border border-[#DEE8FB] bg-white p-5 text-[#1F285B] backdrop:bg-[#1F285B]/40 sm:p-7"
+      aria-labelledby="assessment-ready-title"
+      aria-describedby="assessment-ready-policy"
+      onKeyDown={(event) => {
+        if (event.key === "Tab") {
+          const buttons = [
+            ...event.currentTarget.querySelectorAll<HTMLButtonElement>("button:not(:disabled)"),
+          ];
+          const first = buttons[0];
+          const last = buttons.at(-1);
+          if (
+            first &&
+            last &&
+            ((event.shiftKey && document.activeElement === first) ||
+              (!event.shiftKey && document.activeElement === last))
+          ) {
+            event.preventDefault();
+            (event.shiftKey ? last : first).focus();
+          }
+        }
+      }}
+      onCancel={(event) => {
+        event.preventDefault();
+        onCancel();
+      }}
+    >
+      <div className="min-w-0">
+        <h2 id="assessment-ready-title" className="text-xl font-semibold">
+          Ready for your assessment?
+        </h2>
+        <ul
+          id="assessment-ready-policy"
+          className="list-disc space-y-3 pl-5 py-5 text-sm leading-relaxed"
+        >
+          <li>Answer by voice, using your own understanding.</li>
+          <li>Keep this tab open. We will request fullscreen if your browser supports it.</li>
           <li>
-            Please close other tabs and browser extensions before you begin - they can trigger an
-            early end to your assessment.
+            Tab changes and fullscreen exits may be recorded for review. They do not automatically
+            end your assessment or prove cheating.
           </li>
-          <li>Ending early is recorded and visible to your facilitator.</li>
+          <li>Your timer keeps running during interruptions. Saved answers stay saved.</li>
         </ul>
-        <div className="modal-action">
-          <button className="btn btn-outline" onClick={onCancel}>
-            Cancel
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            className="min-h-11 rounded-xl border border-[#344499] px-5 py-3 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+            onClick={onCancel}
+          >
+            Not yet
           </button>
-          <button className="btn btn-primary" onClick={onBegin}>
-            I understand, begin
+          <button
+            type="button"
+            disabled={isStarting}
+            className="min-h-11 rounded-xl bg-black px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60"
+            onClick={onBegin}
+          >
+            {isStarting ? "Opening assessment…" : "Begin assessment"}
           </button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }
 
-export function ProctoringTerminatedOverlay({
+export function AssessmentInterruptionNotice({
   reason,
-  onLeave,
+  reportState,
+  onRetry,
+  onContinue,
 }: {
-  reason: ProctoringViolationReason | null;
-  onLeave: () => void;
+  reason: ProctoringViolationReason;
+  reportState: string;
+  onRetry: () => void;
+  onContinue: () => void;
 }) {
-  const reasonText =
-    reason === "fullscreen_exit"
-      ? "you exited fullscreen"
-      : "you switched away from this tab or window";
-
   return (
-    <div className="modal modal-open">
-      <div className="modal-box">
-        <h3 className="font-bold text-lg">Your assessment has ended</h3>
-        <p className="py-4 text-sm">
-          This assessment ended early because {reasonText}. This has been recorded and is visible to
-          your facilitator.
-        </p>
-        <div className="modal-action">
-          <button className="btn btn-primary" onClick={onLeave}>
-            Return home
+    <section
+      role="status"
+      aria-label="Assessment interruption"
+      className="my-3 rounded-xl border border-[#DEE8FB] bg-[#F5F9FF] p-4 text-sm text-[#1F285B]"
+    >
+      <h2 className="font-semibold">
+        {reason === "fullscreen_exit" ? "Fullscreen closed" : "Welcome back"}
+      </h2>
+      <p className="mt-1">
+        This browser interruption does not automatically end your assessment. Check the session
+        timer and current question before continuing; saved answers are not removed by this signal.
+      </p>
+      <p className="mt-2 text-xs">
+        {reportState === "failed"
+          ? "The interruption could not be recorded. You can retry without losing your answer."
+          : reportState === "saving"
+            ? "Recording the interruption…"
+            : "This browser signal may be reviewed; it is not a cheating verdict."}
+      </p>
+      <div className="mt-3 flex flex-wrap gap-3">
+        {reportState === "failed" && (
+          <button type="button" className="min-h-11 underline" onClick={onRetry}>
+            Retry recording interruption
           </button>
-        </div>
+        )}
+        <button type="button" className="min-h-11 font-semibold underline" onClick={onContinue}>
+          Continue answering
+        </button>
       </div>
-    </div>
+    </section>
   );
 }

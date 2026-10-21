@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MicrophoneIcon } from "@heroicons/react/24/solid";
+import { useViewLifetime } from "@/hooks/useViewLifetime";
 import { useInterviewAnswer } from "@/hooks/useInterviewAnswer";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService } from "@/lib/api-config/src/config";
@@ -39,7 +40,13 @@ interface Recognition {
   stop(): void;
 }
 
+import PracticeCompanion, {
+  type PracticeCompanionControls,
+} from "@/components/companion/PracticeCompanion";
+
 interface FooterProps {
+  companion?: PracticeCompanionControls;
+  allowRerecord?: boolean;
   isLoading?: boolean;
   disabled?: boolean;
   question_attempt_id?: number;
@@ -60,6 +67,8 @@ interface FooterProps {
 }
 
 export default function Footer({
+  companion,
+  allowRerecord = true,
   isLoading = false,
   disabled = false,
   question_attempt_id,
@@ -78,6 +87,7 @@ export default function Footer({
   sessionLeaseToken,
   onSessionConflict,
 }: FooterProps) {
+  const lifetime = useViewLifetime();
   const [modal, setModal] = useState<"skip" | "submit" | "discard" | "continue" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -109,10 +119,13 @@ export default function Footer({
   const api = createApiClient(APIService.TRANSCRIBE);
   const { mutateAsync: uploadAudio } = api.useMutation<TranscribeResponse, FormData>({
     url: ENDPOINTS.TRANSCRIBE.WHISPER,
-    config: { headers: { "Content-Type": "multipart/form-data" } },
+    config: { ...lifetime.requestConfig, headers: { "Content-Type": "multipart/form-data" } },
+    showToastError: false,
   });
   const { mutateAsync: completeAnalysis, isPending: isAnalyzing } = api.useMutation({
     url: ENDPOINTS.ANALYSIS.COMPLETE,
+    config: lifetime.requestConfig,
+    showToastError: false,
   });
   const shouldPollTranscription =
     Boolean(question_attempt_id) &&
@@ -135,13 +148,15 @@ export default function Footer({
   >({
     url: ENDPOINTS.TRANSCRIBE.RETRY(question_attempt_id ?? 0),
     method: "post",
+    config: lifetime.requestConfig,
+    showToastError: false,
   });
 
   async function analyze(
     analysisTypes = analysisTypesRef.current,
     answerVersion = answerVersionRef.current
   ) {
-    if (!question_attempt_id) return;
+    if (!question_attempt_id || !lifetime.isCurrent()) return;
     analysisTypesRef.current = analysisTypes;
     answerVersionRef.current = answerVersion;
     setAnalysisError(false);
@@ -152,9 +167,13 @@ export default function Footer({
         ...(answerVersion ? { answerVersion } : {}),
       });
     } catch {
+      if (!lifetime.isCurrent()) return;
       setAnalysisError(true);
     }
   }
+
+  const analyzeLatestRef = useRef(analyze);
+  analyzeLatestRef.current = analyze;
 
   function stopVisuals() {
     animationRef.current?.();
@@ -178,6 +197,7 @@ export default function Footer({
   const answer = useInterviewAnswer({
     draftKey: question_attempt_id ? `practice-answer:${question_attempt_id}` : undefined,
     save: async (file) => {
+      lifetime.requireCurrent();
       if (isIntroStep) return;
       if (!question_attempt_id) throw new Error("ATTEMPT_NOT_READY");
       const data = new FormData();
@@ -192,6 +212,7 @@ export default function Footer({
         if (getSessionLeaseErrorCode(error)) onSessionConflict?.();
         throw error;
       }
+      lifetime.requireCurrent();
       if (result.saved !== true || result.questionAttemptId !== question_attempt_id)
         throw new Error("ANSWER_NOT_SAVED");
       setServerAnswered(true);
@@ -274,13 +295,18 @@ export default function Footer({
     setSpeechFeedbackDelayed(false);
     if (transcriptionProgress.followUpQuestion)
       onFollowUpQuestion?.(transcriptionProgress.followUpQuestion);
-    void analyze(["domain", "communication", "pace", "pause"], transcriptionProgress.answerVersion);
+    void analyzeLatestRef.current(
+      ["domain", "communication", "pace", "pause"],
+      transcriptionProgress.answerVersion
+    );
   }, [transcriptionProgress, question_attempt_id, onFollowUpQuestion]);
 
   async function retryDelayedSpeechFeedback() {
     if (!question_attempt_id || isRetryingSpeechFeedback) return;
     try {
+      lifetime.requireCurrent();
       const result = await retrySpeechFeedback(undefined);
+      lifetime.requireCurrent();
       terminalTranscriptionHandledRef.current = false;
       setTranscriptionStatus(result.status);
       setSpeechFeedbackDelayed(result.status === "failed");
@@ -397,6 +423,17 @@ export default function Footer({
       className="mx-auto flex w-full max-w-5xl flex-col items-center gap-4 py-4"
       aria-busy={busy}
     >
+      {companion && (
+        <PracticeCompanion
+          controls={{
+            ...companion,
+            blocked: companion.blocked || timerExpired || isSubmitting || isPausing || isLoading,
+          }}
+          answer={answer.phase}
+          working={isAnalyzing}
+          saved={serverAnswered}
+        />
+      )}
       {timerExpired && (
         <p role="status">
           Time is up. We will save your current answer before submitting. Keep this page open.
@@ -514,27 +551,29 @@ export default function Footer({
       ) : (
         <div className="flex w-full items-center justify-between">
           <div className="flex flex-wrap gap-2">
-            <button
-              className="btn btn-primary"
-              disabled={
-                disabled ||
-                busy ||
-                answer.phase === "failed" ||
-                timerExpired ||
-                (!isIntroStep && !question_attempt_id)
-              }
-              onClick={() => {
-                if (answered && question_attempt_id)
-                  trackRedoButtonClick(String(question_attempt_id), 1);
-                else trackAnswerStartClick();
-                setSpeechFeedbackDelayed(false);
-                setSpeechFeedbackMessage(null);
-                setSpeechFeedbackRetryable(true);
-                void answer.start();
-              }}
-            >
-              {answered ? "Redo" : "Answer"} <MicrophoneIcon className="h-5 w-5" />
-            </button>
+            {(!answered || allowRerecord) && (
+              <button
+                className="btn btn-primary"
+                disabled={
+                  disabled ||
+                  busy ||
+                  answer.phase === "failed" ||
+                  timerExpired ||
+                  (!isIntroStep && !question_attempt_id)
+                }
+                onClick={() => {
+                  if (answered && question_attempt_id)
+                    trackRedoButtonClick(String(question_attempt_id), 1);
+                  else trackAnswerStartClick();
+                  setSpeechFeedbackDelayed(false);
+                  setSpeechFeedbackMessage(null);
+                  setSpeechFeedbackRetryable(true);
+                  void answer.start();
+                }}
+              >
+                {answered ? "Redo" : "Answer"} <MicrophoneIcon className="h-5 w-5" />
+              </button>
+            )}
             {onSaveAndExit && (
               <button
                 className="btn btn-ghost"

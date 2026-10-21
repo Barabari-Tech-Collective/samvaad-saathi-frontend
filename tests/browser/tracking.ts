@@ -6,3 +6,18 @@ export const trackRedoButtonClick = () => {};
 export const trackSkipQuestionClick = () => {};
 export const trackSubmitInterviewClick = () => {};
 export const trackApiError = () => {};
+
+export const trackEvent = () => {};
+
+export const trackDifficultySelected = () => {};
+export const trackResumeToggleClick = () => {};
+export const trackRoleSelected = () => {};
+export const trackStartInterviewButtonClick = () => {};
+
+export const trackInterviewQuestionView = () => {};
+export const trackProfileEditButtonClick = () => {};
+export const trackProfileFieldValueChanged = () => {};
+export const trackProfileHelpButtonClick = () => {};
+export const trackProfileSupportButtonClick = () => {};
+export const trackProfileUpdateButtonClick = () => {};
+export const trackBottomNavClick = () => {};

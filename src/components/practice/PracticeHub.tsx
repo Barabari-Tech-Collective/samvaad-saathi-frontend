@@ -1,0 +1,347 @@
+"use client";
+
+import {
+  activitySummary,
+  focusProgress,
+  savedPracticeExpired,
+  practiceReadinessMessage,
+  type PracticeHubResponse,
+} from "@/lib/practice-hub";
+import { trackButtonClick } from "@/lib/posthog/tracking.utils";
+import {
+  BoltIcon,
+  ChatBubbleLeftRightIcon,
+  FireIcon,
+  ListBulletIcon,
+  MicrophoneIcon,
+  SignalIcon,
+  SparklesIcon,
+} from "@heroicons/react/24/outline";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+const MODULES = [
+  {
+    key: "structure",
+    title: "Structure your answers",
+    description: "Frame ideas with clarity, logic and proof.",
+    href: "/structure-your-answer",
+    icon: ListBulletIcon,
+  },
+  {
+    key: "pronunciation",
+    title: "Pronunciation",
+    description: "Make important words easier to understand.",
+    href: "/pronunciation-practice",
+    icon: MicrophoneIcon,
+  },
+  {
+    key: "pace",
+    title: "Control your pace",
+    description: "Use pauses and reduce filler words.",
+    href: "/control-your-pace",
+    icon: SignalIcon,
+  },
+  {
+    key: "warm_up",
+    title: "Warm-up chat",
+    description: "Practise the first two minutes of an interview.",
+    href: "/warm-up-chat",
+    icon: ChatBubbleLeftRightIcon,
+  },
+  {
+    key: "think_fast",
+    title: "Think fast: 60-second topics",
+    description: "Build confidence answering without preparation.",
+    href: "/think-fast",
+    icon: BoltIcon,
+  },
+] as const;
+
+export function PracticeHubSkeleton() {
+  return (
+    <div
+      className="mx-auto w-full max-w-6xl motion-safe:animate-pulse space-y-6"
+      aria-label="Loading Practice"
+    >
+      <div className="h-20 rounded-2xl bg-gray-100" />
+      <div className="h-64 rounded-3xl bg-[#344499]/10" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {[0, 1, 2, 3, 4].map((item) => (
+          <div key={item} className="h-40 rounded-2xl bg-gray-100" />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function PracticeHubView({
+  hub,
+  status,
+  name,
+  onRefresh,
+  children,
+}: {
+  hub: PracticeHubResponse | null;
+  status: "loading" | "refreshing" | "ready" | "error";
+  name: string;
+  onRefresh: () => void;
+  children?: React.ReactNode;
+}) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+  const verified = status === "ready" ? hub : null;
+  const expired = savedPracticeExpired(verified?.resume ?? null, now);
+  const resume = !expired ? verified?.resume : null;
+  const canResume = resume?.readiness === "ready";
+  const readinessMessage = practiceReadinessMessage(resume?.readiness);
+  const enoughEvidence =
+    !!verified && verified.focusEvidenceAnswerCount >= verified.focusEvidenceRequired;
+  const progress = verified
+    ? focusProgress(verified.focusEvidenceAnswerCount, verified.focusEvidenceRequired)
+    : 0;
+  const primaryHref = resume
+    ? canResume
+      ? `/interview?interviewId=${resume.interviewId}&resumed=true&interviewMode=practice`
+      : "/history"
+    : status === "error"
+      ? "/history"
+      : "/interview-start?mode=practice";
+
+  return (
+    <div className="mx-auto w-full min-w-0 max-w-6xl pb-8 text-[#111827] [overflow-wrap:anywhere]">
+      <header className="mb-7">
+        <p className="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-[#344499]">
+          Your practice coach
+        </p>
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Let’s practise, {name}.</h1>
+        <p className="mt-3 flex flex-wrap items-center gap-2 text-base text-gray-600">
+          <FireIcon className="size-5 shrink-0 text-amber-500" aria-hidden="true" />
+          <span>
+            {verified
+              ? activitySummary(verified.activity)
+              : status === "error"
+                ? "Your activity is unavailable right now."
+                : "Checking your saved progress…"}
+          </span>
+        </p>
+      </header>
+
+      {status === "error" && (
+        <section
+          className="mb-6 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between"
+          role="status"
+        >
+          <p className="text-sm text-amber-950">
+            Your saved progress could not be verified. Check History for saved sessions, or try
+            loading again. Independent skill builders remain available.
+          </p>
+          <button
+            type="button"
+            onClick={onRefresh}
+            className="min-h-11 rounded-xl border border-amber-400 px-4 font-semibold text-amber-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
+          >
+            Try again
+          </button>
+        </section>
+      )}
+
+      {(status === "loading" || status === "refreshing") && (
+        <p role="status" className="mb-5 rounded-xl border border-[#DEE8FB] bg-white p-4 text-sm">
+          Checking your latest coach plan. Your saved answers are retained.
+        </p>
+      )}
+      {expired && (
+        <p role="status" className="mb-5 rounded-xl border border-[#DEE8FB] bg-white p-4 text-sm">
+          The saved session’s resume window has ended. Your submitted answers remain in History.
+        </p>
+      )}
+      <nav
+        aria-label="Practice shortcuts"
+        className="mb-6 flex flex-wrap gap-3 text-sm font-semibold text-[#344499]"
+      >
+        <a
+          href="#skill-builders-title"
+          className="inline-flex min-h-11 items-center rounded-xl border border-[#DEE8FB] bg-white px-4 focus-visible:outline-2"
+        >
+          Choose a skill
+        </a>
+        <Link
+          href="/history"
+          className="inline-flex min-h-11 items-center rounded-xl border border-[#DEE8FB] bg-white px-4 focus-visible:outline-2"
+        >
+          Saved sessions &amp; feedback
+        </Link>
+      </nav>
+      <section className="grid gap-5 lg:grid-cols-[1.2fr_0.9fr]" aria-label="Practice plan">
+        <div className="min-w-0 rounded-3xl border border-[#DEE8FB] bg-white p-6 text-[#1F285B] sm:p-8">
+          <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.12em] text-[#344499]">
+            <SparklesIcon className="size-5" aria-hidden="true" />
+            {resume
+              ? canResume
+                ? "Continue where you stopped"
+                : "Saved practice"
+              : status === "error"
+                ? "Saved progress unavailable"
+                : "Mock interview"}
+          </div>
+          <h2 className="mt-4 text-2xl font-bold sm:text-3xl">
+            {resume
+              ? canResume
+                ? `Continue your ${resume.track} practice`
+                : readinessMessage.title
+              : status === "error"
+                ? "Pick up your practice safely"
+                : "Start a full practice sitting"}
+          </h2>
+          <p className="mt-3 max-w-2xl text-base leading-7 text-gray-600">
+            {resume
+              ? !canResume
+                ? readinessMessage.body
+                : (resume.totalQuestions ?? 0) > 0
+                  ? `${resume.answeredQuestions} of ${resume.totalQuestions} answers are saved. Your questions will stay in the same order.`
+                  : "Your session is saved. Reopen it to check question preparation."
+              : status === "error"
+                ? "Open History to check your saved sessions before starting another round, or choose a skill builder below."
+                : "Practise spoken answers with AI coaching. Before you begin, check your microphone and the plan for the round."}
+          </p>
+          {status === "loading" || status === "refreshing" ? (
+            <p className="mt-7 text-sm">Your saved-session action will appear after this check.</p>
+          ) : (
+            <Link
+              href={primaryHref}
+              onClick={() =>
+                trackButtonClick(
+                  resume
+                    ? canResume
+                      ? "continue_practice_interview"
+                      : "view_saved_practice"
+                    : status === "error"
+                      ? "find_saved_practice"
+                      : "begin_mock_interview",
+                  "practice_page"
+                )
+              }
+              className="mt-7 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-black px-6 py-3 text-base font-semibold text-white transition hover:bg-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#344499] sm:w-auto"
+            >
+              {resume
+                ? canResume
+                  ? "Continue saved interview"
+                  : "View saved session"
+                : status === "error"
+                  ? "Find saved interviews"
+                  : "Begin mock interview"}
+            </Link>
+          )}
+          {resume && !canResume && (
+            <button
+              type="button"
+              onClick={onRefresh}
+              className="mt-4 flex min-h-11 items-center rounded-xl border border-[#C0CFF2] px-4 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
+            >
+              Check again
+            </button>
+          )}
+          <p className="mt-4 text-sm text-gray-600">
+            Refreshing or changing tabs will not end a Practice interview.
+          </p>
+        </div>
+
+        <div className="min-w-0 rounded-3xl border border-[#DEE8FB] bg-[#F5F9FF] p-6 sm:p-8">
+          <p className="text-sm font-bold uppercase tracking-[0.12em] text-amber-900">
+            This week&apos;s focus
+          </p>
+          {verified?.focus ? (
+            <>
+              <h2 className="mt-4 text-2xl font-bold">{verified?.focus.title}</h2>
+              <p className="mt-2 leading-6 text-gray-700">{verified?.focus.reason}</p>
+              <Link
+                href={verified?.focus.href}
+                className="mt-6 inline-flex min-h-11 items-center rounded-xl border border-[#1F285B] px-4 font-bold text-[#1F285B] transition hover:bg-white/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
+              >
+                Practise this skill
+              </Link>
+            </>
+          ) : verified ? (
+            <>
+              <h2 className="mt-4 text-xl font-bold">
+                {enoughEvidence
+                  ? "Keep exploring your skills"
+                  : "Your personalised focus is taking shape"}
+              </h2>
+              <p className="mt-2 leading-6 text-gray-700">
+                {enoughEvidence
+                  ? "There are enough saved answers to look for patterns, but no single focus stands out yet. Choose any skill below."
+                  : `Complete at least ${verified.focusEvidenceRequired} spoken answers. We suggest a focus when your saved feedback shows a clear pattern.`}
+              </p>
+              <div
+                className="mt-5 h-2 overflow-hidden rounded-full bg-white/70"
+                role="progressbar"
+                aria-label="Evidence collected for personalised focus"
+                aria-valuemin={0}
+                aria-valuemax={verified.focusEvidenceRequired}
+                aria-valuenow={Math.min(
+                  verified.focusEvidenceAnswerCount,
+                  verified.focusEvidenceRequired
+                )}
+              >
+                <div
+                  className="h-full rounded-full bg-[#344499]"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <p className="mt-2 text-sm font-semibold text-amber-950">
+                {Math.min(verified.focusEvidenceAnswerCount, verified.focusEvidenceRequired)} of{" "}
+                {verified.focusEvidenceRequired} saved answers
+              </p>
+            </>
+          ) : (
+            <>
+              <h2 className="mt-4 text-xl font-bold">Choose one skill for today</h2>
+              <p className="mt-2 leading-6 text-gray-700">
+                Your personalised focus will appear when your coach plan is available. No progress
+                estimate is shown until it can be verified.
+              </p>
+            </>
+          )}
+        </div>
+      </section>
+      <div className="mt-7">{children}</div>
+
+      <section className="mt-9" aria-labelledby="skill-builders-title">
+        <div className="mb-4">
+          <h2 id="skill-builders-title" className="text-2xl font-bold">
+            Skill builders
+          </h2>
+          <p className="mt-1 text-gray-600">
+            Short practice for the part you want to improve today.
+          </p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {MODULES.map((module, index) => {
+            const Icon = module.icon;
+            return (
+              <Link
+                key={module.key}
+                href={module.href}
+                onClick={() => trackButtonClick(`practice_module_${module.key}`, "practice_page")}
+                className={`group min-w-0 min-h-40 rounded-2xl border border-[#D6E0FB] bg-white p-5 transition motion-safe:hover:-translate-y-0.5 hover:border-[#344499] hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] ${
+                  index === 4 ? "sm:col-span-2 lg:col-span-1" : ""
+                }`}
+              >
+                <Icon className="size-8 text-[#344499]" aria-hidden="true" />
+                <h3 className="mt-5 text-lg font-bold group-hover:text-[#344499]">
+                  {module.title}
+                </h3>
+                <p className="mt-1 leading-6 text-gray-600">{module.description}</p>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+    </div>
+  );
+}
