@@ -19,7 +19,7 @@ const action =
 
 function CompletionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <main className="mx-auto w-full min-w-0 max-w-2xl py-6 [overflow-wrap:anywhere] sm:py-10">
+    <div className="mx-auto w-full min-w-0 max-w-2xl py-6 [overflow-wrap:anywhere] sm:py-10">
       <section className="space-y-5 rounded-3xl border border-[#DEE8FB] bg-white p-5 sm:p-9">
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#344499]">
           Interview submission
@@ -41,7 +41,7 @@ function CompletionCard({ title, children }: { title: string; children: React.Re
           </Link>
         </div>
       </section>
-    </main>
+    </div>
   );
 }
 

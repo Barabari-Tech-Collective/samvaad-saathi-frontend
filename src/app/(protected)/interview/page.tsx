@@ -1080,7 +1080,7 @@ const SuspendedInterviewPage = () => {
     (mode === null && !restores);
   if (loading || !user?.userId || invalid)
     return (
-      <main className="mx-auto max-w-2xl space-y-4 p-6">
+      <div className="mx-auto max-w-2xl space-y-4 p-6">
         <h1 className="text-2xl font-bold text-[#1F285B]">
           {invalid ? "Restore this interview from History" : "Checking your interview account"}
         </h1>
@@ -1095,7 +1095,7 @@ const SuspendedInterviewPage = () => {
         >
           View history
         </Link>
-      </main>
+      </div>
     );
   return <InterviewPage key={JSON.stringify([String(user.userId), params.toString()])} />;
 };

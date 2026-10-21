@@ -114,7 +114,7 @@ const LEVEL_EXAMPLES: Record<string, string> = {
 
 function EntryRecovery({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <main className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-[#DEE8FB] bg-white p-5 text-[#1F285B] sm:p-8">
+    <div className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-[#DEE8FB] bg-white p-5 text-[#1F285B] sm:p-8">
       <h1 className="text-3xl font-bold">{title}</h1>
       {children}
       <div className="flex flex-wrap gap-4">
@@ -128,7 +128,7 @@ function EntryRecovery({ title, children }: { title: string; children: React.Rea
           Back to practice
         </Link>
       </div>
-    </main>
+    </div>
   );
 }
 

@@ -34,7 +34,7 @@ export default function BottomNav({ className = "" }: { className?: string }) {
 
   const active = getActiveNav();
   const baseItemClass =
-    "flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 text-[10px] font-semibold cursor-pointer transition-colors duration-200 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
+    "flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 text-xs font-semibold cursor-pointer transition-colors duration-200 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
   const isActive = (key: string) => active === key;
 
   // Handle tracking on navigation
@@ -44,13 +44,14 @@ export default function BottomNav({ className = "" }: { className?: string }) {
 
   return (
     <nav
-      className={`fixed bottom-0 left-0 w-full h-16 bg-[#1F285B] rounded-t-[14px] flex justify-around items-center ${className}`}
+      className={`fixed bottom-0 left-0 w-full h-16 bg-[#1F285B] rounded-t-[14px] flex justify-around items-center student-bottom-nav lg:hidden ${className}`}
       aria-label="Bottom Navigation"
     >
       <Link
         href="/home"
-        className={`${baseItemClass} ${isActive("home") ? "text-white" : "text-gray-400"}`}
+        className={`${baseItemClass} ${isActive("home") ? "text-white" : "text-[#C0CFF2]"}`}
         onClick={() => handleClick("home")}
+        aria-current={isActive("home") ? "page" : undefined}
         aria-label="Go to home"
       >
         <HomeIcon className="size-6" />
@@ -59,8 +60,9 @@ export default function BottomNav({ className = "" }: { className?: string }) {
 
       <Link
         href="/history"
-        className={`${baseItemClass} ${isActive("history") ? "text-white" : "text-gray-400"}`}
+        className={`${baseItemClass} ${isActive("history") ? "text-white" : "text-[#C0CFF2]"}`}
         onClick={() => handleClick("history")}
+        aria-current={isActive("history") ? "page" : undefined}
         aria-label="Go to history"
       >
         <ListBulletIcon className="size-6" />
@@ -69,8 +71,9 @@ export default function BottomNav({ className = "" }: { className?: string }) {
 
       <Link
         href="/practice"
-        className={`${baseItemClass} ${isActive("practice") ? "text-white" : "text-gray-400"}`}
+        className={`${baseItemClass} ${isActive("practice") ? "text-white" : "text-[#C0CFF2]"}`}
         onClick={() => handleClick("practice")}
+        aria-current={isActive("practice") ? "page" : undefined}
         aria-label="Go to target practice"
       >
         <TargetPracticeIcon className="size-8" />
@@ -79,8 +82,9 @@ export default function BottomNav({ className = "" }: { className?: string }) {
 
       <Link
         href="/ai-resume"
-        className={`${baseItemClass} ${isActive("ai-resume") ? "text-white" : "text-gray-400"}`}
+        className={`${baseItemClass} ${isActive("ai-resume") ? "text-white" : "text-[#C0CFF2]"}`}
         onClick={() => handleClick("ai-resume")}
+        aria-current={isActive("ai-resume") ? "page" : undefined}
         aria-label="Go to AI Resume"
       >
         <DocumentTextIcon className="size-6" />
@@ -90,8 +94,9 @@ export default function BottomNav({ className = "" }: { className?: string }) {
       {user?.authorizedUser.canUseBulkAts && (
         <Link
           href="/bulk-ats"
-          className={`${baseItemClass} ${isActive("bulk-ats") ? "text-white" : "text-gray-400"}`}
+          className={`${baseItemClass} ${isActive("bulk-ats") ? "text-white" : "text-[#C0CFF2]"}`}
           onClick={() => handleClick("bulk-ats")}
+          aria-current={isActive("bulk-ats") ? "page" : undefined}
           aria-label="Open Bulk ATS"
         >
           <BriefcaseIcon className="size-6" />
@@ -101,8 +106,9 @@ export default function BottomNav({ className = "" }: { className?: string }) {
 
       <Link
         href="/profile"
-        className={`${baseItemClass} ${isActive("profile") ? "text-white" : "text-gray-400"}`}
+        className={`${baseItemClass} ${isActive("profile") ? "text-white" : "text-[#C0CFF2]"}`}
         onClick={() => handleClick("profile")}
+        aria-current={isActive("profile") ? "page" : undefined}
         aria-label="Go to profile"
       >
         <UserIcon className="size-6" />

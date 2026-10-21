@@ -7,7 +7,12 @@ const allowedTtsVoiceIds = new Set<string>(TTS_VOICE_OPTIONS.map((option) => opt
 
 function readStoredTtsVoiceId(): string {
   if (typeof window === "undefined") return DEFAULT_TTS_VOICE_ID;
-  const raw = localStorage.getItem(TTS_VOICE_STORAGE_KEY);
+  let raw: string | null = null;
+  try {
+    raw = localStorage.getItem(TTS_VOICE_STORAGE_KEY);
+  } catch {
+    return DEFAULT_TTS_VOICE_ID;
+  }
   if (raw && allowedTtsVoiceIds.has(raw)) return raw;
   return DEFAULT_TTS_VOICE_ID;
 }
@@ -22,16 +27,21 @@ export function VoiceSelector() {
   const handleChange = (id: string) => {
     setTtsVoiceId(id);
     if (typeof window !== "undefined") {
-      localStorage.setItem(TTS_VOICE_STORAGE_KEY, id);
+      try {
+        localStorage.setItem(TTS_VOICE_STORAGE_KEY, id);
+      } catch {
+        /* Current-view preference still works when storage is unavailable. */
+      }
     }
   };
 
   return (
     <div className="form-control">
-      <label className="label mb-2">
+      <label htmlFor="default-interview-voice" className="label mb-2">
         <span className="label-text">Default interview voice</span>
       </label>
       <select
+        id="default-interview-voice"
         className="select select-bordered w-full"
         value={ttsVoiceId}
         onChange={(e) => handleChange(e.target.value)}

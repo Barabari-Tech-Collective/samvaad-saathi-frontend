@@ -15,3 +15,9 @@ export const trackRoleSelected = () => {};
 export const trackStartInterviewButtonClick = () => {};
 
 export const trackInterviewQuestionView = () => {};
+export const trackProfileEditButtonClick = () => {};
+export const trackProfileFieldValueChanged = () => {};
+export const trackProfileHelpButtonClick = () => {};
+export const trackProfileSupportButtonClick = () => {};
+export const trackProfileUpdateButtonClick = () => {};
+export const trackBottomNavClick = () => {};

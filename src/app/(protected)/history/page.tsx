@@ -60,7 +60,7 @@ function HistoryWorkspace({ account }: { account: string }) {
     router.push(`/history?${params}`, { scroll: false });
   };
   return (
-    <main className="mx-auto w-full min-w-0 max-w-6xl space-y-6 pb-10 text-[#111827] [overflow-wrap:anywhere]">
+    <div className="mx-auto w-full min-w-0 max-w-6xl space-y-6 pb-10 text-[#111827] [overflow-wrap:anywhere]">
       <header>
         <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#344499]">
           Your interview journey
@@ -249,7 +249,7 @@ function HistoryWorkspace({ account }: { account: string }) {
           )}
         </>
       )}
-    </main>
+    </div>
   );
 }
 export default function InterviewHistory() {

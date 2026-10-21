@@ -143,7 +143,7 @@ export default function PracticeConsentCard() {
                 >
                   {option.shared}
                 </p>
-                <p className="mt-2 text-xs text-base-content/50" aria-live="polite">
+                <p className="mt-2 text-xs text-gray-600" aria-live="polite">
                   {pending ? "Saving…" : granted ? "Currently allowed" : "Currently off"}
                 </p>
               </div>
@@ -152,7 +152,7 @@ export default function PracticeConsentCard() {
         </div>
       )}
 
-      <p className="mt-4 text-xs leading-relaxed text-base-content/55">
+      <p className="mt-4 text-xs leading-relaxed text-gray-600">
         Withdrawing consent blocks future dashboard access. Records already included in a locked,
         approved shortlist remain auditable, but cannot be newly exported or reused after consent is
         withdrawn.

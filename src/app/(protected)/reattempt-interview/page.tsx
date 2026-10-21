@@ -6,7 +6,7 @@ import Link from "next/link";
 // and browser-cached questions is not a new attempt and cannot unlock assessment.
 export default function ReAttemptInterview() {
   return (
-    <main className="mx-auto w-full max-w-3xl space-y-5 rounded-3xl border border-[#DEE8FB] bg-white p-5 text-[#1F285B] sm:p-8">
+    <div className="mx-auto w-full max-w-3xl space-y-5 rounded-3xl border border-[#DEE8FB] bg-white p-5 text-[#1F285B] sm:p-8">
       <p className="text-xs font-semibold uppercase tracking-widest text-[#344499]">
         Keep practising
       </p>
@@ -33,6 +33,6 @@ export default function ReAttemptInterview() {
           View history
         </Link>
       </div>
-    </main>
+    </div>
   );
 }

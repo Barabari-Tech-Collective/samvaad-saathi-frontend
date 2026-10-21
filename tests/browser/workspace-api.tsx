@@ -18,13 +18,18 @@ export function useSearchParams() {
 export default function Link({
   href,
   children,
+  onClick,
+  prefetch: _prefetch,
   ...props
-}: React.ComponentProps<"a"> & { href: string }) {
+}: React.ComponentProps<"a"> & { href: string; prefetch?: boolean }) {
+  void _prefetch;
   return (
     <a
       {...props}
       href={href}
       onClick={(e) => {
+        onClick?.(e);
+        if (e.defaultPrevented) return;
         e.preventDefault();
         navigate(href);
       }}
@@ -90,4 +95,7 @@ export function useJobProfilesList(
     questionsPerInterview: p.questionsPerInterview,
   }));
   return { ...query, jobProfiles, isLoadingJobProfiles: query.isLoading };
+}
+export function usePathname() {
+  return useSyncExternalStore(subscribe, () => window.location.pathname);
 }

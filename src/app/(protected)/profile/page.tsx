@@ -345,7 +345,14 @@ export default function ProfilePage() {
   if (!user) return <ProfileSkeleton />;
 
   return (
-    <main className="max-w-md mx-auto">
+    <div className="mx-auto max-w-4xl space-y-6 py-6">
+      <header className="space-y-3">
+        <p className="workspace-eyebrow">MAKE IT YOURS</p>
+        <h1 className="text-3xl font-semibold text-[#1F285B]">Profile and preferences</h1>
+        <p className="text-gray-600">
+          Update your details, choose a voice and manage practice sharing.
+        </p>
+      </header>
       <section className=" ">
         {/* Avatar */}
         <div className="card-body items-center text-center">
@@ -392,15 +399,21 @@ export default function ProfilePage() {
             )}
           </div>
 
-          <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
             <ProfileFieldRow
               label="Target Position"
               isEditing={editingField === "targetPosition"}
               onEdit={() => startEditing("targetPosition")}
               onCancel={cancelEditing}
               error={errors.targetPosition}
+              errorId="profile-targetPosition-error"
             >
               <select
+                aria-label="Target Position"
+                aria-invalid={!!errors.targetPosition}
+                aria-describedby={
+                  errors.targetPosition ? "profile-targetPosition-error" : undefined
+                }
                 disabled={editingField !== "targetPosition"}
                 className={`select select-bordered w-full ${errors.targetPosition ? "select-error" : ""}`}
                 value={
@@ -427,8 +440,14 @@ export default function ProfilePage() {
               onEdit={() => startEditing("yearsExperience")}
               onCancel={cancelEditing}
               error={errors.yearsExperience}
+              errorId="profile-yearsExperience-error"
             >
               <select
+                aria-label="Years of Experience"
+                aria-invalid={!!errors.yearsExperience}
+                aria-describedby={
+                  errors.yearsExperience ? "profile-yearsExperience-error" : undefined
+                }
                 disabled={editingField !== "yearsExperience"}
                 className={`select select-bordered w-full ${errors.yearsExperience ? "select-error" : ""}`}
                 value={
@@ -455,8 +474,12 @@ export default function ProfilePage() {
               onEdit={() => startEditing("degree")}
               onCancel={cancelEditing}
               error={errors.degree}
+              errorId="profile-degree-error"
             >
               <select
+                aria-label="Degree"
+                aria-invalid={!!errors.degree}
+                aria-describedby={errors.degree ? "profile-degree-error" : undefined}
                 disabled={editingField !== "degree"}
                 className={`select select-bordered w-full ${errors.degree ? "select-error" : ""}`}
                 value={
@@ -481,9 +504,13 @@ export default function ProfilePage() {
               onEdit={() => startEditing("university")}
               onCancel={cancelEditing}
               error={errors.university}
+              errorId="profile-university-error"
             >
               <>
                 <select
+                  aria-label="University"
+                  aria-invalid={!!errors.university}
+                  aria-describedby={errors.university ? "profile-university-error" : undefined}
                   disabled={editingField !== "university"}
                   className={`select select-bordered w-full ${errors.university ? "select-error" : ""}`}
                   value={
@@ -508,6 +535,7 @@ export default function ProfilePage() {
                 {editingField === "university" && tempData.university === "Others" && (
                   <input
                     type="text"
+                    aria-label="University name"
                     placeholder="Enter university name"
                     className={`input input-bordered w-full mt-2 ${errors.university ? "input-error" : ""}`}
                     value={customUniversity}
@@ -547,6 +575,7 @@ export default function ProfilePage() {
                         </p>
                         <input
                           type="file"
+                          aria-label="Upload onboarding resume"
                           className={`file-input file-input-sm w-full ${errors.resume ? "file-input-error" : ""}`}
                           accept=".pdf,application/pdf"
                           onChange={handleFileChange}
@@ -629,11 +658,11 @@ export default function ProfilePage() {
                   user.authorizedUser.atsResumeFilename ||
                   (user.authorizedUser as any).ats_resume_filename
                     ? "bg-base-100"
-                    : "bg-base-200 opacity-60"
+                    : "bg-base-200"
                 }`}
               >
                 <DocumentTextIcon className="size-5 text-gray-400" />
-                <span className="text-sm truncate flex-1 text-gray-500">
+                <span className="text-sm break-words flex-1 text-gray-600">
                   {user.authorizedUser.atsResumeFilename ||
                     (user.authorizedUser as any).ats_resume_filename ||
                     "No ATS resume yet"}
@@ -666,6 +695,6 @@ export default function ProfilePage() {
 
         <p className="text-center text-sm text-gray-500">Samvaad Saathi v{APP_VERSION}</p>
       </section>
-    </main>
+    </div>
   );
 }

@@ -6,6 +6,9 @@ import CompletedPage from "@/app/(protected)/interview-completed/page";
 import HistoryPage from "@/app/(protected)/history/page";
 import ReportPage from "@/app/(protected)/report-summary/page";
 import HumanInterviewsPage from "@/app/(protected)/human-interviews/page";
+import HomePage from "@/app/(protected)/home/page";
+import ProfilePage from "@/app/(protected)/profile/page";
+import StudentShell from "@/components/workspace/StudentShell";
 import PracticePage from "@/app/(protected)/practice/page";
 import { AssessmentFixture } from "./assessment-fixture";
 import { GuideFixture } from "./guide-fixture";
@@ -63,7 +66,11 @@ window.addEventListener("practice-test-refresh", () => {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={client}>
     <CookiesProvider>
-      {location.search.includes("fixture=human-interviews") ? (
+      {location.search.includes("fixture=student-shell") ? (
+        <StudentShell>
+          {location.search.includes("view=profile") ? <ProfilePage /> : <HomePage />}
+        </StudentShell>
+      ) : location.search.includes("fixture=human-interviews") ? (
         <main className="p-4">
           <HumanInterviewsPage />
         </main>

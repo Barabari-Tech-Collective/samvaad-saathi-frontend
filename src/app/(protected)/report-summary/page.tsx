@@ -67,7 +67,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
   const status = data.reportStatus ?? "ready";
 
   return (
-    <main className="mx-auto w-full min-w-0 max-w-5xl space-y-7 [overflow-wrap:anywhere] pb-12 pt-4 text-[#111827] sm:pt-7">
+    <div className="mx-auto w-full min-w-0 max-w-5xl space-y-7 [overflow-wrap:anywhere] pb-12 pt-4 text-[#111827] sm:pt-7">
       <header className="rounded-3xl bg-[#1F285B] p-6 text-white sm:p-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#FFCC33]">
@@ -187,6 +187,6 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
           Back to Practice
         </Link>
       </div>
-    </main>
+    </div>
   );
 }
