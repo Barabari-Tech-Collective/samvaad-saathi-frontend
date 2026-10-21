@@ -13,7 +13,7 @@ export default function ReportRecovery({
 }) {
   const copy = reportRecoveryCopy(kind);
   return (
-    <main
+    <div
       className="mx-auto w-full min-w-0 max-w-2xl py-8 [overflow-wrap:anywhere]"
       role={kind === "checking" ? "status" : "alert"}
     >
@@ -46,6 +46,6 @@ export default function ReportRecovery({
           </Link>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

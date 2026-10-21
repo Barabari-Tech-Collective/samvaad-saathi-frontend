@@ -97,7 +97,9 @@ createRoot(document.getElementById("root")!).render(
           <HistoryPage />
         </main>
       ) : location.search.includes("fixture=report") ? (
-        <ReportPage />
+        <main>
+          <ReportPage />
+        </main>
       ) : location.search.includes("fixture=practice-hub") ? (
         <main className="p-4 sm:p-6">
           <PracticePage />
