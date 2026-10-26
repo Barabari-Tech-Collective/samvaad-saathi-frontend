@@ -21,8 +21,8 @@ export const aiResumeService = {
 
       const response = await axios.post(`${baseUrl}/${ENDPOINTS.AI_RESUME.ANALYZE}`, formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
           // Let axios set the Content-Type automatically for FormData
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         withCredentials: true,
       });
@@ -30,6 +30,13 @@ export const aiResumeService = {
       return response.data;
     } catch (error) {
       console.error("Error analyzing resume:", error);
+      if (axios.isAxiosError(error) && error.response?.data?.detail) {
+        throw new Error(
+          typeof error.response.data.detail === "string"
+            ? error.response.data.detail
+            : JSON.stringify(error.response.data.detail)
+        );
+      }
       throw error;
     }
   },

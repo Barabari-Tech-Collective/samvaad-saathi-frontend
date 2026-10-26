@@ -14,6 +14,10 @@ import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 
 export default function SignupPage() {
+  const apiBaseUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    (process.env.NODE_ENV === "development" ? "http://localhost:8000/api" : "");
+  const ssoLoginUrl = apiBaseUrl ? `${apiBaseUrl}/${ENDPOINTS.AUTH.SSO_LOGIN}` : undefined;
   const [cookies, setCookie] = useCookies(["token", "refresh_token"]);
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -204,14 +208,28 @@ export default function SignupPage() {
           redirect chain depends on the browser actually navigating away and back. */}
       {/* LEGACY - COGNITO, kept for rollback:
           href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.COGNITO_LOGIN}`} */}
-      <Link
-        href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.SSO_LOGIN}`}
-        onClick={handleContinueClick}
-      >
-        <button className="w-72 h-11 bg-white rounded-lg flex items-center justify-center gap-3 active:scale-95 transition shadow-md cursor-pointer">
-          <span className="text-black text-sm font-semibold">Continue</span>
-        </button>
-      </Link>
+      {/* A missing API base url used to render href="/auth/undefined/...". Linking back
+          to this page instead would give students a Continue button that silently
+          reloads, so a misconfigured deployment states the problem outright. */}
+      {ssoLoginUrl ? (
+        <Link href={ssoLoginUrl} onClick={handleContinueClick}>
+          <button className="w-72 h-11 bg-white rounded-lg flex items-center justify-center gap-3 active:scale-95 transition shadow-md cursor-pointer">
+            <span className="text-black text-sm font-semibold">Continue</span>
+          </button>
+        </Link>
+      ) : (
+        <div className="flex flex-col items-center gap-3">
+          <button
+            disabled
+            className="w-72 h-11 bg-white/60 rounded-lg flex items-center justify-center gap-3 shadow-md cursor-not-allowed"
+          >
+            <span className="text-black text-sm font-semibold">Continue</span>
+          </button>
+          <p role="alert" className="font-noto text-white text-[13px] max-w-72 text-center">
+            Sign-in is unavailable right now. Please try again later or contact your facilitator.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

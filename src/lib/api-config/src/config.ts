@@ -59,6 +59,7 @@ export const createAxiosInstance = (baseURL: string) => {
             `${AUTH_BASE_URL}/${ENDPOINTS.AUTH.SSO_REFRESH}`,
             `refresh_token=${refreshToken}`,
             {
+              timeout: 15_000,
               headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
                 accept: "application/json",

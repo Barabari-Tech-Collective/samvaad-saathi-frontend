@@ -48,7 +48,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       identifyUser(user.userId, userProperties);
 
       // If user is NOT onboarded, redirect to onboarding if not already there
-      if (!user.authorizedUser.isOnboarded && window.location.pathname !== "/onboarding") {
+      const isBulkAtsStaffRoute =
+        user.authorizedUser.canUseBulkAts && window.location.pathname.startsWith("/bulk-ats");
+      if (
+        !user.authorizedUser.isOnboarded &&
+        window.location.pathname !== "/onboarding" &&
+        !isBulkAtsStaffRoute
+      ) {
         router.push("/onboarding");
       }
     }

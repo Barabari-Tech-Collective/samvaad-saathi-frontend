@@ -355,7 +355,7 @@ export default function HomePage() {
                                 )}
                               </button>
                             ) : (
-                              <Link href="interview-start">
+                              <Link href="/interview-start?mode=practice">
                                 <button className="btn btn-primary btn-sm cursor-pointer">
                                   Start Interview
                                 </button>
@@ -373,14 +373,24 @@ export default function HomePage() {
         )}
       </div>
 
-      <Link href="interview-start">
-        <button
-          className="btn btn-neutral btn-block btn-lg rounded-lg"
-          onClick={trackGetStartedButtonClick}
-        >
-          Get Started
-        </button>
-      </Link>
+      <div className="flex flex-col gap-3">
+        <Link href="/interview-start?mode=practice">
+          <button
+            className="btn btn-neutral btn-block btn-lg rounded-lg"
+            onClick={trackGetStartedButtonClick}
+          >
+            Practice Interview
+          </button>
+        </Link>
+        <Link href="/interview-start?mode=assessment">
+          <button
+            className="btn btn-outline btn-block btn-lg rounded-lg"
+            onClick={() => trackButtonClick("start_assessment_interview", "home_page")}
+          >
+            Assessment Interview
+          </button>
+        </Link>
+      </div>
     </div>
   );
 }

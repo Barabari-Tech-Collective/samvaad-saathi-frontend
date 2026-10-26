@@ -1,0 +1,12 @@
+import nextTypeScript from "eslint-config-next/typescript";
+
+// Enforce real TypeScript linting on this release. The legacy global config
+// only has ignores; expanding enforcement across legacy modules is separate work.
+const files = [
+  "src/hooks/useInterviewAnswer.ts",
+  "src/hooks/useQuestionAttempt.ts",
+  "src/app/(protected)/interview/_components/Footer.tsx",
+  "tests/**/*.ts",
+  "tests/**/*.tsx",
+];
+export default nextTypeScript.map((config) => ({ ...config, files }));
