@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "lint:release": "eslint --config eslint.release.config.mjs src/hooks/useInterviewAnswer.ts src/hooks/useQuestionAttempt.ts 'src/app/(protected)/interview/_components/Footer.tsx' tests",
+    "lint:release": "eslint --config eslint.release.config.mjs src/hooks/useInterviewAnswer.ts src/hooks/useQuestionAttempt.ts \"src/app/(protected)/interview/_components/Footer.tsx\" tests",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
