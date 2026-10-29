@@ -592,3 +592,24 @@ it("does not create an attempt until the Practice session is writable", async ()
   await waitFor(() => expect(result.current.id).toBe(77));
   expect(start).toHaveBeenCalledTimes(1);
 });
+
+it('ignores a late lease conflict from a previous question', async () => {
+  const first = deferred<{ questionAttemptId: number }>();
+  const conflict = vi.fn();
+  const start = vi.fn().mockReturnValueOnce(first.promise).mockResolvedValue({ questionAttemptId: 200 });
+  const { result, rerender } = renderHook(({ id }) => useQuestionAttempt(1, id, start, null, 'lease', true, conflict), { initialProps: { id: 10 } });
+  rerender({ id: 11 });
+  await waitFor(() => expect(result.current.id).toBe(200));
+  await act(async () => first.reject(Object.assign(new Error('conflict'), {response:{data:{detail:{code:'SESSION_LEASE_REPLACED'}}}})));
+  expect(conflict).not.toHaveBeenCalled();
+  expect(result.current.id).toBe(200);
+});
+
+it('ignores a late lease conflict after the interview view unmounts', async () => {
+  const pending = deferred<{ questionAttemptId: number }>();
+  const conflict = vi.fn();
+  const { unmount } = renderHook(() => useQuestionAttempt(1, 10, () => pending.promise, null, 'lease', true, conflict));
+  unmount();
+  await act(async () => pending.reject(Object.assign(new Error('conflict'), {response:{data:{detail:{code:'SESSION_LEASE_EXPIRED'}}}})));
+  expect(conflict).not.toHaveBeenCalled();
+});

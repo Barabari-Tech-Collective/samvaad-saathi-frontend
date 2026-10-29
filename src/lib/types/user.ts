@@ -1,8 +1,8 @@
 export interface UserProfile {
   userId: string;
   authorizedUser: {
-    token: string;
-    refreshToken: string | null;
+    token?: string;
+    refreshToken?: string | null;
     email: string;
     name: string;
     createdAt: string;

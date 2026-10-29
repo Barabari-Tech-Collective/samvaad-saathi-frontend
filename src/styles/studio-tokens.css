@@ -1,0 +1,41 @@
+/* Samvaad Saathi / Interview Studio — shared product tokens. */
+:root {
+  --studio-canvas: #f5f9ff;
+  --studio-paper: #fff;
+  --studio-ink: #18213b;
+  --studio-muted: #58647a;
+  --studio-line: #dee5ef;
+  --studio-line-strong: #7c899f;
+  --studio-navy: #1f285b;
+  --studio-blue: #344499;
+  --studio-blue-wash: #edf1fb;
+  --studio-yellow: #ffcc33;
+  --studio-peach: #ffe4bf;
+  --studio-black: #000;
+  --studio-success: #21664c;
+  --studio-danger: #ad243e;
+  --studio-warning: #795000;
+  --studio-radius: 16px;
+  --studio-control-radius: 10px;
+  --studio-space-1: 4px;
+  --studio-space-2: 8px;
+  --studio-space-3: 12px;
+  --studio-space-4: 16px;
+  --studio-space-6: 24px;
+  --studio-space-8: 32px;
+  --studio-space-12: 48px;
+  --studio-text-small: 0.8125rem;
+  --studio-text-body: 0.9375rem;
+  --studio-text-title: clamp(1.75rem, 3vw, 2.5rem);
+  --studio-on-navy-muted: #d7dff3;
+  --studio-on-navy-line: #ffffff25;
+  --studio-on-navy-soft: #ffffff16;
+  --studio-on-navy-wash: #ffffff12;
+  --studio-on-navy-ornament: #ffffff0a;
+  --studio-yellow-wash: #fff5ce;
+  --studio-shadow: 0 8px 28px #1f285b06;
+  --workspace-ink: var(--studio-ink);
+  --workspace-muted: var(--studio-muted);
+  --workspace-border: var(--studio-line);
+  --workspace-radius: var(--studio-radius);
+}

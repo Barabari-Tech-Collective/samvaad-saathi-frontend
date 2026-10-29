@@ -87,11 +87,14 @@ export function useQuestionAttempt(
       if (sequence === version.current && key === activeKey.current)
         setState({ key, id: result.questionAttemptId, pending: false, failed: false });
     } catch (error) {
-      if (getSessionLeaseErrorCode(error)) conflictHandler.current?.();
-      if (sequence === version.current && key === activeKey.current)
+      if (sequence === version.current && key === activeKey.current) {
+        if (getSessionLeaseErrorCode(error)) conflictHandler.current?.();
         setState({ key, pending: false, failed: true });
+      }
     }
   }, [enabled, interviewId, questionId, key, sessionLeaseToken]);
+
+  const invalidatePendingAttempt = useCallback(() => { version.current++; }, []);
 
   useEffect(() => {
     if (initialAttemptId && Number.isSafeInteger(initialAttemptId) && initialAttemptId > 0) {
@@ -105,10 +108,8 @@ export function useQuestionAttempt(
       return;
     }
     void retry();
-    return () => {
-      version.current++;
-    };
-  }, [enabled, initialAttemptId, key, retry]);
+    return invalidatePendingAttempt;
+  }, [enabled, initialAttemptId, key, retry, invalidatePendingAttempt]);
 
   return {
     id: state.key === key ? state.id : undefined,

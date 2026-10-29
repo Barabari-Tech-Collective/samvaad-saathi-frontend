@@ -1,0 +1,21 @@
+{
+  "scope": "Four real local identities, bounded read-only HTTP simulation; not browser, media, full journey or production capacity acceptance",
+  "waves": [
+    {
+      "concurrency": 4,
+      "requests": 54,
+      "passed": 54,
+      "p95Ms": 66.0,
+      "maxMs": 84.0,
+      "failures": []
+    },
+    {
+      "concurrency": 12,
+      "requests": 54,
+      "passed": 54,
+      "p95Ms": 116.2,
+      "maxMs": 143.1,
+      "failures": []
+    }
+  ]
+}

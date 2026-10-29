@@ -1,5 +1,6 @@
 "use client";
 
+import PageHeading from "@/components/studio/PageHeading";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
@@ -176,7 +177,7 @@ const StructureYourAnswerInterviewPage = () => {
 
   // Welcome screen component (shown during loading and after loading)
   const WelcomeScreen = ({ isLoading }: { isLoading: boolean }) => (
-    <div className="flex flex-col h-[80vh] items-center justify-center p-6">
+    <div className="flex flex-col min-h-[50vh] items-center justify-center p-6">
       <div className="relative max-w-md w-full">
         {/* Gradient border using wrapper */}
         <div className="bg-gradient-to-r from-purple-400 via-pink-400 to-yellow-400 rounded-2xl p-[2px] shadow-lg">
@@ -245,9 +246,13 @@ const StructureYourAnswerInterviewPage = () => {
   // Show question overview with Start Practice button if practice hasn't started
   if (!hasStartedPractice) {
     return (
-      <div className="flex flex-col px-6 py-8">
+      <div className="studio-panel studio-drill-room flex flex-col">
         {/* Title */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Today&apos;s Interview Practice</h1>
+        <PageHeading
+          eyebrow="Answer structure"
+          title="Build a complete answer."
+          description="Use the suggested framework to make your example easy to follow."
+        />
 
         {/* Progress Bar */}
         <div className="mb-8">
@@ -288,7 +293,7 @@ const StructureYourAnswerInterviewPage = () => {
         )}
 
         {/* Start Practice / Skip Question Buttons */}
-        <div className="flex justify-between gap-3">
+        <div className="flex flex-wrap justify-between gap-3">
           <button onClick={handleSkipQuestion} className="btn btn-outline">
             Skip question
           </button>

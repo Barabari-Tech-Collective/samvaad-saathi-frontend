@@ -4,8 +4,12 @@ import { apiClient, ENDPOINTS } from "@/lib/api-config";
 import { identifyUser, resetUser, trackLogoutButtonClick } from "@/lib/posthog/tracking.utils";
 import { UserProfile } from "@/lib/types/user";
 import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { createContext, useContext, useEffect } from "react";
+import { announceAuthChange } from "@/lib/auth-session";
+import { clearLogoutStorage } from "@/lib/logout-storage";
+import { cookieSessionEnabled } from "@/lib/session-runtime";
+import { CookieAuthProvider } from "@/components/providers/cookie-auth-provider";
 import { useCookies } from "react-cookie";
 
 interface AuthContextType {
@@ -16,10 +20,11 @@ interface AuthContextType {
   signOut: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+function LegacyAuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const sessionWorkspace = usePathname() === "/auth/session-workspace";
   const queryClient = useQueryClient();
   const [cookies, , removeCookie] = useCookies(["token", "refresh_token"]);
 
@@ -27,25 +32,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     key: [ENDPOINTS.AUTH.ABOUT_ME],
     url: ENDPOINTS.AUTH.ABOUT_ME,
     // Only make the query if we have a token
-    enabled: !!cookies.token,
+    enabled: !!cookies.token && !sessionWorkspace,
   });
 
   // Handle user identification and onboarding redirect
   useEffect(() => {
-    if (user && !loading) {
-      const userProperties = {
-        email: user.authorizedUser.email,
-        name: user.authorizedUser.name,
-        degree: user.authorizedUser.degree,
-        university: user.authorizedUser.university,
-        target_position: user.authorizedUser.targetPosition,
-        years_experience: user.authorizedUser.yearsExperience,
+    if (user && !loading && !sessionWorkspace) {
+      identifyUser(user.userId, {
         is_onboarded: user.authorizedUser.isOnboarded,
         total_attempts: user.authorizedUser.totalAttempts,
-        created_at: user.authorizedUser.createdAt,
-      };
-
-      identifyUser(user.userId, userProperties);
+      });
 
       // If user is NOT onboarded, redirect to onboarding if not already there
       const isBulkAtsStaffRoute =
@@ -58,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.push("/onboarding");
       }
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, sessionWorkspace]);
 
   // LEGACY - COGNITO, kept for rollback:
   // const signInWithCognito = () => {
@@ -85,18 +81,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     removeCookie("token", { path: "/" });
     removeCookie("refresh_token", { path: "/" });
 
-    // Clear localStorage
-    if (typeof window !== "undefined") {
-      // Keep only non-sensitive, account-scoped guide completion across logins.
-      const keys = Array.from({ length: localStorage.length }, (_, i) => localStorage.key(i));
-      for (const key of keys)
-        if (key && !key.startsWith("samvaad-guide:")) localStorage.removeItem(key);
-    }
-
-    // Clear sessionStorage
-    if (typeof window !== "undefined") {
-      sessionStorage.clear();
-    }
+    announceAuthChange(true);
+    clearLogoutStorage();
 
     // Clear all query cache
     queryClient.clear();
@@ -106,7 +92,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const value: AuthContextType = {
-    user: user ?? null,
+    user: !sessionWorkspace && cookies.token ? (user ?? null) : null,
     loading,
     signInWithSso,
     signOut,
@@ -121,4 +107,8 @@ export function useAuth() {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  return cookieSessionEnabled ? <CookieAuthProvider>{children}</CookieAuthProvider> : <LegacyAuthProvider>{children}</LegacyAuthProvider>;
 }

@@ -1,3 +1,4 @@
+import { announceAuthChange } from "@/lib/auth-session";
 /**
  * Token management utilities for handling authentication tokens
  * Using native document.cookie API for universal access (works in axios interceptors)
@@ -38,6 +39,7 @@ export const setTokensInCookies = (token: string, refreshToken: string) => {
     document.cookie = `refresh_token=${refreshToken}; path=/; max-age=${
       30 * 24 * 60 * 60
     }; secure; samesite=strict`;
+    announceAuthChange();
   }
 };
 
@@ -46,6 +48,7 @@ const clearTokensFromCookies = () => {
   if (typeof window !== "undefined") {
     document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     document.cookie = "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    announceAuthChange(true);
   }
 };
 

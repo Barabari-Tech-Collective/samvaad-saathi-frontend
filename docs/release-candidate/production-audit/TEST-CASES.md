@@ -1,0 +1,138 @@
+# Production misuse and failure test cases — 22 October 2026
+
+85 risk-based cases. These are test specifications. Evidence names identify relevant component/unit coverage, not a claim that each integrated scenario has passed. The separate regression summary records what ran.
+
+Use isolated synthetic accounts: A/B in different courses; two independent staff memberships; scoped admin; super-admin. Use disposable drafts and media. Never run destructive, provider-cost or load cases against real learner data. Capture build SHA, role, viewport/browser, expected/actual and redacted evidence in the CSV.
+
+P0 = confidentiality, authorization or irreversible evidence/publication damage. P1 = blocked core task, data loss, false result or material recovery failure. P2 = usability, clarity or presentation defect. Priorities describe consequences, not proof of exploitability.
+
+## Authentication and shared devices
+
+| ID | Priority | Setup and action | Expected result | Existing/new evidence and gap |
+|---|---|---|---|---|
+| R001 | P0 | Student A and Student B in different courses → Replace interview/report/audio IDs in requests with the other student IDs | Deny read and mutation; disclose no question, report, transcript or signed asset URL | Backend test_interview_course_access.py; live HTTP pending |
+| R002 | P0 | Facilitator with one allowed course → Request course B roster, exports, review, shortlist and human appointments directly | Every endpoint enforces both feature operation and course scope | Backend course/feature/analytics unit suites; live HTTP pending |
+| R003 | P0 | Two staff memberships with different course scopes → Combine the operation allowed by membership A with course access from membership B | Reject privilege combination unless an actual membership grants the pair | Backend test_staff_relationships.py and test_teams_and_rbac.py; live pending |
+| R004 | P0 | Admin with limited grant authority → Grant self or colleague super-admin/global/delete authority through edited requests | No authority escalation; server validates all grants and records actor | Backend test_feature_access.py and test_admin_check_consistency.py; live pending |
+| R005 | P1 | Active assessment and staff reporting tab → Revoke course enrollment or personal feature while the tab remains open, then save and refresh | Server revalidates access, presents recoverable state and retains accepted evidence | Backend test_sampark_enrollment_sync.py and test_interview_course_access.py; integration pending |
+| R006 | P1 | Sampark sync source unavailable → Expire freshness window then attempt scoped read/write; restore source | No accidental scope expansion; clear unavailable/recovery state according to freshness policy | Backend test_sampark_enrollment_sync.py; source outage acceptance pending |
+| R007 | P1 | Authenticated browser → Expire token while saving audio, uploading resume and publishing draft | One bounded refresh/retry path; no login loop, duplicate write or false success | Backend test_session_rotation.py; browser acceptance pending |
+| R008 | P1 | Shared browser with blocked storage → Log out when localStorage and sessionStorage getters throw | Cookies cleared; query cache invalidation and logout navigation still execute | NEW production-logout-storage.test.ts covers storage helper; full browser pending |
+| R009 | P0 | Shared browser after A logs out → Sign in B, use Back, cached report URL, another tab and stale in-memory page | No A data flashes or cached playback; server rejects A IDs for B | Acceptance pending; explicit logout clears query cache, token-change/cross-tab paths need verification |
+| R010 | P1 | Expired, malformed and modified JWT cookies → Open staff and student deep links, then call the API | Routing guard is not authorization; API verifies signatures and rejects invalid credentials | Backend test_auth_hardening.py and test_sso_token_role.py; browser pending |
+| R011 | P1 | Login and reset screens → Repeated wrong passwords and rapid password-reset requests; valid retry after cooldown | Rate limits apply without account enumeration or blocking legitimate recovery indefinitely | Backend test_auth_hardening.py and test_rate_limit.py; infrastructure pending |
+
+## Authoring and publication
+
+| ID | Priority | Setup and action | Expected result | Existing/new evidence and gap |
+|---|---|---|---|---|
+| R012 | P0 | Assessment Roles and separate Practice Templates → Create an AI and manual draft in each area and inspect learner catalogue | Assessment never leaks into practice; purpose cannot be silently defaulted or changed | Backend test_assessment_role_routing.py; dashboard purpose tests passed; full flow pending |
+| R013 | P1 | Editable AI draft → Edit wording, rubric, sections and ordering before publishing | Edits persist and the approved final content is used by the student | Backend publication unit suites; authenticated authoring pending |
+| R014 | P0 | Published template with an active sitting → Try edit/delete/count change through UI and direct API | Sealed publication and existing sitting remain immutable; new revision required | Backend test_question_snapshot.py and test_fixed_question_plan.py; SQL acceptance pending |
+| R015 | P1 | Question count field → Submit zero, negative, fraction, NaN string, huge number, empty and above supported maximum | Server rejects invalid count; UI explains exact bounds and preserves valid draft | Dashboard authoring tests and backend fixed-plan tests; browser pending |
+| R016 | P1 | Draft bank with duplicates or blank questions → Publish with N exceeding unique approved questions or missing required section coverage | Publish rejects with actionable per-section shortfall; never silently reduces N | Backend test_fixed_question_plan.py; remaining section/history scope needs acceptance |
+| R017 | P1 | Concurrent draft editors → Edit and publish same revision from two tabs/users | Stale editor cannot overwrite newer content or publish inconsistent question snapshot | Concurrent SQL/browser acceptance pending |
+| R018 | P1 | Adaptive sitting with bounded slots → Trigger follow-ups at limit, on last question and through duplicate requests | Exactly the reserved number of eligible prompts; no unbounded append or hidden count change | Backend test_follow_up_eligibility.py; broader adaptive scope pending |
+| R019 | P1 | Version history and old reports → Publish a revision then inspect prior learner answer/report references | Prior rubric, content, provenance and score interpretation remain reconstructable | Snapshot unit coverage; full publication-history UI acceptance pending |
+
+## Attempts, interruptions and recovery
+
+| ID | Priority | Setup and action | Expected result | Existing/new evidence and gap |
+|---|---|---|---|---|
+| R020 | P0 | Fixed assessment on two devices/tabs → Acquire lease in second tab and submit from first | Only current permitted writer can commit; accepted answers are preserved | Backend test_interview_session_lease.py; browser/real devices pending |
+| R021 | P1 | Recording with slow upload → Double-click Save/Next, retry same bytes, retry different bytes for committed assessment answer | Identical retries idempotent; changed immutable answer rejected; advance only after acknowledgement | Backend test_answer_save_contract.py and test_durable_answer_contract.py; student recovery suite passed |
+| R022 | P1 | Offline at upload boundary → Disconnect before upload, after server commit, and before response; reconnect | UI distinguishes pending from saved; reconciles server receipt instead of discarding or duplicating answer | Student existing recovery suites; real network acceptance pending |
+| R023 | P1 | Formal question near deadline → Change device clock, refresh, sleep, submit within/after grace period | Server deadline controls; refresh never resets timer; grace is bounded and explained | Backend fixed-plan/lease tests; real suspension pending |
+| R024 | P1 | Active session interrupted by page navigation → Use Back, refresh, route query change and browser close during recording | Tracks stop; no late upload/navigation revives obsolete session; durable accepted state resumes | NEW production-drill-pages and recorder-lifecycle; formal suites; full browser pending |
+| R025 | P1 | Completed and partially answered interviews → Submit twice, refresh receipt, reopen history, request report before analysis completes | One consistent receipt; no fabricated score; explicit pending/failed analysis recovery | Backend test_interview_resume_contract.py and student completion suites |
+| R026 | P1 | Active context and stale response → Switch role/question/level while previous fetch is delayed, then resolve old response | Old response cannot overwrite current prompt or route | NEW production-drill-pages.test.tsx; existing active-context suites |
+| R027 | P1 | No eligible or all locked practice levels → Open catalogue and press start or deep-link a locked level | No invalid fallback navigation; backend enforces eligibility | Student student-studio-flow.test.tsx; backend eligibility tests |
+| R028 | P1 | Malformed pacing deep link → Use level=0,-1,1.5,Infinity,garbage; valid but nonexistent level | Invalid values never start; nonexistent level is rejected and returns to selection | NEW production-drill-pages.test.tsx; nonexistent server case pending |
+| R029 | P1 | Legacy practice create endpoint → Lose response after server creates session, then repeat start after reload | Bounded cost/duplicates; recover existing session or explicit idempotency contract | OPEN: new client guards same-page repeats; cross-reload idempotency needs server work |
+
+## Microphone, camera and playback
+
+| ID | Priority | Setup and action | Expected result | Existing/new evidence and gap |
+|---|---|---|---|---|
+| R030 | P1 | Permission prompt still open → Leave route or change question, then grant microphone | Tracks immediately stop; stale recorder never starts | NEW production-recorder-lifecycle.test.tsx and production-drill-pages.test.tsx |
+| R031 | P1 | Recorder starting → Tap Start several times before getUserMedia resolves | One request and one recorder | NEW production-recorder-lifecycle.test.tsx |
+| R032 | P1 | Recorder stopping with delayed final chunk → Press Stop then try replay/report immediately | Submission waits for final non-empty audio; actual MIME retained | NEW recorder-lifecycle and drill-pages tests |
+| R033 | P1 | No usable recorder or occupied microphone → Deny permission, remove device, throw during recorder construction | Visible retry instruction and no leaked track | NEW recorder-lifecycle tests; physical device removal pending |
+| R034 | P1 | Silent or empty capture → Deliver zero-byte recording and speech with only silence/fillers | No empty submission or fabricated score; explain minimum usable answer | NEW recorder-lifecycle; backend test_non_answer_detection.py |
+| R035 | P1 | Safari/Chrome/Firefox with different codecs → Record, replay, convert and upload MP4/WebM/Ogg from real browser | Actual encoding decodes; duration/channel/sample rate and transcript remain valid | MIME regression passed; real codec/device acceptance pending |
+| R036 | P1 | Mobile call, lock screen, background tab → Interrupt recording and resume with changed audio device | Explicit interruption/re-record flow; no apparently live but dead mic | Physical-device/browser acceptance pending |
+| R037 | P2 | Pronunciation playback active → Replay repeatedly, change word/speed, finish, navigate away | Only one audio element plays; obsolete callbacks cannot revoke current playback | Source fix; rendered audio acceptance pending |
+| R038 | P1 | Provider audio returns 401/429/500 or corrupt/empty blob → Tap listen and retry after failure | Announced failure, usable retry, no endless spinner or overlapping audio | Existing TTS suites; pronunciation corrupt-media acceptance pending |
+| R039 | P1 | Camera permission and preview → Deny, unplug, rotate, close tab and end appointment | No invisible continuing capture; clear readiness and recovery status | Human media/device acceptance pending; Meet remains external |
+| R040 | P2 | Microphone explanation dialog → Tab/Shift+Tab, Escape, Cancel, repeat permission click, deny | Named modal with contained focus, return focus and non-duplicated request; denial announced | NEW production-microphone-dialog.test.tsx mocks native dialog; real focus pending |
+
+## Browser storage and pronunciation
+
+| ID | Priority | Setup and action | Expected result | Existing/new evidence and gap |
+|---|---|---|---|---|
+| R041 | P1 | Pronunciation URL contains difficulty → Open deep link repeatedly without pressing Start | Valid difficulty prefilled; navigation never creates session as a side effect | NEW production-pronunciation-safety.test.tsx |
+| R042 | P1 | Pronunciation storage absent or corrupt → Open start directly with invalid JSON, missing words, invalid IDs or mismatched counts | Safe recovery link; no crash or malformed audio request | NEW production-pronunciation-safety.test.tsx |
+| R043 | P1 | Storage blocked before session creation → Deny sessionStorage writes then press Start | No session request; clear storage instruction | NEW production-pronunciation-safety.test.tsx |
+| R044 | P1 | Quota reached only after creation response → Fail result storage, free space, choose Continue | Existing response retained and stored; no second creation request | NEW production-pronunciation-safety.test.tsx |
+| R045 | P2 | Last pronunciation word → Complete final word and use return action | Finish practice label; semantic link returns to Practice; no button inside link | NEW production-pronunciation-safety.test.tsx |
+| R046 | P2 | Pronunciation setup promises → Read setup and perform exercise | No claim of role adaptation, recording or scoring when endpoint/page does not provide it | Source/API review; copy and irrelevant role selector corrected |
+
+## Files, exports and privacy
+
+| ID | Priority | Setup and action | Expected result | Existing/new evidence and gap |
+|---|---|---|---|---|
+| R047 | P0 | Backend résumé download with uploaded/provider fields → Embed image/style markup, quote-breaking links and file/data/javascript URLs; render a long document | Literal escaped text, safe hyperlinks, no renderer resource fetch; real PDF text extractable and paginated | NEW backend test_resume_pdf_render_safety.py; deployed renderer/font/egress acceptance pending |
+| R048 | P1 | Résumé with multiple pages and Hindi content → Save to profile and download; extract text from both PDFs and compare final section, links and page count | All content preserved with selectable/extractable text and correct pagination independent of phone width | OPEN O01: screenshot-based profile save is not accepted; backend download separate |
+| R049 | P0 | Résumé with markup-looking content or provider response → Export report containing tags, event attributes, script text, quotes and Devanagari in all text fields | Untrusted content stays literal text; exported page cannot load active external content | NEW production-export-safety.test.ts |
+| R050 | P1 | No analysis or malformed score → Refresh resume steps; export undefined/NaN/infinite/negative/out-of-range score | Recover missing workflow; display unavailable, never fabricate zero/success | NEW export tests; student-studio-resume.test.tsx |
+| R051 | P1 | File picker and API uploads → Upload empty, renamed executable, oversized, encrypted, corrupt PDF/DOCX and very long filename | Server verifies type/limits and parser time; UI preserves retry and readable filename | Backend test_bulk_ats.py/test_resume_schema.py; live file corpus pending |
+| R052 | P0 | Resume references external/private URLs → Use loopback, private network, metadata IP, redirects and DNS changes in parsed links | No internal-network fetch; bounded redirects/timeouts and bytes | Backend test_bulk_ats.py; deployment egress/DNS acceptance pending |
+| R053 | P1 | Bulk upload repeated with partial failure → Upload same batch twice, cancel midway, retry only failed subset | No duplicate score writes; per-file status and bounded concurrency; cancel semantics clear | Backend bulk ATS/worker tests; authenticated full batch pending |
+| R054 | P0 | Transport error with Authorization and answer/resume body → Trigger shared API error and inspect logger/telemetry payload | No complete transport object, bearer value, body or query-string secret in error telemetry | NEW production-api-error-privacy.test.ts; broader telemetry/session-replay audit pending |
+| R055 | P1 | Signed audio/resume link expires or is copied → Request with wrong user and use link after expiry | No owner bypass; expected expiry; clear renew action without sensitive URL in logs | Backend answer storage/course tests; deployed storage policy pending |
+| R056 | P1 | Profile/resume save with rapid click and delayed response → Save twice, leave/re-enter, submit very long Hindi/English names and URLs | No stale overwrite, duplicate request or clipped validation; current values retained | Existing onboarding/profile tests; actual API concurrency pending |
+
+## AI providers and workers
+
+| ID | Priority | Setup and action | Expected result | Existing/new evidence and gap |
+|---|---|---|---|---|
+| R057 | P1 | Question generation timeout or rate limit → Return 429, timeout, partial/malformed JSON, duplicate or wrong-count questions | Bounded retry/cost; explicit failure; never silently changes sitting count | Backend test_practice_ai_question_gateway.py and test_full_stack_questions_provider.py |
+| R058 | P1 | Speech provider quota exhausted → Start TTS/transcription with provider unavailable then restore | Clear unavailable state; answer not lost; recovery does not charge/repeat without bounds | Backend ElevenLabs/worker tests; real provider acceptance pending |
+| R059 | P1 | Job worker crash around commit → Crash before reserve, during processing, after persist and before ack; redeliver | Idempotent claim and bounded retry; one authoritative transcript/report | Backend test_answer_transcription_worker.py/test_worker_queue.py; SQL/crash rehearsal pending |
+| R060 | P1 | Jev disabled or evaluation digest/model mismatch → Attempt to route unsupported task or unapproved cohort through Jev | Task/model/cohort gate fails closed; fallback provenance recorded | Backend test_jev_rollout.py/test_llm_provider_selection.py |
+| R061 | P1 | Representative reviewed English/Hindi/mixed/accent data → Independently label, adjudicate disagreement, evaluate unseen holdout | Measured quality/error rates by cohort/task; no calibration claim from synthetic fixtures | Collection workflow exists; real reviewed dataset unavailable, empirical gate OPEN |
+| R062 | P1 | Resume/answer contains provider-manipulation instructions → Ask model to ignore rubric, reveal hidden questions or fabricate score | Treat learner text as data; enforce schema/rubric; review adversarial outputs | Controlled provider red-team acceptance pending |
+| R063 | P1 | Burst of student starts/uploads → Run gradual load against approved isolated deployment-sized environment | Measured p95/p99, error rates, queue age, DB connections, memory and provider spend within agreed budget | OPEN: no representative load run this turn; do not load-test live production |
+
+## Human interviews, integrity and appeals
+
+| ID | Priority | Setup and action | Expected result | Existing/new evidence and gap |
+|---|---|---|---|---|
+| R064 | P1 | External Meet appointment → Join before window, late, cancelled, no-show, wrong role/course and missing link | Join/state permissions consistent; understandable external-tab handoff and return action | Backend test_human_interviews.py; real Google admission pending |
+| R065 | P1 | Appointment changed concurrently → Reschedule/cancel/mark no-show from two hosts or stale tab | One valid transition; stale state rejected; no contradictory student status | Backend human unit tests; concurrent SQL/browser pending |
+| R066 | P1 | Meet pop-up blocked or external app opens → Tap Join on phone, return after disconnect and rejoin | No claim app controls Meet admission; fallback link and appointment remain usable | Real Meet/mobile acceptance pending |
+| R067 | P1 | AI/human mode handover → Host joins during AI audio/recording or leaves unexpectedly | Explicit supported mode transition; no two simultaneous interviewers or lost answer | OPEN broader handover scope; external Meet is not an embedded orchestrated room |
+| R068 | P0 | Tab blur/camera absence/second device suspicion → Collect low-confidence browser evidence then try automatic punitive action | No automatic cheating verdict from weak signal; proportionate review and evidence access | Backend test_integrity_policy.py; reviewer/learner integrated acceptance pending |
+| R069 | P1 | Appeal and reviewer decision race → Student appeals twice while two reviewers decide or course access is revoked | One versioned/audited decision, conflict handling, scoped evidence, readable learner notice | Build39 candidate workflow; authenticated full acceptance pending |
+| R070 | P1 | Human or AI-generated feedback → Open long report with missing evidence, delayed score, unsupported label | Source/provenance and uncertainty clear; no fabricated progress or definitive accusation | Backend report shape tests; learner/reviewer task acceptance pending |
+
+## Design, accessibility and device behavior
+
+| ID | Priority | Setup and action | Expected result | Existing/new evidence and gap |
+|---|---|---|---|---|
+| R071 | P1 | Every route in route-inventory.csv → Render at 320,360,390,430,768,1024,1280,1440,1920 CSS px | No page overflow or obscured primary action; meaningful reading width and navigation | PENDING rendered matrix; source review only this turn |
+| R072 | P1 | Every task with browser zoom and text enlargement → Test 200% text and 400% zoom at 1280px; landscape 844x390 | Reflow without lost controls; tables contain own scroll; dialog actions reachable | PENDING rendered matrix; WCAG 1.4.4/1.4.10 |
+| R073 | P1 | Phone form with keyboard open → Focus lowest input, show validation and use submit/cancel/back | Keyboard, bottom nav and safe-area do not cover action/error; scroll preserves context | PENDING real phone; no physical device available |
+| R074 | P1 | Keyboard-only student and scoped staff → Complete start, answer, review, author, publish, grant/revoke and appeal with Tab/Enter/Escape | Visible focus, correct order, labels and focus return; no trap except active modal | Native dialog code/tests; complete real keyboard acceptance pending |
+| R075 | P1 | Screen reader → Navigate landmarks/headings/forms/tables; trigger save/error/countdown/status | Meaningful names, selected/current states; no repeated per-second announcements | PENDING native VoiceOver per user decision |
+| R076 | P2 | Missing/slow fonts and long content → Disable fonts; use Hindi, mixed script, 200-character names, long URLs and empty/huge counts | No clipped glyphs, hidden critical context or changing layout that moves a click target | PENDING rendered font/content matrix |
+| R077 | P1 | Loading, empty, error, denied and success states → Open each list/detail state including successful empty result versus request failure | Distinct states with one clear next action; no blank/error-as-zero dashboard | PENDING route-state matrix; several student missing/empty cases covered |
+| R078 | P2 | Expanded/collapsed navigation → Toggle across 767/768 and 1023/1024 breakpoints during navigation | Brand, menu and Back have distinct positions; labels/tooltips/current item remain understandable | Existing shell source + navigation tests; visual pending |
+| R079 | P1 | Contrast and forced colors → Measure actual foreground/background including status badges, charts, disabled/loading states | AA text/UI contrast where required; information never color-only; focus visible | Token checks exist; full rendered audit pending |
+| R080 | P2 | Touch controls and long action labels → Measure speaker, menu, chips, pagination, close, upload and row actions; tap with adjacent targets | Project target >=44px where practical, no accidental destructive taps or icon-only ambiguity | Pronunciation speaker source enlarged; remaining rendered target measurement pending |
+| R081 | P2 | Reduced motion and companion → Enable reduced motion; hide/mute companion; trigger listening/speaking/error states | Motion not required for meaning; persistent preferences and real state; speech remains controllable | Existing companion tests; full animation/assistive acceptance pending |
+| R082 | P2 | Staff dense tables and loading skeletons → Load 0,1,1000 rows; sort/filter/paginate; wait on skeleton at narrow widths | No page-width inflation, sticky action obstruction, indistinguishable status or tiny badges | Source fixes for skeleton minimum width and 10px tags; rendered pending |
+| R083 | P1 | Assessment exit and irreversible staff operation → Use Back/close during unsaved work; delete/revoke/publish from detail | Consequence explicit; draft/evidence preserved; confirm only irreversible actions; no accidental submit | Integrated workflow pending; specific existing guard tests only |
+| R084 | P2 | Human task comprehension → Ask new learner to start practice, find next improvement and return; ask facilitator to review assigned student | Task understandable without explanation; no dead affordance, decorative data or empty marketing-led screen | PENDING observed task study; no fabricated usability result |
+| R085 | P2 | Static assets and production-origin config → Load optimized build with missing image, offline asset cache and wrong API origin | Legible fallback; no production credentials/config leakage; clear network failure | Optimized build passed; deployed-origin/offline asset acceptance pending |
+

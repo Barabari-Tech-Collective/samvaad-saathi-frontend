@@ -24,13 +24,13 @@ export function ATSScoreCircle() {
   };
 
   return (
-    <div className="w-full rounded-3xl bg-gradient-to-br from-primary to-primary/80 p-6 text-white shadow-lg overflow-hidden relative">
+    <div className="studio-report-header">
       <div className="flex items-center gap-2 mb-6 opacity-90 relative z-10">
         <SparklesIcon className="size-5" />
         <span className="font-semibold text-sm">ATS Compatibility Score</span>
       </div>
 
-      <div className="flex items-center gap-6 relative z-10">
+      <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
         {/* Circle */}
         <div className="relative w-[120px] h-[120px] flex-shrink-0">
           <div
@@ -45,6 +45,10 @@ export function ATSScoreCircle() {
               { "--value": score, "--size": "120px", "--thickness": "8px" } as React.CSSProperties
             }
             role="progressbar"
+            aria-label="ATS compatibility score"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={score}
           >
             <div className="flex flex-col items-center justify-center pt-[15px]">
               <span className="text-[40px] leading-none font-bold mb-1">{score}</span>
@@ -55,7 +59,7 @@ export function ATSScoreCircle() {
 
         {/* Info Text */}
         <div className="flex-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-xs font-semibold mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 rounded-full text-xs font-semibold mb-3">
             <ArrowTrendingUpIcon className="size-3.5" />
             {getStatusText(score)}
           </div>
@@ -73,9 +77,6 @@ export function ATSScoreCircle() {
           </div>
         )}
       </div>
-
-      {/* Background decoration */}
-      <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl mix-blend-overlay"></div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import PageHeading from "@/components/studio/PageHeading";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService } from "@/lib/api-config/src/config";
 import { ENDPOINTS } from "@/lib/api-config/src/endpoints";
@@ -158,12 +159,17 @@ const ReportPage = () => {
   const speechSpeedFeedback = getSpeechSpeedFeedback(speechSpeed);
 
   return (
-    <div className="flex flex-col min-h-full bg-base-200/30">
-      <div className="p-6 space-y-6">
+    <div className="studio-stack">
+      <PageHeading
+        eyebrow="Practice feedback"
+        title="Your speaking rhythm"
+        description="Use this feedback to choose one thing to practise next."
+      />
+      <div className="space-y-6">
         {/* Your Score Card */}
-        <div className="card bg-blue-600 text-white p-8 text-center shadow-lg rounded-3xl">
+        <div className="studio-feedback-score">
           <p className="text-base font-medium opacity-80 mb-2">Your Score</p>
-          <div className="text-7xl font-bold mb-4">{score}</div>
+          <div className="text-5xl font-semibold mb-4">{score}</div>
           <p className="text-base font-medium opacity-80">{scoreSubtitle}</p>
         </div>
 

@@ -54,7 +54,11 @@ export const trackEvent = (eventName: string, properties: EventProperties = {}):
  */
 export const identifyUser = (userId: string, properties: UserProperties = {}): void => {
   if (typeof window !== "undefined") {
-    posthog.identify(userId, properties);
+    // Operational analytics does not need contact details, education or résumé fields.
+    const safe: Record<string, boolean | number> = {};
+    if (typeof properties.is_onboarded === "boolean") safe.is_onboarded = properties.is_onboarded;
+    if (typeof properties.total_attempts === "number" && Number.isSafeInteger(properties.total_attempts) && properties.total_attempts >= 0) safe.total_attempts = properties.total_attempts;
+    posthog.identify(userId, safe);
   }
 };
 
@@ -76,9 +80,17 @@ export const identifyUser = (userId: string, properties: UserProperties = {}): v
  * }
  * ```
  */
-export const trackError = (error: Error, additionalProperties: ErrorProperties = {}): void => {
+export const trackError = (_error: Error, additionalProperties: ErrorProperties = {}): void => {
   if (typeof window !== "undefined") {
-    posthog.captureException(error, additionalProperties);
+    // Never serialize arbitrary errors, causes, digests or route parameters.
+    const kind = additionalProperties.error_type;
+    const safeError = new Error("Application operation failed");
+    safeError.name = "ApplicationError";
+    safeError.stack = undefined;
+    posthog.captureException(safeError, {
+      error_type:
+        kind === "global_error" || kind === "interview_route_error" ? kind : "application_error",
+    });
   }
 };
 
@@ -106,7 +118,7 @@ export const trackError = (error: Error, additionalProperties: ErrorProperties =
  * when using the createApiClient hook. You can also call it manually for custom error handling.
  */
 export const trackApiError = (
-  error: Error,
+  _error: Error,
   context: {
     endpoint?: string;
     method?: string;
@@ -117,14 +129,20 @@ export const trackApiError = (
   } = {}
 ): void => {
   if (typeof window !== "undefined") {
+    // Axios errors can carry Authorization headers, uploaded data and server bodies.
+    // Send a fresh error and a small allowlist instead of serializing the transport error.
+    const safeError = new Error("API request failed");
+    safeError.name = "ApiRequestError";
+    safeError.stack = undefined;
     const errorProperties = {
       error_type: "api_error",
-      error_message: error.message,
-      error_stack: error.stack,
-      ...context,
+      endpoint: context.endpoint?.split(/[?#]/)[0],
+      method: context.method,
+      operation: context.operation,
+      status_code: context.status_code,
+      request_id: context.request_id,
     };
-
-    posthog.captureException(error, errorProperties);
+    posthog.captureException(safeError, errorProperties);
     // Also track as a custom event for better filtering
     trackEvent(EVENTS.API_ERROR, errorProperties);
   }
@@ -221,9 +239,10 @@ export const trackLoginSuccess = (loginMethod: string): void => {
  * trackLoginFailure(); // No specific error message
  * ```
  */
-export const trackLoginFailure = (errorMessage?: string): void => {
+export const trackLoginFailure = (_errorMessage?: string): void => {
+  void _errorMessage;
   trackEvent(EVENTS.LOGIN_FAILURE, {
-    error_message: errorMessage,
+    error_type: "login_failed",
   });
 };
 
@@ -493,9 +512,10 @@ export const trackReportGenerationStart = (): void => {
  * trackReportGenerationError("Insufficient data for analysis");
  * ```
  */
-export const trackReportGenerationError = (errorDetails: string): void => {
+export const trackReportGenerationError = (_errorDetails: string): void => {
+  void _errorDetails;
   trackEvent(EVENTS.REPORT_GENERATION_ERROR, {
-    error_details: errorDetails,
+    error_type: "report_generation_failed",
   });
 };
 
@@ -530,10 +550,11 @@ export const trackProfileEditButtonClick = (fieldName: string): void => {
  * trackProfileFieldValueChanged("degree", "Bachelor of Technology");
  * ```
  */
-export const trackProfileFieldValueChanged = (fieldName: string, newValue: string): void => {
+export const trackProfileFieldValueChanged = (fieldName: string, _newValue: string): void => {
+  void _newValue;
   trackEvent(EVENTS.PROFILE_FIELD_VALUE_CHANGED, {
     field_name: fieldName,
-    new_value: newValue,
+    value_changed: true,
   });
 };
 

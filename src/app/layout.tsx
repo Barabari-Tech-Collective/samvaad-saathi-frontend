@@ -150,7 +150,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="hi" suppressHydrationWarning data-theme="light">
+    <html lang="en" suppressHydrationWarning data-theme="light">
       <head>
         <script
           type="application/ld+json"

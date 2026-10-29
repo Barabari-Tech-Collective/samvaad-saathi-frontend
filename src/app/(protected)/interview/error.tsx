@@ -19,14 +19,14 @@ const InterviewError = ({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
+    <div className="min-h-dvh flex items-center justify-center p-4">
+      <div className="studio-panel max-w-xl w-full">
         <h1 className="text-2xl font-bold text-gray-900 mb-3">
           Something went wrong with this interview
         </h1>
         <p className="text-gray-600 mb-6">
-          This didn&apos;t affect the rest of the app. You can try again, or head back and resume
-          from your dashboard.
+          Try reloading this interview. You can also open History to check saved answers and
+          available recovery options.
         </p>
 
         {process.env.NODE_ENV === "development" && (
@@ -44,17 +44,11 @@ const InterviewError = ({
         )}
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <button
-            onClick={reset}
-            className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
-          >
+          <button onClick={reset} className="btn btn-neutral">
             Try Again
           </button>
-          <button
-            onClick={() => (window.location.href = "/home")}
-            className="w-full sm:w-auto px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all duration-200"
-          >
-            Back to Dashboard
+          <button onClick={() => (window.location.href = "/history")} className="btn btn-outline">
+            Open history
           </button>
         </div>
       </div>

@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-22",
+  "scope": "local candidate; no production deployment",
+  "student": {
+    "passed": 342,
+    "files": 30,
+    "new_tests": 46,
+    "build": "passed",
+    "typescript": "passed",
+    "release_lint_errors": 0,
+    "release_lint_existing_warnings": 1
+  },
+  "backend": {
+    "unit_passed": 1133,
+    "new_pdf_tests": 15,
+    "warnings": 456,
+    "real_pdf_smoke": "passed; literal text and pagination only"
+  },
+  "dashboard": {
+    "node_passed": 37,
+    "typescript": "passed"
+  },
+  "acceptance_cases": 85,
+  "routes_indexed": 86,
+  "rendered_browser": "not run: disabled by user",
+  "physical_mobile": "pending: unavailable",
+  "native_voiceover": "pending: deferred",
+  "real_sql_http": "not rerun this pass",
+  "production": "unchanged",
+  "latest_followup": {
+    "batch": "02",
+    "student_passed": 363,
+    "test_files": 34,
+    "new_tests": 12,
+    "build": "passed",
+    "typescript": "passed after build completed",
+    "lint_errors": 0,
+    "lint_existing_warnings": 1,
+    "O04": "shared-client/cache protections implemented; direct-transport review and real browser acceptance pending"
+  }
+}

@@ -22,6 +22,7 @@ import {
   PlusIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -49,6 +50,12 @@ function Score({ value }: { value: number | null }) {
 export default function BulkATSPage() {
   const { user, loading: authLoading } = useAuth();
   const canUseBulkAts = Boolean(user?.authorizedUser.canUseBulkAts);
+  const router = useRouter();
+  // This is a recruiter workspace living in the student app: anyone without the role is
+  // sent home instead of being shown any of its screens or wording.
+  useEffect(() => {
+    if (!authLoading && !canUseBulkAts) router.replace("/home");
+  }, [authLoading, canUseBulkAts, router]);
   const [selectedBatchId, setSelectedBatchId] = useState<number | null>(null);
   const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(null);
   const [batchName, setBatchName] = useState("");
@@ -342,25 +349,13 @@ export default function BulkATSPage() {
     );
   }
 
-  if (!canUseBulkAts) {
-    return (
-      <div className="mx-auto mt-16 max-w-xl rounded-2xl border border-amber-200 bg-amber-50 p-8 text-center">
-        <ExclamationTriangleIcon className="mx-auto mb-3 size-10 text-amber-700" />
-        <h1 className="text-2xl font-bold text-slate-900">Bulk ATS access required</h1>
-        <p className="mt-2 text-slate-700">
-          Ask an administrator to grant your account the recruiter or placement staff role.
-        </p>
-      </div>
-    );
-  }
+  if (!canUseBulkAts) return null;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 py-6">
-      <header className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <header className="studio-page-heading">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-indigo-600">
-            Recruiter workspace
-          </p>
+          <p className="studio-eyebrow">Recruiter workspace</p>
           <h1 className="mt-1 text-3xl font-bold text-slate-950">Bulk ATS screening</h1>
           <p className="mt-2 max-w-2xl text-slate-600">
             Screen resume batches against one role. Scores assist review and never auto-reject a

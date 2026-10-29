@@ -1,12 +1,10 @@
 "use client";
 
+import PageHeading from "@/components/studio/PageHeading";
 import {
   ArrowLeftIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
-  MicrophoneIcon,
-  SignalIcon,
-  SpeakerWaveIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useState } from "react";
 import { trackEvent } from "@/lib/posthog/tracking.utils";
@@ -220,14 +218,11 @@ export default function PracticePreflight({
         <ArrowLeftIcon className="size-5" aria-hidden="true" /> Change setup
       </button>
 
-      <header>
-        <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#344499]">Ready check</p>
-        <h1 className="mt-2 text-3xl font-bold">Make sure Practice can save your work</h1>
-        <p className="mt-3 leading-7 text-gray-600">
-          These checks happen before the interview is created, so a permission or device problem
-          does not leave an unfinished attempt.
-        </p>
-      </header>
+      <PageHeading
+        eyebrow="Before you begin"
+        title="Make sure Practice can save your work"
+        description="Check your connection, microphone and speaker. This helps your answers stay safe if you need to reconnect."
+      />
 
       <section className="mt-6 rounded-2xl bg-[#F5F7FF] p-5" aria-label="Interview preview">
         <dl className="grid gap-4 sm:grid-cols-3">

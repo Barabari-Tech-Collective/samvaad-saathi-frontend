@@ -420,6 +420,8 @@ export default function Footer({
 
   return (
     <div
+      id="interview-controls"
+      tabIndex={-1}
       className="mx-auto flex w-full max-w-5xl flex-col items-center gap-4 py-4"
       aria-busy={busy}
     >
@@ -519,7 +521,7 @@ export default function Footer({
         <p role="status">Loading question…</p>
       ) : answer.phase === "recording" ? (
         <>
-          <div className="w-full max-w-3xl rounded-2xl border-2 border-indigo-300 bg-indigo-50 p-8 text-center">
+          <div className="studio-recording">
             <h2 className="text-xl font-semibold">Listening…</h2>
             <p>
               {Math.floor(answer.timeRemaining / 60)}:
@@ -549,7 +551,7 @@ export default function Footer({
           </button>
         </>
       ) : (
-        <div className="flex w-full items-center justify-between">
+        <div className="studio-interview-actions">
           <div className="flex flex-wrap gap-2">
             {(!answered || allowRerecord) && (
               <button
@@ -576,7 +578,7 @@ export default function Footer({
             )}
             {onSaveAndExit && (
               <button
-                className="btn btn-ghost"
+                className="ws-button"
                 disabled={unsaved || isSubmitting || isPausing || timerExpired}
                 onClick={() => void saveAndExit()}
               >

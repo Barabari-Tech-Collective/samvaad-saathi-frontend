@@ -1,5 +1,9 @@
 "use client";
 
+import { cookieSessionEnabled } from "@/lib/session-runtime";
+import { useAuth } from "@/components/providers/auth-provider";
+import { loginDestination } from "@/lib/login-destination";
+import { announceAuthChange, getAuthRevision, assertAuthRevision } from "@/lib/auth-session";
 import { ENDPOINTS } from "@/lib/api-config";
 
 import {
@@ -7,17 +11,19 @@ import {
   trackLoginFailure,
   trackLoginSuccess,
 } from "@/lib/posthog/tracking.utils";
-import Image from "next/image";
+import AuthFrame from "@/components/studio/AuthFrame";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useCookies } from "react-cookie";
 
-export default function SignupPage() {
+function LegacySignupPage() {
   const apiBaseUrl =
     process.env.NEXT_PUBLIC_API_BASE_URL ||
     (process.env.NODE_ENV === "development" ? "http://localhost:8000/api" : "");
-  const ssoLoginUrl = apiBaseUrl ? `${apiBaseUrl}/${ENDPOINTS.AUTH.SSO_LOGIN}` : undefined;
+  const [destination, setDestination] = useState("/home");
+  const handledCallback = useRef(false);
+  const ssoLoginUrl = apiBaseUrl ? `${apiBaseUrl}/${ENDPOINTS.AUTH.SSO_LOGIN}?return_to=${encodeURIComponent(destination)}` : undefined;
   const [cookies, setCookie] = useCookies(["token", "refresh_token"]);
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -26,24 +32,67 @@ export default function SignupPage() {
   // access to Samvaad Saathi specifically (they're authenticated, just not entitled yet).
   // requestCode is the one-time proof-of-identity the denied login left behind — this
   // student has no bearer token at all, since /authorize stopped before ever issuing one.
+  const [accessDenied, setAccessDenied] = useState(false);
   const [accessDeniedRequestCode, setAccessDeniedRequestCode] = useState<string | null>(null);
   const [requestState, setRequestState] = useState<"idle" | "submitting" | "submitted" | "error">(
     "idle"
   );
 
+  const [loginError, setLoginError] = useState<string | null>(null);
+
   useEffect(() => {
-    const handleTokenExtraction = () => {
+    const handleTokenExtraction = async () => {
       if (typeof window === "undefined") return;
 
-      // First, check if user already has valid tokens in cookies
-      const existingToken = cookies.token;
-      const existingRefreshToken = cookies.refresh_token;
-
-      if (existingToken && existingRefreshToken) {
-        // User already has valid tokens, redirect to home
-        router.push("/home");
+      const params = new URLSearchParams(window.location.search);
+      const returnTo = loginDestination(params.get("return_to"));
+      setDestination(returnTo);
+      const handoff = new URLSearchParams(window.location.hash.slice(1)).get("handoff");
+      if (handledCallback.current) return;
+      if (params.get("flow") === "handoff") {
+        handledCallback.current = true;
+        const revision = getAuthRevision();
+        window.history.replaceState({}, document.title, window.location.pathname);
+        setIsProcessing(true);
+        try {
+          if (!handoff || !/^[A-Za-z0-9_-]{43}$/.test(handoff) || !apiBaseUrl) throw new Error("Invalid handoff");
+          const response = await fetch(`${apiBaseUrl}/auth/sso/complete`, {
+            method: "POST", credentials: "include", headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ticket: handoff}),
+          });
+          if (!response.ok) throw new Error("Handoff failed");
+          const data = await response.json();
+          assertAuthRevision(revision);
+          if (!data || typeof data.token !== "string" || !data.token || typeof data.refresh_token !== "string" || !data.refresh_token) throw new Error("Invalid response");
+          const options = {path: "/", secure: process.env.NODE_ENV === "production", sameSite: "strict" as const, maxAge: 60 * 60 * 24 * 7};
+          const completedDestination = loginDestination(data.return_to);
+          window.history.replaceState({}, document.title, `/auth/signup?return_to=${encodeURIComponent(completedDestination)}`);
+          setCookie("token", data.token, options);
+          setCookie("refresh_token", data.refresh_token, options);
+          announceAuthChange(true);
+          router.replace(completedDestination);
+        } catch {
+          setIsProcessing(false);
+          setLoginError("Sign-in could not be completed. Please start again.");
+        }
         return;
       }
+      const callbackError = new URLSearchParams(window.location.hash.slice(1)).get("error");
+      if (callbackError === "access_denied") {
+        setAccessDenied(true);
+        setAccessDeniedRequestCode(new URLSearchParams(window.location.hash.slice(1)).get("requestCode"));
+        return;
+      }
+      if (callbackError) {
+        setLoginError("Sign-in could not be completed. Please start again.");
+        return;
+      }
+      // A new callback must be processed before considering stale account cookies.
+      if (!params.get("token") && !params.get("refresh_token") && cookies.token && cookies.refresh_token) {
+        router.replace(returnTo);
+        return;
+      }
+      if (handledCallback.current) return;
 
       // If no existing tokens, check for tokens in URL query parameters
       const searchParams = window.location.search;
@@ -62,17 +111,12 @@ export default function SignupPage() {
       if (!searchParams) return;
 
       // Extract token and refresh_token from URL query parameters
-      const params = new URLSearchParams(searchParams);
       const token = params.get("token");
       const refreshToken = params.get("refresh_token");
 
       if (token && refreshToken) {
+        handledCallback.current = true;
         setIsProcessing(true);
-
-        // Track successful login
-        // LEGACY - COGNITO: was trackLoginSuccess("Google") when Cognito Hosted UI only offered
-        // Google sign-in. Login now goes through Sampark Saathi's central auth.
-        trackLoginSuccess("Sampark Saathi");
 
         // Set secure cookies with tokens
         const cookieOptions = {
@@ -87,12 +131,11 @@ export default function SignupPage() {
         setCookie("refresh_token", refreshToken, cookieOptions);
 
         // Clear the query parameters from URL
-        window.history.replaceState({}, document.title, window.location.pathname);
+        window.history.replaceState({}, document.title, `/auth/signup?return_to=${encodeURIComponent(returnTo)}`);
 
-        // Redirect to root page to let the main routing logic handle the redirect
-        setTimeout(() => {
-          router.push("/");
-        }, 1000);
+        announceAuthChange(true);
+        trackLoginSuccess("Sampark Saathi");
+        router.replace(returnTo);
       } else if (hasTrackedLoginAttempt) {
         // If we tracked a login attempt but no tokens were received, track failure
         // LEGACY - COGNITO: was trackLoginFailure(error || "google_login_error"), reading
@@ -102,7 +145,7 @@ export default function SignupPage() {
       }
     };
 
-    handleTokenExtraction();
+    void handleTokenExtraction();
   }, [cookies.token, cookies.refresh_token, hasTrackedLoginAttempt]); //eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle continue button click
@@ -130,36 +173,22 @@ export default function SignupPage() {
 
   if (isProcessing) {
     return (
-      <div className="auth-page flex flex-col justify-center items-center w-full h-screen px-4">
-        <div className="text-white text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p className="text-lg">Setting up your account...</p>
-        </div>
-      </div>
+      <AuthFrame title="Opening your studio…">
+        <p role="status" className="studio-muted">
+          Signing you in. This will only take a moment.
+        </p>
+      </AuthFrame>
     );
   }
-
-  if (accessDeniedRequestCode !== null) {
+  if (accessDenied) {
     return (
-      <div className="auth-page flex flex-col justify-center items-center w-full h-screen px-4">
-        <Image
-          src="/barabari_logo.png"
-          alt="Samvaad Saathi Logo"
-          className="w-[116px] h-[110px] mb-6"
-          width={300}
-          height={300}
-        />
-        <h2 className="font-noto text-white text-[28px] font-[600] text-center mb-3">
-          You don&apos;t have access to Samvaad Saathi yet
-        </h2>
-        <p className="font-noto text-white/80 text-[15px] text-center mb-8 max-w-md">
-          Your Sampark Saathi account is signed in, but Samvaad Saathi isn&apos;t enabled on it yet.
-          Request access below — an admin needs to approve it before you can start.
-        </p>
-
-        {requestState === "submitted" ? (
-          <p className="font-noto text-white text-[15px] text-center bg-white/10 rounded-lg px-6 py-4 max-w-md">
-            Request sent. You&apos;ll be able to sign in here once it&apos;s approved.
+      <AuthFrame
+        title="Let’s get you access."
+        description="You’re signed in to Sampark Saathi. An admin needs to enable Samvaad Saathi on your account before you begin."
+      >
+        {!accessDeniedRequestCode ? (<p role="status" className="studio-panel">Please contact your facilitator or administrator to request Samvaad access.</p>) : requestState === "submitted" ? (
+          <p role="status" className="studio-panel">
+            Request sent. You can sign in here once it’s approved.
           </p>
         ) : (
           <>
@@ -167,69 +196,54 @@ export default function SignupPage() {
               type="button"
               onClick={handleRequestAccess}
               disabled={requestState === "submitting"}
-              className="w-72 h-11 bg-white rounded-lg flex items-center justify-center gap-3 active:scale-95 transition shadow-md cursor-pointer disabled:opacity-60"
+              className="studio-auth-action"
             >
-              <span className="text-black text-sm font-semibold">
-                {requestState === "submitting" ? "Requesting..." : "Request Access"}
-              </span>
+              {requestState === "submitting" ? "Requesting…" : "Request access"}
             </button>
             {requestState === "error" && (
-              <p className="font-noto text-red-300 text-sm text-center mt-3">
-                Something went wrong. Please try again.
+              <p role="alert" className="mt-4 text-red-700">
+                Your request could not be sent. Please try again.
               </p>
             )}
           </>
         )}
-      </div>
+      </AuthFrame>
     );
   }
-
   return (
-    <div className="auth-page flex flex-col justify-center items-center w-full h-screen px-4">
-      {/* Logo */}
-      <img
-        src="/barabari_logo.png"
-        alt="Samvaad Saathi Logo"
-        className="w-[116px] h-[110px] mb-6"
-        width={300}
-        height={300}
-      />
-
-      {/* Welcome Text */}
-      <h2 className="font-noto text-white text-[32px] font-[600] text-center mb-2">
-        Welcome to Samvaad Saathi!
-      </h2>
-
-      {/* Page Heading */}
-      <h1 className="font-noto text-white text-[20px] font-[600] mb-8">Create Account / Login</h1>
-
-      {/* Sampark Saathi SSO login/signup entry point. Must stay a real <Link> (top-level
-          navigation, not a fetch/router.push) - the whole /authorize <-> shared-cookie
-          redirect chain depends on the browser actually navigating away and back. */}
-      {/* LEGACY - COGNITO, kept for rollback:
-          href={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.COGNITO_LOGIN}`} */}
-      {/* A missing API base url used to render href="/auth/undefined/...". Linking back
-          to this page instead would give students a Continue button that silently
-          reloads, so a misconfigured deployment states the problem outright. */}
+    <AuthFrame
+      title="Your next interview starts here."
+      description="Sign in with your Sampark Saathi account to practise, get feedback and prepare for your next opportunity."
+    >
+      {loginError && <p role="alert" className="mb-4 text-red-700">{loginError}</p>}
+      {/* Keep SSO a real top-level navigation: shared-cookie redirects require it. */}
       {ssoLoginUrl ? (
-        <Link href={ssoLoginUrl} onClick={handleContinueClick}>
-          <button className="w-72 h-11 bg-white rounded-lg flex items-center justify-center gap-3 active:scale-95 transition shadow-md cursor-pointer">
-            <span className="text-black text-sm font-semibold">Continue</span>
-          </button>
+        <Link className="studio-auth-action" href={ssoLoginUrl} onClick={handleContinueClick}>
+          Continue with Sampark Saathi <span aria-hidden="true">→</span>
         </Link>
       ) : (
-        <div className="flex flex-col items-center gap-3">
-          <button
-            disabled
-            className="w-72 h-11 bg-white/60 rounded-lg flex items-center justify-center gap-3 shadow-md cursor-not-allowed"
-          >
-            <span className="text-black text-sm font-semibold">Continue</span>
+        <>
+          <button disabled className="studio-auth-action">
+            Sign-in unavailable
           </button>
-          <p role="alert" className="font-noto text-white text-[13px] max-w-72 text-center">
-            Sign-in is unavailable right now. Please try again later or contact your facilitator.
+          <p role="alert" className="mt-4 studio-muted">
+            Please try again later or contact your facilitator.
           </p>
-        </div>
+        </>
       )}
-    </div>
+      <p className="mt-5 text-sm studio-muted">
+        One account for Sampark Saathi and Samvaad Saathi.
+      </p>
+    </AuthFrame>
   );
+}
+
+function CookieSignupPage() {
+  const { signInWithSso } = useAuth();
+  return <AuthFrame title="Welcome to Samvaad Saathi" description="Sign in to continue your interview preparation.">
+    <button className="studio-auth-action" onClick={signInWithSso}>Continue to sign in <span aria-hidden="true">→</span></button>
+  </AuthFrame>;
+}
+export default function SignupPage() {
+  return cookieSessionEnabled ? <CookieSignupPage /> : <LegacySignupPage />;
 }

@@ -1,4 +1,5 @@
 "use client";
+import PageHeading from "@/components/studio/PageHeading";
 import { DEGREE_OPTIONS, UNIVERSITY_OPTIONS } from "@/lib/constants";
 import { useState } from "react";
 
@@ -15,20 +16,22 @@ export default function Step1({ onNext }: Step1Props) {
   const universities = UNIVERSITY_OPTIONS;
 
   return (
-    <div className="relative w-full bg-gradient-to-br from-blue-50 to-purple-50 px-4 pt-10 text-left font-inter">
-      {/* Heading */}
-      <div className="text-center">
-        <h2 className="text-[36px] font-[700] font-noto text-gray-800">Education Details</h2>
-      </div>
-
-      {/* Form Container */}
-      <div className="max-w-md mx-auto  p-8 mb-8">
+    <div>
+      <PageHeading
+        title="Tell us a little about yourself."
+        description="Add your education details. You can update these later in Profile."
+      />
+      <div className="studio-panel">
         {/* Degree Dropdown */}
         <div className="mb-6">
-          <label className="block mb-3 text-[16px] font-noto font-[600] text-gray-800">
+          <label
+            htmlFor="onboarding-degree"
+            className="block mb-3 text-[16px] font-noto font-[600] text-gray-800"
+          >
             Degree
           </label>
           <select
+            id="onboarding-degree"
             value={degree}
             onChange={(e) => setDegree(e.target.value)}
             className="select select-bordered w-full h-[60px] text-gray-800 font-noto text-[16px] rounded-xl"
@@ -46,10 +49,14 @@ export default function Step1({ onNext }: Step1Props) {
 
         {/* University Dropdown */}
         <div className="mb-6">
-          <label className="block mb-3 text-[16px] font-noto font-[600] text-gray-800">
+          <label
+            htmlFor="onboarding-university"
+            className="block mb-3 text-[16px] font-noto font-[600] text-gray-800"
+          >
             University
           </label>
           <select
+            id="onboarding-university"
             value={university}
             onChange={(e) => {
               setUniversity(e.target.value);
@@ -71,6 +78,7 @@ export default function Step1({ onNext }: Step1Props) {
           {university === "Others" && (
             <input
               type="text"
+              aria-label="University name"
               placeholder="Enter university name"
               value={customUniversity}
               onChange={(e) => setCustomUniversity(e.target.value)}
@@ -89,7 +97,7 @@ export default function Step1({ onNext }: Step1Props) {
           disabled={!degree || !university || (university === "Others" && !customUniversity.trim())}
           className="btn btn-neutral btn-block p-6 rounded-xl mt-6"
         >
-          Continue to Next Step
+          Continue to career details
         </button>
       </div>
     </div>

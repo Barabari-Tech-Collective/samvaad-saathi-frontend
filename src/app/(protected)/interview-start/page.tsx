@@ -1,5 +1,8 @@
 "use client";
 
+import { assertAuthRevision, getAuthRevision } from "@/lib/auth-session";
+
+import PageHeading from "@/components/studio/PageHeading";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
@@ -118,13 +121,10 @@ function EntryRecovery({ title, children }: { title: string; children: React.Rea
       <h1 className="text-3xl font-bold">{title}</h1>
       {children}
       <div className="flex flex-wrap gap-4">
-        <Link className="inline-flex min-h-11 items-center font-semibold underline" href="/history">
+        <Link className="ws-button" href="/history">
           Check History
         </Link>
-        <Link
-          className="inline-flex min-h-11 items-center font-semibold underline"
-          href="/practice"
-        >
+        <Link className="ws-button" href="/practice">
           Back to practice
         </Link>
       </div>
@@ -154,6 +154,7 @@ export default function InterviewStartPage() {
 }
 
 function InterviewSetup({ account, mode }: { account: string; mode: InterviewMode }) {
+  const ownerRevision = useRef(getAuthRevision()).current;
   const current = useRef(true);
   const submitting = useRef(false);
   useLayoutEffect(() => {
@@ -177,7 +178,9 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
   const catalogue = useQuery<JobProfilesResponse>({
     queryKey: ["interview-entry-profiles", account, mode],
     queryFn: async ({ signal }) => {
+      assertAuthRevision(ownerRevision);
       const value = await apiClient.get<JobProfilesResponse>(ENDPOINTS_V2.JOB_PROFILES, { signal });
+      assertAuthRevision(ownerRevision);
       if (
         !value ||
         !Array.isArray(value.items) ||
@@ -369,6 +372,7 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
   };
 
   const handleSubmit = async () => {
+    if (getAuthRevision() !== ownerRevision || !current.current) return;
     if (submitting.current || !selection || !validateSelection()) return;
     submitting.current = true;
     setStartError("");
@@ -388,7 +392,7 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
           jobProfileId,
           ...(selection.kind === "tech" ? { questionCount: freeQuestionCount } : {}),
         });
-        if (!current.current) return;
+        if (!current.current || getAuthRevision() !== ownerRevision) return;
         if (!catalogueReady.current)
           throw new Error("Current role access must be checked in History.");
         const expected =
@@ -406,7 +410,7 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
           difficulty,
           useResume,
         });
-        if (!current.current) return;
+        if (!current.current || getAuthRevision() !== ownerRevision) return;
         if (!catalogueReady.current)
           throw new Error("Current role access must be checked in History.");
         const id = createdInterview(
@@ -420,7 +424,7 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
         );
       }
     } catch (error) {
-      if (!current.current) return;
+      if (!current.current || getAuthRevision() !== ownerRevision) return;
       setShowPreflight(false);
       const status = responseStatus(error);
       const rejected = status !== undefined && [400, 401, 403, 404, 410, 422, 429].includes(status);
@@ -492,29 +496,34 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
 
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-[#111827]">
-      <div className="space-y-2">
-        <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#344499]">
-          {mode === "assessment" ? "Formal sitting" : "Practice setup"}
-        </p>
-        <h1 className="text-3xl font-bold leading-tight">
-          {mode === "assessment" ? "Assessment Interview" : "Practice Interview"}
-        </h1>
-        <p className="max-w-2xl text-base leading-7 text-gray-600">
-          {mode === "assessment"
+      <PageHeading
+        eyebrow={mode === "assessment" ? "Formal assessment" : "Prepare your round"}
+        title={mode === "assessment" ? "Assessment Interview" : "Practice Interview"}
+        description={
+          mode === "assessment"
             ? "Questions are set by your facilitator and reviewed as a formal result."
-            : "Choose what you want to practise. This is private coaching, not an exam, and ordinary interruptions will not punish you."}
-        </p>
-      </div>
+            : "Choose a role and level. Next, check your microphone before starting your spoken answers."
+        }
+      />
+      <ol className="studio-setup-steps" aria-label="Interview setup steps">
+        <li aria-current="step">
+          <span>1</span>Choose your interview
+        </li>
+        <li>
+          <span>2</span>
+          {mode === "assessment" ? "Review instructions" : "Check microphone"}
+        </li>
+        <li>
+          <span>3</span>Begin
+        </li>
+      </ol>
 
       {startError && (
         <p role="alert" className="rounded-xl border border-[#DEE8FB] bg-white p-4">
           {startError}
         </p>
       )}
-      <fieldset
-        disabled={isPending}
-        className="rounded-3xl border border-[#D6E0FB] bg-white p-5 sm:p-7"
-      >
+      <fieldset disabled={isPending} className="studio-panel studio-setup-form">
         <div>
           <label htmlFor="interview-role" className="mb-2 block text-base font-bold text-black">
             {mode === "assessment"
@@ -633,8 +642,8 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
         )}
 
         <div className="mt-6 border-t border-gray-200 pt-6">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex min-w-0 flex-col">
               <label className="text-[14px] font-noto font-[500] text-black">
                 Personalise with my resume
               </label>

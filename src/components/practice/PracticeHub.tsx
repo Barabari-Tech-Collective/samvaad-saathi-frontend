@@ -1,5 +1,6 @@
 "use client";
 
+import PageHeading from "@/components/studio/PageHeading";
 import {
   activitySummary,
   focusProgress,
@@ -11,11 +12,11 @@ import { trackButtonClick } from "@/lib/posthog/tracking.utils";
 import {
   BoltIcon,
   ChatBubbleLeftRightIcon,
-  FireIcon,
   ListBulletIcon,
   MicrophoneIcon,
   SignalIcon,
   SparklesIcon,
+  ChevronRightIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -65,7 +66,7 @@ export function PracticeHubSkeleton() {
       aria-label="Loading Practice"
     >
       <div className="h-20 rounded-2xl bg-gray-100" />
-      <div className="h-64 rounded-3xl bg-[#344499]/10" />
+      <div className="h-64 rounded-xl bg-[#344499]/10" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[0, 1, 2, 3, 4].map((item) => (
           <div key={item} className="h-40 rounded-2xl bg-gray-100" />
@@ -78,7 +79,6 @@ export function PracticeHubSkeleton() {
 export function PracticeHubView({
   hub,
   status,
-  name,
   onRefresh,
   children,
 }: {
@@ -113,22 +113,17 @@ export function PracticeHubView({
 
   return (
     <div className="mx-auto w-full min-w-0 max-w-6xl pb-8 text-[#111827] [overflow-wrap:anywhere]">
-      <header className="mb-7">
-        <p className="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-[#344499]">
-          Your practice coach
-        </p>
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Let’s practise, {name}.</h1>
-        <p className="mt-3 flex flex-wrap items-center gap-2 text-base text-gray-600">
-          <FireIcon className="size-5 shrink-0 text-amber-500" aria-hidden="true" />
-          <span>
-            {verified
-              ? activitySummary(verified.activity)
-              : status === "error"
-                ? "Your activity is unavailable right now."
-                : "Checking your saved progress…"}
-          </span>
-        </p>
-      </header>
+      <PageHeading
+        eyebrow="Your practice space"
+        title="Practice"
+        description={
+          verified
+            ? activitySummary(verified.activity)
+            : status === "error"
+              ? "Your activity is unavailable right now."
+              : "Checking your saved progress…"
+        }
+      />
 
       {status === "error" && (
         <section
@@ -177,8 +172,8 @@ export function PracticeHubView({
         </Link>
       </nav>
       <section className="grid gap-5 lg:grid-cols-[1.2fr_0.9fr]" aria-label="Practice plan">
-        <div className="min-w-0 rounded-3xl border border-[#DEE8FB] bg-white p-6 text-[#1F285B] sm:p-8">
-          <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.12em] text-[#344499]">
+        <div className="studio-panel">
+          <div className="flex items-center gap-2 text-xs font-medium text-[#344499]">
             <SparklesIcon className="size-5" aria-hidden="true" />
             {resume
               ? canResume
@@ -186,16 +181,16 @@ export function PracticeHubView({
                 : "Saved practice"
               : status === "error"
                 ? "Saved progress unavailable"
-                : "Mock interview"}
+                : "Interview practice"}
           </div>
-          <h2 className="mt-4 text-2xl font-bold sm:text-3xl">
+          <h2 className="mt-4 text-xl font-semibold sm:text-3xl">
             {resume
               ? canResume
                 ? `Continue your ${resume.track} practice`
                 : readinessMessage.title
               : status === "error"
                 ? "Pick up your practice safely"
-                : "Start a full practice sitting"}
+                : "Practice an interview"}
           </h2>
           <p className="mt-3 max-w-2xl text-base leading-7 text-gray-600">
             {resume
@@ -233,7 +228,7 @@ export function PracticeHubView({
                   : "View saved session"
                 : status === "error"
                   ? "Find saved interviews"
-                  : "Begin mock interview"}
+                  : "Start practice interview"}
             </Link>
           )}
           {resume && !canResume && (
@@ -250,13 +245,11 @@ export function PracticeHubView({
           </p>
         </div>
 
-        <div className="min-w-0 rounded-3xl border border-[#DEE8FB] bg-[#F5F9FF] p-6 sm:p-8">
-          <p className="text-sm font-bold uppercase tracking-[0.12em] text-amber-900">
-            This week&apos;s focus
-          </p>
+        <div className="min-w-0 rounded-xl border border-[#DEE8FB] bg-[#F5F9FF] p-6 sm:p-8">
+          <p className="text-xs font-medium text-amber-900">This week&apos;s focus</p>
           {verified?.focus ? (
             <>
-              <h2 className="mt-4 text-2xl font-bold">{verified?.focus.title}</h2>
+              <h2 className="mt-4 text-xl font-semibold">{verified?.focus.title}</h2>
               <p className="mt-2 leading-6 text-gray-700">{verified?.focus.reason}</p>
               <Link
                 href={verified?.focus.href}
@@ -267,10 +260,8 @@ export function PracticeHubView({
             </>
           ) : verified ? (
             <>
-              <h2 className="mt-4 text-xl font-bold">
-                {enoughEvidence
-                  ? "Keep exploring your skills"
-                  : "Your personalised focus is taking shape"}
+              <h2 className="mt-4 text-lg font-semibold">
+                {enoughEvidence ? "Keep exploring your skills" : "Build your feedback history"}
               </h2>
               <p className="mt-2 leading-6 text-gray-700">
                 {enoughEvidence
@@ -300,10 +291,9 @@ export function PracticeHubView({
             </>
           ) : (
             <>
-              <h2 className="mt-4 text-xl font-bold">Choose one skill for today</h2>
+              <h2 className="mt-4 text-lg font-semibold">Choose one skill for today</h2>
               <p className="mt-2 leading-6 text-gray-700">
-                Your personalised focus will appear when your coach plan is available. No progress
-                estimate is shown until it can be verified.
+                Your suggested focus will appear after a few saved answers.
               </p>
             </>
           )}
@@ -313,30 +303,29 @@ export function PracticeHubView({
 
       <section className="mt-9" aria-labelledby="skill-builders-title">
         <div className="mb-4">
-          <h2 id="skill-builders-title" className="text-2xl font-bold">
+          <h2 id="skill-builders-title" className="text-xl font-semibold">
             Skill builders
           </h2>
           <p className="mt-1 text-gray-600">
             Short practice for the part you want to improve today.
           </p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {MODULES.map((module, index) => {
+        <div className="ws-skill-grid">
+          {MODULES.map((module) => {
             const Icon = module.icon;
             return (
               <Link
                 key={module.key}
                 href={module.href}
                 onClick={() => trackButtonClick(`practice_module_${module.key}`, "practice_page")}
-                className={`group min-w-0 min-h-40 rounded-2xl border border-[#D6E0FB] bg-white p-5 transition motion-safe:hover:-translate-y-0.5 hover:border-[#344499] hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] ${
-                  index === 4 ? "sm:col-span-2 lg:col-span-1" : ""
-                }`}
+                className="ws-skill-link"
               >
-                <Icon className="size-8 text-[#344499]" aria-hidden="true" />
-                <h3 className="mt-5 text-lg font-bold group-hover:text-[#344499]">
-                  {module.title}
-                </h3>
-                <p className="mt-1 leading-6 text-gray-600">{module.description}</p>
+                <Icon aria-hidden="true" />
+                <div>
+                  <h3>{module.title}</h3>
+                  <p>{module.description}</p>
+                </div>
+                <ChevronRightIcon aria-hidden="true" />
               </Link>
             );
           })}

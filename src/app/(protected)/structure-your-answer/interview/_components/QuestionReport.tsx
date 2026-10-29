@@ -120,10 +120,10 @@ const QuestionReport = ({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-[80vh] items-center justify-center p-6">
+      <div className="flex flex-col min-h-[50vh] items-center justify-center p-6">
         <div className="relative max-w-md w-full">
-          {/* Gradient border using wrapper */}
-          <div className="bg-gradient-to-r from-purple-400 via-pink-400 to-yellow-400 rounded-2xl p-[2px] shadow-lg">
+          {/* Loading status */}
+          <div className="studio-panel">
             <div className="bg-white rounded-xl p-8">
               <div className="text-gray-800 text-xl font-medium text-center">
                 Analyzing your practice...
@@ -180,7 +180,7 @@ const QuestionReport = ({
   const { frameworkProgress, timePerSection, keyInsight } = analysisData;
 
   return (
-    <div className="flex flex-col px-6 py-8 min-h-screen ">
+    <div className="flex flex-col px-6 py-8 ">
       {/* Overall Progress Section */}
       <div className="mb-6 bg-white rounded-lg p-6 shadow-sm relative">
         {/* Header with title and circular progress */}

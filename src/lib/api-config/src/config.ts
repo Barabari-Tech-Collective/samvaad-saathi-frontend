@@ -1,5 +1,8 @@
+import { assertAuthRevision, getAuthRevision } from "@/lib/auth-session";
 import { getRefreshTokenFromCookies, logoutUser, setTokensInCookies } from "@/lib/token-utils";
 import axios, { AxiosError } from "axios";
+import { ServerSessionClient } from "@/lib/server-session-client";
+import { createSessionAxios } from "@/lib/session-axios";
 import { ENDPOINTS } from "./endpoints";
 
 interface ErrorResponse {
@@ -26,7 +29,8 @@ export enum APIServiceV2 {
   INTERVIEWS = "INTERVIEWS",
 }
 
-export const createAxiosInstance = (baseURL: string) => {
+export const createAxiosInstance = (baseURL: string, session?: ServerSessionClient) => {
+  if (session) return createSessionAxios(baseURL, session);
   const axiosInstance = axios.create({
     baseURL,
     timeout: 60000, // 1 minute
@@ -36,10 +40,26 @@ export const createAxiosInstance = (baseURL: string) => {
     withCredentials: true,
   });
 
+  axiosInstance.interceptors.request.use((config) => {
+    const expected = getAuthRevision();
+    assertAuthRevision(expected);
+    // Axios merges configs on retry, so also carry the non-secret revision.
+    (config as typeof config & { _authRevision?: number })._authRevision ??= expected;
+    assertAuthRevision((config as typeof config & { _authRevision: number })._authRevision);
+    return config;
+  });
   axiosInstance.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      assertAuthRevision(
+        (response.config as typeof response.config & { _authRevision: number })._authRevision
+      );
+      return response;
+    },
     async (error) => {
       const originalRequest = error.config;
+      if (!originalRequest) return Promise.reject(error);
+      const expected = originalRequest._authRevision;
+      assertAuthRevision(expected);
 
       // Handle TOKEN_EXPIRED - try to refresh
       if (error?.response?.status === 401 && !originalRequest._retry) {
@@ -68,6 +88,7 @@ export const createAxiosInstance = (baseURL: string) => {
             }
           );
 
+          assertAuthRevision(expected);
           // Update tokens in cookies
           if (refreshResponse.data?.token && refreshResponse.data?.refresh_token) {
             setTokensInCookies(refreshResponse.data.token, refreshResponse.data.refresh_token);
@@ -78,9 +99,12 @@ export const createAxiosInstance = (baseURL: string) => {
             }
           }
 
+          assertAuthRevision(expected);
           // Retry original request after refresh
           return axiosInstance(originalRequest);
         } catch (err: unknown) {
+          // An old refresh must never overwrite or log out the new account.
+          assertAuthRevision(expected);
           // Check if it's an AxiosError
           if (err && typeof err === "object" && "response" in err) {
             const axiosError = err as AxiosError<ErrorResponse>;

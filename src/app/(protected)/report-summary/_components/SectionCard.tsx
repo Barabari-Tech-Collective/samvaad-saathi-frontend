@@ -6,8 +6,8 @@ type SectionCardProps = {
 };
 
 const SectionCard: React.FC<SectionCardProps> = ({ title, children }) => (
-  <div className="card bg-[#EEEFFC] shadow-xl">
-    <div className="card-body">
+  <div className="studio-panel">
+    <div className="space-y-4">
       <h2 className="card-title text-lg font-semibold">{title}</h2>
       <div className="text-base-content">{children}</div>
     </div>

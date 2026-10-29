@@ -2,7 +2,7 @@
 
 import { AUDIO_CONSTRAINTS_16KHZ } from "@/lib/audio-utils";
 import { MicrophoneIcon } from "@heroicons/react/24/outline";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 /**
@@ -138,31 +138,71 @@ export const MicPermissionModal = ({
   onClose: () => void;
   onRequestPermission: () => Promise<boolean>;
 }) => {
-  if (!isOpen) return null;
+  const dialog = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
+  const descriptionId = useId();
+  const pending = useRef(false);
+  const [requesting, setRequesting] = useState(false);
+  const [requestError, setRequestError] = useState(false);
+  useEffect(() => {
+    const element = dialog.current;
+    if (isOpen) {
+      element?.showModal();
+      setRequestError(false);
+    } else element?.close();
+    return () => element?.close();
+  }, [isOpen]);
+  const request = async () => {
+    if (pending.current) return;
+    pending.current = true;
+    setRequesting(true);
+    setRequestError(false);
+    try {
+      setRequestError(!(await onRequestPermission()));
+    } catch {
+      setRequestError(true);
+    } finally {
+      pending.current = false;
+      setRequesting(false);
+    }
+  };
 
   return (
-    <div className="modal modal-open">
+    <dialog
+      ref={dialog}
+      className="modal"
+      aria-labelledby={titleId}
+      aria-describedby={descriptionId}
+      onCancel={onClose}
+    >
       <div className="modal-box">
         <div className="flex items-center gap-3 mb-4">
           <MicrophoneIcon className="w-6 h-6 text-primary" />
-          <h3 className="font-bold text-lg">Microphone Access Required</h3>
+          <h3 id={titleId} className="font-bold text-lg">
+            Microphone Access Required
+          </h3>
         </div>
 
-        <p className="py-4">
+        <p id={descriptionId} className="py-4">
           To record your interview answers, we need access to your microphone. This will only be
           used to capture your responses during the interview.
         </p>
 
-        <div className="modal-action">
+        {requestError && (
+          <p role="alert">
+            Microphone access was not available. Check your browser settings and try again.
+          </p>
+        )}
+        <div className="modal-action flex-wrap">
           <button className="btn btn-outline" onClick={onClose}>
             Cancel
           </button>
-          <button className="btn btn-primary" onClick={onRequestPermission}>
+          <button className="btn btn-primary" onClick={request} disabled={requesting}>
             <MicrophoneIcon className="w-4 h-4 mr-2" />
-            Allow Microphone Access
+            {requesting ? "Waiting for permission…" : "Allow microphone access"}
           </button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 };

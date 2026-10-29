@@ -1,17 +1,27 @@
 "use client";
 
+import { assertAuthRevision, getAuthRevision } from "@/lib/auth-session";
+
+import {
+  prepareResumeUpload,
+  rememberResumeReceipt,
+  resumeOperationKey,
+} from "@/lib/resume-storage-recovery";
+import { assertResumeDataSaved } from "@/lib/resume-readiness";
+import ResumeStorageRecovery from "@/components/resume/ResumeStorageRecovery";
+import PageHeading from "@/components/studio/PageHeading";
 import { createApiClient, ENDPOINTS, extractApiErrorMessage } from "@/lib/api-config";
 import { APIService, APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
 import { EXPERIENCE_OPTIONS, MAX_RESUME_SIZE_MB, ROLE_OPTIONS } from "@/lib/constants";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { getTokenFromCookies } from "@/lib/token-utils";
 
 interface Step2Props {
-  onNext: (data: { target_position: string; years_experience: string }) => void;
+  onNext: (data: { target_position: string; years_experience: string }) => void | Promise<void>;
   isLoading?: boolean;
+  onBack: () => void;
 }
 
 interface JobProfile {
@@ -30,8 +40,13 @@ interface JobProfilesResponse {
 const resumeApiClient = createApiClient(APIService.RESUME);
 const jobProfilesApiClient = createApiClient(APIServiceV2.INTERVIEWS);
 
-export default function Step2({ onNext, isLoading = false }: Step2Props) {
+export default function Step2({ onNext, onBack, isLoading = false }: Step2Props) {
+  const ownerRevision = useRef(getAuthRevision()).current;
+  const uploadOperation = useRef("");
   const [role, setRole] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitting = useRef(false);
+  const savedResume = useRef<File | null>(null);
   const [experience, setExperience] = useState("");
   const [resume, setResume] = useState<File | null>(null);
   const [resumeError, setResumeError] = useState<string | null>(null);
@@ -50,59 +65,63 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
   const extractResumeMutation = resumeApiClient.useMutation({
     url: ENDPOINTS.RESUME.EXTRACT,
     method: "post",
-    successMessage: "Resume processed successfully!",
+
     showToastError: false,
     config: {
       headers: {
         "Content-Type": "multipart/form-data",
+        get "Idempotency-Key"() {
+          return uploadOperation.current;
+        },
       },
       timeout: 300000, // 5 minutes specifically for ATS analysis
     },
   });
 
   const handleSubmit = async () => {
-    // Call resume extraction API if resume is selected
-    if (resume) {
-      try {
-        const formData = new FormData();
-        formData.append("file", resume);
-        await extractResumeMutation.mutateAsync(formData);
+    if (submitting.current || isLoading || !role || !experience) return;
+    submitting.current = true;
+    setIsSubmitting(true);
+    try {
+      // Call resume extraction API if resume is selected
+      if (resume && savedResume.current !== resume) {
+        try {
+          const formData = new FormData();
+          formData.append("file", resume);
+          assertAuthRevision(ownerRevision);
+          const fingerprint = await prepareResumeUpload(resume, ownerRevision);
+          uploadOperation.current = resumeOperationKey(fingerprint, ownerRevision);
+          assertAuthRevision(ownerRevision);
+          const receipt = await extractResumeMutation.mutateAsync(formData);
+          assertAuthRevision(ownerRevision);
 
-        // Poll for hasResume
-        let retries = 10;
-        let hasResume = false;
-        toast.loading("Processing resume...", { id: "resume-poll" });
-        while (retries > 0 && !hasResume) {
-          await new Promise((resolve) => setTimeout(resolve, 1500));
-          const token = getTokenFromCookies();
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.ABOUT_ME}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
+          rememberResumeReceipt(receipt, ownerRevision);
+          assertResumeDataSaved(receipt);
+          savedResume.current = resume;
+          toast.success(
+            "Resume data saved. The original file may take longer to appear in Profile."
           );
-          const userData = await res.json();
-          if (userData?.authorizedUser?.hasResume) {
-            hasResume = true;
-          }
-          retries--;
+        } catch (error: unknown) {
+          if (getAuthRevision() !== ownerRevision) return;
+          const serverMessage = extractApiErrorMessage(
+            error,
+            "Failed to process resume. Please ensure the file is an unencrypted, valid PDF."
+          );
+          setResumeError(serverMessage);
+          return; // Stop submission so candidate can read the error and re-upload or remove the file
         }
-      } catch (error: unknown) {
-        toast.dismiss("resume-poll");
-        const serverMessage = extractApiErrorMessage(
-          error,
-          "Failed to process resume. Please ensure the file is an unencrypted, valid PDF."
-        );
-        setResumeError(serverMessage);
-        return; // Stop submission so candidate can read the error and re-upload or remove the file
       }
-    }
 
-    // Pass data to parent component for profile API call
-    onNext({
-      target_position: role,
-      years_experience: experience,
-    });
+      // Pass data to parent component for profile API call
+      if (getAuthRevision() !== ownerRevision) return;
+      await onNext({
+        target_position: role,
+        years_experience: experience,
+      });
+    } finally {
+      submitting.current = false;
+      setIsSubmitting(false);
+    }
   };
 
   const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,25 +164,26 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
     }
   };
 
-  console.log("jobProfiles :", jobProfiles);
-
   return (
-    <div className="relative w-full bg-gradient-to-br from-purple-50 to-blue-50 px-4 pt-10 font-inter">
-      {/* Heading */}
-      <div className="text-center">
-        <h2 className="text-[36px] font-[700] font-noto text-gray-800">Career Setup</h2>
-      </div>
-      {/* Form Container */}
-      <div className="max-w-md mx-auto  p-8 ">
+    <div>
+      <PageHeading
+        title="What are you working towards?"
+        description="Choose a target role. Your resume is optional—you can add it later."
+      />
+      <div className="studio-panel">
         {/* Target Role Dropdown */}
         <div className="mb-6">
-          <label className="block mb-3 text-[16px] font-noto font-[600] text-gray-800">
+          <label
+            htmlFor="onboarding-role"
+            className="block mb-3 text-[16px] font-noto font-[600] text-gray-800"
+          >
             Target Position / Role
           </label>
           <select
+            id="onboarding-role"
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            disabled={isLoadingProfiles}
+            disabled={isLoadingProfiles || isSubmitting || isLoading}
             className="select select-bordered w-full h-[60px] text-gray-800 font-noto text-[16px] rounded-xl"
           >
             <option value="" disabled>
@@ -190,10 +210,15 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
 
         {/* Experience Dropdown */}
         <div className="mb-6">
-          <label className="block mb-3 text-[16px] font-noto font-[600] text-gray-800">
+          <label
+            htmlFor="onboarding-experience"
+            className="block mb-3 text-[16px] font-noto font-[600] text-gray-800"
+          >
             Years of Experience
           </label>
           <select
+            id="onboarding-experience"
+            disabled={isSubmitting || isLoading}
             value={experience}
             onChange={(e) => setExperience(e.target.value)}
             className="select select-bordered w-full h-[60px] text-gray-800 font-noto text-[16px] rounded-xl"
@@ -209,12 +234,18 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
           </select>
         </div>
 
+        <ResumeStorageRecovery />
         {/* Resume Upload */}
         <div className="mb-6">
-          <label className="block mb-3 text-[16px] font-noto font-[600] text-gray-800">
+          <label
+            htmlFor="onboarding-resume"
+            className="block mb-3 text-[16px] font-noto font-[600] text-gray-800"
+          >
             Resume (Optional, PDF only, Max {MAX_RESUME_SIZE_MB}MB)
           </label>
           <input
+            id="onboarding-resume"
+            disabled={isSubmitting || isLoading}
             type="file"
             accept=".pdf"
             onChange={handleResumeUpload}
@@ -230,32 +261,48 @@ export default function Step2({ onNext, isLoading = false }: Step2Props) {
                 type="button"
                 onClick={handleRemoveResume}
                 className="btn btn-error btn-xs btn-soft"
+                disabled={isSubmitting || isLoading}
                 title="Remove file"
+                aria-label="Remove resume"
               >
                 <XMarkIcon className="h-5 w-5" />
               </button>
             </div>
           )}
-          {resumeError && <p className="mt-2 text-sm text-error font-medium">{resumeError}</p>}
+          {resumeError && (
+            <p role="alert" className="mt-2 text-sm text-error font-medium">
+              {resumeError}
+            </p>
+          )}
         </div>
 
         <button
           onClick={handleSubmit}
-          disabled={!role || !experience || isLoading || extractResumeMutation.isPending}
+          disabled={
+            !role || !experience || isLoading || isSubmitting || extractResumeMutation.isPending
+          }
           className={`flex-1 py-6 rounded-xl btn btn-neutral btn-block mt-6 ${
             role && experience && !isLoading && !extractResumeMutation.isPending
               ? " hover:shadow-lg"
               : "bg-gray-300 cursor-not-allowed"
           }`}
         >
-          {isLoading || extractResumeMutation.isPending ? (
+          {isLoading || isSubmitting || extractResumeMutation.isPending ? (
             <span className="flex items-center gap-2">
               <span className="loading loading-spinner loading-md"></span>
               {extractResumeMutation.isPending ? "Processing Resume..." : "Creating Profile..."}
             </span>
           ) : (
-            "Complete Setup"
+            "Open my studio"
           )}
+        </button>
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={isLoading || isSubmitting || extractResumeMutation.isPending}
+          className="btn btn-outline mt-3 w-full"
+        >
+          Back to education
         </button>
       </div>
     </div>

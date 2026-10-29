@@ -1,5 +1,16 @@
 "use client";
 
+import { assertAuthRevision, getAuthRevision } from "@/lib/auth-session";
+
+import {
+  prepareResumeUpload,
+  rememberResumeReceipt,
+  resumeOperationKey,
+} from "@/lib/resume-storage-recovery";
+import { assertResumeDataSaved } from "@/lib/resume-readiness";
+import ResumeStorageRecovery from "@/components/resume/ResumeStorageRecovery";
+import GraduationStatus from "@/components/graduation/GraduationStatus";
+import PageHeading from "@/components/studio/PageHeading";
 import { useAuth } from "@/components/providers/auth-provider";
 import { createApiClient, ENDPOINTS, extractApiErrorMessage } from "@/lib/api-config";
 import { APIService } from "@/lib/api-config/src/config";
@@ -25,9 +36,9 @@ import {
   DocumentTextIcon,
   QuestionMarkCircleIcon,
 } from "@heroicons/react/24/solid";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { getTokenFromCookies } from "@/lib/token-utils";
+import { accountJson } from "@/lib/account-request";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -50,6 +61,8 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 type EditableField = keyof ProfileFormData | "resume";
 
 export default function ProfilePage() {
+  const ownerRevision = useRef(getAuthRevision()).current;
+  const uploadOperation = useRef("");
   const { user, signOut } = useAuth();
   const queryClient = useQueryClient();
   const [resumeFile, setResumeFile] = useState<File | null>(null);
@@ -75,26 +88,20 @@ export default function ProfilePage() {
   const handleViewResume = async () => {
     setIsDownloadingResume(true);
     try {
-      const token = getTokenFromCookies();
-      const res = await fetch(
+      const data = await accountJson<{ url?: string }>(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.RESUME.DOWNLOAD_ORIGINAL}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        ownerRevision
       );
-
-      if (!res.ok) {
-        const errText = await res.text();
-        console.error("Backend error:", errText);
-        throw new Error("Failed to get download URL");
-      }
-
-      // The backend returns a JSON object containing a presigned URL
-      const data = await res.json();
+      assertAuthRevision(ownerRevision);
       if (data?.url) {
-        window.open(data.url, "_blank");
+        const url = new URL(data.url);
+        if (url.protocol !== "https:") throw new Error("Invalid download URL");
+        window.open(url.href, "_blank", "noopener,noreferrer");
       } else {
         throw new Error("No URL returned from backend");
       }
     } catch (error) {
+      if (getAuthRevision() !== ownerRevision) return;
       console.error("View resume error:", error);
       toast.error("Could not load resume. Please try again.");
     } finally {
@@ -118,11 +125,16 @@ export default function ProfilePage() {
   const extractResumeMutation = resumeApiClient.useMutation({
     url: ENDPOINTS.RESUME.EXTRACT,
     method: "post",
-    successMessage: "Resume uploaded successfully!",
+
     showToastError: false,
     keyToInvalidate: { queryKey: [ENDPOINTS.AUTH.ABOUT_ME] },
     config: {
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: {
+        "Content-Type": "multipart/form-data",
+        get "Idempotency-Key"() {
+          return uploadOperation.current;
+        },
+      },
       timeout: 300000, // 5 minutes specifically for ATS analysis
     },
   });
@@ -224,29 +236,20 @@ export default function ProfilePage() {
       try {
         const formData = new FormData();
         formData.append("file", resumeFile);
-        await extractResumeMutation.mutateAsync(formData);
+        assertAuthRevision(ownerRevision);
+        const fingerprint = await prepareResumeUpload(resumeFile, ownerRevision);
+        uploadOperation.current = resumeOperationKey(fingerprint, ownerRevision);
+        assertAuthRevision(ownerRevision);
+        const receipt = await extractResumeMutation.mutateAsync(formData);
+        assertAuthRevision(ownerRevision);
 
-        let retries = 10;
-        let hasResume = false;
-        toast.loading("Processing resume...", { id: "resume-poll" });
-        while (retries > 0 && !hasResume) {
-          await new Promise((resolve) => setTimeout(resolve, 1500));
-          const token = getTokenFromCookies();
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.AUTH.ABOUT_ME}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-          const userData = await res.json();
-          if (userData?.authorizedUser?.hasResume) hasResume = true;
-          retries--;
-        }
-        toast.dismiss("resume-poll");
+        rememberResumeReceipt(receipt, ownerRevision);
+        assertResumeDataSaved(receipt);
+        toast.success("Resume data saved. The original file may take longer to appear in Profile.");
         setResumeFile(null);
         setEditingField(null);
       } catch (error) {
-        toast.dismiss("resume-poll");
+        if (getAuthRevision() !== ownerRevision) return;
         console.error("Resume upload failed:", error);
         setErrors((prev) => ({
           ...prev,
@@ -280,6 +283,7 @@ export default function ProfilePage() {
       await updateProfileMutation.mutateAsync(submitData);
       setEditingField(null);
     } catch (error) {
+      if (getAuthRevision() !== ownerRevision) return;
       console.error(`Field update failed for ${field}:`, error);
       setErrors((prev) => ({
         ...prev,
@@ -346,30 +350,29 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 py-6">
-      <header className="space-y-3">
-        <p className="workspace-eyebrow">MAKE IT YOURS</p>
-        <h1 className="text-3xl font-semibold text-[#1F285B]">Profile and preferences</h1>
-        <p className="text-gray-600">
-          Update your details, choose a voice and manage practice sharing.
-        </p>
-      </header>
-      <section className=" ">
-        {/* Avatar */}
-        <div className="card-body items-center text-center">
-          <div className="avatar avatar-placeholder">
-            <div className="bg-primary text-neutral-content w-12 rounded-full">
-              <span className="text-xl">{userInitials}</span>
-            </div>
+      <PageHeading
+        eyebrow="Your account"
+        title="Profile and preferences"
+        description="Your details, interview voice and practice sharing—all in one place."
+      />
+      <ResumeStorageRecovery />
+      <GraduationStatus />
+      <section className="studio-profile-card">
+        <div className="studio-profile-identity">
+          <div className="studio-profile-avatar" aria-hidden="true">
+            {userInitials}
           </div>
-          <h2 className="card-title text-2xl">{user.authorizedUser.name}</h2>
-          <p className="text-base-content/70">
-            {user.authorizedUser.targetPosition || "No position set"}
-          </p>
+          <div>
+            <h2>{user.authorizedUser.name}</h2>
+            <p className="studio-muted">
+              {user.authorizedUser.targetPosition || "Add the role you’re preparing for"}
+            </p>
+          </div>
         </div>
 
         <div className="flex justify-between items-center font-semibold gap-8 text-primary">
           <span>Interviews attempted:</span>
-          <span>{user.authorizedUser.totalAttempts ?? 0}</span>
+          <span>{user.authorizedUser.totalAttempts ?? "Not available"}</span>
         </div>
 
         <div className="divider" />
@@ -618,6 +621,7 @@ export default function ProfilePage() {
                                 });
                                 setEditingField(null);
                               } catch (error) {
+                                if (getAuthRevision() !== ownerRevision) return;
                                 console.error("Failed to set ATS resume as active:", error);
                                 setAtsError(
                                   extractApiErrorMessage(

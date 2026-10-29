@@ -1,74 +1,60 @@
 "use client";
 
-import { ROLE_OPTIONS } from "@/lib/constants";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowRightIcon } from "@heroicons/react/24/outline";
+import { ROLE_OPTIONS } from "@/lib/constants";
+import SkillLanding from "@/components/studio/SkillLanding";
 
-const StructureYourAnswerPage = () => {
-  const [showRoleSelection, setShowRoleSelection] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<string>("");
-
-  const handleStartPractice = () => {
-    setShowRoleSelection(true);
-  };
-
-  const handleRoleSelect = (role: string) => {
-    setSelectedRole(role);
-  };
-
-  if (showRoleSelection) {
-    return (
-      <div className="flex flex-col items-center justify-center pt-10 gap-6 px-6">
-        <div className="w-full max-w-md">
-          <h2 className="text-lg font-bold text-black mb-2">Role</h2>
-          <p className="text-sm text-black mb-4">Select A Role</p>
-
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            {ROLE_OPTIONS.map((role) => (
-              <button
-                key={role}
-                onClick={() => handleRoleSelect(role)}
-                className={`px-4 py-3 rounded-lg font-medium text-black transition-colors ${
-                  selectedRole === role
-                    ? "bg-yellow-100 border-2 border-yellow-400"
-                    : "bg-gray-100 border border-transparent hover:bg-gray-200"
-                }`}
-              >
-                {role}
-              </button>
-            ))}
-          </div>
-
-          <Link href={`/structure-your-answer/interview?role=${encodeURIComponent(selectedRole)}`}>
-            <button disabled={!selectedRole} className="btn btn-neutral btn-block">
-              Get Started
-            </button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
+export default function StructureYourAnswerPage() {
+  const router = useRouter();
+  const [selectedRole, setSelectedRole] = useState("");
   return (
-    <div className="flex flex-col items-center justify-center pt-10 gap-4">
-      <p>Practice structured answers to interview questions and build clarity under pressure.</p>
-
-      {/* Lottie Animation */}
-      <div className="w-48 h-48 mx-auto mb-6">
-        <DotLottieReact src="/assets/lottie/Structure-icon.lottie" autoplay loop />
-      </div>
-
-      <p>Each question uses a specific framework—focus on structure, not perfection.</p>
-
-      {/* <button className="btn btn-outline" disabled>
-        View Sample Answers
-      </button> */}
-
-      <button className="btn btn-primary" onClick={handleStartPractice}>
-        Start Today&apos;s Practice
+    <SkillLanding
+      title="Give your answer a clear shape."
+      eyebrow="Answer structure"
+      description="Practise turning what you know into an answer someone can follow. Choose a role to make the questions relevant to you."
+      steps={[
+        { title: "Choose your context", description: "Pick the role you want to practise for." },
+        {
+          title: "Follow a framework",
+          description: "Use the question’s suggested structure to organise your answer.",
+        },
+        {
+          title: "Review and try again",
+          description: "Notice what was clear and what needs a stronger example.",
+        },
+      ]}
+    >
+      <fieldset>
+        <legend className="font-semibold">Which role are you preparing for?</legend>
+        <div className="studio-role-grid">
+          {ROLE_OPTIONS.map((role) => (
+            <button
+              type="button"
+              className="studio-choice"
+              key={role}
+              aria-pressed={selectedRole === role}
+              onClick={() => setSelectedRole(role)}
+            >
+              {role}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+      <button
+        type="button"
+        className="btn btn-neutral studio-wide-action"
+        disabled={!selectedRole}
+        onClick={() => {
+          if (selectedRole)
+            router.push(
+              `/structure-your-answer/interview?role=${encodeURIComponent(selectedRole)}`
+            );
+        }}
+      >
+        Start practice <ArrowRightIcon className="size-4" aria-hidden="true" />
       </button>
-    </div>
+    </SkillLanding>
   );
-};
-export default StructureYourAnswerPage;
+}

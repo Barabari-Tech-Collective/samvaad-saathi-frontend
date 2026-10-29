@@ -49,6 +49,10 @@ const AnswerTypeStep = ({
   hasPreviousSection = false,
   previousSection,
 }: AnswerTypeStepProps) => {
+  const captureBusy = useRef(false);
+  const generation = useRef(0);
+  const [capturePending, setCapturePending] = useState(false);
+  const [captureError, setCaptureError] = useState("");
   const sectionLabel = currentSection;
   const [isListening, setIsListening] = useState(false);
   const [hasAnswered, setHasAnswered] = useState(false);
@@ -77,7 +81,17 @@ const AnswerTypeStep = ({
   // analysis context, so navigating away mid-recording actually releases
   // the microphone instead of leaving it live until GC/tab close.
   useEffect(() => {
+    generation.current += 1;
+    captureBusy.current = false;
+    setCapturePending(false);
+    setCaptureError("");
     return () => {
+      generation.current += 1;
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.onstop = null;
+        mediaRecorderRef.current.ondataavailable = null;
+        mediaRecorderRef.current.onerror = null;
+      }
       if (stopWaveformAnimationRef.current) {
         stopWaveformAnimationRef.current();
       }
@@ -87,7 +101,7 @@ const AnswerTypeStep = ({
       }
       mediaRecorderRef.current?.stream?.getTracks().forEach((track) => track.stop());
     };
-  }, []);
+  }, [practiceId, questionIndex, currentSection]);
 
   // Reset timer when section changes (preserve nextHint if we just set it from API)
   useEffect(() => {
@@ -140,37 +154,37 @@ const AnswerTypeStep = ({
         "Content-Type": "multipart/form-data",
       },
     },
-    options: {
-      onSuccess: (data: { isComplete: boolean; message: string; nextSectionHint: string }) => {
-        if (data.nextSectionHint) {
-          skipNextHintResetRef.current = true;
-          setNextHint(data.nextSectionHint);
-        }
-      },
-      onError: (error) => {
-        console.error("Error submitting audio:", error);
-      },
-    },
   });
 
-  // Upload audio and return promise so caller can await completion
-  const uploadAudio = (formData: FormData) => {
-    return submitAudio(formData);
-  };
-
   const startRecording = async () => {
+    if (captureBusy.current) return;
+    captureBusy.current = true;
+    setCapturePending(true);
+    setCaptureError("");
+    const revision = generation.current;
+    let stream: MediaStream | null = null;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      stream = await navigator.mediaDevices.getUserMedia({
         audio: AUDIO_CONSTRAINTS_16KHZ,
       });
 
+      if (revision !== generation.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
       setTimeElapsed(0);
       recordingStartTimeRef.current = Date.now();
 
-      const audioAnalysis = createAudioAnalysisContext(stream);
+      // Waveform visualisation is optional; unavailable AudioContext must not leak the mic.
+      let audioAnalysis: AudioAnalysisContext | null = null;
+      try {
+        audioAnalysis = createAudioAnalysisContext(stream);
+      } catch {
+        /* Keep recording usable. */
+      }
       audioAnalysisRef.current = audioAnalysis;
 
       mediaRecorder.ondataavailable = (e) => {
@@ -179,8 +193,22 @@ const AnswerTypeStep = ({
         }
       };
 
+      mediaRecorder.onerror = () => {
+        if (revision !== generation.current) return;
+        mediaRecorder.onstop = null;
+        mediaRecorder.ondataavailable = null;
+        if (mediaRecorder.state !== "inactive") mediaRecorder.stop();
+        stream?.getTracks().forEach((track) => track.stop());
+        stopWaveformAnimationRef.current?.();
+        cleanupAudioAnalysis(audioAnalysisRef.current);
+        captureBusy.current = false;
+        setCapturePending(false);
+        setIsListening(false);
+        setCaptureError("Recording stopped unexpectedly. Check your microphone and record again.");
+      };
       mediaRecorder.start();
       setIsListening(true);
+      setCapturePending(false);
 
       const throttledUpdate = (bars: number[]) => {
         const now = Date.now();
@@ -191,16 +219,26 @@ const AnswerTypeStep = ({
       };
 
       lastUpdateTimeRef.current = Date.now();
-      const stopAnimation = startWaveformAnimation(audioAnalysis.analyser, throttledUpdate);
-      stopWaveformAnimationRef.current = stopAnimation;
-    } catch (error) {
-      console.error("Error accessing microphone:", error);
+      if (audioAnalysis)
+        stopWaveformAnimationRef.current = startWaveformAnimation(
+          audioAnalysis.analyser,
+          throttledUpdate
+        );
+    } catch {
+      stream?.getTracks().forEach((track) => track.stop());
+      cleanupAudioAnalysis(audioAnalysisRef.current);
+      if (revision === generation.current) {
+        captureBusy.current = false;
+        setCapturePending(false);
+        setCaptureError("Could not record. Allow microphone access and try again.");
+      }
     }
   };
 
   const stopRecording = () => {
     if (mediaRecorderRef.current && isListening) {
       mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
       setIsListening(false);
       recordingStartTimeRef.current = null;
 
@@ -225,17 +263,25 @@ const AnswerTypeStep = ({
   };
 
   const handleStopListening = () => {
-    if (!mediaRecorderRef.current) return;
+    if (!mediaRecorderRef.current || mediaRecorderRef.current.state !== "recording") return;
+    const revision = generation.current;
+    const recorder = mediaRecorderRef.current;
+    setCapturePending(true);
 
     // Capture the time elapsed and section before stopping
     const capturedTimeElapsed = timeElapsed;
 
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.onstop = async () => {
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        if (revision !== generation.current) return;
+        const blob = new Blob(chunksRef.current, {
+          type: recorder.mimeType || chunksRef.current[0]?.type || "audio/webm",
+        });
 
         try {
+          if (!blob.size) throw new Error("empty-recording");
           const wavBlob = await resampleAudioTo16kHz(blob);
+          if (revision !== generation.current) return;
           const file = new File([wavBlob], "recording.wav", {
             type: "audio/wav",
           });
@@ -244,12 +290,17 @@ const AnswerTypeStep = ({
           formData.append("file", file);
           formData.append("time_spent_seconds", capturedTimeElapsed.toString());
 
-          await uploadAudio(formData);
+          const data = (await submitAudio(formData)) as { nextSectionHint?: string };
+          if (revision !== generation.current) return;
+          if (data?.nextSectionHint) {
+            skipNextHintResetRef.current = true;
+            setNextHint(data.nextSectionHint);
+          }
           toast.success("Answer recorded");
           setHasAnswered(true);
           onComplete();
         } catch (error) {
-          console.error("Error submitting audio:", error);
+          if (revision !== generation.current) return;
           // The backend already returns a specific reason (e.g. "answer too
           // short to evaluate") - show that instead of a generic message so
           // the student knows what to actually do differently.
@@ -258,6 +309,12 @@ const AnswerTypeStep = ({
             errorMessage = error.response.data.detail;
           }
           toast.error(errorMessage);
+          setCaptureError(errorMessage);
+        } finally {
+          if (revision === generation.current) {
+            captureBusy.current = false;
+            setCapturePending(false);
+          }
         }
       };
       stopRecording();
@@ -267,10 +324,13 @@ const AnswerTypeStep = ({
   const showAnalyzeActions = currentStep === totalSteps && hasAnswered && Boolean(onAnalyze);
 
   return (
-    <div className="flex flex-col px-6 py-8">
+    <div className="studio-panel studio-drill-room flex flex-col">
       {/* Section Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">{sectionLabel}</h2>
+        <p className="studio-eyebrow mb-3">
+          Answer structure · {currentStep} of {totalSteps}
+        </p>
+        <h1 className="mb-3">{sectionLabel}</h1>
         <p className="text-sm text-gray-600 mb-2">Framework: {framework}</p>
         {(nextHint || current_hint) && (
           <p className="text-sm text-gray-700 italic bg-blue-50 p-3 rounded">
@@ -284,14 +344,21 @@ const AnswerTypeStep = ({
         <p className="text-lg leading-relaxed text-gray-900">{questionText}</p>
       </div>
 
+      {captureError && (
+        <p role="alert" className="text-red-700 mb-4">
+          {captureError}
+        </p>
+      )}
+      {capturePending && (
+        <p role="status" className="mb-4">
+          {isUploading ? "Saving your answer…" : "Preparing audio…"}
+        </p>
+      )}
       {/* Recording UI */}
       {isListening ? (
         <>
-          {/* Main container with animated background */}
-          <div className="relative w-full max-w-3xl mx-auto overflow-hidden rounded-2xl sm:rounded-3xl border-2 border-indigo-300 p-8 sm:p-12 md:p-16 shadow-2xl mb-6">
-            {/* Animated gradient background */}
-            <div className="absolute inset-0 animate-gradient bg-gradient-to-br from-blue-200 via-purple-100 to-yellow-100 bg-[length:200%_200%]" />
-
+          {/* Recording state uses the same surface as the interview room. */}
+          <div className="studio-recording mb-6">
             {/* Content */}
             <div className="relative flex flex-col items-center gap-6 sm:gap-8">
               {/* Listening text */}
@@ -308,21 +375,13 @@ const AnswerTypeStep = ({
                 {formatTime(timeElapsed)}
               </div>
 
-              {/* Microphone circle with glow */}
-              <div className="relative">
-                {/* Outer glow - pulsing */}
-                <div className="absolute inset-0 -m-8 sm:-m-12 animate-pulse rounded-full bg-purple-500/30 blur-3xl" />
-
-                {/* Middle glow - rotating */}
-                <div className="absolute inset-0 -m-6 sm:-m-8 animate-spin-slow rounded-full bg-gradient-to-r from-purple-500/40 via-blue-500/40 to-transparent blur-2xl" />
-
-                <div className="relative flex size-20 items-center justify-center rounded-full border-4 border-indigo-400/50 bg-gradient-to-br from-pink-400 via-purple-300 to-cyan-300 shadow-xl">
-                  <MicrophoneIcon className="size-10 text-indigo-700" />
-                </div>
-              </div>
+              <MicrophoneIcon className="size-10 text-[var(--studio-blue)]" aria-hidden="true" />
 
               {/* Waveform bars */}
-              <div className="flex h-16 sm:h-20 items-center justify-center gap-1 sm:gap-1.5">
+              <div
+                aria-hidden="true"
+                className="flex h-16 sm:h-20 items-center justify-center gap-1 sm:gap-1.5"
+              >
                 {waveformBars.map((height, index) => (
                   <div
                     key={index}
@@ -340,7 +399,7 @@ const AnswerTypeStep = ({
           <div className="flex justify-end gap-3 items-center w-full mt-auto pt-6 flex-wrap">
             <button
               onClick={handleStopListening}
-              disabled={isUploading}
+              disabled={isUploading || capturePending}
               className="btn btn-neutral"
             >
               {isUploading ? "Submitting..." : "Done"}
@@ -350,7 +409,11 @@ const AnswerTypeStep = ({
       ) : (
         <div className="flex justify-between gap-1 mt-auto pt-6 flex-wrap">
           {!hasAnswered && hasPreviousSection && previousSection && (
-            <button onClick={onRedoPrevious} className="btn btn-outline">
+            <button
+              disabled={isUploading || capturePending}
+              onClick={onRedoPrevious}
+              className="btn btn-outline"
+            >
               Redo {previousSection}
             </button>
           )}
@@ -364,7 +427,7 @@ const AnswerTypeStep = ({
           {showAnalyzeActions && (
             <button
               onClick={onAnalyze}
-              disabled={isUploading}
+              disabled={isUploading || capturePending}
               className="btn btn-primary text-white"
             >
               {isUploading ? "Uploading Answer..." : "Analyse Answer"}
@@ -374,7 +437,7 @@ const AnswerTypeStep = ({
           {!showAnalyzeActions && (
             <button
               onClick={handleRecordClick}
-              disabled={isUploading}
+              disabled={isUploading || capturePending}
               className="btn btn-neutral inline-flex items-center gap-2"
             >
               {isUploading ? (

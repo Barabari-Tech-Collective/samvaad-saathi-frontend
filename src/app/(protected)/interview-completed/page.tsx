@@ -1,5 +1,7 @@
 "use client";
 
+import { assertAuthRevision, getAuthRevision } from "@/lib/auth-session";
+
 import { useAuth } from "@/components/providers/auth-provider";
 import { ReceiptSummary } from "@/components/interview/SubmissionReceipt";
 import { createApiClient } from "@/lib/api-config/src/client";
@@ -20,10 +22,8 @@ const action =
 function CompletionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mx-auto w-full min-w-0 max-w-2xl py-6 [overflow-wrap:anywhere] sm:py-10">
-      <section className="space-y-5 rounded-3xl border border-[#DEE8FB] bg-white p-5 sm:p-9">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#344499]">
-          Interview submission
-        </p>
+      <section className="studio-panel space-y-5">
+        <p className="studio-eyebrow">Interview submission</p>
         <h1 className="text-3xl font-bold tracking-tight text-[#1F285B]">{title}</h1>
         {children}
         <div className="flex flex-wrap gap-3">
@@ -33,10 +33,7 @@ function CompletionCard({ title, children }: { title: string; children: React.Re
           >
             View history
           </Link>
-          <Link
-            href="/practice"
-            className="inline-flex min-h-11 items-center px-5 py-3 font-semibold text-[#344499]"
-          >
+          <Link href="/practice" className="ws-button">
             Back to practice
           </Link>
         </div>
@@ -74,6 +71,7 @@ export default function InterviewCompleted() {
 }
 
 function VerifiedCompletion({ account, interviewId }: { account: string; interviewId: string }) {
+  const ownerRevision = useRef(getAuthRevision()).current;
   const router = useRouter();
   const client = createApiClient(APIServiceV2.INTERVIEWS);
   const current = useRef(true);
@@ -84,11 +82,12 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
   );
   const completion = useQuery({
     queryKey: ["completion-status", account, interviewId],
-    queryFn: async ({ signal }) =>
-      parseCompletionEnvelope(
-        await client.get<unknown>(`interviews/${interviewId}/receipt`, { signal }),
-        interviewId
-      ),
+    queryFn: async ({ signal }) => {
+      assertAuthRevision(ownerRevision);
+      const value = await client.get<unknown>(`interviews/${interviewId}/receipt`, { signal });
+      assertAuthRevision(ownerRevision);
+      return parseCompletionEnvelope(value, interviewId);
+    },
     staleTime: 0,
     gcTime: 0,
     retry: false,
@@ -102,9 +101,11 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
   const existing = useQuery({
     queryKey: ["completion-report", account, interviewId],
     queryFn: async ({ signal }) => {
+      assertAuthRevision(ownerRevision);
       const value = await client.get<unknown>(`${ENDPOINTS_V2.SUMMARY_REPORT}/${interviewId}`, {
         signal,
       });
+      assertAuthRevision(ownerRevision);
       if (!hasReportEnvelope(value)) throw new Error("Feedback details could not be verified.");
       return value;
     },
@@ -222,8 +223,14 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
                 className={action}
                 disabled={existing.isFetching}
                 onClick={async () => {
+                  if (!current.current || getAuthRevision() !== ownerRevision) return;
                   const result = await existing.refetch();
-                  if (current.current && result.isError && responseStatus(result.error) === 404)
+                  if (
+                    current.current &&
+                    getAuthRevision() === ownerRevision &&
+                    result.isError &&
+                    responseStatus(result.error) === 404
+                  )
                     setGeneration("idle");
                 }}
               >
@@ -234,13 +241,14 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
                   type="button"
                   className={action}
                   onClick={async () => {
-                    if (inFlight.current) return;
+                    if (!current.current || getAuthRevision() !== ownerRevision || inFlight.current)
+                      return;
                     inFlight.current = true;
                     setGeneration("pending");
                     trackEvent("feedback_preparation_requested", { source: "verified_completion" });
                     try {
                       await post.mutateAsync({ interviewId: Number(interviewId) });
-                      if (!current.current) return;
+                      if (!current.current || getAuthRevision() !== ownerRevision) return;
                       if (!verifiedNow.current) {
                         setGeneration("uncertain");
                         setRetryWarning(true);
@@ -250,7 +258,7 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
                       // The report view performs its own fresh read and schema checks.
                       router.replace(`/report-summary?interviewId=${interviewId}`);
                     } catch {
-                      if (current.current) {
+                      if (current.current && getAuthRevision() === ownerRevision) {
                         setGeneration("uncertain");
                         setRetryWarning(true);
                       }

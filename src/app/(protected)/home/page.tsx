@@ -1,5 +1,18 @@
 "use client";
+import PageHeading from "@/components/studio/PageHeading";
 import Link from "next/link";
+import {
+  ArrowRightIcon,
+  ChatBubbleLeftRightIcon,
+  SignalIcon,
+  ListBulletIcon,
+  ClipboardDocumentCheckIcon,
+  VideoCameraIcon,
+  DocumentTextIcon,
+  ClockIcon,
+} from "@heroicons/react/24/outline";
+import HomePractice from "@/components/workspace/HomePractice";
+import { firstName } from "@/lib/practice-hub";
 import { useAuth } from "@/components/providers/auth-provider";
 import { apiClient } from "@/lib/api-config";
 import { ENDPOINTS } from "@/lib/api-config/src/endpoints";
@@ -21,122 +34,145 @@ export default function HomePage() {
     enabled: !!account && !loading,
     options: { staleTime: 0, gcTime: 0, retry: false },
   });
+  const notices = apiClient.useQuery<{ count: number }>({
+    key: ["assessment-review-notice-count", account],
+    url: "v2/integrity/me/notice-count",
+    enabled: !!account && !loading,
+    options: { staleTime: 0, gcTime: 0, retry: false },
+  });
   const data = query.isError || query.isFetching ? undefined : query.data;
   if (loading || !account) return <output>Checking your workspace…</output>;
+  const noticeCount = !notices.isError && !notices.isFetching ? (notices.data?.count ?? 0) : 0;
   return (
-    <div className="space-y-8 py-3 sm:py-5">
-      <header className="space-y-3">
-        <p className="workspace-eyebrow">YOUR NEXT STEP</p>
-        <h1 className="text-3xl font-semibold sm:text-4xl">Make room for your next opportunity.</h1>
-        <p className="max-w-2xl text-gray-600">
-          Welcome, {user.authorizedUser.name.split(" ")[0]}. Practise at your pace, prepare for an
-          assessment or meet your interviewer.
-        </p>
-      </header>
-      <section aria-label="Choose your next step" className="grid gap-4 md:grid-cols-3">
-        <article className="flex flex-col gap-4 rounded-3xl bg-[#1F285B] p-6 text-white">
-          <span className="text-xs font-semibold uppercase tracking-widest text-[#FFCC33]">
-            BUILD CONFIDENCE
-          </span>
-          <h2 className="text-2xl font-semibold">Practice, your way.</h2>
-          <p className="flex-1 text-sm leading-relaxed text-[#DEE8FB]">
-            Work on clear answers, English communication, pacing and interview skills.
+    <div className="ws-home">
+      <PageHeading
+        eyebrow="Your interview studio"
+        title={`Hi, ${firstName(user.authorizedUser.name)}.`}
+        description="A full interview or a little practice. Start where you are."
+      />
+      {noticeCount > 0 && (
+        <aside className="ws-notice">
+          <p>
+            {noticeCount} assessment {noticeCount === 1 ? "review needs" : "reviews need"} your
+            attention.
           </p>
-          <Link
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#FFCC33] px-4 font-semibold text-[#1F285B]"
-            href="/practice"
-          >
-            Open practice coach
+          <Link className="ws-button" href="/assessment-reviews">
+            View reviews <ArrowRightIcon aria-hidden="true" />
           </Link>
-          <Link
-            className="min-h-11 py-2 text-sm text-white underline underline-offset-4"
-            href="/interview-start?mode=practice"
-          >
-            Start a practice interview
+        </aside>
+      )}
+      <section className="ws-home-start" aria-label="Choose your next step">
+        <HomePractice key={String(account)} accountKey={String(account)} />
+        <div className="ws-secondary-tasks">
+          <Link className="ws-task-link" href="/interview-start?mode=assessment">
+            <ClipboardDocumentCheckIcon aria-hidden="true" />
+            <span>
+              <strong>Assessments</strong>
+              <small>View available interviews and instructions</small>
+            </span>
+            <ArrowRightIcon aria-hidden="true" />
           </Link>
-        </article>
-        <article className="flex flex-col gap-4 rounded-3xl border border-[#DEE8FB] bg-white p-6">
-          <span className="workspace-eyebrow">YOUR ASSESSMENT</span>
-          <h2 className="text-2xl font-semibold text-[#1F285B]">Show what you can do.</h2>
-          <p className="flex-1 text-sm leading-relaxed text-gray-600">
-            Open your available assessment, review the instructions and check your microphone before
-            starting.
-          </p>
-          <Link
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-black px-4 font-semibold text-white"
-            href="/interview-start?mode=assessment"
-          >
-            Find an assessment
+          <Link className="ws-task-link" href="/human-interviews">
+            <VideoCameraIcon aria-hidden="true" />
+            <span>
+              <strong>Human interviews</strong>
+              <small>Check your schedule and join your interviewer</small>
+            </span>
+            <ArrowRightIcon aria-hidden="true" />
           </Link>
-        </article>
-        <article className="flex flex-col gap-4 rounded-3xl border border-[#DEE8FB] bg-white p-6">
-          <span className="workspace-eyebrow">A HUMAN CONVERSATION</span>
-          <h2 className="text-2xl font-semibold text-[#1F285B]">Meet your interviewer.</h2>
-          <p className="flex-1 text-sm leading-relaxed text-gray-600">
-            Check your scheduled human interviews and join Google Meet when it is time.
-          </p>
-          <Link
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#C0CFF2] px-4 font-semibold text-[#344499]"
-            href="/human-interviews"
-          >
-            View human interviews
+          <Link className="ws-task-link" href="/ai-resume">
+            <DocumentTextIcon aria-hidden="true" />
+            <span>
+              <strong>Your resume</strong>
+              <small>Build or update your resume</small>
+            </span>
+            <ArrowRightIcon aria-hidden="true" />
           </Link>
-        </article>
+        </div>
       </section>
-      <section aria-labelledby="recent-interviews" className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="workspace-eyebrow">KEEP MOVING FORWARD</p>
-            <h2 id="recent-interviews" className="mt-2 text-2xl font-semibold text-[#1F285B]">
-              Pick up where you left off
-            </h2>
-          </div>
-          <Link
-            className="inline-flex min-h-11 items-center text-sm font-semibold text-[#344499] underline"
-            href="/history"
-          >
-            View all history
+      <section aria-labelledby="home-skills-title">
+        <div className="ws-section-heading">
+          <h2 id="home-skills-title">Work on one skill</h2>
+          <Link className="ws-button" href="/practice#skill-builders-title">
+            All skills <ArrowRightIcon aria-hidden="true" />
+          </Link>
+        </div>
+        <div className="ws-quick-skills">
+          {[
+            {
+              href: "/warm-up-chat",
+              title: "Warm-up chat",
+              detail: "Practise your introduction",
+              icon: ChatBubbleLeftRightIcon,
+            },
+            {
+              href: "/control-your-pace",
+              title: "Pace & pauses",
+              detail: "Work on fillers and speaking speed",
+              icon: SignalIcon,
+            },
+            {
+              href: "/structure-your-answer",
+              title: "Answer structure",
+              detail: "Give a clear, complete answer",
+              icon: ListBulletIcon,
+            },
+          ].map(({ href, title, detail, icon: Icon }) => (
+            <Link key={href} href={href} className="ws-quick-skill">
+              <Icon aria-hidden="true" />
+              <span>
+                <strong>{title}</strong>
+                <small>{detail}</small>
+              </span>
+              <ArrowRightIcon aria-hidden="true" />
+            </Link>
+          ))}
+        </div>
+      </section>
+      <section aria-labelledby="recent-interviews">
+        <div className="ws-section-heading">
+          <h2 id="recent-interviews">Recent interviews</h2>
+          <Link className="ws-button" href="/history">
+            View history <ArrowRightIcon aria-hidden="true" />
           </Link>
         </div>
         {query.isError ? (
-          <div role="alert" className="rounded-2xl bg-white p-5">
+          <div role="alert" className="ws-empty">
             <p>Your recent interviews could not be loaded. Your saved work is retained.</p>
-            <button
-              className="mt-3 font-semibold text-[#344499] underline"
-              onClick={() => void query.refetch()}
-            >
-              Retry recent interviews
+            <button className="ws-button mt-4" onClick={() => void query.refetch()}>
+              Retry
             </button>
           </div>
         ) : !data ? (
           <output>Loading recent interviews…</output>
         ) : !data.items.length ? (
-          <p className="rounded-2xl border border-[#DEE8FB] bg-white p-6 text-gray-600">
-            Your saved interviews will appear here. Choose a practice skill to begin.
-          </p>
+          <div className="ws-empty">
+            <h3>Your first round starts here</h3>
+            <p>
+              New to interviews? Try a warm-up chat before a full round. Saved interviews and
+              feedback will appear here.
+            </p>
+            <Link className="ws-button mt-4" href="/warm-up-chat">
+              Try a warm-up <ArrowRightIcon aria-hidden="true" />
+            </Link>
+          </div>
         ) : (
-          <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <ul className="ws-history-list">
             {data.items.map((row) => (
-              <li
-                key={row.interviewId}
-                className="space-y-4 rounded-2xl border border-[#DEE8FB] bg-white p-5"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="rounded-full bg-[#F5F9FF] px-3 py-1 text-xs font-medium text-[#344499]">
-                    {row.status.replaceAll("_", " ")}
-                  </span>
-                  <span className="text-xs text-gray-600">{row.difficulty}</span>
+              <li key={row.interviewId}>
+                <ClockIcon className="ws-history-icon" aria-hidden="true" />
+                <div className="ws-history-title">
+                  <h3>{row.track}</h3>
+                  <p>
+                    {new Date(row.createdAt).toLocaleDateString(undefined, {
+                      day: "numeric",
+                      month: "short",
+                    })}{" "}
+                    · {row.difficulty} · {row.status.replaceAll("_", " ")}
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold text-[#1F285B]">{row.track}</h3>
-                <p className="text-sm text-gray-600">
-                  {new Date(row.createdAt).toLocaleDateString(undefined, {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </p>
                 <Link
-                  className="inline-flex min-h-11 items-center font-semibold text-[#344499] underline"
+                  className="ws-button"
                   href={
                     row.status === "completed" && row.summaryReportAvailable
                       ? `/report-summary?interviewId=${row.interviewId}`
@@ -144,28 +180,15 @@ export default function HomePage() {
                   }
                 >
                   {row.status === "completed" && row.summaryReportAvailable
-                    ? "Review feedback"
-                    : "Open saved interview"}
+                    ? "Feedback"
+                    : "View status"}
+                  <ArrowRightIcon aria-hidden="true" />
                 </Link>
               </li>
             ))}
           </ul>
         )}
       </section>
-      <aside className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#DEE8FB] bg-white p-5">
-        <div>
-          <h2 className="font-semibold text-[#1F285B]">Prepare your story, too.</h2>
-          <p className="mt-1 text-sm text-gray-600">
-            Build a resume that reflects your experience and skills.
-          </p>
-        </div>
-        <Link
-          href="/ai-resume"
-          className="inline-flex min-h-11 items-center font-semibold text-[#344499] underline"
-        >
-          Open resume builder
-        </Link>
-      </aside>
     </div>
   );
 }

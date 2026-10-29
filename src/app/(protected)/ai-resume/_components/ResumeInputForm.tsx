@@ -1,5 +1,7 @@
 "use client";
 
+import { assertAuthRevision, getAuthRevision } from "@/lib/auth-session";
+
 import { useForm, Controller } from "react-hook-form";
 import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,7 +10,7 @@ import { FileDragDropZone } from "./FileDragDropZone";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import { useAIResumeContext } from "./resume-provider";
 import { aiResumeService } from "@/features/ai-resume/services/aiResumeService";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { ENDPOINTS } from "@/lib/api-config";
@@ -51,6 +53,7 @@ export function ResumeInputForm({
   onNext: () => void;
   onFileChange: (file: File | null) => void;
 }) {
+  const ownerRevision = useRef(getAuthRevision()).current;
   const {
     formData,
     setFormData,
@@ -68,7 +71,6 @@ export function ResumeInputForm({
     handleSubmit,
     control,
     formState: { errors, isValid },
-    watch,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -80,11 +82,11 @@ export function ResumeInputForm({
     mode: "onChange",
   });
 
-  const experienceLevel = watch("experienceLevel");
 
   const onSubmit = async (data: FormData) => {
     try {
       setIsSubmitting(true);
+      assertAuthRevision(ownerRevision);
       setIsAnalyzing(true);
       setAnalysisError(null);
 
@@ -104,10 +106,12 @@ export function ResumeInputForm({
         data.resume,
         data.targetRole,
         data.experienceLevel,
-        data.jobDescription
+        data.jobDescription,
+        ownerRevision
       );
 
       // Store analysis result and ID in context
+      assertAuthRevision(ownerRevision);
       setAnalysisResult(analysisResult);
       if (analysisResult.analysisId) {
         setAnalysisId(analysisResult.analysisId);
@@ -121,6 +125,7 @@ export function ResumeInputForm({
       // Navigate to next step
       onNext();
     } catch (error) {
+      if (getAuthRevision() !== ownerRevision) return;
       let errorMessage = "Failed to analyze resume. Please try again.";
       if (axios.isAxiosError(error) && error.response?.data?.detail) {
         errorMessage = error.response.data.detail;
@@ -133,7 +138,7 @@ export function ResumeInputForm({
       console.error("Resume analysis error:", error);
     } finally {
       setIsSubmitting(false);
-      setIsAnalyzing(false);
+      if (getAuthRevision() === ownerRevision) setIsAnalyzing(false);
     }
   };
 
@@ -187,10 +192,10 @@ export function ResumeInputForm({
 
       {/* Upload Resume */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
           <label className="text-sm font-medium text-slate-700">Upload resume</label>
-          <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
-            PDF - DOCX (Max 10MB)
+          <span className="text-sm text-slate-600">
+            PDF or DOCX · Up to {MAX_AI_RESUME_SIZE_MB} MB
           </span>
         </div>
         <Controller

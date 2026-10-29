@@ -1,5 +1,6 @@
 "use client";
 
+import PageHeading from "@/components/studio/PageHeading";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -61,24 +62,16 @@ function HistoryWorkspace({ account }: { account: string }) {
   };
   return (
     <div className="mx-auto w-full min-w-0 max-w-6xl space-y-6 pb-10 text-[#111827] [overflow-wrap:anywhere]">
-      <header>
-        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-[#344499]">
-          Your interview journey
-        </p>
-        <h1 className="mt-2 text-3xl font-bold text-[#1F285B] sm:text-4xl">
-          History &amp; feedback
-        </h1>
-        <p className="mt-3 max-w-2xl text-gray-600">
-          Find saved rounds, check completed work and return to feedback. Practice and assessment
-          keep their own rules.
-        </p>
-        <Link
-          href="/practice"
-          className="mt-4 inline-flex min-h-11 items-center rounded-xl border border-[#DEE8FB] bg-white px-4 font-semibold text-[#344499]"
-        >
-          Back to Practice
-        </Link>
-      </header>
+      <PageHeading
+        eyebrow="Your interview journal"
+        title="Interview history"
+        description="Find saved rounds, check completed work and return to feedback. Practice and assessment keep their own rules."
+        action={
+          <Link href="/practice" className="ws-button">
+            Back to Practice
+          </Link>
+        }
+      />
       <nav aria-label="History filters" className="flex flex-wrap gap-2">
         {filters.map((filter) => (
           <button

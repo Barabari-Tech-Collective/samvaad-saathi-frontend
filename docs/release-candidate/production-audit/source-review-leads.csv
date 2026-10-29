@@ -1,0 +1,345 @@
+surface,file,line,review_lead,status
+student,src/app/(protected)/ai-resume/_components/ResumeInputForm.tsx,133,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/_components/ResumeInputForm.tsx,192,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,61,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,107,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,185,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,335,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,343,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,365,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,368,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,377,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,383,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,388,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,393,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,412,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,418,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,425,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,436,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,449,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,452,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,461,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,468,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,469,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/final/page.tsx,473,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/hygiene/page.tsx,127,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/hygiene/page.tsx,153,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/hygiene/page.tsx,188,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/hygiene/page.tsx,255,fixed viewport height,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/hygiene/page.tsx,255,overflow clipping,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/hygiene/page.tsx,543,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/preview/page.tsx,63,overflow clipping,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/preview/page.tsx,68,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/score/_components/ATSScoreCircle.tsx,55,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/score/_components/ScoreBreakdownGrid.tsx,75,overflow clipping,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/skills/_components/ExperienceEvaluationList.tsx,45,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/ai-resume/skills/_components/ProjectEvaluationList.tsx,48,explicit small text,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/bulk-ats/page.tsx,745,overflow clipping,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/bulk-ats/page.tsx,772,fixed minimum width,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/bulk-ats/page.tsx,996,overflow clipping,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/interview/_components/CodeView.tsx,48,overflow clipping,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/interview/_components/CodeView.tsx,71,overflow clipping,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/interview/_components/CodeView.tsx,98,overflow clipping,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/interview/_components/CodeView.tsx,104,overflow clipping,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/interview/_components/Header.tsx,61,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/interview/_components/Header.tsx,78,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/interview/page.tsx,619,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/interview/page.tsx,691,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/interview/page.tsx,917,overflow clipping,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/profile/_components/VoiceSelector.tsx,12,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/profile/_components/VoiceSelector.tsx,31,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/profile/page.tsx,87,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/profile/page.tsx,99,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/profile/page.tsx,251,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/profile/page.tsx,284,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/profile/page.tsx,619,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/pronunciation-practice/page.tsx,102,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/pronunciation-practice/page.tsx,103,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/pronunciation-practice/page.tsx,110,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/report-summary/_components/EvidenceSummary.tsx,29,overflow clipping,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/report-summary/_components/OverallScoreSummary.tsx,18,overflow clipping,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/structure-your-answer/interview/_components/AnswerTypeStep.tsx,167,direct media acquisition,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/structure-your-answer/interview/page.tsx,81,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/app/(protected)/structure-your-answer/interview/page.tsx,161,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/app/global-error.tsx,37,fixed viewport height,Needs contextual review; pattern is not proof of defect
+student,src/app/layout.tsx,157,raw markup insertion,Needs contextual review; pattern is not proof of defect
+student,src/app/page.tsx,29,fixed viewport height,Needs contextual review; pattern is not proof of defect
+student,src/components/guides/WorkspaceGuide.tsx,14,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/components/guides/WorkspaceGuide.tsx,46,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/components/practice/GuidedSpeakingDrill.tsx,64,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/components/practice/GuidedSpeakingDrill.tsx,73,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/components/practice/GuidedSpeakingDrill.tsx,225,direct media acquisition,Needs contextual review; pattern is not proof of defect
+student,src/components/practice/GuidedSpeakingDrill.tsx,293,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/components/practice/PracticeHub.tsx,272,overflow clipping,Needs contextual review; pattern is not proof of defect
+student,src/components/practice/PracticePreflight.tsx,72,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/components/practice/PracticePreflight.tsx,73,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/components/practice/PracticePreflight.tsx,136,direct media acquisition,Needs contextual review; pattern is not proof of defect
+student,src/components/workspace/StudentShell.tsx,58,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/components/workspace/StudentShell.tsx,67,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/features/ai-resume/services/aiResumeService.ts,32,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useCompanionPreferences.ts,45,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useCompanionPreferences.ts,82,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useDrillRecorder.ts,53,direct media acquisition,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useInterviewAnswer.ts,160,direct media acquisition,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useInterviewSessionLease.ts,29,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useInterviewSessionLease.ts,37,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useInterviewSessionLease.ts,38,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useMicPermission.tsx,88,direct media acquisition,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useQuestionAttempt.ts,17,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useQuestionAttempt.ts,31,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useTextToSpeech.tsx,61,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useTextToSpeech.tsx,314,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useTextToSpeech.tsx,329,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useTextToSpeech.tsx,362,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/hooks/useTextToSpeech.tsx,413,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/lib/api-config/src/client.ts,156,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/lib/api-config/src/client.ts,233,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/lib/api-config/src/config.ts,91,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/lib/api-config/src/config.ts,96,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/lib/api-config/src/config.ts,98,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/lib/api-config/src/config.ts,101,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/lib/audio-utils.ts,265,unstructured console error,Needs contextual review; pattern is not proof of defect
+student,src/lib/interview-session-storage.ts,15,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/lib/interview-session-storage.ts,21,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/lib/interview-session-storage.ts,33,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/lib/logout-storage.ts,11,browser persistence,Needs contextual review; pattern is not proof of defect
+student,src/lib/token-utils.ts,58,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/_components/WelcomeFlow.tsx,27,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/academic/cohort/page.tsx,267,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/academic/college/_components/college-tab.tsx,260,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/academic/college/_components/course-tab.tsx,174,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/academic/students/_components/StudentsTable.tsx,152,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/layout.tsx,63,fixed viewport height,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/layout.tsx,66,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/page.tsx,22,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/page.tsx,49,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/page.tsx,72,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/program-manager/page.tsx,58,fixed viewport height,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/(overview)/_components/dashboard-questions-analytics.tsx,57,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/(overview)/_components/dashboard-recent-interviews.tsx,60,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/(overview)/_components/dashboard-role-performance-dialog.tsx,38,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/(overview)/_components/dashboard-score-distribution-chart.tsx,173,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/(overview)/_components/dashboard-students-per-college-list.tsx,85,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/alerts/_components/attention-required-students.tsx,74,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/bulk-ats/[batchId]/_components/CandidateDetailSheet.tsx,830,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/bulk-ats/[batchId]/_components/CandidateDetailSheet.tsx,877,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/bulk-ats/[batchId]/_components/UploadResumesDialog.tsx,138,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/bulk-ats/[batchId]/_components/UploadResumesDialog.tsx,184,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/bulk-ats/[batchId]/page.tsx,557,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/bulk-ats/[batchId]/page.tsx,559,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/bulk-ats/[batchId]/page.tsx,801,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/bulk-ats/access/page.tsx,109,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/colleges/[collegeName]/_components/college-students-section.tsx,111,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/colleges/_components/colleges-list-card.tsx,94,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/interviews/[id]/_components/interview-question-scores-card.tsx,130,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/interviews/_components/interviews-table-card.tsx,105,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/practice-coaching/page.tsx,924,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/rankings/_components/ranking-section.tsx,57,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/_components/roles-performance.tsx,126,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/EditQuestionDialog.tsx,100,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,245,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,306,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,377,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,392,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,481,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,534,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,570,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,630,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,636,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,651,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,661,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,685,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,738,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,756,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,825,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,837,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,856,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,874,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,916,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/JDConfigurationStep.tsx,952,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionCard.tsx,77,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionCard.tsx,86,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionCard.tsx,100,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionDetails.tsx,33,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionDetails.tsx,61,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionLevelTabs.tsx,58,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,41,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,53,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,116,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,126,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,166,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,174,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,255,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,279,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,293,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,331,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,347,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,468,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,472,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,486,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,490,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,556,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,570,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,578,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/QuestionsStep.tsx,583,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,111,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,119,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,127,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,135,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,145,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,165,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,177,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,210,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,217,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,226,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,260,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,295,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,316,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,325,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReferenceQuestionsPreviewStep.tsx,345,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReviewSubmitStep.tsx,33,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReviewSubmitStep.tsx,192,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReviewSubmitStep.tsx,213,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReviewSubmitStep.tsx,244,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReviewSubmitStep.tsx,259,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/ReviewSubmitStep.tsx,266,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/RoleCreationStepper.tsx,29,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/RoleCreationStepper.tsx,35,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/RoleCreationStepper.tsx,41,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/RoleCreationStepper.tsx,46,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/RoleCreationStepper.tsx,85,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/SuccessStep.tsx,42,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/SuccessStep.tsx,43,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/SuccessStep.tsx,46,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/SuccessStep.tsx,52,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/SuccessStep.tsx,61,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/SuccessStep.tsx,87,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/SuccessStep.tsx,98,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/SuccessStep.tsx,110,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/SuccessStep.tsx,121,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/SuccessStep.tsx,125,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,87,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,190,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,199,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,204,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,212,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,217,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,224,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,232,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,236,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,241,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,251,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,255,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,260,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,279,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,345,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,363,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,377,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,381,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,386,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,396,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,408,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,416,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,422,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,452,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,471,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,511,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,525,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,534,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,543,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,549,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,577,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,637,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,641,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,654,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,655,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,831,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,851,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,907,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,942,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,1025,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,1026,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,1064,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/new/_components/add-role-stepper.tsx,1066,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/page.tsx,197,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/page.tsx,198,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/page.tsx,199,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/page.tsx,200,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/page.tsx,331,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/page.tsx,348,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/roles/page.tsx,356,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/students/[id]/_components/student-interviews-table.tsx,147,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/students/_components/students-table-card.tsx,209,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/[teamId]/page.tsx,172,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/[teamId]/page.tsx,399,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/[teamId]/page.tsx,460,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/[teamId]/page.tsx,652,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/_components/MemberModal.tsx,419,fixed viewport height,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/_components/MemberModal.tsx,419,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/_components/MemberModal.tsx,438,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/_components/MemberModal.tsx,453,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/_components/MemberModal.tsx,466,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/_components/MemberModal.tsx,481,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/_components/MemberModal.tsx,503,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/_components/MemberModal.tsx,520,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/_components/MemberModal.tsx,534,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/_components/MemberModal.tsx,548,fixed minimum width,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/_components/MemberModal.tsx,642,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/_components/MemberModal.tsx,710,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/_components/MemberModal.tsx,766,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/_components/MemberModal.tsx,771,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/page.tsx,231,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/page.tsx,249,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/page.tsx,381,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/page.tsx,539,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/page.tsx,556,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/page.tsx,639,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/page.tsx,687,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/page.tsx,691,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/page.tsx,1012,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/page.tsx,1024,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/page.tsx,1098,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/samvaad/teams/page.tsx,1107,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/super-admin/_components/AuditLogTab.tsx,36,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/super-admin/_components/SamparkAdminsTab.tsx,20,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/super-admin/_components/SamvaadAdminsTab.tsx,74,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/dashboard/users/_components/PendingAccessRequests.tsx,64,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/onboarding/_components/ProgramManagerOnboarding.tsx,37,unstructured console error,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/onboarding/facilitator/page.tsx,5,fixed viewport height,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/onboarding/program-manager/page.tsx,5,fixed viewport height,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/products/page.tsx,144,fixed viewport height,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/products/page.tsx,154,fixed viewport height,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/CentralRegistrationFlow.tsx,502,fixed viewport height,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/CentralRegistrationFlow.tsx,512,fixed viewport height,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/CentralRegistrationFlow.tsx,513,fixed viewport height,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/CentralRegistrationFlow.tsx,514,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/CentralRegistrationFlow.tsx,1715,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/registration-form/RegistrationForm.tsx,410,fixed viewport height,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/registration-form/RegistrationForm.tsx,410,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/registration-form/RegistrationForm.tsx,448,fixed viewport height,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/registration-form/RegistrationForm.tsx,463,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/registration-form/RegistrationForm.tsx,754,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/registration-form/RegistrationForm.tsx,967,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/registration-form/RegistrationForm.tsx,1637,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/registration-form/SplashScreen.tsx,71,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/registration-form/UiComponents.tsx,67,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/register/_components/registration-form/UiComponents.tsx,82,explicit small text,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/student-login/page.tsx,5,fixed viewport height,Needs contextual review; pattern is not proof of defect
+dashboard,src/app/team-operations/access/page.tsx,8,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/auth/GoogleSignInButton.tsx,126,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/guides/WorkspaceGuide.tsx,19,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/guides/WorkspaceGuide.tsx,65,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/ui/accordion.tsx,71,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/ui/badge.tsx,8,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/ui/card.tsx,15,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/ui/drawer.tsx,59,fixed viewport height,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/ui/dropdown-menu.tsx,46,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/ui/dropdown-menu.tsx,248,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/ui/light-rays.tsx,109,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/ui/light-rays.tsx,122,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/ui/sidebar.tsx,77,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/ui/sidebar.tsx,94,browser persistence,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/ui/sidebar.tsx,418,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/ui/sidebar.tsx,514,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/components/ui/sidebar.tsx,714,overflow clipping,Needs contextual review; pattern is not proof of defect
+dashboard,src/samvaad/components/role-guard.tsx,63,fixed viewport height,Needs contextual review; pattern is not proof of defect

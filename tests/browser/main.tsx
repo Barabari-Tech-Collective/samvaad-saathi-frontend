@@ -5,6 +5,7 @@ import ReattemptPage from "@/app/(protected)/reattempt-interview/page";
 import CompletedPage from "@/app/(protected)/interview-completed/page";
 import HistoryPage from "@/app/(protected)/history/page";
 import ReportPage from "@/app/(protected)/report-summary/page";
+import ReviewsPage from "@/app/(protected)/assessment-reviews/page";
 import HumanInterviewsPage from "@/app/(protected)/human-interviews/page";
 import HomePage from "@/app/(protected)/home/page";
 import ProfilePage from "@/app/(protected)/profile/page";
@@ -95,6 +96,10 @@ createRoot(document.getElementById("root")!).render(
       ) : location.search.includes("fixture=history") ? (
         <main className="p-4 sm:p-6">
           <HistoryPage />
+        </main>
+      ) : location.search.includes("fixture=integrity") ? (
+        <main className="p-4">
+          <ReviewsPage />
         </main>
       ) : location.search.includes("fixture=report") ? (
         <main>

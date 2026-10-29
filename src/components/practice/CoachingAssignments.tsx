@@ -37,10 +37,7 @@ export function CoachingAssignments({ accountKey = "current" }: { accountKey?: s
       {query.isError ? (
         <div role="alert">
           <p>Follow-ups could not be loaded. You can still practise independently.</p>
-          <button
-            className="min-h-11 text-[#344499] underline"
-            onClick={() => void query.refetch()}
-          >
+          <button className="ws-button" onClick={() => void query.refetch()}>
             Try loading follow-ups again
           </button>
         </div>

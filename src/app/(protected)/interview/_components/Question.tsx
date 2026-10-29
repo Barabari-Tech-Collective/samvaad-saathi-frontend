@@ -75,17 +75,16 @@ const Question = ({
   if (!question) return null;
 
   return (
-    <div className="w-full py-6">
-      <div className="mb-2">
+    <div className="studio-question">
+      <div className="studio-question-position">
         <span className="text-lg text-slate-900 font-medium">
-          Question {currentQuestionIndex + 1}:
+          Question {currentQuestionIndex + 1}
+          {totalQuestions > 0 ? ` of ${totalQuestions}` : ""}
         </span>
       </div>
 
       <div className="mb-4">
-        <p className="break-words text-xl leading-[1.4] text-slate-900 font-normal">
-          {question.text}
-        </p>
+        <p className="studio-question-text break-words">{question.text}</p>
       </div>
 
       {!!question?.category ? (

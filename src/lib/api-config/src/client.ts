@@ -1,5 +1,10 @@
 "use client";
 
+import { productSession } from "@/lib/session-runtime";
+import { assertAuthRevision, getAuthRevision, SessionChangedError } from "@/lib/auth-session";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { ServerSessionClient, SessionClientError } from "@/lib/server-session-client";
+import { subscribeAuthRevision } from "@/lib/auth-session";
 import { trackApiError } from "@/lib/posthog/tracking.utils";
 import { getTokenFromCookies } from "@/lib/token-utils";
 import {
@@ -95,8 +100,16 @@ const baseUrls = {
 };
 
 // Hook-based API client that uses react-cookie
-export const createApiClient = (service: APIService | APIServiceV2) => {
-  const axiosInstance = createAxiosInstance(baseUrls[service]);
+export const createApiClient = (service: APIService | APIServiceV2, session: ServerSessionClient | undefined = productSession()) => {
+  const axiosInstance = createAxiosInstance(baseUrls[service], session);
+  const revision = session ? session.revision : getAuthRevision;
+  const subscribe = session ? session.subscribe : subscribeAuthRevision;
+  const assertOwner = (expected: number) => {
+    if (session) {
+      const current = session.snapshot();
+      if (!current.authenticated || current.revision !== expected) throw new SessionClientError(409, "Your session changed. Reload this task.");
+    } else assertAuthRevision(expected);
+  };
 
   const useMutationApi = <TData, TParams = unknown>({
     keyToInvalidate,
@@ -111,10 +124,12 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
     const queryClient = useQueryClient();
     const [cookies] = useCookies(["token"]);
 
+    const ownerRevision = useSyncExternalStore(subscribe, revision, () => 0);
     const mutateData = async (params: TParams): Promise<TData> => {
+      assertOwner(ownerRevision);
       try {
         // Try to get token from cookies first, fallback to react-cookie
-        const token = getTokenFromCookies() || cookies.token;
+        const token = session ? null : getTokenFromCookies() || cookies.token;
 
         // Support dynamic signal getter (for request cancellation)
         const signalGetter = (
@@ -135,35 +150,40 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
             ...(token && { Authorization: `Bearer ${token}` }),
           },
         });
+        assertOwner(ownerRevision);
         return res.data;
       } catch (error) {
-        const err = error as AxiosError<{ detail?: string }>;
-        const detail = err.response?.data?.detail ?? err.message;
-        console.error(
-          "API error:",
-          typeof detail === "string" ? detail : JSON.stringify(err.response?.data ?? err)
-        );
         throw error;
       }
     };
 
+    const ownsMutation = () => !session || (session.snapshot().authenticated && revision() === ownerRevision);
+    const invalidateOwnedQueries = () => {
+      if (!keyToInvalidate) return;
+      if (!session) { void queryClient.invalidateQueries(keyToInvalidate); return; }
+      // The credential-free profile is owned by the account-boundary QueryClient.
+      if (keyToInvalidate.queryKey?.[0] === "me") void queryClient.invalidateQueries({ queryKey: ["me"] });
+      void queryClient.invalidateQueries({
+        ...keyToInvalidate,
+        queryKey: ["cookie-session", session.cacheScope, ownerRevision, ...(keyToInvalidate.queryKey ?? [])],
+      });
+    };
     const mutation = useMutation<TData, AxiosError<APIError>, TParams>({
-      mutationKey: [url, method],
+      mutationKey: session ? ["cookie-session", session.cacheScope, ownerRevision, url, method] : [url, method],
       mutationFn: mutateData,
       onSuccess: () => {
         if (successMessage) toast.success(successMessage);
         if (keyToInvalidate) {
-          queryClient.invalidateQueries(keyToInvalidate);
+          invalidateOwnedQueries();
         }
       },
       onError: (error) => {
+        if (error instanceof SessionChangedError || error instanceof SessionClientError) return;
         // Skip error handling for aborted requests
         if (error.name === "CanceledError" || error.code === "ERR_CANCELED") {
           console.log("Request was cancelled");
           return;
         }
-
-        console.log("error :", error);
 
         // TODO: replace x-request-id with the correct value
 
@@ -189,16 +209,64 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
         }
       },
       ...options,
+      ...(session ? {
+        retry: false,
+        mutationKey: ["cookie-session", session.cacheScope, ownerRevision, url, method],
+        mutationFn: mutateData,
+        onMutate: async (...args: Parameters<NonNullable<NonNullable<typeof options>["onMutate"]>>) => {
+          assertOwner(ownerRevision);
+          return options?.onMutate?.(...args);
+        },
+        onSuccess: async (...args: Parameters<NonNullable<NonNullable<typeof options>["onSuccess"]>>) => {
+          if (!ownsMutation()) return;
+          if (successMessage) toast.success(successMessage);
+          invalidateOwnedQueries();
+          await options?.onSuccess?.(...args);
+        },
+        onError: async (...args: Parameters<NonNullable<NonNullable<typeof options>["onError"]>>) => {
+          if (!ownsMutation()) return;
+          const [error] = args;
+          if (error instanceof SessionClientError || error instanceof SessionChangedError || error.code === "ERR_CANCELED") return;
+          if (showToastError ?? Boolean(errorMessage)) toast.error(extractApiErrorMessage(error, errorMessage || "Something went wrong. Please try again."));
+          await options?.onError?.(...args);
+        },
+        onSettled: async (...args: Parameters<NonNullable<NonNullable<typeof options>["onSettled"]>>) => {
+          if (ownsMutation()) await options?.onSettled?.(...args);
+        },
+      } : {}),
     });
 
+    const [mutationRevision, setMutationRevision] = useState(ownerRevision);
+    const visibleMutation = !session || mutationRevision === ownerRevision;
+    const resetMutation = mutation.reset;
+    useEffect(() => {
+      if (session) { resetMutation(); setMutationRevision(ownerRevision); }
+    }, [ownerRevision, resetMutation]);
+
+    // Per-call callbacks need the same ownership checks as hook-level callbacks.
+    const ownedCallbacks = (callbacks: Parameters<typeof mutation.mutate>[1]) => {
+      if (!session || !callbacks) return callbacks;
+      return {
+        ...callbacks,
+        onSuccess: (...args: Parameters<NonNullable<typeof callbacks.onSuccess>>) => {
+          if (ownsMutation()) callbacks.onSuccess?.(...args);
+        },
+        onError: (...args: Parameters<NonNullable<typeof callbacks.onError>>) => {
+          if (ownsMutation()) callbacks.onError?.(...args);
+        },
+        onSettled: (...args: Parameters<NonNullable<typeof callbacks.onSettled>>) => {
+          if (ownsMutation()) callbacks.onSettled?.(...args);
+        },
+      };
+    };
     // Return a cleaner interface with loading and data
     return {
       ...mutation,
       loading: mutation.isPending,
-      data: mutation.data,
-      error: mutation.error,
-      mutate: mutation.mutate,
-      mutateAsync: mutation.mutateAsync,
+      data: visibleMutation ? mutation.data : undefined,
+      error: visibleMutation ? mutation.error : null,
+      mutate: (variables: TParams, callbacks?: Parameters<typeof mutation.mutate>[1]) => mutation.mutate(variables, ownedCallbacks(callbacks)),
+      mutateAsync: (variables: TParams, callbacks?: Parameters<typeof mutation.mutateAsync>[1]) => mutation.mutateAsync(variables, ownedCallbacks(callbacks)),
     };
   };
 
@@ -214,10 +282,19 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
   }: UseQueryApiProps<TData>) => {
     const [cookies] = useCookies(["token"]);
 
-    const fetchData = async (): Promise<TData> => {
+    const ownerRevision = useSyncExternalStore(subscribe, revision, () => 0);
+    const fetchData = async ({ signal: querySignal }: { signal: AbortSignal }): Promise<TData> => {
+      assertOwner(ownerRevision);
+      const controller = new AbortController();
+      const abort = () => controller.abort();
+      const signals = [querySignal, config?.signal];
+      for (const signal of signals) {
+        if (signal?.aborted) abort();
+        signal?.addEventListener?.("abort", abort, { once: true });
+      }
       try {
         // Try to get token from cookies first, fallback to react-cookie
-        const token = getTokenFromCookies() || cookies.token;
+        const token = session ? null : getTokenFromCookies() || cookies.token;
 
         const res = await axiosInstance({
           url,
@@ -225,11 +302,13 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
           params,
           data,
           ...config,
+          signal: controller.signal,
           headers: {
             ...config?.headers,
             ...(token && { Authorization: `Bearer ${token}` }),
           },
         });
+        assertOwner(ownerRevision);
         return res.data;
       } catch (error) {
         // Skip error handling for aborted requests
@@ -243,7 +322,6 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
 
         // Track API error with PostHog
         const axiosError = error as AxiosError;
-        console.log("axiosError :", axiosError);
         trackApiError(error as Error, {
           endpoint: url,
           method: method.toUpperCase(),
@@ -255,15 +333,28 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
         });
 
         throw error;
+      } finally {
+        for (const signal of signals) signal?.removeEventListener?.("abort", abort);
       }
     };
 
+    // Keep the logical prefix first so existing invalidation keys still work.
+    const sessionKey = session ? ["cookie-session", session.cacheScope, ownerRevision, ...key,
+      { url: config?.url ?? url, method: config?.method ?? method, params: config?.params ?? params, data: config?.data ?? data }] : [];
     const queryResult = useQuery<TData, AxiosError>({
-      queryKey: [...key, params, data],
+      queryKey: session ? sessionKey : [...key, params, data],
       queryFn: fetchData,
-      enabled,
+      enabled: enabled && (!session || session.snapshot().authenticated),
       staleTime: options.staleTime ?? 1000 * 60 * 5,
       ...options,
+      ...(session ? {
+        queryKey: sessionKey,
+        enabled: enabled && options.enabled !== false && session.snapshot().authenticated,
+        retry: false,
+        placeholderData: undefined,
+        initialData: undefined,
+        queryFn: fetchData,
+      } : {}),
     });
 
     return queryResult;
@@ -272,11 +363,14 @@ export const createApiClient = (service: APIService | APIServiceV2) => {
   // Cancellable reads for TanStack infinite queries; share token refresh and
   // the same Axios transport used by the existing hooks.
   const get = async <TData>(url: string, config: AxiosRequestConfig = {}): Promise<TData> => {
-    const token = getTokenFromCookies();
+    const expected = revision();
+    assertOwner(expected);
+    const token = session ? null : getTokenFromCookies();
     const response = await axiosInstance.get<TData>(url, {
       ...config,
       headers: { ...config.headers, ...(token && { Authorization: `Bearer ${token}` }) },
     });
+    assertOwner(expected);
     return response.data;
   };
   return {

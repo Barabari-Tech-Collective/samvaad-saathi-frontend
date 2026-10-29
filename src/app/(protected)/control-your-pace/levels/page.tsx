@@ -2,7 +2,7 @@
 
 import { PlayIcon, LockClosedIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import Pacing from "@/components/icons/Pacing";
+import PageHeading from "@/components/studio/PageHeading";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService } from "@/lib/api-config/src/config";
 import { ENDPOINTS } from "@/lib/api-config/src/endpoints";
@@ -10,21 +10,19 @@ import type { PacingLevelsResponse } from "@/lib/pacing-practice/types";
 
 const LevelsPage = () => {
   const apiClient = createApiClient(APIService.PACING);
-  const { data, isLoading, error } = apiClient.useQuery<PacingLevelsResponse>({
+  const { data, isLoading, error, refetch } = apiClient.useQuery<PacingLevelsResponse>({
     key: ["pacing-levels"],
     url: ENDPOINTS.PACING.LEVELS,
   });
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-6 p-6 min-h-full bg-base-200/30">
-        <div className="flex flex-col items-center text-center gap-2 pt-4">
-          <div className="w-16 h-16 flex items-center justify-center">
-            <Pacing className="w-16 h-16 text-black" />
-          </div>
-          <h1 className="text-2xl font-bold text-black">Speech Pacing Practice</h1>
-          <p className="text-gray-600">Practice speaking at the right pace for interviews</p>
-        </div>
+      <div className="studio-stack">
+        <PageHeading
+          eyebrow="Pace & pauses"
+          title="Choose your level"
+          description="Build a steady speaking rhythm, one exercise at a time."
+        />
         <div className="flex flex-1 items-center justify-center">
           <span className="loading loading-spinner loading-lg text-primary" />
         </div>
@@ -34,9 +32,14 @@ const LevelsPage = () => {
 
   if (error || !data) {
     return (
-      <div className="flex flex-col gap-6 p-6 min-h-full bg-base-200/30">
+      <div className="studio-stack">
         <div className="flex flex-1 items-center justify-center">
-          <p className="text-gray-600">Failed to load levels. Please try again.</p>
+          <div role="alert" className="studio-panel">
+            <p>Levels could not be loaded.</p>
+            <button className="btn btn-neutral mt-4" onClick={() => void refetch()}>
+              Try again
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -44,7 +47,7 @@ const LevelsPage = () => {
 
   const { levels, overallReadiness } = data;
 
-  const lastUnlockedLevel = levels.filter((l) => l.status !== "locked").pop() ?? levels[0];
+  const lastUnlockedLevel = levels.filter((l) => l.status !== "locked").pop();
 
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
@@ -71,15 +74,13 @@ const LevelsPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6 min-h-full bg-base-200/30">
+    <div className="studio-stack">
       {/* Header */}
-      <div className="flex flex-col items-center text-center gap-2 pt-4">
-        <div className="w-16 h-16 flex items-center justify-center">
-          <Pacing className="w-16 h-16 text-black" />
-        </div>
-        <h1 className="text-2xl font-bold text-black">Speech Pacing Practice</h1>
-        <p className="text-gray-600">Practice speaking at the right pace for interviews</p>
-      </div>
+      <PageHeading
+        eyebrow="Pace & pauses"
+        title="Choose your level"
+        description="Build a steady speaking rhythm, one exercise at a time."
+      />
 
       {/* Overall Readiness */}
       <div className="card bg-white shadow-sm border border-gray-100 p-4">
@@ -88,6 +89,7 @@ const LevelsPage = () => {
           <span className="font-bold text-blue-600 text-lg">{overallReadiness}%</span>
         </div>
         <progress
+          aria-label="Overall pacing readiness"
           className="progress progress-primary w-full h-3"
           value={overallReadiness}
           max="100"
@@ -152,14 +154,20 @@ const LevelsPage = () => {
       </div>
 
       {/* CTA - Start last unlocked level */}
-      <div className="mt-auto pb-4">
-        <Link
-          href={`/control-your-pace/level-intro?level=${lastUnlockedLevel.level}`}
-          className="btn btn-neutral btn-block btn-lg bg-[#0F172A] text-white rounded-xl"
-        >
-          Start level {lastUnlockedLevel.level} Practice
-        </Link>
-      </div>
+      {lastUnlockedLevel ? (
+        <div className="mt-auto pb-4">
+          <Link
+            href={`/control-your-pace/level-intro?level=${lastUnlockedLevel.level}`}
+            className="btn btn-neutral btn-block btn-lg bg-[#0F172A] text-white rounded-xl"
+          >
+            Start level {lastUnlockedLevel.level} Practice
+          </Link>
+        </div>
+      ) : (
+        <p className="studio-panel">
+          No level is available to start yet. Check back after your next assignment.
+        </p>
+      )}
     </div>
   );
 };

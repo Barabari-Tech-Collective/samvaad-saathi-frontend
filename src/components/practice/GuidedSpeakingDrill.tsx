@@ -1,5 +1,6 @@
 "use client";
 
+import PageHeading from "@/components/studio/PageHeading";
 import {
   ArrowPathIcon,
   CheckCircleIcon,
@@ -324,7 +325,7 @@ export default function GuidedSpeakingDrill({
             This assignment cannot be started. It may be closed, unavailable for this drill, or your
             enrollment may have changed.
           </p>
-          <Link className="text-[#344499] underline" href="/practice">
+          <Link className="ws-button" href="/practice">
             Return to Practice
           </Link>
         </div>
@@ -349,7 +350,7 @@ export default function GuidedSpeakingDrill({
             Retry saving assignment completion
           </button>
         )}
-        <Link href="/practice" className="block text-[#344499] underline">
+        <Link href="/practice" className="ws-button">
           Return to Practice
         </Link>
       </div>
@@ -392,13 +393,9 @@ export default function GuidedSpeakingDrill({
 
   return (
     <div className="mx-auto max-w-4xl pb-8 text-[#111827]">
-      <header className="mb-7">
-        <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#344499]">{eyebrow}</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{title}</h1>
-        <p className="mt-3 max-w-2xl text-base leading-7 text-gray-600">{description}</p>
-      </header>
+      <PageHeading eyebrow={eyebrow} title={title} description={description} />
 
-      <section className="rounded-3xl border border-[#D6E0FB] bg-white p-5 sm:p-7">
+      <section className="studio-panel">
         <fieldset disabled={state !== "ready"}>
           <legend className="text-lg font-bold">Choose your level</legend>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">

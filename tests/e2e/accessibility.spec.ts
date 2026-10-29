@@ -58,6 +58,6 @@ test("Student tasks reflow with doubled text size", async ({ page }) => {
   await page.setViewportSize({ width: 640, height: 900 });
   await page.goto("/home?fixture=student-shell&view=home");
   await page.evaluate(() => (document.documentElement.style.fontSize = "200%"));
-  await expect(page.getByRole("link", { name: "Open practice coach", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "All skills", exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

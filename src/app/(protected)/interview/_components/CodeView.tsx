@@ -45,7 +45,7 @@ const CodeView: React.FC<CodeViewProps> = ({ supplement, isLoading = false }) =>
   if (isLoading) {
     return (
       <div className="w-full flex justify-center my-4 animate-pulse">
-        <div className="card w-xl bg-[#1e1e1e] shadow-xl rounded-lg overflow-hidden border border-gray-800 h-48">
+        <div className="card w-full min-w-0 bg-[#1e1e1e] shadow-xl rounded-lg overflow-hidden border border-gray-800 h-48">
           <div className="flex justify-between items-center px-4 py-2 bg-[#252526] border-b border-gray-800">
             <div className="h-4 w-24 bg-gray-700 rounded"></div>
           </div>
@@ -68,7 +68,7 @@ const CodeView: React.FC<CodeViewProps> = ({ supplement, isLoading = false }) =>
     <>
       <div className="w-full flex justify-center my-4">
         {/* Card Container */}
-        <div className="card w-xl bg-[#1e1e1e] shadow-xl rounded-lg overflow-hidden border border-gray-800">
+        <div className="card w-full min-w-0 bg-[#1e1e1e] shadow-xl rounded-lg overflow-hidden border border-gray-800">
           {/* Header */}
           <div className="flex justify-between items-center px-4 py-2 bg-[#252526] border-b border-gray-800">
             <div className="flex items-center gap-2">
@@ -82,6 +82,7 @@ const CodeView: React.FC<CodeViewProps> = ({ supplement, isLoading = false }) =>
             <button
               onClick={() => modalRef.current?.showModal()}
               className="btn btn-ghost btn-xs btn-square text-gray-400 hover:text-white tooltip tooltip-left"
+              aria-label="Expand question supplement"
               data-tip="Expand"
             >
               <ArrowsPointingOutIcon className="w-4 h-4" />

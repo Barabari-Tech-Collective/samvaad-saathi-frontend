@@ -1,5 +1,8 @@
 "use client";
 
+import { getAuthRevision } from "@/lib/auth-session";
+
+import PageHeading from "@/components/studio/PageHeading";
 import { useLayoutEffect, useRef, useState } from "react";
 import { apiClient } from "@/lib/api-config";
 
@@ -22,6 +25,7 @@ const button =
   "inline-flex min-h-11 items-center justify-center rounded-xl border border-[#C0CFF2] px-4 py-2 font-medium text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:opacity-50";
 
 function AppointmentCard({ row }: { row: Appointment }) {
+  const ownerRevision = useRef(getAuthRevision()).current;
   const alive = useRef(true);
   useLayoutEffect(() => {
     alive.current = true;
@@ -53,6 +57,7 @@ function AppointmentCard({ row }: { row: Appointment }) {
           className={button}
           disabled={busy}
           onClick={async () => {
+            if (!alive.current || getAuthRevision() !== ownerRevision) return;
             setBusy(true);
             setError("");
             setUrl("");
@@ -60,17 +65,17 @@ function AppointmentCard({ row }: { row: Appointment }) {
               const link = await apiClient.get<{ url: string }>(
                 `v2/human-interviews/me/${row.id}/join`
               );
-              if (!alive.current) return;
+              if (!alive.current || getAuthRevision() !== ownerRevision) return;
               if (!/^https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}$/.test(link.url))
                 throw new Error("Invalid meeting link");
               setUrl(link.url);
             } catch {
-              if (alive.current)
+              if (alive.current && getAuthRevision() === ownerRevision)
                 setError(
                   "The meeting link could not be verified. Refresh to check the time and your enrollment, or contact your program team. No attendance or score was recorded."
                 );
             } finally {
-              if (alive.current) setBusy(false);
+              if (alive.current && getAuthRevision() === ownerRevision) setBusy(false);
             }
           }}
         >
@@ -89,6 +94,13 @@ function AppointmentCard({ row }: { row: Appointment }) {
           <a
             className={`${button} bg-black text-white`}
             href={url}
+            onClick={(event) => {
+              if (getAuthRevision() !== ownerRevision || Date.now() >= Date.parse(row.ends_at)) {
+                event.preventDefault();
+                setUrl("");
+                setError("Meeting access has changed or the join window ended. Refresh appointments before trying again.");
+              }
+            }}
             target="_blank"
             rel="noopener noreferrer"
             referrerPolicy="no-referrer"
@@ -97,7 +109,9 @@ function AppointmentCard({ row }: { row: Appointment }) {
           </a>
           <p className="text-sm text-gray-600">
             Keep this page open. Your host admits you in Meet; opening this link does not confirm
-            attendance.
+            attendance. Check the Google account shown in Meet and allow camera and microphone
+            access there. If disconnected, return here and check access again while the join window
+            is open. If admission is denied or the host is absent, contact your program team.
           </p>
         </div>
       )}
@@ -135,19 +149,20 @@ export function HumanInterviews({ accountKey }: { accountKey: string }) {
       aria-label="Your human interviews"
       className="mx-auto w-full max-w-4xl space-y-6 py-6 sm:py-10"
     >
-      <header className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#344499]">
-          Meet your interviewer
-        </p>
-        <h1 className="text-3xl font-semibold text-[#1F285B] sm:text-4xl">Your human interviews</h1>
-        <p className="text-gray-600">
-          A conversation with a person, in a separate Google Meet tab. Your practice and AI
-          assessments stay separate.
-        </p>
-      </header>
-      <button className={button} disabled={query.isFetching} onClick={() => void query.refetch()}>
-        Refresh appointments and access
-      </button>
+      <PageHeading
+        eyebrow="Meet your interviewer"
+        title="Your human interviews"
+        description="Check your appointment, prepare your camera and microphone, then join in a separate Google Meet tab."
+        action={
+          <button
+            className="ws-button"
+            disabled={query.isFetching}
+            onClick={() => void query.refetch()}
+          >
+            Refresh appointments and access
+          </button>
+        }
+      />
       {query.isError ? (
         <div role="alert">
           <p>
@@ -161,7 +176,7 @@ export function HumanInterviews({ accountKey }: { accountKey: string }) {
         <>
           <p className="text-sm text-gray-600">{data.notice}</p>
           {!data.items.length && (
-            <div className="rounded-2xl border border-[#DEE8FB] bg-white p-6">
+            <div className="studio-panel">
               <h2 className="text-lg font-semibold text-[#1F285B]">No appointments on this page</h2>
               <p className="mt-2 text-gray-600">
                 Your program team can schedule a human interview for you. You can continue

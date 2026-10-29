@@ -1,7 +1,8 @@
 "use client";
 
+import { assertAuthRevision, getAuthRevision } from "@/lib/auth-session";
+
 import {
-  ChevronLeftIcon,
   CheckIcon,
   XMarkIcon,
   ArrowPathIcon,
@@ -12,7 +13,6 @@ import {
   DocumentCheckIcon,
   InformationCircleIcon,
 } from "@heroicons/react/24/solid";
-import { SparklesIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { useAIResumeContext } from "../_components/resume-provider";
 import { useGetTemplates } from "@/features/ai-resume/services/resumeBuilderService";
@@ -20,11 +20,14 @@ import { aiResumeService } from "@/features/ai-resume/services/aiResumeService";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { ENDPOINTS } from "@/lib/api-config";
-import { getTokenFromCookies } from "@/lib/token-utils";
+import { accountJson } from "@/lib/account-request";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import StudioDialog from "@/components/studio/StudioDialog";
+import { buildResumeAnalysisReport } from "@/lib/resume-report-export";
 
 export default function HygieneAndTemplatePage() {
+  const ownerRevision = useRef(getAuthRevision()).current;
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
@@ -97,37 +100,30 @@ export default function HygieneAndTemplatePage() {
       const formDataToSend = new FormData();
       formDataToSend.append("file", uploadedFile);
 
-      const token = getTokenFromCookies();
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
-
-      toast.loading("Saving resume to profile...", { id: "saving-resume" });
-      const response = await fetch(`${baseUrl}/${ENDPOINTS.RESUME.SAVE_FINAL}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formDataToSend,
-      });
-
-      const data = await response.json();
-      toast.dismiss("saving-resume");
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to save resume");
-      }
+      toast.loading("Saving resume to profile...", { id: `saving-resume-${ownerRevision}` });
+      await accountJson(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.RESUME.SAVE_FINAL}`,
+        ownerRevision,
+        { method: "POST", body: formDataToSend }
+      );
+      assertAuthRevision(ownerRevision);
+      toast.dismiss(`saving-resume-${ownerRevision}`);
 
       // Invalidate the /me query so the app immediately fetches the new ats_resume_filename and ats_resume_id
       await queryClient.invalidateQueries({ queryKey: [ENDPOINTS.AUTH.ABOUT_ME] });
+      assertAuthRevision(ownerRevision);
 
       toast.success(
         "Resume safely stored in your Profile! To use this ATS resume for your AI interviews, go to your Profile page and click 'Replace with ATS Resume'.",
         { duration: 8000 }
       );
     } catch (error) {
+      if (getAuthRevision() !== ownerRevision) return;
       console.error("Save failed:", error);
       toast.error("Failed to save resume to profile.");
-      toast.dismiss("saving-resume");
+      toast.dismiss(`saving-resume-${ownerRevision}`);
     } finally {
+      toast.dismiss(`saving-resume-${ownerRevision}`);
       setIsSaving(false);
     }
   };
@@ -139,87 +135,13 @@ export default function HygieneAndTemplatePage() {
         return;
       }
 
-      const htmlContent = `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>AI Resume Analysis Report</title>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #334155; max-width: 800px; margin: 40px auto; padding: 30px; background: #f8fafc; }
-                    .container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-                    h1 { color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; }
-                    h2 { color: #1e293b; margin-top: 30px; font-size: 1.25rem; }
-                    .score-box { background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 20px; border-radius: 12px; font-size: 1.5rem; font-weight: bold; color: #166534; text-align: center; margin: 25px 0; }
-                    .summary { background-color: #f1f5f9; padding: 20px; border-left: 4px solid #64748b; font-style: italic; border-radius: 0 8px 8px 0; }
-                    .card { border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; margin-top: 15px; }
-                    .tag { display: inline-block; padding: 6px 12px; border-radius: 9999px; font-size: 0.85em; font-weight: 600; margin: 4px; }
-                    .strong { background-color: #dcfce7; color: #166534; }
-                    .missing { background-color: #fee2e2; color: #991b1b; }
-                    .deprioritize { background-color: #ffedd5; color: #9a3412; }
-                    .project-item { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; }
-                    .project-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
-                    .rating-badge { font-size: 0.7em; padding: 4px 10px; background: #e0f2fe; color: #0369a1; border-radius: 12px; vertical-align: middle; margin-left: 10px; }
-                    ul { padding-left: 20px; }
-                    li { margin-bottom: 8px; color: #475569; }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <h1>AI Resume Analysis Report</h1>
-                    
-                    <div class="score-box">
-                        ATS Match Score: ${analysisResult.atsScore}/100
-                    </div>
-
-                    <div class="summary">
-                        ${analysisResult.summary}
-                    </div>
-
-                    <h2>Skills Analysis</h2>
-                    <div class="card">
-                        <p style="margin-top:0; font-weight:bold;">Strong Skills:</p>
-                        <div>${(analysisResult.skillsAnalysis?.strongSkills || []).map((s: string) => `<span class="tag strong">${s}</span>`).join("") || "None identified"}</div>
-                        
-                        <p style="margin-top: 20px; font-weight:bold;">Missing / Suggested Skills:</p>
-                        <div>${(analysisResult.skillsAnalysis?.missingSkills || []).map((s: string) => `<span class="tag missing">${s}</span>`).join("") || "None identified"}</div>
-                    </div>
-
-                    <h2>Project Evaluation</h2>
-                    <div class="card">
-                        ${
-                          (analysisResult.projectEvaluation || [])
-                            .map(
-                              (p: any) => `
-                            <div class="project-item">
-                                <strong style="color: #0f172a;">${p.projectName}</strong>
-                                <span class="rating-badge">Rating: ${p.rating}/5</span>
-                                <p style="margin-top: 8px;">${p.feedback}</p>
-                            </div>
-                        `
-                            )
-                            .join("") ||
-                          '<p style="margin:0; color:#64748b;">No projects evaluated</p>'
-                        }
-                    </div>
-
-                    <h2>Final Recommendations</h2>
-                    <div class="card">
-                        <ul style="margin:0;">
-                            ${(analysisResult.finalRecommendations || []).map((r: string) => `<li>${r}</li>`).join("") || "<li>No recommendations</li>"}
-                        </ul>
-                    </div>
-                </div>
-            </body>
-            </html>
-            `;
+      const htmlContent = buildResumeAnalysisReport(analysisResult);
 
       const blob = new Blob([htmlContent], { type: "text/html" });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `resume-analysis-report-${analysisResult.analysisId || "export"}.html`;
+      a.download = "resume-analysis-report.html";
       a.click();
       window.URL.revokeObjectURL(url);
       toast.success("Analysis report downloaded successfully!");
@@ -237,6 +159,7 @@ export default function HygieneAndTemplatePage() {
     }
 
     try {
+      assertAuthRevision(ownerRevision);
       setIsAnalyzing(true);
       setAnalysisError(null);
 
@@ -247,44 +170,33 @@ export default function HygieneAndTemplatePage() {
         uploadedFile,
         formData.targetRole,
         formData.experienceLevel,
-        formData.jobDescription
+        formData.jobDescription,
+        ownerRevision
       );
 
+      assertAuthRevision(ownerRevision);
       setAnalysisResult(result);
       if (result.analysisId) {
         setAnalysisId(result.analysisId);
       }
       toast.success("Resume re-analyzed successfully!");
     } catch (error) {
+      if (getAuthRevision() !== ownerRevision) return;
       const errorMessage = error instanceof Error ? error.message : "Failed to re-analyze resume.";
       setAnalysisError(errorMessage);
       toast.error(errorMessage);
       console.error("Re-analyze error:", error);
     } finally {
-      setIsAnalyzing(false);
+      if (getAuthRevision() === ownerRevision) setIsAnalyzing(false);
     }
   };
 
   return (
     <div className="w-full max-w-2xl mx-auto pb-20">
       <div className="flex flex-col gap-6 relative animate-in fade-in slide-in-from-right-4 duration-500 pt-4">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <Link
-            href="/ai-resume/skills"
-            className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
-          >
-            <ChevronLeftIcon className="size-5 text-slate-700" />
-          </Link>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/5 text-primary rounded-full text-sm font-medium">
-            <SparklesIcon className="size-4" />
-            <span>AI Powered</span>
-          </div>
-        </div>
-
         {/* Title Section */}
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-slate-900">Hygiene & Template</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Polish your resume</h1>
           <p className="text-slate-500 text-sm">Final polish and an ATS-ready template.</p>
         </div>
 
@@ -321,7 +233,9 @@ export default function HygieneAndTemplatePage() {
                 <div className="relative flex items-center group">
                   <button
                     onClick={() => setShowProfileLinkInfo(!showProfileLinkInfo)}
-                    className="p-1 rounded-full hover:bg-slate-100 transition-colors focus:outline-none"
+                    aria-label="Read profile link guidelines"
+                    aria-haspopup="dialog"
+                    className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
                   >
                     <InformationCircleIcon className="size-5 text-slate-400 hover:text-primary transition-colors" />
                   </button>
@@ -337,13 +251,22 @@ export default function HygieneAndTemplatePage() {
             </div>
 
             {showProfileLinkInfo && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+              <StudioDialog
+                labelledBy="profile-link-guidelines-title"
+                onClose={() => setShowProfileLinkInfo(false)}
+              >
                 <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-xl shadow-2xl flex flex-col max-h-[80vh] overflow-hidden">
                   <div className="flex justify-between items-center p-5 border-b border-slate-100 shrink-0 bg-white">
-                    <h3 className="font-bold text-slate-900 text-lg">Profile Link Guidelines</h3>
+                    <h3
+                      id="profile-link-guidelines-title"
+                      className="font-bold text-slate-900 text-lg"
+                    >
+                      Profile link guidelines
+                    </h3>
                     <button
                       onClick={() => setShowProfileLinkInfo(false)}
-                      className="text-slate-400 hover:text-slate-700 p-1.5 rounded-full hover:bg-slate-100 transition-colors"
+                      aria-label="Close profile link guidelines"
+                      className="min-h-11 min-w-11 inline-flex items-center justify-center text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition-colors"
                     >
                       <XMarkIcon className="size-5" />
                     </button>
@@ -462,7 +385,7 @@ export default function HygieneAndTemplatePage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </StudioDialog>
             )}
 
             <div className="space-y-4">
@@ -476,7 +399,8 @@ export default function HygieneAndTemplatePage() {
                           onClick={() =>
                             setExpandedNotes((prev) => ({ ...prev, [link.name]: !prev[link.name] }))
                           }
-                          className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 text-[10px] font-medium border border-amber-200 hover:bg-amber-100 transition-colors"
+                          aria-expanded={!!expandedNotes[link.name]}
+                          className="min-h-11 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-medium border border-amber-200 hover:bg-amber-100 transition-colors"
                         >
                           <InformationCircleIcon className="size-3" />
                           Note

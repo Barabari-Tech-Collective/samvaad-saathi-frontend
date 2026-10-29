@@ -1,5 +1,6 @@
 "use client";
 
+import PageHeading from "@/components/studio/PageHeading";
 import { CheckCircleIcon, ClockIcon, MicrophoneIcon } from "@heroicons/react/24/outline";
 import { useMicPermission, MicPermissionModal } from "@/hooks/useMicPermission";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -42,15 +43,15 @@ const LevelIntroPage = () => {
   };
 
   return (
-    <div className="flex flex-col bg-base-200/30">
-      <div className="p-6 pt-6 space-y-6">
-        {/* Level title */}
-        <h1 className="text-xl font-bold text-black text-center">{levelTitle}</h1>
-      </div>
-
-      <div className="p-6 space-y-6">
+    <div className="studio-stack">
+      <PageHeading
+        eyebrow="Pace & pauses"
+        title={levelTitle}
+        description="A short speaking exercise to help you hear your rhythm and choose where to pause."
+      />
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* What you'll practice */}
-        <div className="card bg-white shadow-lg border border-gray-100 p-6 rounded-2xl">
+        <div className="studio-panel">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
               <ClockIcon className="w-6 h-6 text-blue-600" />
@@ -73,7 +74,7 @@ const LevelIntroPage = () => {
         </div>
 
         {/* Target benchmarks */}
-        <div className="space-y-4 shadow-lg card  p-4 rounded-2xl">
+        <div className="studio-panel space-y-4">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
               <CheckCircleIcon className="w-5 h-5 text-green-600" />
@@ -110,7 +111,7 @@ const LevelIntroPage = () => {
       </div>
 
       {/* CTA */}
-      <div className="mt-auto p-6 pb-10">
+      <div className="pb-6">
         <button
           onClick={handleStartPractice}
           className="btn btn-neutral btn-block btn-lg rounded-lg"

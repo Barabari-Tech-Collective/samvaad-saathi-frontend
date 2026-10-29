@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 const Header = ({
   mode = "practice",
@@ -102,17 +103,22 @@ const Header = ({
   };
 
   return (
-    <header className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center rounded-xl border border-[#DEE8FB] bg-white p-4 sm:p-5">
+    <header className="studio-room-header">
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-semibold text-[#6B7280]">Interview room</p>
+        <p className="studio-eyebrow">
+          {mode === "practice" ? "Practice room" : "Assessment room"}
+        </p>
         <h3 className="mt-1 break-words text-xl font-semibold text-[#1F285B] sm:text-2xl">
           {role || "Interview"}
         </h3>
       </div>
-      <p
-        className="self-start rounded-lg bg-[#F5F9FF] px-4 py-3 text-base font-semibold tabular-nums text-[#1F285B] sm:self-auto"
-        aria-label="Interview time"
-      >
+      {hasStarted && (
+        <a href="#interview-controls" className="ws-button">
+          <ArrowLeftIcon aria-hidden="true" />
+          {mode === "practice" ? "Pause / exit options" : "Submission options"}
+        </a>
+      )}
+      <p className="studio-room-clock" aria-label="Interview time">
         {deadlineAt === null
           ? `${mode === "assessment" ? "Assessment" : "Practice"} · no time limit`
           : formatTime(timeLeft)}

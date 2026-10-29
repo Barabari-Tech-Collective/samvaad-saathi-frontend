@@ -86,7 +86,7 @@ it.each([
   const retry = vi.fn();
   render(<PracticeHubView hub={hub} status="ready" name="Riya" onRefresh={retry} />);
   expect(screen.queryByRole("link", { name: "Continue saved interview" })).toBeNull();
-  expect(screen.queryByRole("link", { name: "Begin mock interview" })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Start practice interview" })).toBeNull();
   expect(screen.queryByText(/2 of 5 answers are saved/)).toBeNull();
   expect(screen.getByRole("link", { name: "View saved session" })).toHaveAttribute(
     "href",

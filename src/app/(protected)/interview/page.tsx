@@ -697,7 +697,7 @@ const InterviewPage = () => {
   };
 
   return (
-    <div className="px-3 pt-4 sm:px-6 lg:px-8">
+    <div className="studio-room">
       <ProctoringPreflightModal
         isOpen={proctoring.showPreflight}
         isStarting={proctoring.isBeginning}
