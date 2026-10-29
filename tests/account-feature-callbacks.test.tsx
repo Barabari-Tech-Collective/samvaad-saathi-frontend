@@ -141,5 +141,7 @@ it("blocks a verified Meet link when its join window has since ended", async () 
     expect(fireEvent.click(link)).toBe(false);
     expect(screen.queryByRole("link", { name: /Open Google Meet/ })).toBeNull();
     expect(screen.getByRole("alert").textContent).toContain("join window ended");
-  } finally { clock.mockRestore(); }
+  } finally {
+    clock.mockRestore();
+  }
 });

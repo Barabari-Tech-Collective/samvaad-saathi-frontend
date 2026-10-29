@@ -95,5 +95,7 @@ export function subscribeAuthRevision(notify: () => void) {
 
 export function getAuthStorageOwner(): string {
   const session = productSession();
-  return session ? `central:${session.snapshot().principal ?? "anonymous"}` : principal(readAccessCookie());
+  return session
+    ? `central:${session.snapshot().principal ?? "anonymous"}`
+    : principal(readAccessCookie());
 }

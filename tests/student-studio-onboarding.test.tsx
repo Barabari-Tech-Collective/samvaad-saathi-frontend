@@ -148,4 +148,6 @@ it("advances from the exact upload receipt without polling an old hasResume flag
   expect(fixture.save.mock.calls[2][0]).toEqual(fixture.save.mock.calls[1][0]);
 });
 
-function render(ui: React.ReactNode) { return renderBase(<QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>); }
+function render(ui: React.ReactNode) {
+  return renderBase(<QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>);
+}

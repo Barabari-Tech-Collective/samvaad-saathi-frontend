@@ -28,9 +28,15 @@ export function proxy(request: NextRequest) {
   }
 
   // If the user is on a public route but has a token, redirect to home
-  const hasCallback = pathname === "/auth/signup" && (["handoff", "callback"].includes(request.nextUrl.searchParams.get("flow") || "") || (request.nextUrl.searchParams.has("token") && request.nextUrl.searchParams.has("refresh_token")));
+  const hasCallback =
+    pathname === "/auth/signup" &&
+    (["handoff", "callback"].includes(request.nextUrl.searchParams.get("flow") || "") ||
+      (request.nextUrl.searchParams.has("token") &&
+        request.nextUrl.searchParams.has("refresh_token")));
   if (token && isPublicRoute && !hasCallback) {
-    return NextResponse.redirect(new URL(loginDestination(request.nextUrl.searchParams.get("return_to")), request.url));
+    return NextResponse.redirect(
+      new URL(loginDestination(request.nextUrl.searchParams.get("return_to")), request.url)
+    );
   }
 
   return NextResponse.next();

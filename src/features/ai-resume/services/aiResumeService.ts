@@ -28,7 +28,7 @@ export const aiResumeService = {
 
       const session = productSession();
       if (session) {
-        const api = createSessionAxios(process.env.NEXT_PUBLIC_API_BASE_URL || '', session);
+        const api = createSessionAxios(process.env.NEXT_PUBLIC_API_BASE_URL || "", session);
         const response = await api.post(ENDPOINTS.AI_RESUME.ANALYZE, formData);
         assertAuthRevision(ownerRevision);
         return response.data;

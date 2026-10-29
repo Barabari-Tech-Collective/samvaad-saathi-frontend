@@ -82,7 +82,6 @@ export function ResumeInputForm({
     mode: "onChange",
   });
 
-
   const onSubmit = async (data: FormData) => {
     try {
       setIsSubmitting(true);

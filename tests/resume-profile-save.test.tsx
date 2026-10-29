@@ -78,13 +78,17 @@ it("does not fill missing resume fields with fictional sample experience", async
 
 it("does not upload or refresh when the account changes during PDF preparation", async () => {
   let finish!: (pdf: Blob) => void;
-  f.get.mockReturnValue(new Promise<Blob>(resolve => { finish = resolve; }));
+  f.get.mockReturnValue(
+    new Promise<Blob>((resolve) => {
+      finish = resolve;
+    })
+  );
   render(<Page />);
   fireEvent.click(await screen.findByRole("button", { name: "Save Resume" }));
-  document.cookie = 'token=another-account; path=/';
+  document.cookie = "token=another-account; path=/";
   await act(async () => finish(new Blob(["PDF"], { type: "application/pdf" })));
   expect(f.save).not.toHaveBeenCalled();
   expect(f.router.refresh).not.toHaveBeenCalled();
   expect(screen.queryByRole("alert")).toBeNull();
-  document.cookie = 'token=; max-age=0; path=/';
+  document.cookie = "token=; max-age=0; path=/";
 });

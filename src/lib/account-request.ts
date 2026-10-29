@@ -12,13 +12,21 @@ export async function accountJson<T>(
   assertAuthRevision(ownerRevision);
   const session = productSession();
   if (session) {
-    const api = createSessionAxios(process.env.NEXT_PUBLIC_API_BASE_URL || '', session);
+    const api = createSessionAxios(process.env.NEXT_PUBLIC_API_BASE_URL || "", session);
     try {
-      const response = await api.request<T>({ url, method: init.method || 'GET', data: init.body,
-        headers: Object.fromEntries(new Headers(init.headers).entries()), signal: init.signal || undefined });
+      const response = await api.request<T>({
+        url,
+        method: init.method || "GET",
+        data: init.body,
+        headers: Object.fromEntries(new Headers(init.headers).entries()),
+        signal: init.signal || undefined,
+      });
       assertAuthRevision(ownerRevision);
       return response.data;
-    } catch (error) { assertAuthRevision(ownerRevision); throw error; }
+    } catch (error) {
+      assertAuthRevision(ownerRevision);
+      throw error;
+    }
   }
   const token = getTokenFromCookies();
   if (!token) throw new Error("Sign in again to continue.");

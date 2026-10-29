@@ -64,7 +64,11 @@ function switchAccount(name: string) {
 it("rejects a PDF response received after an account switch", async () => {
   switchAccount("first");
   let finish!: (value: unknown) => void;
-  f.get.mockReturnValue(new Promise(resolve => { finish = resolve; }));
+  f.get.mockReturnValue(
+    new Promise((resolve) => {
+      finish = resolve;
+    })
+  );
   const pending = getResumePdf("7");
   switchAccount("second");
   finish({ data: new Blob(["PDF"], { type: "application/pdf" }) });
@@ -82,7 +86,11 @@ it("does not upload a previously downloaded PDF under a different account", asyn
 it("does not report an old account's delayed save as current success", async () => {
   switchAccount("first");
   let finish!: (value: unknown) => void;
-  f.fetch.mockReturnValue(new Promise(resolve => { finish = resolve; }));
+  f.fetch.mockReturnValue(
+    new Promise((resolve) => {
+      finish = resolve;
+    })
+  );
   const pending = saveResumePdfToProfile(new Blob(["PDF"]));
   switchAccount("second");
   finish({ ok: true });
@@ -91,7 +99,11 @@ it("does not report an old account's delayed save as current success", async () 
 it("allows token renewal for the same account", async () => {
   switchAccount("first");
   let finish!: (value: unknown) => void;
-  f.get.mockReturnValue(new Promise(resolve => { finish = resolve; }));
+  f.get.mockReturnValue(
+    new Promise((resolve) => {
+      finish = resolve;
+    })
+  );
   const pending = getResumePdf("7");
   document.cookie = `token=x.${btoa(JSON.stringify({ email: "first", exp: 999 }))}.x; path=/`;
   const pdf = new Blob(["PDF"], { type: "application/pdf" });

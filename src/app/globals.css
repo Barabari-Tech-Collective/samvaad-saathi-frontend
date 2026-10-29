@@ -137,7 +137,9 @@ h6 {
   font-weight: 600;
   box-shadow: 0 6px 20px #1f285b1f;
 }
-.workspace-guide-trigger:hover { background: #f5f9ff; }
+.workspace-guide-trigger:hover {
+  background: #f5f9ff;
+}
 .workspace-guide-invite {
   position: fixed;
   right: 1.25rem;
@@ -150,8 +152,18 @@ h6 {
   padding: 18px 20px;
   box-shadow: 0 18px 60px #1f285b30;
 }
-.workspace-guide-invite h2 { font-size: 18px; font-weight: 700; margin: 4px 0 6px; color: #111827; }
-.workspace-guide-invite p { color: #4b5563; font-size: 14px; line-height: 1.55; margin: 0; }
+.workspace-guide-invite h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 4px 0 6px;
+  color: #111827;
+}
+.workspace-guide-invite p {
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+}
 .workspace-guide-eyebrow {
   color: #344499;
   font-size: 11px;
@@ -159,13 +171,28 @@ h6 {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.workspace-tour { position: fixed; inset: 0; z-index: 70; pointer-events: none; }
-.workspace-tour-dim { position: absolute; inset: 0; background: #0f172a8c; }
+.workspace-tour {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+}
+.workspace-tour-dim {
+  position: absolute;
+  inset: 0;
+  background: #0f172a8c;
+}
 .workspace-tour-spot {
   position: absolute;
   border-radius: 14px;
-  box-shadow: 0 0 0 3px #eab308, 0 0 0 9999px #0f172a8c;
-  transition: top 0.25s ease, left 0.25s ease, width 0.25s ease, height 0.25s ease;
+  box-shadow:
+    0 0 0 3px #eab308,
+    0 0 0 9999px #0f172a8c;
+  transition:
+    top 0.25s ease,
+    left 0.25s ease,
+    width 0.25s ease,
+    height 0.25s ease;
 }
 .workspace-tour-card {
   position: absolute;
@@ -176,7 +203,9 @@ h6 {
   color: #111827;
   padding: 20px 22px 18px;
   box-shadow: 0 24px 80px #0f172a55;
-  transition: top 0.25s ease, left 0.25s ease;
+  transition:
+    top 0.25s ease,
+    left 0.25s ease;
 }
 .workspace-tour-card.is-centered {
   top: 50%;
@@ -192,12 +221,45 @@ h6 {
     transform: translateX(-50%);
   }
 }
-.workspace-tour-card h2 { font-size: 19px; font-weight: 700; line-height: 1.3; margin: 10px 0 8px; outline: none; }
-.workspace-tour-card p:not(.workspace-guide-progress) { color: #374151; font-size: 15px; line-height: 1.6; margin: 0; }
-.workspace-guide-progress { color: #344499; font-size: 12px; font-weight: 700; margin: 0 0 8px; }
-.workspace-tour-bar { height: 4px; border-radius: 999px; background: #e5eaf7; overflow: hidden; }
-.workspace-tour-bar span { display: block; height: 100%; background: #eab308; border-radius: 999px; transition: width 0.25s ease; }
-.workspace-guide-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-top: 18px; }
+.workspace-tour-card h2 {
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 10px 0 8px;
+  outline: none;
+}
+.workspace-tour-card p:not(.workspace-guide-progress) {
+  color: #374151;
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+}
+.workspace-guide-progress {
+  color: #344499;
+  font-size: 12px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+.workspace-tour-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: #e5eaf7;
+  overflow: hidden;
+}
+.workspace-tour-bar span {
+  display: block;
+  height: 100%;
+  background: #eab308;
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+.workspace-guide-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
 .workspace-guide-actions button {
   min-height: 44px;
   border-radius: 10px;
@@ -206,13 +268,29 @@ h6 {
   font-weight: 600;
   color: #1f285b;
 }
-.workspace-guide-actions button:first-child { margin-right: auto; color: #6b7280; font-weight: 500; }
-.workspace-guide-next { background: #1f285b; color: #fff !important; }
-.workspace-guide-next:hover { background: #344499; }
+.workspace-guide-actions button:first-child {
+  margin-right: auto;
+  color: #6b7280;
+  font-weight: 500;
+}
+.workspace-guide-next {
+  background: #1f285b;
+  color: #fff !important;
+}
+.workspace-guide-next:hover {
+  background: #344499;
+}
 .workspace-guide-trigger:focus-visible,
-.workspace-guide-actions button:focus-visible { outline: 3px solid #344499; outline-offset: 3px; }
+.workspace-guide-actions button:focus-visible {
+  outline: 3px solid #344499;
+  outline-offset: 3px;
+}
 @media (prefers-reduced-motion: reduce) {
-  .workspace-tour-spot, .workspace-tour-card, .workspace-tour-bar span { transition: none; }
+  .workspace-tour-spot,
+  .workspace-tour-card,
+  .workspace-tour-bar span {
+    transition: none;
+  }
 }
 [data-guide-highlight="true"] {
   outline: 3px solid #ffcc33 !important;
@@ -332,7 +410,8 @@ h6 {
   padding: calc(var(--student-header-height) + 24px) 20px calc(88px + env(safe-area-inset-bottom));
   outline: none;
 }
-.student-main > :not(.workspace-guide-trigger):not(dialog) {
+.student-main
+  > :not(.workspace-guide-trigger):not(.workspace-guide-invite):not(.workspace-tour):not(dialog) {
   max-width: 1160px;
   margin-inline: auto;
 }

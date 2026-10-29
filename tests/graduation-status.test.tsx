@@ -1,11 +1,44 @@
-import { render,screen } from '@testing-library/react';
-import { it,expect,vi,beforeEach } from 'vitest';
-import GraduationStatus from '@/components/graduation/GraduationStatus';
-const f=vi.hoisted(()=>({query:{data:undefined as unknown,isError:false,isFetching:false,refetch:vi.fn()}}));
-vi.mock('@/components/providers/auth-provider',()=>({useAuth:()=>({user:{userId:'one'}})}));
-vi.mock('@/lib/api-config/src/instance',()=>({apiClient:{useQuery:()=>f.query}}));
-beforeEach(()=>{f.query={data:undefined,isError:false,isFetching:false,refetch:vi.fn()};});
-it('does not pretend unknown data means no graduation',()=>{render(<GraduationStatus/>);expect(screen.getByRole('status')).toHaveTextContent('Loading');});
-it('hides stale records when access fails',()=>{f.query.isError=true;f.query.data={items:[{course_id:'secret',state:'graduated'}]};render(<GraduationStatus/>);expect(screen.getByRole('alert')).toBeVisible();expect(screen.queryByText('Course secret')).toBeNull();});
-it('shows pending admin approval only after both checks',()=>{f.query.data={items:[{course_id:'1',state:'ready',course_verified:true,placement_verified:true,graduated_at:null}]};render(<GraduationStatus/>);expect(screen.getByText(/Awaiting administrator approval/)).toBeVisible();});
-it('makes an empty verification record actionable',()=>{f.query.data={items:[]};render(<GraduationStatus/>);expect(screen.getByText(/Contact your course team/)).toBeVisible();});
+import { render, screen } from "@testing-library/react";
+import { it, expect, vi, beforeEach } from "vitest";
+import GraduationStatus from "@/components/graduation/GraduationStatus";
+const f = vi.hoisted(() => ({
+  query: { data: undefined as unknown, isError: false, isFetching: false, refetch: vi.fn() },
+}));
+vi.mock("@/components/providers/auth-provider", () => ({
+  useAuth: () => ({ user: { userId: "one" } }),
+}));
+vi.mock("@/lib/api-config/src/instance", () => ({ apiClient: { useQuery: () => f.query } }));
+beforeEach(() => {
+  f.query = { data: undefined, isError: false, isFetching: false, refetch: vi.fn() };
+});
+it("does not pretend unknown data means no graduation", () => {
+  render(<GraduationStatus />);
+  expect(screen.getByRole("status")).toHaveTextContent("Loading");
+});
+it("hides stale records when access fails", () => {
+  f.query.isError = true;
+  f.query.data = { items: [{ course_id: "secret", state: "graduated" }] };
+  render(<GraduationStatus />);
+  expect(screen.getByRole("alert")).toBeVisible();
+  expect(screen.queryByText("Course secret")).toBeNull();
+});
+it("shows pending admin approval only after both checks", () => {
+  f.query.data = {
+    items: [
+      {
+        course_id: "1",
+        state: "ready",
+        course_verified: true,
+        placement_verified: true,
+        graduated_at: null,
+      },
+    ],
+  };
+  render(<GraduationStatus />);
+  expect(screen.getByText(/Awaiting administrator approval/)).toBeVisible();
+});
+it("makes an empty verification record actionable", () => {
+  f.query.data = { items: [] };
+  render(<GraduationStatus />);
+  expect(screen.getByText(/Contact your course team/)).toBeVisible();
+});

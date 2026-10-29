@@ -57,7 +57,12 @@ export const identifyUser = (userId: string, properties: UserProperties = {}): v
     // Operational analytics does not need contact details, education or résumé fields.
     const safe: Record<string, boolean | number> = {};
     if (typeof properties.is_onboarded === "boolean") safe.is_onboarded = properties.is_onboarded;
-    if (typeof properties.total_attempts === "number" && Number.isSafeInteger(properties.total_attempts) && properties.total_attempts >= 0) safe.total_attempts = properties.total_attempts;
+    if (
+      typeof properties.total_attempts === "number" &&
+      Number.isSafeInteger(properties.total_attempts) &&
+      properties.total_attempts >= 0
+    )
+      safe.total_attempts = properties.total_attempts;
     posthog.identify(userId, safe);
   }
 };

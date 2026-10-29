@@ -2,7 +2,9 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import Pacing from "@/app/(protected)/control-your-pace/practice/page";
 import AnswerStep from "@/app/(protected)/structure-your-answer/interview/_components/AnswerTypeStep";
-vi.mock("@/components/providers/auth-provider", () => ({ useAuth: () => ({ user: { userId: "test-account" } }) }));
+vi.mock("@/components/providers/auth-provider", () => ({
+  useAuth: () => ({ user: { userId: "test-account" } }),
+}));
 const f = vi.hoisted(() => ({
   level: "1",
   create: vi.fn(),
@@ -179,18 +181,27 @@ it("reuses creation receipt after unmount and remount", async () => {
 it("recovers a completed session instead of presenting another recording prompt", async () => {
   f.create.mockResolvedValue({ sessionId: 77, status: "completed" });
   render(<Pacing />);
-  await waitFor(() => expect(f.replace).toHaveBeenCalledWith("/control-your-pace/report?sessionId=77"));
+  await waitFor(() =>
+    expect(f.replace).toHaveBeenCalledWith("/control-your-pace/report?sessionId=77")
+  );
   expect(sessionStorage.getItem("pacing-create:test-account:1")).toBeNull();
 });
 
 it("shows a recoverable error without dispatch when session storage is unavailable", async () => {
   const originalStorage = sessionStorage;
-  vi.stubGlobal("sessionStorage", { getItem: () => null, setItem: () => { throw new Error("blocked"); } });
+  vi.stubGlobal("sessionStorage", {
+    getItem: () => null,
+    setItem: () => {
+      throw new Error("blocked");
+    },
+  });
   try {
     render(<Pacing />);
     expect(await screen.findByRole("alert")).toHaveTextContent("browser storage is unavailable");
     expect(f.create).not.toHaveBeenCalled();
-  } finally { vi.stubGlobal("sessionStorage", originalStorage); }
+  } finally {
+    vi.stubGlobal("sessionStorage", originalStorage);
+  }
 });
 it("reconciles a lost submission response before asking for another upload", async () => {
   f.submit.mockRejectedValue(new Error("response lost"));

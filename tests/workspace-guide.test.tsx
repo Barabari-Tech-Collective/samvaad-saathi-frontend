@@ -11,8 +11,20 @@ vi.mock("next/navigation", () => ({
 
 const steps = [
   { title: "Start here", body: "A helpful first step" },
-  { title: "Your progress", body: "Return any time", href: "/history", target: "#history-link", optional: true },
-  { title: "Missing page", body: "Not for this account", href: "/nope", target: "#not-there", optional: true },
+  {
+    title: "Your progress",
+    body: "Return any time",
+    href: "/history",
+    target: "#history-link",
+    optional: true,
+  },
+  {
+    title: "Missing page",
+    body: "Not for this account",
+    href: "/nope",
+    target: "#not-there",
+    optional: true,
+  },
   { title: "All set", body: "Replay any time" },
 ];
 
@@ -51,9 +63,14 @@ describe("workspace tour", () => {
   });
 
   it("walks the steps, opens the page for a step, and skips pages this account lacks", () => {
-    document.body.insertAdjacentHTML("beforeend", '<a id="history-link" href="/history">History</a>');
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      '<a id="history-link" href="/history">History</a>'
+    );
     // jsdom has no layout; report the history link as visible and everything else as not.
-    vi.spyOn(HTMLElement.prototype, "getClientRects").mockImplementation(function (this: HTMLElement) {
+    vi.spyOn(HTMLElement.prototype, "getClientRects").mockImplementation(function (
+      this: HTMLElement
+    ) {
       return (this.id === "history-link" ? [{}] : []) as unknown as DOMRectList;
     });
     render(<WorkspaceGuide storageKey="tour-walk" steps={steps} />);
@@ -99,7 +116,7 @@ describe("workspace tour", () => {
       <>
         <input aria-label="Your work" />
         <WorkspaceGuide storageKey="tour-invite" steps={steps} />
-      </>,
+      </>
     );
     const input = screen.getByRole("textbox");
     input.focus();

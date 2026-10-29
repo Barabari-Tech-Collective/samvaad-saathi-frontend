@@ -163,11 +163,11 @@ These checkboxes mean the whole design item is accepted. Source fixes alone stay
 
 ## Change log
 
-| Date / batch | Completed work | Evidence | Still open |
-|---|---|---|---|
-| 22 Oct / audit baseline | F01–F17 local fixes | 342 student, 1,133 backend unit, 37 dashboard tests; student build and both typechecks passed | Rendered/provider/device/integrated gates |
-| 22 Oct / 02 | Account-owned cache/subtree, draft boundary, stale response/refresh guards and tab signals | 12 new tests; 363 student tests, optimized build, TypeScript and lint passed | 02a transport audit and 02b actual browser acceptance |
-| 22 Oct / 01 | Canonical PDF profile save, duplicate-action guard, meaningful failure/retry, no fictional preview fallback | 351 student tests passed (9 new); optimized build, TypeScript and diff checks passed; lint has 0 errors/1 existing warning | 01a document acceptance; 02 next |
+| Date / batch            | Completed work                                                                                              | Evidence                                                                                                                   | Still open                                            |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| 22 Oct / audit baseline | F01–F17 local fixes                                                                                         | 342 student, 1,133 backend unit, 37 dashboard tests; student build and both typechecks passed                              | Rendered/provider/device/integrated gates             |
+| 22 Oct / 02             | Account-owned cache/subtree, draft boundary, stale response/refresh guards and tab signals                  | 12 new tests; 363 student tests, optimized build, TypeScript and lint passed                                               | 02a transport audit and 02b actual browser acceptance |
+| 22 Oct / 01             | Canonical PDF profile save, duplicate-action guard, meaningful failure/retry, no fictional preview fallback | 351 student tests passed (9 new); optimized build, TypeScript and diff checks passed; lint has 0 errors/1 existing warning | 01a document acceptance; 02 next                      |
 
 ## Product PKCE and handoff — CA-B03
 
@@ -350,11 +350,9 @@ Evidence: CENTRAL-AUTH-BUILD-16.md; 584 frontend tests, TypeScript and scoped li
 - [x] Focused rendered navigation/member-dialog acceptance recorded; screenshot saved.
 - [ ] Complete authenticated route matrix, remaining M1–M12 implementation/acceptance and release gates. Specific checks above do not close all D01–D25/O01–O13.
 
-
 ## Central-auth integration update — 26 October 2026
 
 Student session wiring, continuation fixes and simulated concurrency evidence are recorded in `/Users/armasahar/Desktop/samvaad-saathi-revamp-2026-10-18/CENTRAL-AUTH-INTEGRATION-2026-10-26.md`. These implementation checks do not close central Home/staff migration, global revocation or live HTTPS acceptance. CodeGuru is deferred because no codebase exists.
-
 
 ## Role boundary hardening — 26 October 2026
 
@@ -366,7 +364,6 @@ Student session wiring, continuation fixes and simulated concurrency evidence ar
 
 Full evidence and remaining gates: `/Users/armasahar/Desktop/samvaad-saathi-revamp-2026-10-18/ROLE-BOUNDARY-HARDENING-2026-10-26.md`. Full central-auth completion remains open.
 
-
 ## Home/staff session migration and revocation — 26 October 2026
 
 - [x] Implemented opt-in Home/staff server sessions, cookie BFF, fresh role checks, CSRF and stale-tab account binding.
@@ -377,7 +374,6 @@ Full evidence and remaining gates: `/Users/armasahar/Desktop/samvaad-saathi-reva
 - [ ] Redis recovery policy, large ATS upload limits and Samvaad ambiguous-global-logout retry remain release gates.
 
 Details: `/Users/armasahar/Desktop/samvaad-saathi-revamp-2026-10-18/HOME-STAFF-SESSION-MIGRATION-2026-10-26.md`. Browser access remains disabled; production unchanged.
-
 
 ## Requested items 1–7: isolated HTTPS follow-up — 26 October 2026
 

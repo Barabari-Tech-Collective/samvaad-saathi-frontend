@@ -100,14 +100,18 @@ const baseUrls = {
 };
 
 // Hook-based API client that uses react-cookie
-export const createApiClient = (service: APIService | APIServiceV2, session: ServerSessionClient | undefined = productSession()) => {
+export const createApiClient = (
+  service: APIService | APIServiceV2,
+  session: ServerSessionClient | undefined = productSession()
+) => {
   const axiosInstance = createAxiosInstance(baseUrls[service], session);
   const revision = session ? session.revision : getAuthRevision;
   const subscribe = session ? session.subscribe : subscribeAuthRevision;
   const assertOwner = (expected: number) => {
     if (session) {
       const current = session.snapshot();
-      if (!current.authenticated || current.revision !== expected) throw new SessionClientError(409, "Your session changed. Reload this task.");
+      if (!current.authenticated || current.revision !== expected)
+        throw new SessionClientError(409, "Your session changed. Reload this task.");
     } else assertAuthRevision(expected);
   };
 
@@ -157,19 +161,31 @@ export const createApiClient = (service: APIService | APIServiceV2, session: Ser
       }
     };
 
-    const ownsMutation = () => !session || (session.snapshot().authenticated && revision() === ownerRevision);
+    const ownsMutation = () =>
+      !session || (session.snapshot().authenticated && revision() === ownerRevision);
     const invalidateOwnedQueries = () => {
       if (!keyToInvalidate) return;
-      if (!session) { void queryClient.invalidateQueries(keyToInvalidate); return; }
+      if (!session) {
+        void queryClient.invalidateQueries(keyToInvalidate);
+        return;
+      }
       // The credential-free profile is owned by the account-boundary QueryClient.
-      if (keyToInvalidate.queryKey?.[0] === "me") void queryClient.invalidateQueries({ queryKey: ["me"] });
+      if (keyToInvalidate.queryKey?.[0] === "me")
+        void queryClient.invalidateQueries({ queryKey: ["me"] });
       void queryClient.invalidateQueries({
         ...keyToInvalidate,
-        queryKey: ["cookie-session", session.cacheScope, ownerRevision, ...(keyToInvalidate.queryKey ?? [])],
+        queryKey: [
+          "cookie-session",
+          session.cacheScope,
+          ownerRevision,
+          ...(keyToInvalidate.queryKey ?? []),
+        ],
       });
     };
     const mutation = useMutation<TData, AxiosError<APIError>, TParams>({
-      mutationKey: session ? ["cookie-session", session.cacheScope, ownerRevision, url, method] : [url, method],
+      mutationKey: session
+        ? ["cookie-session", session.cacheScope, ownerRevision, url, method]
+        : [url, method],
       mutationFn: mutateData,
       onSuccess: () => {
         if (successMessage) toast.success(successMessage);
@@ -209,38 +225,62 @@ export const createApiClient = (service: APIService | APIServiceV2, session: Ser
         }
       },
       ...options,
-      ...(session ? {
-        retry: false,
-        mutationKey: ["cookie-session", session.cacheScope, ownerRevision, url, method],
-        mutationFn: mutateData,
-        onMutate: async (...args: Parameters<NonNullable<NonNullable<typeof options>["onMutate"]>>) => {
-          assertOwner(ownerRevision);
-          return options?.onMutate?.(...args);
-        },
-        onSuccess: async (...args: Parameters<NonNullable<NonNullable<typeof options>["onSuccess"]>>) => {
-          if (!ownsMutation()) return;
-          if (successMessage) toast.success(successMessage);
-          invalidateOwnedQueries();
-          await options?.onSuccess?.(...args);
-        },
-        onError: async (...args: Parameters<NonNullable<NonNullable<typeof options>["onError"]>>) => {
-          if (!ownsMutation()) return;
-          const [error] = args;
-          if (error instanceof SessionClientError || error instanceof SessionChangedError || error.code === "ERR_CANCELED") return;
-          if (showToastError ?? Boolean(errorMessage)) toast.error(extractApiErrorMessage(error, errorMessage || "Something went wrong. Please try again."));
-          await options?.onError?.(...args);
-        },
-        onSettled: async (...args: Parameters<NonNullable<NonNullable<typeof options>["onSettled"]>>) => {
-          if (ownsMutation()) await options?.onSettled?.(...args);
-        },
-      } : {}),
+      ...(session
+        ? {
+            retry: false,
+            mutationKey: ["cookie-session", session.cacheScope, ownerRevision, url, method],
+            mutationFn: mutateData,
+            onMutate: async (
+              ...args: Parameters<NonNullable<NonNullable<typeof options>["onMutate"]>>
+            ) => {
+              assertOwner(ownerRevision);
+              return options?.onMutate?.(...args);
+            },
+            onSuccess: async (
+              ...args: Parameters<NonNullable<NonNullable<typeof options>["onSuccess"]>>
+            ) => {
+              if (!ownsMutation()) return;
+              if (successMessage) toast.success(successMessage);
+              invalidateOwnedQueries();
+              await options?.onSuccess?.(...args);
+            },
+            onError: async (
+              ...args: Parameters<NonNullable<NonNullable<typeof options>["onError"]>>
+            ) => {
+              if (!ownsMutation()) return;
+              const [error] = args;
+              if (
+                error instanceof SessionClientError ||
+                error instanceof SessionChangedError ||
+                error.code === "ERR_CANCELED"
+              )
+                return;
+              if (showToastError ?? Boolean(errorMessage))
+                toast.error(
+                  extractApiErrorMessage(
+                    error,
+                    errorMessage || "Something went wrong. Please try again."
+                  )
+                );
+              await options?.onError?.(...args);
+            },
+            onSettled: async (
+              ...args: Parameters<NonNullable<NonNullable<typeof options>["onSettled"]>>
+            ) => {
+              if (ownsMutation()) await options?.onSettled?.(...args);
+            },
+          }
+        : {}),
     });
 
     const [mutationRevision, setMutationRevision] = useState(ownerRevision);
     const visibleMutation = !session || mutationRevision === ownerRevision;
     const resetMutation = mutation.reset;
     useEffect(() => {
-      if (session) { resetMutation(); setMutationRevision(ownerRevision); }
+      if (session) {
+        resetMutation();
+        setMutationRevision(ownerRevision);
+      }
     }, [ownerRevision, resetMutation]);
 
     // Per-call callbacks need the same ownership checks as hook-level callbacks.
@@ -265,8 +305,10 @@ export const createApiClient = (service: APIService | APIServiceV2, session: Ser
       loading: mutation.isPending,
       data: visibleMutation ? mutation.data : undefined,
       error: visibleMutation ? mutation.error : null,
-      mutate: (variables: TParams, callbacks?: Parameters<typeof mutation.mutate>[1]) => mutation.mutate(variables, ownedCallbacks(callbacks)),
-      mutateAsync: (variables: TParams, callbacks?: Parameters<typeof mutation.mutateAsync>[1]) => mutation.mutateAsync(variables, ownedCallbacks(callbacks)),
+      mutate: (variables: TParams, callbacks?: Parameters<typeof mutation.mutate>[1]) =>
+        mutation.mutate(variables, ownedCallbacks(callbacks)),
+      mutateAsync: (variables: TParams, callbacks?: Parameters<typeof mutation.mutateAsync>[1]) =>
+        mutation.mutateAsync(variables, ownedCallbacks(callbacks)),
     };
   };
 
@@ -339,22 +381,36 @@ export const createApiClient = (service: APIService | APIServiceV2, session: Ser
     };
 
     // Keep the logical prefix first so existing invalidation keys still work.
-    const sessionKey = session ? ["cookie-session", session.cacheScope, ownerRevision, ...key,
-      { url: config?.url ?? url, method: config?.method ?? method, params: config?.params ?? params, data: config?.data ?? data }] : [];
+    const sessionKey = session
+      ? [
+          "cookie-session",
+          session.cacheScope,
+          ownerRevision,
+          ...key,
+          {
+            url: config?.url ?? url,
+            method: config?.method ?? method,
+            params: config?.params ?? params,
+            data: config?.data ?? data,
+          },
+        ]
+      : [];
     const queryResult = useQuery<TData, AxiosError>({
       queryKey: session ? sessionKey : [...key, params, data],
       queryFn: fetchData,
       enabled: enabled && (!session || session.snapshot().authenticated),
       staleTime: options.staleTime ?? 1000 * 60 * 5,
       ...options,
-      ...(session ? {
-        queryKey: sessionKey,
-        enabled: enabled && options.enabled !== false && session.snapshot().authenticated,
-        retry: false,
-        placeholderData: undefined,
-        initialData: undefined,
-        queryFn: fetchData,
-      } : {}),
+      ...(session
+        ? {
+            queryKey: sessionKey,
+            enabled: enabled && options.enabled !== false && session.snapshot().authenticated,
+            retry: false,
+            placeholderData: undefined,
+            initialData: undefined,
+            queryFn: fetchData,
+          }
+        : {}),
     });
 
     return queryResult;

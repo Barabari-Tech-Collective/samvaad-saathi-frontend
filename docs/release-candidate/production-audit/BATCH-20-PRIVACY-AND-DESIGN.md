@@ -24,13 +24,13 @@ Logs: /tmp/samvaad-b20-final.log, /tmp/samvaad-b20-types-final.log, /tmp/samvaad
 
 Source-level critique using design:design-critique, not a rendered inspection:
 
-| Finding | Impact | Implemented response | Remaining acceptance |
-|---|---|---|---|
-| “Uploaded” before a request | Misleading progress | Explicit local selection wording | Real task walkthrough |
-| display:none file input, unnamed replace icon | Keyboard and reader barriers | Focusable input, named button, linked alerts | Native focus/announcements |
-| Tiny floating illustrative badge | Clipped/unreadable explanation | Persistent text outside illustration | Narrow viewport check |
-| 10–11px document body and one-page claim | Difficult review and false expectations | Readable on-screen text, honest pagination copy | Long Hindi/mixed-content layout |
-| Small/pale staff access and error labels | Hard to understand permissions | Larger/darker labels on four screens | Computed contrast, 200% text and mobile modal |
+| Finding                                       | Impact                                  | Implemented response                            | Remaining acceptance                          |
+| --------------------------------------------- | --------------------------------------- | ----------------------------------------------- | --------------------------------------------- |
+| “Uploaded” before a request                   | Misleading progress                     | Explicit local selection wording                | Real task walkthrough                         |
+| display:none file input, unnamed replace icon | Keyboard and reader barriers            | Focusable input, named button, linked alerts    | Native focus/announcements                    |
+| Tiny floating illustrative badge              | Clipped/unreadable explanation          | Persistent text outside illustration            | Narrow viewport check                         |
+| 10–11px document body and one-page claim      | Difficult review and false expectations | Readable on-screen text, honest pagination copy | Long Hindi/mixed-content layout               |
+| Small/pale staff access and error labels      | Hard to understand permissions          | Larger/darker labels on four screens            | Computed contrast, 200% text and mobile modal |
 
 Positive structure retained: canonical backend PDF save/download, account-owned recovery guards, and text-labelled task actions. No claim about first visual impression can be made without rendering.
 

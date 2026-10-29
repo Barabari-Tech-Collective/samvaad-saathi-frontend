@@ -55,17 +55,27 @@ it("does not send profile values or free-text report failures", async () => {
   expect(JSON.stringify(f.capture.mock.calls)).not.toMatch(/private|qualification|token/);
 });
 
-it('does not send free-text login failures', async () => {
+it("does not send free-text login failures", async () => {
   f.capture.mockClear();
-  const { trackLoginFailure } = await import('@/lib/posthog/tracking.utils');
-  trackLoginFailure('private@example.test token=secret');
-  expect(f.capture).toHaveBeenCalledWith('login_failure', {error_type:'login_failed'});
+  const { trackLoginFailure } = await import("@/lib/posthog/tracking.utils");
+  trackLoginFailure("private@example.test token=secret");
+  expect(f.capture).toHaveBeenCalledWith("login_failure", { error_type: "login_failed" });
 });
 
 it("identifies with operational flags only, never contact or education data", async () => {
   const { identifyUser } = await import("@/lib/posthog/tracking.utils");
-  identifyUser("test-user", {email:"private@example.test",name:"Private",degree:"Private degree",is_onboarded:true,total_attempts:2, nested:{token:"secret"}});
-  expect(f.identify).toHaveBeenLastCalledWith("test-user", {is_onboarded:true,total_attempts:2});
-  identifyUser("test-user", {is_onboarded:"true",total_attempts:NaN});
+  identifyUser("test-user", {
+    email: "private@example.test",
+    name: "Private",
+    degree: "Private degree",
+    is_onboarded: true,
+    total_attempts: 2,
+    nested: { token: "secret" },
+  });
+  expect(f.identify).toHaveBeenLastCalledWith("test-user", {
+    is_onboarded: true,
+    total_attempts: 2,
+  });
+  identifyUser("test-user", { is_onboarded: "true", total_attempts: NaN });
   expect(f.identify).toHaveBeenLastCalledWith("test-user", {});
 });

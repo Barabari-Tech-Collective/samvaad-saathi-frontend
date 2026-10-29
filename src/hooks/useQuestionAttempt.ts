@@ -94,7 +94,9 @@ export function useQuestionAttempt(
     }
   }, [enabled, interviewId, questionId, key, sessionLeaseToken]);
 
-  const invalidatePendingAttempt = useCallback(() => { version.current++; }, []);
+  const invalidatePendingAttempt = useCallback(() => {
+    version.current++;
+  }, []);
 
   useEffect(() => {
     if (initialAttemptId && Number.isSafeInteger(initialAttemptId) && initialAttemptId > 0) {

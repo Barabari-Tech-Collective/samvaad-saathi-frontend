@@ -98,7 +98,9 @@ function AppointmentCard({ row }: { row: Appointment }) {
               if (getAuthRevision() !== ownerRevision || Date.now() >= Date.parse(row.ends_at)) {
                 event.preventDefault();
                 setUrl("");
-                setError("Meeting access has changed or the join window ended. Refresh appointments before trying again.");
+                setError(
+                  "Meeting access has changed or the join window ended. Refresh appointments before trying again."
+                );
               }
             }}
             target="_blank"

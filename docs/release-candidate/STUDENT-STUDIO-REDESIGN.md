@@ -20,25 +20,25 @@ The requested `design:design-critique` skill was then applied to that reference 
 
 ## Implemented screen coverage
 
-| Area | Change |
-| --- | --- |
-| Shell and navigation | Shared canvas, tighter icon/label rhythm, navy current selection, separate brand/collapse/Back placement, preserved expanded/collapsed preference and mobile drawer/bottom navigation |
-| Home | Personal studio heading, navy practice focus panel with quiet static voice ornament, compact skills and supporting tasks, truthful recent-work states |
-| Practice | Shared page hierarchy and panels, direct skill entries, preserved saved-session readiness/expiry and coaching evidence rules |
-| Skill entry | Structure and pacing now show task setup next to concise guidance; pronunciation gets the same layout, labelled role select and announced difficulty selection |
-| Secondary states | Recording/loading gradients removed from structure and pronunciation; interview error recovery links to History; code supplement width constrained to its column |
-| Skill sessions | Guided warm-up/think-fast headers, pacing levels/intro/recording/report, pronunciation recording and structure question overview use the shared hierarchy and room surfaces |
-| Interview setup | Explicit choose/check/begin sequence, consistent form surface, retained practice/formal separation and publication constraints |
-| Live interview | Compact mode/role/time header, clearer question position and typography, recording panel and wrapping action row, simplified welcome with existing instructions and gates |
-| Submission and feedback | Shared submission panel, navy report header, lighter section surfaces; verified receipt and feedback-availability states retained |
-| History | Interview journal heading with the existing mode/status filters, saved work and feedback destinations |
-| Resume | Shared five-stage progress, appropriate parent Back destinations, removal of duplicate icon Back controls and repeated AI badges, common form surface; illustrative template artwork labelled honestly |
-| Profile | Horizontal identity block, coherent settings surface, unavailable attempt count does not become a fictional zero |
-| Human interviews | Shared heading/action hierarchy and appointment empty surface; existing Google Meet checks and fresh access verification retained |
-| Assessment reviews | Clear review/appeal heading and supporting explanation; evidence, deadlines, version checks and privacy behavior retained |
-| Sign-in | Responsive studio introduction and focused SSO action; preserved full navigation redirect, access-request and processing states; removed nested button/link |
-| Onboarding | Clear education/career steps, associated form labels, retained values when going Back, guarded duplicate submission and navigation while saving |
-| Permissioned bulk ATS | Header/brand rhythm aligned; existing capability notices and gated workflow retained |
+| Area                    | Change                                                                                                                                                                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Shell and navigation    | Shared canvas, tighter icon/label rhythm, navy current selection, separate brand/collapse/Back placement, preserved expanded/collapsed preference and mobile drawer/bottom navigation                  |
+| Home                    | Personal studio heading, navy practice focus panel with quiet static voice ornament, compact skills and supporting tasks, truthful recent-work states                                                  |
+| Practice                | Shared page hierarchy and panels, direct skill entries, preserved saved-session readiness/expiry and coaching evidence rules                                                                           |
+| Skill entry             | Structure and pacing now show task setup next to concise guidance; pronunciation gets the same layout, labelled role select and announced difficulty selection                                         |
+| Secondary states        | Recording/loading gradients removed from structure and pronunciation; interview error recovery links to History; code supplement width constrained to its column                                       |
+| Skill sessions          | Guided warm-up/think-fast headers, pacing levels/intro/recording/report, pronunciation recording and structure question overview use the shared hierarchy and room surfaces                            |
+| Interview setup         | Explicit choose/check/begin sequence, consistent form surface, retained practice/formal separation and publication constraints                                                                         |
+| Live interview          | Compact mode/role/time header, clearer question position and typography, recording panel and wrapping action row, simplified welcome with existing instructions and gates                              |
+| Submission and feedback | Shared submission panel, navy report header, lighter section surfaces; verified receipt and feedback-availability states retained                                                                      |
+| History                 | Interview journal heading with the existing mode/status filters, saved work and feedback destinations                                                                                                  |
+| Resume                  | Shared five-stage progress, appropriate parent Back destinations, removal of duplicate icon Back controls and repeated AI badges, common form surface; illustrative template artwork labelled honestly |
+| Profile                 | Horizontal identity block, coherent settings surface, unavailable attempt count does not become a fictional zero                                                                                       |
+| Human interviews        | Shared heading/action hierarchy and appointment empty surface; existing Google Meet checks and fresh access verification retained                                                                      |
+| Assessment reviews      | Clear review/appeal heading and supporting explanation; evidence, deadlines, version checks and privacy behavior retained                                                                              |
+| Sign-in                 | Responsive studio introduction and focused SSO action; preserved full navigation redirect, access-request and processing states; removed nested button/link                                            |
+| Onboarding              | Clear education/career steps, associated form labels, retained values when going Back, guarded duplicate submission and navigation while saving                                                        |
+| Permissioned bulk ATS   | Header/brand rhythm aligned; existing capability notices and gated workflow retained                                                                                                                   |
 
 ## Design critique and iteration
 
@@ -46,21 +46,21 @@ The requested `design:design-critique` skill was then applied to that reference 
 
 The practice focus area provides a useful first visual anchor, and skills have direct destinations. The initial implementation still had too many disconnected setup patterns and some navigation affordances that did not match their behavior. The second pass addresses those issues below.
 
-| Finding | Severity | Applied change |
-| --- | --- | --- |
-| Structure setup had a disabled button inside a working link | High | Single native action remains disabled until a role is selected; tests verify no navigation before selection |
-| Selection was only expressed by color | Moderate | Role/difficulty choices expose `aria-pressed`; selected styling uses a border/inset marker as well |
-| Resume pages duplicated Back and repeatedly promoted AI | Moderate | One shell Back destination per step, shared progress and removal of redundant badge/header blocks |
-| Tablet content could be cramped beside an expanded sidebar | Moderate | Home/skill entry stack at 768–1023px; Home skills remain single-column through 1199px |
-| Supporting art could precede the user's task on phones | Moderate | Skill setup is first in source order; mobile sign-in places the form before the supporting story; decorative wave hidden in narrow supporting panels |
-| Long recording labels could push actions outside the viewport | Moderate | Action groups wrap and use available width; room header stacks on phones |
-| Original input outline lacked sufficient non-text contrast | Moderate | Strong border token changed to #7C899F, 3.54:1 against white and 3.35:1 against the canvas |
-| Refreshed resume pages could show fallback results without an analysis | High | A review workspace gate explains the lost in-memory analysis and routes to upload; four regression cases cover missing/present analysis |
-| Empty/all-locked pacing catalogue could dereference a missing level or offer a locked one | High | Honest no-level state; no Start link until an unlocked level exists; fetch errors include Retry |
-| Onboarding lacked a safe Back path and associated labels | Moderate | Preserved mounted step state, explicit Back action, labelled controls and an in-flight guard covering extraction/polling/profile save |
-| Template illustration implied external endorsement | Moderate | Removed “Recruiter Approved”; labelled the paper as an illustrative layout |
-| English UI had Hindi as its document language | Moderate | Root language changed to English; Devanagari font fallback preserved |
-| Repeated oversized headings/illustrations weakened hierarchy | Moderate | Shared page heading, smaller recording timer, compact skill setup and clearer task-first reading order |
+| Finding                                                                                   | Severity | Applied change                                                                                                                                       |
+| ----------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Structure setup had a disabled button inside a working link                               | High     | Single native action remains disabled until a role is selected; tests verify no navigation before selection                                          |
+| Selection was only expressed by color                                                     | Moderate | Role/difficulty choices expose `aria-pressed`; selected styling uses a border/inset marker as well                                                   |
+| Resume pages duplicated Back and repeatedly promoted AI                                   | Moderate | One shell Back destination per step, shared progress and removal of redundant badge/header blocks                                                    |
+| Tablet content could be cramped beside an expanded sidebar                                | Moderate | Home/skill entry stack at 768–1023px; Home skills remain single-column through 1199px                                                                |
+| Supporting art could precede the user's task on phones                                    | Moderate | Skill setup is first in source order; mobile sign-in places the form before the supporting story; decorative wave hidden in narrow supporting panels |
+| Long recording labels could push actions outside the viewport                             | Moderate | Action groups wrap and use available width; room header stacks on phones                                                                             |
+| Original input outline lacked sufficient non-text contrast                                | Moderate | Strong border token changed to #7C899F, 3.54:1 against white and 3.35:1 against the canvas                                                           |
+| Refreshed resume pages could show fallback results without an analysis                    | High     | A review workspace gate explains the lost in-memory analysis and routes to upload; four regression cases cover missing/present analysis              |
+| Empty/all-locked pacing catalogue could dereference a missing level or offer a locked one | High     | Honest no-level state; no Start link until an unlocked level exists; fetch errors include Retry                                                      |
+| Onboarding lacked a safe Back path and associated labels                                  | Moderate | Preserved mounted step state, explicit Back action, labelled controls and an in-flight guard covering extraction/polling/profile save                |
+| Template illustration implied external endorsement                                        | Moderate | Removed “Recruiter Approved”; labelled the paper as an illustrative layout                                                                           |
+| English UI had Hindi as its document language                                             | Moderate | Root language changed to English; Devanagari font fallback preserved                                                                                 |
+| Repeated oversized headings/illustrations weakened hierarchy                              | Moderate | Shared page heading, smaller recording timer, compact skill setup and clearer task-first reading order                                               |
 
 ### Hierarchy and consistency
 
@@ -72,16 +72,16 @@ The reference's repeated mock labels and unavailable calendar functionality were
 
 Calculated sRGB contrast for token pairs (not a rendered-page audit):
 
-| Pair | Ratio |
-| --- | ---: |
-| Primary ink / white | 15.91:1 |
-| Muted text / white | 5.97:1 |
-| Muted text / canvas | 5.65:1 |
-| White / navy | 13.88:1 |
-| Yellow / navy | 9.21:1 |
+| Pair                        |   Ratio |
+| --------------------------- | ------: |
+| Primary ink / white         | 15.91:1 |
+| Muted text / white          |  5.97:1 |
+| Muted text / canvas         |  5.65:1 |
+| White / navy                | 13.88:1 |
+| Yellow / navy               |  9.21:1 |
 | Secondary light text / navy | 10.40:1 |
-| Input border / white | 3.54:1 |
-| Input border / canvas | 3.35:1 |
+| Input border / white        |  3.54:1 |
+| Input border / canvas       |  3.35:1 |
 
 Studio actions use 46–52px targets; the existing shell retains 44px minima, named icons, focus states, skip link and native mobile dialog. This is not a claim that every inherited color pair, physical touch target or screen-reader announcement has passed rendered acceptance.
 

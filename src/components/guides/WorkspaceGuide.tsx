@@ -23,12 +23,7 @@ const seen = new Set<string>();
 const changed = "samvaad-guide-preference";
 const FIND_TIMEOUT_MS = 4000;
 
-export function guideStorageKey(
-  userId: string,
-  workspace: string,
-  role: string,
-  version: number,
-) {
+export function guideStorageKey(userId: string, workspace: string, role: string, version: number) {
   return `samvaad-guide:${encodeURIComponent(userId)}:${encodeURIComponent(workspace)}:${encodeURIComponent(role)}:v${version}`;
 }
 
@@ -71,8 +66,7 @@ function findTarget(selector?: string): HTMLElement | null {
   if (!selector) return null;
   try {
     const candidate = document.querySelector(selector);
-    if (candidate instanceof HTMLElement && candidate.getClientRects().length)
-      return candidate;
+    if (candidate instanceof HTMLElement && candidate.getClientRects().length) return candidate;
   } catch {
     /* An invalid selector just means there is nothing to point at. */
   }
@@ -99,12 +93,7 @@ export function WorkspaceGuide(props: {
   offerHere?: boolean;
 }) {
   // Account/permission/content changes close the old session.
-  return (
-    <GuideSession
-      key={JSON.stringify([props.storageKey, props.steps])}
-      {...props}
-    />
-  );
+  return <GuideSession key={JSON.stringify([props.storageKey, props.steps])} {...props} />;
 }
 
 function GuideSession({
@@ -140,7 +129,7 @@ function GuideSession({
       try {
         localStorage.setItem(
           storageKey,
-          JSON.stringify({ outcome, recordedAt: new Date().toISOString() }),
+          JSON.stringify({ outcome, recordedAt: new Date().toISOString() })
         );
       } catch {
         /* Replay still works with storage disabled. */
@@ -148,7 +137,7 @@ function GuideSession({
       setInvited(false);
       window.dispatchEvent(new CustomEvent(changed, { detail: storageKey }));
     },
-    [storageKey],
+    [storageKey]
   );
 
   const stop = useCallback(
@@ -159,7 +148,7 @@ function GuideSession({
       setBox(null);
       requestAnimationFrame(() => trigger.current?.focus());
     },
-    [remember, storageKey],
+    [remember, storageKey]
   );
 
   const goTo = useCallback(
@@ -167,7 +156,7 @@ function GuideSession({
       writeRun(storageKey, next);
       setRun(next);
     },
-    [storageKey],
+    [storageKey]
   );
 
   // Skip optional steps whose page link is not available to this person.
@@ -181,14 +170,11 @@ function GuideSession({
       }
       return -1;
     },
-    [steps],
+    [steps]
   );
 
   const begin = useCallback(() => {
-    if (
-      document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]')
-    )
-      return;
+    if (document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]')) return;
     setInvited(false);
     const firstStep = steps[0];
     const first =
@@ -303,8 +289,7 @@ function GuideSession({
 
   // Put the card beside the target when there is room, otherwise below or centred.
   const cardStyle = (() => {
-    if (typeof window === "undefined" || !spot || window.innerWidth < 640)
-      return undefined;
+    if (typeof window === "undefined" || !spot || window.innerWidth < 640) return undefined;
     const width = 340;
     const gap = 16;
     const rightRoom = window.innerWidth - (spot.left + spot.width) - gap;
@@ -314,7 +299,7 @@ function GuideSession({
       : Math.max(16, Math.min(spot.left, window.innerWidth - width - 16));
     const top = Math.min(
       beside ? Math.max(16, spot.top) : spot.top + spot.height + gap,
-      window.innerHeight - 260,
+      window.innerHeight - 260
     );
     return { top, left, width } as const;
   })();
@@ -322,12 +307,7 @@ function GuideSession({
   return (
     <>
       {run === null && offerHere && (
-        <button
-          ref={trigger}
-          type="button"
-          onClick={begin}
-          className="workspace-guide-trigger"
-        >
+        <button ref={trigger} type="button" onClick={begin} className="workspace-guide-trigger">
           Quick guide
         </button>
       )}
@@ -340,27 +320,16 @@ function GuideSession({
             <button type="button" onClick={() => stop("skipped")}>
               Not now
             </button>
-            <button
-              type="button"
-              className="workspace-guide-next"
-              onClick={begin}
-            >
+            <button type="button" className="workspace-guide-next" onClick={begin}>
               Start guide
             </button>
           </div>
         </aside>
       )}
       {step && run !== null && (
-        <div
-          className="workspace-tour"
-          data-state={searching ? "searching" : "ready"}
-        >
+        <div className="workspace-tour" data-state={searching ? "searching" : "ready"}>
           {spot ? (
-            <div
-              aria-hidden="true"
-              className="workspace-tour-spot"
-              style={spot}
-            />
+            <div aria-hidden="true" className="workspace-tour-spot" style={spot} />
           ) : (
             <div aria-hidden="true" className="workspace-tour-dim" />
           )}
@@ -375,11 +344,7 @@ function GuideSession({
             <p className="workspace-guide-progress" aria-live="polite">
               Step {Math.min(run + 1, total)} of {total}
             </p>
-            <div
-              className="workspace-tour-bar"
-              role="presentation"
-              aria-hidden="true"
-            >
+            <div className="workspace-tour-bar" role="presentation" aria-hidden="true">
               <span style={{ width: `${((run + 1) / total) * 100}%` }} />
             </div>
             <h2 ref={heading} tabIndex={-1} id={titleId}>

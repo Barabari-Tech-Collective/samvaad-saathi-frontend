@@ -110,5 +110,9 @@ export function useAuth() {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  return cookieSessionEnabled ? <CookieAuthProvider>{children}</CookieAuthProvider> : <LegacyAuthProvider>{children}</LegacyAuthProvider>;
+  return cookieSessionEnabled ? (
+    <CookieAuthProvider>{children}</CookieAuthProvider>
+  ) : (
+    <LegacyAuthProvider>{children}</LegacyAuthProvider>
+  );
 }

@@ -4,24 +4,48 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const HOP_BY_HOP = new Set([
-  "connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
-  "te", "trailer", "transfer-encoding", "upgrade", "host", "content-length",
-  "accept-encoding", "referer", "origin", "sec-fetch-site", "sec-fetch-mode",
-  "sec-fetch-dest", "sec-fetch-user",
+  "connection",
+  "keep-alive",
+  "proxy-authenticate",
+  "proxy-authorization",
+  "te",
+  "trailer",
+  "transfer-encoding",
+  "upgrade",
+  "host",
+  "content-length",
+  "accept-encoding",
+  "referer",
+  "origin",
+  "sec-fetch-site",
+  "sec-fetch-mode",
+  "sec-fetch-dest",
+  "sec-fetch-user",
 ]);
 
 function jsonError(status: number, detail: string) {
-  return NextResponse.json({ detail }, {
-    status,
-    headers: { "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" },
-  });
+  return NextResponse.json(
+    { detail },
+    {
+      status,
+      headers: { "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" },
+    }
+  );
 }
 
 function trustedOrigins() {
   try {
     const app = new URL(process.env.NEXT_PUBLIC_APP_URL || "");
     const home = new URL(process.env.NEXT_PUBLIC_CENTRAL_HOME_ORIGIN || "");
-    if (app.protocol !== "https:" || home.protocol !== "https:" || app.username || app.password || home.username || home.password) return null;
+    if (
+      app.protocol !== "https:" ||
+      home.protocol !== "https:" ||
+      app.username ||
+      app.password ||
+      home.username ||
+      home.password
+    )
+      return null;
     return { app: app.origin, home: home.origin };
   } catch {
     return null;
@@ -35,14 +59,28 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
   const requestUrl = new URL(request.url);
   // The local HTTPS launcher and common TLS terminators pass the browser-facing
   // scheme/host in these headers while the internal Next request URL may be HTTP.
-  const forwardedHost = (request.headers.get("x-forwarded-host") || request.headers.get("host") || "")
-    .split(",")[0].trim();
-  const forwardedProto = (request.headers.get("x-forwarded-proto") || requestUrl.protocol.replace(":", ""))
-    .split(",")[0].trim().replace(/:$/, "");
-  if (`${forwardedProto}://${forwardedHost}` !== origins.app) return jsonError(403, "Request origin is not allowed.");
+  const forwardedHost = (
+    request.headers.get("x-forwarded-host") ||
+    request.headers.get("host") ||
+    ""
+  )
+    .split(",")[0]
+    .trim();
+  const forwardedProto = (
+    request.headers.get("x-forwarded-proto") || requestUrl.protocol.replace(":", "")
+  )
+    .split(",")[0]
+    .trim()
+    .replace(/:$/, "");
+  if (`${forwardedProto}://${forwardedHost}` !== origins.app)
+    return jsonError(403, "Request origin is not allowed.");
 
   const { path } = await context.params;
-  if (!Array.isArray(path) || path.length === 0 || path.some((part) => !part || part === "." || part === ".." || /[%\\\s]/.test(part))) {
+  if (
+    !Array.isArray(path) ||
+    path.length === 0 ||
+    path.some((part) => !part || part === "." || part === ".." || /[%\\\s]/.test(part))
+  ) {
     return jsonError(404, "API route not found.");
   }
   const pathName = path.join("/");
@@ -60,7 +98,13 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
   let upstreamBase: URL;
   try {
     upstreamBase = new URL(upstreamValue || "");
-    if (upstreamBase.protocol !== "https:" || upstreamBase.username || upstreamBase.password || upstreamBase.search || upstreamBase.hash) {
+    if (
+      upstreamBase.protocol !== "https:" ||
+      upstreamBase.username ||
+      upstreamBase.password ||
+      upstreamBase.search ||
+      upstreamBase.hash
+    ) {
       return jsonError(503, "Secure API proxy is not configured.");
     }
   } catch {
@@ -68,7 +112,10 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
   }
 
   const basePath = upstreamBase.pathname.replace(/\/$/, "");
-  const target = new URL(`${basePath}/${path.map(encodeURIComponent).join("/")}${requestUrl.search}`, upstreamBase.origin);
+  const target = new URL(
+    `${basePath}/${path.map(encodeURIComponent).join("/")}${requestUrl.search}`,
+    upstreamBase.origin
+  );
   if (target.origin !== upstreamBase.origin || !target.pathname.startsWith(`${basePath}/`)) {
     return jsonError(400, "Invalid API destination.");
   }
@@ -95,8 +142,17 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
     });
     const responseHeaders = new Headers();
     for (const name of [
-      "cache-control", "content-disposition", "content-type", "etag", "last-modified",
-      "location", "referrer-policy", "retry-after", "vary", "x-content-type-options", "x-request-id",
+      "cache-control",
+      "content-disposition",
+      "content-type",
+      "etag",
+      "last-modified",
+      "location",
+      "referrer-policy",
+      "retry-after",
+      "vary",
+      "x-content-type-options",
+      "x-request-id",
     ]) {
       const value = upstream.headers.get(name);
       if (value) responseHeaders.set(name, value);
@@ -104,7 +160,8 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
     const cookies = upstream.headers.getSetCookie?.() ?? [];
     for (const cookie of cookies) responseHeaders.append("set-cookie", cookie);
     if (!responseHeaders.has("cache-control")) responseHeaders.set("Cache-Control", "no-store");
-    if (!responseHeaders.has("referrer-policy")) responseHeaders.set("Referrer-Policy", "no-referrer");
+    if (!responseHeaders.has("referrer-policy"))
+      responseHeaders.set("Referrer-Policy", "no-referrer");
     return new Response(upstream.body, { status: upstream.status, headers: responseHeaders });
   } catch {
     return jsonError(502, "The Samvaad service could not be reached. Please retry.");

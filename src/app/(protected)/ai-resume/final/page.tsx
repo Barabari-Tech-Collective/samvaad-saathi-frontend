@@ -28,8 +28,21 @@ interface ResumePreviewData {
   header?: Record<string, string>;
   summary?: string;
   skills?: string[];
-  experience?: { role?: string; title?: string; duration?: string; company?: string; highlights?: string[]; bullets?: string[] }[];
-  projects?: { title?: string; duration?: string; highlights?: string[]; bullets?: string[]; description?: string }[];
+  experience?: {
+    role?: string;
+    title?: string;
+    duration?: string;
+    company?: string;
+    highlights?: string[];
+    bullets?: string[];
+  }[];
+  projects?: {
+    title?: string;
+    duration?: string;
+    highlights?: string[];
+    bullets?: string[];
+    description?: string;
+  }[];
   education?: { degree?: string; year?: string; duration?: string; institution?: string }[];
 }
 

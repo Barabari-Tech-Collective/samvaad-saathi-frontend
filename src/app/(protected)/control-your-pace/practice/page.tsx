@@ -84,13 +84,25 @@ const PracticePage = () => {
       return;
     }
     if (!account) return;
-    try { creationKey.current = pacingRequestKey(account, level); } catch {
-      setSubmitError("Practice cannot start because browser storage is unavailable. Enable session storage and reload.");
+    try {
+      creationKey.current = pacingRequestKey(account, level);
+    } catch {
+      setSubmitError(
+        "Practice cannot start because browser storage is unavailable. Enable session storage and reload."
+      );
       return;
     }
     // Reuse only the pending request for this level across React effect replay.
-    if (!sessionRequest.current || sessionRequest.current.level !== level || sessionRequest.current.account !== account) {
-      sessionRequest.current = { level, account, promise: createSession({ level, clientRequestId: creationKey.current }) };
+    if (
+      !sessionRequest.current ||
+      sessionRequest.current.level !== level ||
+      sessionRequest.current.account !== account
+    ) {
+      sessionRequest.current = {
+        level,
+        account,
+        promise: createSession({ level, clientRequestId: creationKey.current }),
+      };
     }
     sessionRequest.current.promise
       .then((data) => {
@@ -187,7 +199,8 @@ const PracticePage = () => {
       formData.append("file", new File([wavBlob], "recording.wav", { type: "audio/wav" }));
       await submitAudio(formData);
       if (revision === sessionRevision.current) {
-        if (account && creationKey.current) clearPacingRequestKey(account, level, creationKey.current);
+        if (account && creationKey.current)
+          clearPacingRequestKey(account, level, creationKey.current);
         router.push(`/control-your-pace/report?sessionId=${session.sessionId}`);
       }
     } catch {
@@ -204,7 +217,9 @@ const PracticePage = () => {
             return;
           }
         }
-      } catch { /* Keep the recording and original key if reconciliation also fails. */ }
+      } catch {
+        /* Keep the recording and original key if reconciliation also fails. */
+      }
       if (revision === sessionRevision.current)
         setSubmitError(
           "Your recording is still here in this tab. We could not confirm a completed report. Keep this page open and try again."
@@ -218,9 +233,18 @@ const PracticePage = () => {
   };
 
   if (!session && submitError) {
-    return <div className="studio-panel p-6"><p role="alert">{submitError}</p>
-      <button type="button" className="btn btn-primary mt-4" onClick={() => window.location.reload()}>Try again</button>
-    </div>;
+    return (
+      <div className="studio-panel p-6">
+        <p role="alert">{submitError}</p>
+        <button
+          type="button"
+          className="btn btn-primary mt-4"
+          onClick={() => window.location.reload()}
+        >
+          Try again
+        </button>
+      </div>
+    );
   }
 
   if (isCreatingSession || (!session && levelParam)) {

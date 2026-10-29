@@ -23,7 +23,9 @@ function LegacySignupPage() {
     (process.env.NODE_ENV === "development" ? "http://localhost:8000/api" : "");
   const [destination, setDestination] = useState("/home");
   const handledCallback = useRef(false);
-  const ssoLoginUrl = apiBaseUrl ? `${apiBaseUrl}/${ENDPOINTS.AUTH.SSO_LOGIN}?return_to=${encodeURIComponent(destination)}` : undefined;
+  const ssoLoginUrl = apiBaseUrl
+    ? `${apiBaseUrl}/${ENDPOINTS.AUTH.SSO_LOGIN}?return_to=${encodeURIComponent(destination)}`
+    : undefined;
   const [cookies, setCookie] = useCookies(["token", "refresh_token"]);
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
@@ -55,18 +57,37 @@ function LegacySignupPage() {
         window.history.replaceState({}, document.title, window.location.pathname);
         setIsProcessing(true);
         try {
-          if (!handoff || !/^[A-Za-z0-9_-]{43}$/.test(handoff) || !apiBaseUrl) throw new Error("Invalid handoff");
+          if (!handoff || !/^[A-Za-z0-9_-]{43}$/.test(handoff) || !apiBaseUrl)
+            throw new Error("Invalid handoff");
           const response = await fetch(`${apiBaseUrl}/auth/sso/complete`, {
-            method: "POST", credentials: "include", headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ticket: handoff}),
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ticket: handoff }),
           });
           if (!response.ok) throw new Error("Handoff failed");
           const data = await response.json();
           assertAuthRevision(revision);
-          if (!data || typeof data.token !== "string" || !data.token || typeof data.refresh_token !== "string" || !data.refresh_token) throw new Error("Invalid response");
-          const options = {path: "/", secure: process.env.NODE_ENV === "production", sameSite: "strict" as const, maxAge: 60 * 60 * 24 * 7};
+          if (
+            !data ||
+            typeof data.token !== "string" ||
+            !data.token ||
+            typeof data.refresh_token !== "string" ||
+            !data.refresh_token
+          )
+            throw new Error("Invalid response");
+          const options = {
+            path: "/",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict" as const,
+            maxAge: 60 * 60 * 24 * 7,
+          };
           const completedDestination = loginDestination(data.return_to);
-          window.history.replaceState({}, document.title, `/auth/signup?return_to=${encodeURIComponent(completedDestination)}`);
+          window.history.replaceState(
+            {},
+            document.title,
+            `/auth/signup?return_to=${encodeURIComponent(completedDestination)}`
+          );
           setCookie("token", data.token, options);
           setCookie("refresh_token", data.refresh_token, options);
           announceAuthChange(true);
@@ -80,7 +101,9 @@ function LegacySignupPage() {
       const callbackError = new URLSearchParams(window.location.hash.slice(1)).get("error");
       if (callbackError === "access_denied") {
         setAccessDenied(true);
-        setAccessDeniedRequestCode(new URLSearchParams(window.location.hash.slice(1)).get("requestCode"));
+        setAccessDeniedRequestCode(
+          new URLSearchParams(window.location.hash.slice(1)).get("requestCode")
+        );
         return;
       }
       if (callbackError) {
@@ -88,7 +111,12 @@ function LegacySignupPage() {
         return;
       }
       // A new callback must be processed before considering stale account cookies.
-      if (!params.get("token") && !params.get("refresh_token") && cookies.token && cookies.refresh_token) {
+      if (
+        !params.get("token") &&
+        !params.get("refresh_token") &&
+        cookies.token &&
+        cookies.refresh_token
+      ) {
         router.replace(returnTo);
         return;
       }
@@ -131,7 +159,11 @@ function LegacySignupPage() {
         setCookie("refresh_token", refreshToken, cookieOptions);
 
         // Clear the query parameters from URL
-        window.history.replaceState({}, document.title, `/auth/signup?return_to=${encodeURIComponent(returnTo)}`);
+        window.history.replaceState(
+          {},
+          document.title,
+          `/auth/signup?return_to=${encodeURIComponent(returnTo)}`
+        );
 
         announceAuthChange(true);
         trackLoginSuccess("Sampark Saathi");
@@ -186,7 +218,11 @@ function LegacySignupPage() {
         title="Let’s get you access."
         description="You’re signed in to Sampark Saathi. An admin needs to enable Samvaad Saathi on your account before you begin."
       >
-        {!accessDeniedRequestCode ? (<p role="status" className="studio-panel">Please contact your facilitator or administrator to request Samvaad access.</p>) : requestState === "submitted" ? (
+        {!accessDeniedRequestCode ? (
+          <p role="status" className="studio-panel">
+            Please contact your facilitator or administrator to request Samvaad access.
+          </p>
+        ) : requestState === "submitted" ? (
           <p role="status" className="studio-panel">
             Request sent. You can sign in here once it’s approved.
           </p>
@@ -215,7 +251,11 @@ function LegacySignupPage() {
       title="Your next interview starts here."
       description="Sign in with your Sampark Saathi account to practise, get feedback and prepare for your next opportunity."
     >
-      {loginError && <p role="alert" className="mb-4 text-red-700">{loginError}</p>}
+      {loginError && (
+        <p role="alert" className="mb-4 text-red-700">
+          {loginError}
+        </p>
+      )}
       {/* Keep SSO a real top-level navigation: shared-cookie redirects require it. */}
       {ssoLoginUrl ? (
         <Link className="studio-auth-action" href={ssoLoginUrl} onClick={handleContinueClick}>
@@ -240,9 +280,16 @@ function LegacySignupPage() {
 
 function CookieSignupPage() {
   const { signInWithSso } = useAuth();
-  return <AuthFrame title="Welcome to Samvaad Saathi" description="Sign in to continue your interview preparation.">
-    <button className="studio-auth-action" onClick={signInWithSso}>Continue to sign in <span aria-hidden="true">→</span></button>
-  </AuthFrame>;
+  return (
+    <AuthFrame
+      title="Welcome to Samvaad Saathi"
+      description="Sign in to continue your interview preparation."
+    >
+      <button className="studio-auth-action" onClick={signInWithSso}>
+        Continue to sign in <span aria-hidden="true">→</span>
+      </button>
+    </AuthFrame>
+  );
 }
 export default function SignupPage() {
   return cookieSessionEnabled ? <CookieSignupPage /> : <LegacySignupPage />;

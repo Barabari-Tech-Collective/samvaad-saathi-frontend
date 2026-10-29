@@ -20,6 +20,7 @@
 These are three checks of **this change set**, not three completed end-to-end passes over the platform. Team page focus behavior, long names, nested purge dialog interactions, zoom, phone keyboard and rendered contrast still require actual browser acceptance.
 
 Commands:
+
 - Dashboard: `node --test tests/*.test.mjs`; `./node_modules/.bin/tsc --noEmit`
 - Student: `./node_modules/.bin/vitest run`; `./node_modules/.bin/tsc --noEmit`
 - Cross-product component checks from student checkout: `./node_modules/.bin/vitest run --config vitest.staff.config.mjs`. Requires sibling `sampark-saathi frontend` checkout and both installed dependency trees. Uses the dashboard React runtime; does not launch or automate a browser.
