@@ -17,6 +17,7 @@ import { firstName } from "@/lib/practice-hub";
 import { useAuth } from "@/components/providers/auth-provider";
 import { apiClient } from "@/lib/api-config";
 import { ENDPOINTS } from "@/lib/api-config/src/endpoints";
+import { NextInterview } from "@/components/human-interviews/NextInterview";
 
 interface InterviewItem {
   interviewId: number;
@@ -63,6 +64,7 @@ export default function HomePage() {
           </Link>
         </aside>
       )}
+      <NextInterview key={`next-${account}`} accountKey={String(account)} />
       <section className="ws-home-start" aria-label="Choose your next step">
         <HomePractice key={String(account)} accountKey={String(account)} />
         <div className="ws-secondary-tasks">

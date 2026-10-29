@@ -15,6 +15,43 @@ interface Appointment {
   status: string;
   can_join: boolean;
   outcome_source: string | null;
+  role_name?: string | null;
+  instructions?: string | null;
+  interviewer_name?: string | null;
+  reschedule_count?: number;
+  result?: string | null;
+  feedback?: string | null;
+  result_released?: boolean;
+}
+
+export const RESULT_LABELS: Record<string, string> = {
+  selected: "Selected",
+  next_round: "You move to the next round",
+  on_hold: "On hold",
+  not_selected: "Not selected this time",
+};
+
+export function interviewWhen(row: { starts_at: string; ends_at: string }) {
+  const start = new Date(row.starts_at);
+  const minutes = Math.round((Date.parse(row.ends_at) - start.getTime()) / 60000);
+  return `${start.toLocaleDateString(undefined, {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  })}, ${start.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })} · ${minutes} minutes`;
+}
+
+function statusWord(row: Appointment) {
+  if (row.status === "scheduled") return row.reschedule_count ? "Time changed" : "Coming up";
+  if (row.status === "completed")
+    return row.result_released ? "Result ready" : "Done, result coming";
+  return (
+    {
+      cancelled: "Cancelled",
+      no_show: "Marked as not joined",
+      technical_issue: "Technical problem",
+    }[row.status] ?? row.status
+  );
 }
 interface Appointments {
   items: Appointment[];
@@ -39,19 +76,37 @@ function AppointmentCard({ row }: { row: Appointment }) {
   return (
     <li className="space-y-4 rounded-2xl border border-[#DEE8FB] bg-white p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <h2 className="min-w-0 break-words text-xl font-semibold text-[#1F285B]">{row.title}</h2>
-        <span className="rounded-full bg-[#F5F9FF] px-3 py-1 text-sm">
-          {row.status.replaceAll("_", " ")}
+        <div className="min-w-0">
+          <h2 className="break-words text-xl font-semibold text-[#1F285B]">{row.title}</h2>
+          {row.role_name && <p className="text-gray-700">{row.role_name}</p>}
+        </div>
+        <span className="rounded-full bg-[#F5F9FF] px-3 py-1 text-sm font-medium">
+          {statusWord(row)}
         </span>
       </div>
-      <p>
-        {new Date(row.starts_at).toLocaleString()} – {new Date(row.ends_at).toLocaleTimeString()}{" "}
-        (your device time)
-      </p>
+      <p className="text-lg font-medium">{interviewWhen(row)}</p>
       <p className="text-sm text-gray-600">
-        Human interviewer · Google Meet opens separately
-        {row.outcome_source ? " · outcome reported by your host" : ""}
+        With {row.interviewer_name || "your interviewer"} on Google Meet
       </p>
+      {row.reschedule_count ? (
+        <p className="text-sm font-medium text-amber-800">
+          The time of this interview was changed. Please use the new time above.
+        </p>
+      ) : null}
+      {row.instructions && row.status === "scheduled" && (
+        <div className="rounded-xl bg-[#F5F9FF] p-4">
+          <p className="font-semibold text-[#1F285B]">What to prepare</p>
+          <p className="mt-1 whitespace-pre-line">{row.instructions}</p>
+        </div>
+      )}
+      {row.result_released && row.result && (
+        <div className="rounded-xl bg-[#F5F9FF] p-4">
+          <p className="font-semibold text-[#1F285B]">
+            Result: {RESULT_LABELS[row.result] ?? row.result}
+          </p>
+          {row.feedback && <p className="mt-1 whitespace-pre-line">{row.feedback}</p>}
+        </div>
+      )}
       {row.can_join ? (
         <button
           className={button}
@@ -79,13 +134,17 @@ function AppointmentCard({ row }: { row: Appointment }) {
             }
           }}
         >
-          Check meeting access
+          Join the interview
         </button>
       ) : (
         row.status === "scheduled" && (
           <p className="text-sm text-gray-600">
-            Joining opens {new Date(row.join_opens_at).toLocaleString()} and closes at the scheduled
-            end. Refresh when it is time.
+            The Join button appears 15 minutes before the start (
+            {new Date(row.join_opens_at).toLocaleTimeString(undefined, {
+              hour: "numeric",
+              minute: "2-digit",
+            })}
+            ). Come back to this page then.
           </p>
         )
       )}
