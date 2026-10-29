@@ -2,6 +2,7 @@ import { AnalyticsProvider } from "@/components/providers/analytics-provider";
 import AppProvider from "@/components/providers/app-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { LimitedToaster } from "@/components/providers/limited-toaster";
+import { LanguageProvider } from "@/lib/i18n/language";
 import { PostHogPageView } from "@/components/providers/posthog-page-view";
 import type { Metadata } from "next";
 import { Inter, Noto_Sans_Devanagari, Poppins } from "next/font/google";
@@ -160,17 +161,19 @@ export default function RootLayout({
       <body
         className={`${notoSansDevanagari.variable} ${inter.variable} ${poppins.variable} antialiased`}
       >
-        <AppProvider>
-          <AuthProvider>
-            <AnalyticsProvider>
-              <Suspense fallback={null}>
-                <PostHogPageView />
-                {children}
-              </Suspense>
-            </AnalyticsProvider>
-            <LimitedToaster />
-          </AuthProvider>
-        </AppProvider>
+        <LanguageProvider>
+          <AppProvider>
+            <AuthProvider>
+              <AnalyticsProvider>
+                <Suspense fallback={null}>
+                  <PostHogPageView />
+                  {children}
+                </Suspense>
+              </AnalyticsProvider>
+              <LimitedToaster />
+            </AuthProvider>
+          </AppProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

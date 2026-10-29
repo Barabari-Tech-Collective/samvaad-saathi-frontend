@@ -1243,3 +1243,15 @@ h6 {
   color: #4b5563 !important;
   opacity: 1;
 }
+
+/* Header: the language button is always visible; the products link is only for larger screens
+   because a student on a phone does not need it and the space is better used. */
+.student-language-toggle {
+  min-height: 44px;
+  white-space: nowrap;
+}
+@media (max-width: 767px) {
+  .student-products-slot {
+    display: none;
+  }
+}

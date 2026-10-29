@@ -2,6 +2,7 @@
 
 import VoiceMark from "@/components/studio/VoiceMark";
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/lib/i18n/language";
 import Link from "next/link";
 import { ArrowRightIcon, MicrophoneIcon } from "@heroicons/react/24/outline";
 import { trackButtonClick } from "@/lib/posthog/tracking.utils";
@@ -14,6 +15,7 @@ import {
 
 /** A saved round must be verified before offering a direct resume or a new round. */
 export default function HomePractice({ accountKey }: { accountKey: string }) {
+  const { t } = useLanguage();
   const query = apiClient.useQuery<unknown>({
     key: [ENDPOINTS.PRACTICE.HUB, accountKey],
     url: ENDPOINTS.PRACTICE.HUB,
@@ -44,7 +46,9 @@ export default function HomePractice({ accountKey }: { accountKey: string }) {
         <span className="ws-feature-icon">
           <MicrophoneIcon aria-hidden="true" />
         </span>
-        <span className="ws-card-kicker">{resume ? "Saved practice" : "Interview practice"}</span>
+        <span className="ws-card-kicker">
+          {resume ? t("Saved practice") : t("Interview practice")}
+        </span>
       </div>
       <div>
         <h2 id="home-practice-title">
@@ -52,11 +56,11 @@ export default function HomePractice({ accountKey }: { accountKey: string }) {
             ? ready
               ? `Continue ${resume.track}`
               : message.title
-            : "Practise your next interview"}
+            : t("Practise your next interview")}
         </h2>
         <p>
           {checking
-            ? "Checking for a saved round…"
+            ? t("Checking for a saved round…")
             : resume
               ? ready
                 ? `${resume.answeredQuestions} of ${resume.totalQuestions} answers saved · ${resume.difficulty}`
@@ -65,12 +69,12 @@ export default function HomePractice({ accountKey }: { accountKey: string }) {
                 ? "Your saved sessions could not be checked. Open History before starting a new round."
                 : expired
                   ? "Your previous round’s resume window has ended. Its saved answers are in History."
-                  : "Pick a job. Check your microphone. Speak your answers. Get feedback."}
+                  : t("Pick a job. Check your microphone. Speak your answers. Get feedback.")}
         </p>
       </div>
       <div className="ws-action-row">
         {checking ? (
-          <output>Loading your next step…</output>
+          <output>{t("Loading your next step…")}</output>
         ) : (
           <Link
             className="ws-button ws-button-primary"
@@ -90,30 +94,33 @@ export default function HomePractice({ accountKey }: { accountKey: string }) {
           >
             {resume
               ? ready
-                ? "Continue interview"
-                : "Check saved practice"
+                ? t("Continue interview")
+                : t("Check saved practice")
               : hub
-                ? "Set up an interview"
-                : "Check saved sessions"}
+                ? t("Set up an interview")
+                : t("Check saved sessions")}
             <ArrowRightIcon aria-hidden="true" />
           </Link>
         )}
         {!checking && !hub && (
           <button className="ws-button" type="button" onClick={() => void query.refetch()}>
-            Try again
+            {t("Try again")}
           </button>
         )}
       </div>
       {!resume && hub && (
         <ol className="ws-round-steps" aria-label="Practice interview steps">
           <li>
-            <span>1</span>Choose &amp; check mic
+            <span>1</span>
+            {t("Choose & check mic")}
           </li>
           <li>
-            <span>2</span>Speak your answers
+            <span>2</span>
+            {t("Speak your answers")}
           </li>
           <li>
-            <span>3</span>Review feedback
+            <span>3</span>
+            {t("Review feedback")}
           </li>
         </ol>
       )}

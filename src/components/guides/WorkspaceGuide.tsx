@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
+import { useLanguage } from "@/lib/i18n/language";
 import { createPortal } from "react-dom";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
@@ -108,6 +109,7 @@ function GuideSession({
 }) {
   const router = useRouter();
   const path = usePathname();
+  const { language, t } = useLanguage();
   const heading = useRef<HTMLHeadingElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const [run, setRun] = useState<number | null>(null);
@@ -318,20 +320,20 @@ function GuideSession({
     <>
       {run === null && offerHere && !invited && (
         <button ref={trigger} type="button" onClick={begin} className="workspace-guide-trigger">
-          Quick guide
+          {t("Quick guide")}
         </button>
       )}
       {run === null && invited && (
         <aside aria-label="Getting started" className="workspace-guide-invite">
           <span className="workspace-guide-eyebrow">New here?</span>
-          <h2>Take a one-minute tour.</h2>
+          <h2>{t("Take a one-minute tour.")}</h2>
           <p>We will open each page for you and show what it is for.</p>
           <div className="workspace-guide-actions">
             <button type="button" onClick={() => stop("skipped")}>
-              Not now
+              {t("Not now")}
             </button>
             <button type="button" className="workspace-guide-next" onClick={begin}>
-              Start guide
+              {t("Start guide")}
             </button>
           </div>
         </aside>
@@ -357,7 +359,9 @@ function GuideSession({
               style={cardStyle}
             >
               <p className="workspace-guide-progress" aria-live="polite">
-                Step {Math.min(position, total)} of {total}
+                {language === "hi"
+                  ? `चरण ${Math.min(position, total)} / ${total}`
+                  : `Step ${Math.min(position, total)} of ${total}`}
               </p>
               <div className="workspace-tour-bar" role="presentation" aria-hidden="true">
                 <span style={{ width: `${(Math.min(position, total) / total) * 100}%` }} />
@@ -368,11 +372,11 @@ function GuideSession({
               <p id={bodyId}>{step.body}</p>
               <div className="workspace-guide-actions">
                 <button type="button" onClick={() => stop("skipped")}>
-                  Skip guide
+                  {t("Skip guide")}
                 </button>
                 {hasPrevious && (
                   <button type="button" onClick={() => goTo(nextIndex(run, -1))}>
-                    Back
+                    {t("Back")}
                   </button>
                 )}
                 <button
@@ -384,7 +388,7 @@ function GuideSession({
                     else goTo(next);
                   }}
                 >
-                  {isLast ? "Got it" : "Next"}
+                  {isLast ? t("Got it") : t("Next")}
                 </button>
               </div>
             </div>

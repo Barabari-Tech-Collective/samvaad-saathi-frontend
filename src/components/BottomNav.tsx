@@ -3,6 +3,7 @@ import { trackBottomNavClick } from "@/lib/posthog/tracking.utils";
 import { HomeIcon, MicrophoneIcon, ClockIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
 import { workspaceSection } from "@/lib/workspace-navigation";
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n/language";
 import { usePathname } from "next/navigation";
 const items = [
   { href: "/home", label: "Home", icon: HomeIcon },
@@ -18,6 +19,7 @@ export default function BottomNav({
   onMoreClick?: () => void;
   menuOpen?: boolean;
 }) {
+  const { t } = useLanguage();
   const path = workspaceSection(usePathname());
   const moreActive = !items.some(({ href }) => path === href || path.startsWith(`${href}/`));
   return (
@@ -31,7 +33,7 @@ export default function BottomNav({
           onClick={() => trackBottomNavClick(label.toLowerCase())}
         >
           <Icon aria-hidden="true" />
-          <span>{label}</span>
+          <span>{t(label)}</span>
         </Link>
       ))}
       <button
@@ -47,7 +49,7 @@ export default function BottomNav({
         }}
       >
         <Squares2X2Icon aria-hidden="true" />
-        <span>More</span>
+        <span>{t("More")}</span>
       </button>
     </nav>
   );

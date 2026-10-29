@@ -1,6 +1,7 @@
 "use client";
 import PageHeading from "@/components/studio/PageHeading";
 import Link from "next/link";
+import { useLanguage } from "@/lib/i18n/language";
 import {
   ArrowRightIcon,
   ChatBubbleLeftRightIcon,
@@ -27,6 +28,7 @@ interface InterviewItem {
 }
 export default function HomePage() {
   const { user, loading } = useAuth();
+  const { t } = useLanguage();
   const account = user?.userId;
   const query = apiClient.useQuery<{ items: InterviewItem[] }>({
     key: [ENDPOINTS.INTERVIEWS.WITH_SUMMARY, "home", account],
@@ -46,9 +48,9 @@ export default function HomePage() {
   return (
     <div className="ws-home">
       <PageHeading
-        eyebrow="Interview practice"
-        title={`Hi, ${firstName(user.authorizedUser.name)}.`}
-        description="Practise a full interview or a short skill. Start here."
+        eyebrow={t("Interview practice")}
+        title={`${t("Hi,")} ${firstName(user.authorizedUser.name)}.`}
+        description={t("Practise a full interview or a short skill. Start here.")}
       />
       {noticeCount > 0 && (
         <aside className="ws-notice">
@@ -67,24 +69,24 @@ export default function HomePage() {
           <Link className="ws-task-link" href="/interview-start?mode=assessment">
             <ClipboardDocumentCheckIcon aria-hidden="true" />
             <span>
-              <strong>Assessments</strong>
-              <small>See your tests and how to take them</small>
+              <strong>{t("Tests")}</strong>
+              <small>{t("See your tests and how to take them")}</small>
             </span>
             <ArrowRightIcon aria-hidden="true" />
           </Link>
           <Link className="ws-task-link" href="/human-interviews">
             <VideoCameraIcon aria-hidden="true" />
             <span>
-              <strong>Live interviews</strong>
-              <small>See your interview time and join</small>
+              <strong>{t("Live interviews")}</strong>
+              <small>{t("See your interview time and join")}</small>
             </span>
             <ArrowRightIcon aria-hidden="true" />
           </Link>
           <Link className="ws-task-link" href="/ai-resume">
             <DocumentTextIcon aria-hidden="true" />
             <span>
-              <strong>Your resume</strong>
-              <small>Make or fix your resume</small>
+              <strong>{t("Your resume")}</strong>
+              <small>{t("Make or fix your resume")}</small>
             </span>
             <ArrowRightIcon aria-hidden="true" />
           </Link>
@@ -92,29 +94,29 @@ export default function HomePage() {
       </section>
       <section aria-labelledby="home-skills-title">
         <div className="ws-section-heading">
-          <h2 id="home-skills-title">Work on one skill</h2>
+          <h2 id="home-skills-title">{t("Work on one skill")}</h2>
           <Link className="ws-button" href="/practice#skill-builders-title">
-            All skills <ArrowRightIcon aria-hidden="true" />
+            {t("All skills")} <ArrowRightIcon aria-hidden="true" />
           </Link>
         </div>
         <div className="ws-quick-skills">
           {[
             {
               href: "/warm-up-chat",
-              title: "Warm-up chat",
-              detail: "Practise your introduction",
+              title: t("Warm-up chat"),
+              detail: t("Practise your introduction"),
               icon: ChatBubbleLeftRightIcon,
             },
             {
               href: "/control-your-pace",
-              title: "Speaking speed",
-              detail: "Say less 'um' and speak at a good speed",
+              title: t("Speaking speed"),
+              detail: t("Say less 'um' and speak at a good speed"),
               icon: SignalIcon,
             },
             {
               href: "/structure-your-answer",
-              title: "Answer structure",
-              detail: "Give a clear answer from start to end",
+              title: t("Answer structure"),
+              detail: t("Give a clear answer from start to end"),
               icon: ListBulletIcon,
             },
           ].map(({ href, title, detail, icon: Icon }) => (
@@ -131,9 +133,9 @@ export default function HomePage() {
       </section>
       <section aria-labelledby="recent-interviews">
         <div className="ws-section-heading">
-          <h2 id="recent-interviews">Recent interviews</h2>
+          <h2 id="recent-interviews">{t("Recent interviews")}</h2>
           <Link className="ws-button" href="/history">
-            View history <ArrowRightIcon aria-hidden="true" />
+            {t("View history")} <ArrowRightIcon aria-hidden="true" />
           </Link>
         </div>
         {query.isError ? (
@@ -147,7 +149,7 @@ export default function HomePage() {
           <output>Loading recent interviews…</output>
         ) : !data.items.length ? (
           <div className="ws-empty">
-            <h3>Your first round starts here</h3>
+            <h3>{t("Your first round starts here")}</h3>
             <p>
               New to interviews? Try a warm-up chat before a full round. Saved interviews and
               feedback will appear here.

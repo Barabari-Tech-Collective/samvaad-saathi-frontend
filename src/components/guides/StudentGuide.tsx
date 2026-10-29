@@ -1,6 +1,7 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
+import { useLanguage } from "@/lib/i18n/language";
 import { useAuth } from "@/components/providers/auth-provider";
 import { type GuideStep, guideStorageKey, WorkspaceGuide } from "./WorkspaceGuide";
 
@@ -113,6 +114,16 @@ const phoneSteps: GuideStep[] = [
 
 export default function StudentGuide() {
   const phone = useSyncExternalStore(subscribePhone, isPhone, () => false);
+  const { t } = useLanguage();
+  const shown = useMemo(
+    () =>
+      (phone ? phoneSteps : steps).map((step) => ({
+        ...step,
+        title: t(step.title),
+        body: t(step.body),
+      })),
+    [phone, t]
+  );
   const { user, loading } = useAuth();
   const path = usePathname();
   if (loading || !user) return null;
@@ -122,7 +133,7 @@ export default function StudentGuide() {
   return (
     <WorkspaceGuide
       storageKey={key}
-      steps={phone ? phoneSteps : steps}
+      steps={shown}
       offerHere={["/home", "/practice", "/history", "/profile"].includes(path)}
     />
   );

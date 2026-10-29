@@ -30,3 +30,16 @@ it("keeps only guide preferences and clears account/session data", () => {
   expect(removeItem).toHaveBeenCalledExactlyOnceWith("answer-draft");
   expect(clear).toHaveBeenCalledOnce();
 });
+it("keeps the chosen language, which is a device preference and not account data", () => {
+  const removeItem = vi.fn();
+  vi.spyOn(window, "localStorage", "get").mockReturnValue({
+    length: 3,
+    key: (index: number) => ["samvaad-language", "samvaad-guide:1", "answer-draft"][index],
+    removeItem,
+  } as unknown as Storage);
+  vi.spyOn(window, "sessionStorage", "get").mockReturnValue({
+    clear: vi.fn(),
+  } as unknown as Storage);
+  clearLogoutStorage();
+  expect(removeItem).toHaveBeenCalledExactlyOnceWith("answer-draft");
+});
