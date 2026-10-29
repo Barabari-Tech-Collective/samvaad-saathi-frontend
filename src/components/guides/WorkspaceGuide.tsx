@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 /**
@@ -326,55 +327,61 @@ function GuideSession({
           </div>
         </aside>
       )}
-      {step && run !== null && (
-        <div className="workspace-tour" data-state={searching ? "searching" : "ready"}>
-          {spot ? (
-            <div aria-hidden="true" className="workspace-tour-spot" style={spot} />
-          ) : (
-            <div aria-hidden="true" className="workspace-tour-dim" />
-          )}
-          <div
-            role="dialog"
-            aria-modal="false"
-            aria-labelledby={titleId}
-            aria-describedby={bodyId}
-            className={`workspace-tour-card${cardStyle ? "" : " is-centered"}`}
-            style={cardStyle}
-          >
-            <p className="workspace-guide-progress" aria-live="polite">
-              Step {Math.min(run + 1, total)} of {total}
-            </p>
-            <div className="workspace-tour-bar" role="presentation" aria-hidden="true">
-              <span style={{ width: `${((run + 1) / total) * 100}%` }} />
-            </div>
-            <h2 ref={heading} tabIndex={-1} id={titleId}>
-              {step.title}
-            </h2>
-            <p id={bodyId}>{step.body}</p>
-            <div className="workspace-guide-actions">
-              <button type="button" onClick={() => stop("skipped")}>
-                Skip guide
-              </button>
-              {hasPrevious && (
-                <button type="button" onClick={() => goTo(nextIndex(run, -1))}>
-                  Back
+      {step &&
+        run !== null &&
+        typeof document !== "undefined" &&
+        // Drawn on the page itself, so no layout rule or transformed ancestor in the app
+        // shell can shrink the dimmed layer to part of the screen.
+        createPortal(
+          <div className="workspace-tour" data-state={searching ? "searching" : "ready"}>
+            {spot ? (
+              <div aria-hidden="true" className="workspace-tour-spot" style={spot} />
+            ) : (
+              <div aria-hidden="true" className="workspace-tour-dim" />
+            )}
+            <div
+              role="dialog"
+              aria-modal="false"
+              aria-labelledby={titleId}
+              aria-describedby={bodyId}
+              className={`workspace-tour-card${cardStyle ? "" : " is-centered"}`}
+              style={cardStyle}
+            >
+              <p className="workspace-guide-progress" aria-live="polite">
+                Step {Math.min(run + 1, total)} of {total}
+              </p>
+              <div className="workspace-tour-bar" role="presentation" aria-hidden="true">
+                <span style={{ width: `${((run + 1) / total) * 100}%` }} />
+              </div>
+              <h2 ref={heading} tabIndex={-1} id={titleId}>
+                {step.title}
+              </h2>
+              <p id={bodyId}>{step.body}</p>
+              <div className="workspace-guide-actions">
+                <button type="button" onClick={() => stop("skipped")}>
+                  Skip guide
                 </button>
-              )}
-              <button
-                type="button"
-                className="workspace-guide-next"
-                onClick={() => {
-                  const next = nextIndex(run, 1);
-                  if (next === -1) stop("completed");
-                  else goTo(next);
-                }}
-              >
-                {isLast ? "Got it" : "Next"}
-              </button>
+                {hasPrevious && (
+                  <button type="button" onClick={() => goTo(nextIndex(run, -1))}>
+                    Back
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="workspace-guide-next"
+                  onClick={() => {
+                    const next = nextIndex(run, 1);
+                    if (next === -1) stop("completed");
+                    else goTo(next);
+                  }}
+                >
+                  {isLast ? "Got it" : "Next"}
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </>
   );
 }

@@ -9,31 +9,26 @@ beforeEach(() => {
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
 });
-it("offers hub and new-tab navigation without enabling unbuilt products", () => {
+it("offers one plain link to the products hub without enabling unbuilt products", () => {
   render(<ProductNavigation />);
-  fireEvent.click(screen.getByRole("button", { name: "Products" }));
-  expect(screen.getByRole("link", { name: "All products" }).getAttribute("href")).toBe(
-    "https://home.barabaricollective.org/products"
-  );
-  expect(screen.getByRole("link", { name: "All products (new tab)" }).getAttribute("rel")).toBe(
-    "noopener noreferrer"
-  );
-  expect(screen.getAllByRole("link")).toHaveLength(2);
+  const links = screen.getAllByRole("link");
+  expect(links).toHaveLength(1);
+  expect(links[0].getAttribute("href")).toBe("https://home.barabaricollective.org/products");
+  expect(screen.queryByRole("button")).toBeNull();
 });
-it("requires a leave decision for unfinished-task routes even for new tabs", () => {
+it("uses the configured central home for staging", () => {
+  vi.stubEnv("NEXT_PUBLIC_CENTRAL_HOME_ORIGIN", "https://staging-sampark.barabaricollective.org");
+  render(<ProductNavigation />);
+  expect(screen.getByRole("link", { name: "All products" }).getAttribute("href")).toBe(
+    "https://staging-sampark.barabaricollective.org/products"
+  );
+});
+it("requires a leave decision for unfinished-task routes", () => {
   state.path = "/profile";
   const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
   render(<ProductNavigation />);
-  fireEvent.click(screen.getByRole("button", { name: "Products" }));
-  expect(fireEvent.click(screen.getByRole("link", { name: "All products (new tab)" }))).toBe(false);
+  expect(fireEvent.click(screen.getByRole("link", { name: "All products" }))).toBe(false);
   expect(confirm).toHaveBeenCalledOnce();
-});
-it("Escape closes navigation and returns focus", () => {
-  render(<ProductNavigation />);
-  fireEvent.click(screen.getByRole("button", { name: "Products" }));
-  fireEvent.keyDown(screen.getByRole("navigation"), { key: "Escape" });
-  expect(screen.queryByRole("navigation")).toBeNull();
-  expect(document.activeElement).toBe(screen.getByRole("button", { name: "Products" }));
 });
 it("does not render a malformed central destination", () => {
   vi.stubEnv("NEXT_PUBLIC_CENTRAL_HOME_ORIGIN", "https://evil.test/?token=secret");

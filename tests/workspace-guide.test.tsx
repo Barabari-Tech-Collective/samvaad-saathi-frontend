@@ -47,7 +47,8 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers();
   vi.unstubAllGlobals();
-  document.body.innerHTML = "";
+  // Remove only what a test added; the tour itself is drawn on the page body by a portal.
+  document.getElementById("history-link")?.remove();
 });
 
 describe("workspace tour", () => {

@@ -132,7 +132,7 @@ export default function PracticeConsentCard() {
                     type="checkbox"
                     className="toggle toggle-primary mt-1 shrink-0"
                     checked={granted}
-                    disabled={pending || updateConsent.isPending}
+                    disabled={pending}
                     onChange={(event) => void toggle(option.purpose, event.target.checked)}
                     aria-describedby={`consent-help-${option.purpose}`}
                   />
