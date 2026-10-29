@@ -80,7 +80,7 @@ export default function ProductNavigation() {
           >
             All products (new tab)
           </a>
-          <p className="px-2 py-2 text-sm">Sampark learner app: unavailable</p>
+          <p className="px-2 py-2 text-sm">Learning app: unavailable</p>
           <p className="px-2 py-2 text-sm">CodeGuru: coming later</p>
         </nav>
       )}

@@ -25,8 +25,8 @@ export default function ControlYourPacePage() {
     >
       <h2>Make yourself easier to follow</h2>
       <p className="studio-muted">
-        You don’t need to speak faster to sound confident. A pause gives you time to think—and your
-        listener time to understand.
+        You don’t need to speak faster to sound confident. A pause gives you time to think and gives
+        your listener time to understand.
       </p>
       <div className="my-6 border-y border-[var(--studio-line)] py-5 text-sm studio-muted">
         You’ll need a microphone and a quiet place to speak.

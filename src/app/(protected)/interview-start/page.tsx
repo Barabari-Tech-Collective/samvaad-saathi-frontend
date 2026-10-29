@@ -552,7 +552,7 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
                 {isLoadingProfiles ? "Loading roles..." : "Select a role"}
               </option>
               {mode === "practice" && (
-                <option value={GENERAL_PRACTICE_ROLE}>I am not sure — General interview</option>
+                <option value={GENERAL_PRACTICE_ROLE}>I am not sure: General interview</option>
               )}
               {mode === "practice" &&
                 ROLE_OPTIONS.map((role) => (

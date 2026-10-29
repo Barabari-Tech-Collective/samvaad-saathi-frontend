@@ -563,7 +563,7 @@ const InterviewPage = () => {
       }
       if (code === "FOLLOW_UP_PENDING") {
         setNavigationError(
-          "Your answer is saved. The follow-up is still being prepared—wait a moment or choose Continue without follow-up."
+          "Your answer is saved. The follow-up is still being prepared. Wait a moment or choose Continue without follow-up."
         );
       } else if (detail?.message) {
         setNavigationError(detail.message);

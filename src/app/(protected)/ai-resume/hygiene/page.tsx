@@ -334,7 +334,7 @@ export default function HygieneAndTemplatePage() {
                               github.com/your-username/project-name).
                             </li>
                             <li>
-                              Links to raw code files or GitHub pages (.github.io)—put GitHub Pages
+                              Links to raw code files or GitHub pages (.github.io). Put GitHub Pages
                               in the Portfolio section instead.
                             </li>
                             <li>

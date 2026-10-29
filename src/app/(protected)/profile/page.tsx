@@ -353,7 +353,7 @@ export default function ProfilePage() {
       <PageHeading
         eyebrow="Your account"
         title="Profile and preferences"
-        description="Your details, interview voice and practice sharing—all in one place."
+        description="Your details, interview voice and practice sharing, all in one place."
       />
       <ResumeStorageRecovery />
       <GraduationStatus />

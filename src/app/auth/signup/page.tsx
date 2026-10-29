@@ -216,7 +216,7 @@ function LegacySignupPage() {
     return (
       <AuthFrame
         title="Let’s get you access."
-        description="You’re signed in to Sampark Saathi. An admin needs to enable Samvaad Saathi on your account before you begin."
+        description="You’re signed in with your Barabari Collective account. An admin needs to turn on Samvaad Saathi for you before you can begin."
       >
         {!accessDeniedRequestCode ? (
           <p role="status" className="studio-panel">
@@ -249,7 +249,7 @@ function LegacySignupPage() {
   return (
     <AuthFrame
       title="Your next interview starts here."
-      description="Sign in with your Sampark Saathi account to practise, get feedback and prepare for your next opportunity."
+      description="Sign in with your Barabari Collective account to practise, get feedback and prepare for your next opportunity."
     >
       {loginError && (
         <p role="alert" className="mb-4 text-red-700">
@@ -259,7 +259,7 @@ function LegacySignupPage() {
       {/* Keep SSO a real top-level navigation: shared-cookie redirects require it. */}
       {ssoLoginUrl ? (
         <Link className="studio-auth-action" href={ssoLoginUrl} onClick={handleContinueClick}>
-          Continue with Sampark Saathi <span aria-hidden="true">→</span>
+          Sign in with Barabari Collective <span aria-hidden="true">→</span>
         </Link>
       ) : (
         <>
@@ -272,7 +272,7 @@ function LegacySignupPage() {
         </>
       )}
       <p className="mt-5 text-sm studio-muted">
-        One account for Sampark Saathi and Samvaad Saathi.
+        Sign in once and use every Barabari Collective tool.
       </p>
     </AuthFrame>
   );

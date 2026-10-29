@@ -41,7 +41,7 @@ const CONSENT_OPTIONS: ConsentOption[] = [
     description:
       "The placements team can see recent, relevant practice evidence when preparing a human-reviewed shortlist.",
     shared:
-      "No automatic selection happens. Missing evidence is shown as missing—not as a low score.",
+      "No automatic selection happens. Missing evidence is shown as missing, not as a low score.",
   },
 ];
 

@@ -72,13 +72,6 @@
   text-transform: uppercase;
   color: var(--studio-blue);
 }
-.studio-eyebrow::before {
-  content: "";
-  width: 16px;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--studio-yellow);
-}
 .studio-description {
   max-width: 62ch;
   color: var(--studio-muted);

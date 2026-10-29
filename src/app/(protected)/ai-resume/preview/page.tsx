@@ -55,7 +55,7 @@ function TemplatePreviewContent() {
       {/* Template Preview Section */}
       <div className="bg-white border border-slate-100 rounded-3xl p-5 shadow-sm space-y-5">
         <p className="text-sm font-medium text-slate-700">
-          Layout example — your résumé content appears after analysis.
+          Layout example. Your résumé content appears after analysis.
         </p>
         {/* Visual Preview Area */}
         <div

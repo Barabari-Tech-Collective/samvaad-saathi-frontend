@@ -168,7 +168,7 @@ export default function Step2({ onNext, onBack, isLoading = false }: Step2Props)
     <div>
       <PageHeading
         title="What are you working towards?"
-        description="Choose a target role. Your resume is optional—you can add it later."
+        description="Choose a target role. Your resume is optional. You can add it later."
       />
       <div className="studio-panel">
         {/* Target Role Dropdown */}
