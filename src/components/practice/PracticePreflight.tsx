@@ -6,7 +6,7 @@ import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { trackEvent } from "@/lib/posthog/tracking.utils";
 
 type CheckStatus = "idle" | "checking" | "passed" | "warning" | "failed";
@@ -93,6 +93,13 @@ export default function PracticePreflight({
     "Check that the browser can hear you before starting the interview."
   );
   const [playback, setPlayback] = useState<CheckStatus>("idle");
+  const microphoneHelp = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // The student just touched the button, so show the answer where they are looking.
+    if (microphone === "failed")
+      microphoneHelp.current?.scrollIntoView?.({ block: "center", behavior: "smooth" });
+  }, [microphone]);
 
   const runBasicChecks = () => {
     const networkStatus = navigator.onLine ? "passed" : "failed";
@@ -165,7 +172,7 @@ export default function PracticePreflight({
     } catch {
       setMicrophone("failed");
       setMicrophoneDetail(
-        "Microphone access was denied or unavailable. Allow microphone access in browser settings, then check again."
+        "We cannot hear you yet. Your phone or browser is blocking the microphone."
       );
       trackEvent("practice_device_check_result", {
         check: "microphone",
@@ -274,6 +281,21 @@ export default function PracticePreflight({
             disabled: microphone === "checking",
           }}
         />
+        {microphone === "failed" && (
+          <div
+            ref={microphoneHelp}
+            role="alert"
+            className="rounded-2xl border border-[#F5B971] bg-[#FFF6E8] p-4 text-sm leading-6"
+          >
+            <p className="font-semibold">How to turn the microphone on</p>
+            <ol className="mt-2 list-decimal space-y-1 pl-5">
+              <li>Touch the small lock or settings icon next to the web address, at the top.</li>
+              <li>Touch Permissions, then Microphone, then Allow.</li>
+              <li>Come back here and touch Check microphone again.</li>
+            </ol>
+            <p className="mt-2">Still stuck? Ask your facilitator or teacher to help you.</p>
+          </div>
+        )}
         <CheckRow
           title="Speaker playback"
           detail={

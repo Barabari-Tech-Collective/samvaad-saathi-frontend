@@ -915,3 +915,21 @@
   min-width: 46px;
   padding: 10px;
 }
+
+/* Phone: the first thing to do (choose a role) must be on the first screen, so the intro text
+   and the step list shrink to a single quiet line. */
+@media (max-width: 767px) {
+  .studio-setup-heading .studio-eyebrow,
+  .studio-setup-heading .studio-description {
+    display: none;
+  }
+  .studio-setup-steps {
+    flex-wrap: nowrap;
+    gap: 8px 12px;
+    padding-bottom: 12px;
+    font-size: 0.75rem;
+  }
+  .studio-setup-steps li:not([aria-current="step"]) {
+    color: var(--studio-muted);
+  }
+}

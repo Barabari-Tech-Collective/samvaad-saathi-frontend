@@ -275,7 +275,13 @@ function GuideSession({
 
   if (!steps.length) return null;
 
-  const total = steps.length;
+  // Count only the steps that can be shown here: a phone has no sidebar, so steps that point
+  // at it are skipped and must not leave a gap like "Step 1 of 9" then "Step 9 of 9".
+  const shown = steps
+    .map((item, index) => (item.optional && item.target && !findTarget(item.target) ? -1 : index))
+    .filter((index) => index >= 0);
+  const total = Math.max(1, shown.length);
+  const position = run === null ? 0 : Math.max(1, shown.filter((index) => index <= run).length);
   const isLast = run !== null && nextIndex(run, 1) === -1;
   const hasPrevious = run !== null && nextIndex(run, -1) !== -1;
   const pad = 8;
@@ -307,7 +313,7 @@ function GuideSession({
 
   return (
     <>
-      {run === null && offerHere && (
+      {run === null && offerHere && !invited && (
         <button ref={trigger} type="button" onClick={begin} className="workspace-guide-trigger">
           Quick guide
         </button>
@@ -348,10 +354,10 @@ function GuideSession({
               style={cardStyle}
             >
               <p className="workspace-guide-progress" aria-live="polite">
-                Step {Math.min(run + 1, total)} of {total}
+                Step {Math.min(position, total)} of {total}
               </p>
               <div className="workspace-tour-bar" role="presentation" aria-hidden="true">
-                <span style={{ width: `${((run + 1) / total) * 100}%` }} />
+                <span style={{ width: `${(Math.min(position, total) / total) * 100}%` }} />
               </div>
               <h2 ref={heading} tabIndex={-1} id={titleId}>
                 {step.title}

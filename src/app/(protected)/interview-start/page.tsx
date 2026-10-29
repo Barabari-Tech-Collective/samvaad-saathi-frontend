@@ -497,6 +497,7 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-[#111827]">
       <PageHeading
+        className="studio-setup-heading"
         eyebrow={mode === "assessment" ? "Formal assessment" : "Prepare your round"}
         title={mode === "assessment" ? "Assessment Interview" : "Practice Interview"}
         description={

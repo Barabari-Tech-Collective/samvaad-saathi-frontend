@@ -78,7 +78,8 @@ describe("workspace tour", () => {
     act(() => vi.advanceTimersByTime(700));
     fireEvent.click(screen.getByText("Start guide"));
     expect(screen.getByRole("dialog")).toHaveAttribute("aria-modal", "false");
-    expect(screen.getByText("Step 1 of 4")).toBeVisible();
+    // "Missing page" cannot be shown to this account, so it is not counted.
+    expect(screen.getByText("Step 1 of 3")).toBeVisible();
     fireEvent.click(screen.getByText("Next"));
     expect(screen.getByText("Your progress")).toBeVisible();
     // The tour opens the page the step is about.

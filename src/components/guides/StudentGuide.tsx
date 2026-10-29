@@ -1,5 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
+import { useSyncExternalStore } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
 import { type GuideStep, guideStorageKey, WorkspaceGuide } from "./WorkspaceGuide";
 
@@ -66,7 +67,52 @@ const steps: GuideStep[] = [
   },
 ];
 
+const PHONE = "(max-width: 767px)";
+const subscribePhone = (notify: () => void) => {
+  const query = window.matchMedia(PHONE);
+  query.addEventListener("change", notify);
+  return () => query.removeEventListener("change", notify);
+};
+const isPhone = () => typeof window.matchMedia === "function" && window.matchMedia(PHONE).matches;
+
+// On a phone the menu is the bottom bar, so the tour points at it in plain, short words.
+const tab = (path: string) => `nav[aria-label="Bottom Navigation"] a[href="${path}"]`;
+const phoneSteps: GuideStep[] = [
+  {
+    title: "Welcome!",
+    body: "We will show you where things are. It takes one minute. You can stop any time.",
+  },
+  {
+    title: "Home",
+    body: "Start here. It shows what to do next.",
+    href: "/home",
+    target: tab("/home"),
+  },
+  {
+    title: "Practice",
+    body: "Speak your answers out loud. You can try again and again. There is no pass or fail.",
+    href: "/practice",
+    target: tab("/practice"),
+  },
+  {
+    title: "History",
+    body: "See your finished practice and the feedback you got.",
+    href: "/history",
+    target: tab("/history"),
+  },
+  {
+    title: "More",
+    body: "Touch More to find your resume, your profile, your interviews and your test results.",
+    target: 'nav[aria-label="Bottom Navigation"] button[aria-label="More features"]',
+  },
+  {
+    title: "Before you speak",
+    body: "When your phone asks, touch Allow for the microphone. Speak, then wait for the word Saved before the next question.",
+  },
+];
+
 export default function StudentGuide() {
+  const phone = useSyncExternalStore(subscribePhone, isPhone, () => false);
   const { user, loading } = useAuth();
   const path = usePathname();
   if (loading || !user) return null;
@@ -76,7 +122,7 @@ export default function StudentGuide() {
   return (
     <WorkspaceGuide
       storageKey={key}
-      steps={steps}
+      steps={phone ? phoneSteps : steps}
       offerHere={["/home", "/practice", "/history", "/profile"].includes(path)}
     />
   );

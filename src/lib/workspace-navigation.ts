@@ -10,6 +10,7 @@ export function workspaceSection(path: string): string {
     ].some((route) => path === route || path.startsWith(`${route}/`))
   )
     return "/practice";
+  if (path === "/interview-start" || path.startsWith("/interview-start/")) return "/practice";
   if (path === "/report-summary" || path.startsWith("/report-summary/")) return "/history";
   return path;
 }

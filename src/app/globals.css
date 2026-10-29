@@ -1210,3 +1210,28 @@ h6 {
   margin: 24px 0 0 auto;
   box-shadow: none;
 }
+
+/* Tour invitation and the floating Quick guide button must never cover the main button or
+   the bottom bar on a phone. The invitation shrinks to one short strip above the bar. */
+@media (max-width: 767px) {
+  .workspace-guide-trigger {
+    bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  }
+  .workspace-guide-invite {
+    /* Under the header, never over the main button or the bottom bar. */
+    top: calc(var(--student-header-height, 64px) + 8px);
+    bottom: auto;
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    padding: 14px 16px;
+  }
+  .workspace-guide-invite .workspace-guide-eyebrow,
+  .workspace-guide-invite p {
+    display: none;
+  }
+  .workspace-guide-invite h2 {
+    margin: 0 0 10px;
+    font-size: 17px;
+  }
+}
