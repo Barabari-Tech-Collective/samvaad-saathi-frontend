@@ -148,20 +148,20 @@ export function HumanInterviews({ accountKey }: { accountKey: string }) {
   const data = query.isError || query.isFetching ? undefined : query.data;
   return (
     <section
-      aria-label="Your human interviews"
+      aria-label="Your live interviews"
       className="mx-auto w-full max-w-4xl space-y-6 py-6 sm:py-10"
     >
       <PageHeading
-        eyebrow="Meet your interviewer"
-        title="Your human interviews"
-        description="Check your appointment, prepare your camera and microphone, then join in a separate Google Meet tab."
+        eyebrow="Talk to your interviewer"
+        title="Your live interviews"
+        description="See your interview time. Check your camera and microphone. Then join on Google Meet."
         action={
           <button
             className="ws-button"
             disabled={query.isFetching}
             onClick={() => void query.refetch()}
           >
-            Refresh appointments and access
+            Refresh
           </button>
         }
       />
@@ -179,10 +179,9 @@ export function HumanInterviews({ accountKey }: { accountKey: string }) {
           <p className="text-sm text-gray-600">{data.notice}</p>
           {!data.items.length && (
             <div className="studio-panel">
-              <h2 className="text-lg font-semibold text-[#1F285B]">No appointments on this page</h2>
+              <h2 className="text-lg font-semibold text-[#1F285B]">No interviews yet</h2>
               <p className="mt-2 text-gray-600">
-                Your program team can schedule a human interview for you. You can continue
-                practicing while you wait.
+                Your teacher will set a time for you. You can keep practising.
               </p>
             </div>
           )}

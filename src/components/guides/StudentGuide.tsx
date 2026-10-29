@@ -34,14 +34,14 @@ const steps: GuideStep[] = [
     optional: true,
   },
   {
-    title: "Assessment reviews",
+    title: "Test reviews",
     body: "If one of your tests is flagged, you can read why here and ask for a second look.",
     href: "/assessment-reviews",
     target: link("/assessment-reviews"),
     optional: true,
   },
   {
-    title: "Human interviews",
+    title: "Live interviews",
     body: "Book and join an interview with a real person when your course offers it.",
     href: "/human-interviews",
     target: link("/human-interviews"),

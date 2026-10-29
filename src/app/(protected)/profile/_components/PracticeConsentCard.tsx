@@ -30,18 +30,17 @@ interface ConsentOption {
 const CONSENT_OPTIONS: ConsentOption[] = [
   {
     purpose: "facilitator_coaching",
-    title: "Let my facilitator support my practice",
+    title: "Let my teacher see my practice",
     description:
-      "Your assigned facilitator can see progress, coaching summaries and completed drills to suggest what to practise next.",
-    shared: "No raw audio or full transcript is shared in the dashboard.",
+      "Your teacher can see how you are doing and what you finished. They use it to tell you what to practise next.",
+    shared: "Your voice recordings and full words are not shared.",
   },
   {
     purpose: "opportunity_readiness",
-    title: "Consider me for relevant opportunities",
+    title: "Tell the placement team about me for jobs",
     description:
-      "The placements team can see recent, relevant practice evidence when preparing a human-reviewed shortlist.",
-    shared:
-      "No automatic selection happens. Missing evidence is shown as missing, not as a low score.",
+      "The placement team can see your recent practice when choosing people for jobs. A person makes the choice, not a computer.",
+    shared: "A practice you did not do is not counted as a bad score.",
   },
 ];
 
@@ -95,10 +94,9 @@ export default function PracticeConsentCard() {
           <ShieldCheckIcon className="size-6" aria-hidden="true" />
         </div>
         <div>
-          <h3 className="font-semibold">Practice sharing choices</h3>
+          <h3 className="font-semibold">Who can see your practice</h3>
           <p className="mt-1 text-sm text-base-content/65">
-            You decide who may use your Practice interview results and why. Both choices start off
-            and can be changed at any time.
+            You choose. You can change this any time. Both are off at first.
           </p>
         </div>
       </div>
@@ -153,9 +151,8 @@ export default function PracticeConsentCard() {
       )}
 
       <p className="mt-4 text-xs leading-relaxed text-gray-600">
-        Withdrawing consent blocks future dashboard access. Records already included in a locked,
-        approved shortlist remain auditable, but cannot be newly exported or reused after consent is
-        withdrawn.
+        If you turn this off, the team cannot see your practice from now on. If you were already
+        picked for a job list, that record stays.
       </p>
     </section>
   );

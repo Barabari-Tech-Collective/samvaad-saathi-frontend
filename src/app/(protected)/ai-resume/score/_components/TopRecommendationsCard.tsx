@@ -28,7 +28,7 @@ export function TopRecommendationsCard() {
             </div>
           ))
         ) : (
-          <div className="p-4 text-center text-slate-500 text-sm">
+          <div className="p-4 text-center text-slate-600 text-sm">
             No recommendations available yet.
           </div>
         )}
@@ -38,7 +38,7 @@ export function TopRecommendationsCard() {
         <span className="px-4 py-2 bg-primary/5 text-primary rounded-full text-xs font-bold border border-primary/10">
           {formData?.targetRole || "Target Role"}
         </span>
-        <span className="px-4 py-2 bg-slate-50 text-slate-500 rounded-full text-xs font-bold border border-slate-200">
+        <span className="px-4 py-2 bg-slate-50 text-slate-600 rounded-full text-xs font-bold border border-slate-200">
           {formData?.experienceLevel || "Level"}
         </span>
       </div>

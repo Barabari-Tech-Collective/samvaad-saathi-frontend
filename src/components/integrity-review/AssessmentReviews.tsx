@@ -187,8 +187,8 @@ export function AssessmentReviews({ accountKey }: { accountKey: string }) {
     <section className="mx-auto max-w-4xl space-y-6 py-6">
       <PageHeading
         eyebrow="Formal assessments"
-        title="Assessment reviews and appeals"
-        description="Read the evidence, understand a decision and share your response."
+        title="Test reviews"
+        description="See why a test was flagged. You can tell us your side."
         action={
           <button
             className="ws-button"
@@ -200,9 +200,8 @@ export function AssessmentReviews({ accountKey }: { accountKey: string }) {
         }
       />
       <p className="studio-panel text-sm studio-muted">
-        These notices concern formal assessments. Practice interviews are excluded. A browser
-        observation does not establish cheating, and review outcomes do not automatically change
-        your score.
+        This page is only for tests, not practice. A flag is not proof of cheating. A review does
+        not change your score by itself.
       </p>
       {query.isError ? (
         <p role="alert">
@@ -223,11 +222,11 @@ export function AssessmentReviews({ accountKey }: { accountKey: string }) {
               />
             ))
           ) : (
-            <p>No assessment reviews on this page.</p>
+            <p>No test reviews.</p>
           )}
           <nav aria-label="Review notice pages" className="flex flex-wrap gap-3">
             <button className={button} disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
-              Previous notices
+              Earlier
             </button>
             <span>
               Page {page} · {data.total} notices
@@ -237,7 +236,7 @@ export function AssessmentReviews({ accountKey }: { accountKey: string }) {
               disabled={page * 20 >= data.total}
               onClick={() => setPage((p) => p + 1)}
             >
-              Next notices
+              Next
             </button>
           </nav>
         </>

@@ -45,7 +45,7 @@ const LevelIntroPage = () => {
   return (
     <div className="studio-stack">
       <PageHeading
-        eyebrow="Pace & pauses"
+        eyebrow="Speaking speed"
         title={levelTitle}
         description="A short speaking exercise to help you hear your rhythm and choose where to pause."
       />

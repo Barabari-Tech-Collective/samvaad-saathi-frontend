@@ -65,7 +65,7 @@ export default function HomePractice({ accountKey }: { accountKey: string }) {
                 ? "Your saved sessions could not be checked. Open History before starting a new round."
                 : expired
                   ? "Your previous round’s resume window has ended. Its saved answers are in History."
-                  : "Choose a role, check your microphone, then answer out loud. Get feedback after your round."}
+                  : "Pick a job. Check your microphone. Speak your answers. Get feedback."}
         </p>
       </div>
       <div className="ws-action-row">

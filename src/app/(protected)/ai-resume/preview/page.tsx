@@ -23,7 +23,7 @@ function TemplatePreviewContent() {
     return (
       <div className="w-full flex flex-col items-center justify-center py-20 gap-4">
         <span className="loading loading-spinner loading-lg text-primary"></span>
-        <p className="text-slate-500 font-medium text-sm">Loading template details...</p>
+        <p className="text-slate-600 font-medium text-sm">Loading template details...</p>
       </div>
     );
   }
@@ -49,7 +49,7 @@ function TemplatePreviewContent() {
       {/* Title Section */}
       <div className="space-y-1">
         <h1 className="text-2xl font-bold text-slate-900">{template.name}</h1>
-        <p className="text-slate-500 text-sm">Professional ATS-friendly resume format</p>
+        <p className="text-slate-600 text-sm">Professional ATS-friendly resume format</p>
       </div>
 
       {/* Template Preview Section */}
@@ -138,7 +138,7 @@ export default function ResumeTemplatePreviewPage() {
         fallback={
           <div className="w-full flex flex-col items-center justify-center py-20 gap-4">
             <span className="loading loading-spinner loading-lg text-primary"></span>
-            <p className="text-slate-500 font-medium text-sm">Loading template details...</p>
+            <p className="text-slate-600 font-medium text-sm">Loading template details...</p>
           </div>
         }
       >

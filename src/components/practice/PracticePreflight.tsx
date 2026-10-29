@@ -89,9 +89,7 @@ export default function PracticePreflight({
   const [network, setNetwork] = useState<CheckStatus>("idle");
   const [storage, setStorage] = useState<CheckStatus>("idle");
   const [microphone, setMicrophone] = useState<CheckStatus>("idle");
-  const [microphoneDetail, setMicrophoneDetail] = useState(
-    "Check that the browser can hear you before starting the interview."
-  );
+  const [microphoneDetail, setMicrophoneDetail] = useState("Check that we can hear you.");
   const [playback, setPlayback] = useState<CheckStatus>("idle");
   const microphoneHelp = useRef<HTMLDivElement>(null);
 
@@ -161,9 +159,7 @@ export default function PracticePreflight({
         });
       } else {
         setMicrophone("passed");
-        setMicrophoneDetail(
-          "Microphone access works. Your recording will start only when you choose Answer."
-        );
+        setMicrophoneDetail("Your microphone works. Recording starts only when you touch Answer.");
         trackEvent("practice_device_check_result", {
           check: "microphone",
           status: "passed",
@@ -227,8 +223,8 @@ export default function PracticePreflight({
 
       <PageHeading
         eyebrow="Before you begin"
-        title="Make sure Practice can save your work"
-        description="Check your connection, microphone and speaker. This helps your answers stay safe if you need to reconnect."
+        title="Get ready"
+        description="Check your internet, microphone and speaker. Your answers stay safe if the internet goes off."
       />
 
       <section className="mt-6 rounded-2xl bg-[#F5F7FF] p-5" aria-label="Interview preview">
@@ -252,27 +248,27 @@ export default function PracticePreflight({
 
       <section className="mt-6 space-y-3" aria-label="Device checks" aria-live="polite">
         <CheckRow
-          title="Internet connection"
+          title="Internet"
           detail={
             network === "passed"
-              ? "You are online. If the connection drops later, saved work can be resumed."
+              ? "Your internet is working. If it goes off, your saved answers are kept."
               : "You appear to be offline. Reconnect before starting the interview."
           }
           status={network}
           action={{ label: "Check again", onClick: runBasicChecks }}
         />
         <CheckRow
-          title="Safe browser storage"
+          title="Saving on this phone"
           detail={
             storage === "passed"
-              ? "This browser can keep a temporary recovery copy on this device."
-              : "Storage is blocked. Leave private browsing or allow site storage, then check again."
+              ? "Your phone can keep a copy of your answers."
+              : "Saving is blocked. Close private mode, then check again."
           }
           status={storage}
           action={{ label: "Check again", onClick: runBasicChecks }}
         />
         <CheckRow
-          title="Microphone and background noise"
+          title="Microphone"
           detail={microphoneDetail}
           status={microphone}
           action={{
@@ -297,13 +293,13 @@ export default function PracticePreflight({
           </div>
         )}
         <CheckRow
-          title="Speaker playback"
+          title="Speaker"
           detail={
             playback === "passed"
-              ? "Test sound played. Questions are also always shown as text."
+              ? "Did you hear the sound? Good. Questions are also written on the screen."
               : playback === "failed"
-                ? "The test sound could not play. Check your device volume, speaker output, or headphones, then try again."
-                : "Play a short sound to check your speaker or headphones."
+                ? "No sound. Turn the volume up, then try again."
+                : "Play a sound to check you can hear."
           }
           status={playback}
           action={{
@@ -317,14 +313,11 @@ export default function PracticePreflight({
       <section className="mt-6 rounded-2xl bg-[#FFE4BF] p-5">
         <h2 className="font-bold">Before you begin</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-gray-800">
-          <li>Practice is private coaching, not a formal assessment.</li>
-          <li>Refreshing, reconnecting, receiving a call or changing tabs will not punish you.</li>
-          <li>You can save and exit. Answers confirmed as saved remain on your account.</li>
-          <li>
-            Your voice recording is stored securely so delayed speech feedback can be retried, then
-            deleted according to the programme retention policy.
-          </li>
-          <li>Your facilitator may see coaching summaries according to your consent settings.</li>
+          <li>This is practice. It is not a test.</li>
+          <li>Nothing bad happens if you refresh, get a call or change pages.</li>
+          <li>You can stop and come back. Saved answers stay on your account.</li>
+          <li>Your voice is saved safely so we can give you feedback. It is deleted later.</li>
+          <li>Your teacher may see a short summary if you allowed it in your profile.</li>
         </ul>
       </section>
 
@@ -346,9 +339,7 @@ export default function PracticePreflight({
           {isStarting ? "Creating your interview…" : "Start practice interview"}
         </button>
         {!ready && (
-          <p className="mt-3 text-center text-sm text-gray-600">
-            Complete the connection and storage checks, then check your microphone and playback.
-          </p>
+          <p className="mt-3 text-center text-sm text-gray-600">First do the checks above.</p>
         )}
       </div>
     </div>

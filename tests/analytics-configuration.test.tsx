@@ -6,9 +6,13 @@ vi.mock("posthog-js", () => ({ default: f }));
 vi.mock("posthog-js/react", () => ({
   PostHogProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
-afterEach(() => vi.unstubAllEnvs());
+afterEach(() => {
+  vi.unstubAllEnvs();
+  f.init.mockClear();
+});
 it("disables replay and automatic content/exception capture at initialization", () => {
   vi.stubEnv("NEXT_PUBLIC_POSTHOG_KEY", "synthetic");
+  vi.stubEnv("NEXT_PUBLIC_POSTHOG_HOST", "https://eu.i.posthog.com");
   render(
     <AnalyticsProvider>
       <p>Private interview content</p>
@@ -25,4 +29,14 @@ it("disables replay and automatic content/exception capture at initialization", 
       disable_surveys: true,
     })
   );
+});
+it("does not start without both a key and a host, so a stray key cannot spam failing requests", () => {
+  vi.stubEnv("NEXT_PUBLIC_POSTHOG_KEY", "synthetic ");
+  vi.stubEnv("NEXT_PUBLIC_POSTHOG_HOST", " ");
+  render(
+    <AnalyticsProvider>
+      <p>Private interview content</p>
+    </AnalyticsProvider>
+  );
+  expect(f.init).not.toHaveBeenCalled();
 });

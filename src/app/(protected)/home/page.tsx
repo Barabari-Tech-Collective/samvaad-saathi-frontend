@@ -46,9 +46,9 @@ export default function HomePage() {
   return (
     <div className="ws-home">
       <PageHeading
-        eyebrow="Your interview studio"
+        eyebrow="Interview practice"
         title={`Hi, ${firstName(user.authorizedUser.name)}.`}
-        description="A full interview or a little practice. Start where you are."
+        description="Practise a full interview or a short skill. Start here."
       />
       {noticeCount > 0 && (
         <aside className="ws-notice">
@@ -68,15 +68,15 @@ export default function HomePage() {
             <ClipboardDocumentCheckIcon aria-hidden="true" />
             <span>
               <strong>Assessments</strong>
-              <small>View available interviews and instructions</small>
+              <small>See your tests and how to take them</small>
             </span>
             <ArrowRightIcon aria-hidden="true" />
           </Link>
           <Link className="ws-task-link" href="/human-interviews">
             <VideoCameraIcon aria-hidden="true" />
             <span>
-              <strong>Human interviews</strong>
-              <small>Check your schedule and join your interviewer</small>
+              <strong>Live interviews</strong>
+              <small>See your interview time and join</small>
             </span>
             <ArrowRightIcon aria-hidden="true" />
           </Link>
@@ -84,7 +84,7 @@ export default function HomePage() {
             <DocumentTextIcon aria-hidden="true" />
             <span>
               <strong>Your resume</strong>
-              <small>Build or update your resume</small>
+              <small>Make or fix your resume</small>
             </span>
             <ArrowRightIcon aria-hidden="true" />
           </Link>
@@ -107,14 +107,14 @@ export default function HomePage() {
             },
             {
               href: "/control-your-pace",
-              title: "Pace & pauses",
-              detail: "Work on fillers and speaking speed",
+              title: "Speaking speed",
+              detail: "Say less 'um' and speak at a good speed",
               icon: SignalIcon,
             },
             {
               href: "/structure-your-answer",
               title: "Answer structure",
-              detail: "Give a clear, complete answer",
+              detail: "Give a clear answer from start to end",
               icon: ListBulletIcon,
             },
           ].map(({ href, title, detail, icon: Icon }) => (

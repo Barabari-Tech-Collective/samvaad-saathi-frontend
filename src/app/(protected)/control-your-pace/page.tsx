@@ -6,7 +6,7 @@ export default function ControlYourPacePage() {
   return (
     <SkillLanding
       title="Find a pace that feels natural."
-      eyebrow="Pace & pauses"
+      eyebrow="Speaking speed"
       description="Give your ideas room to land. Practise speaking steadily, leaving pauses and noticing filler words."
       steps={[
         {

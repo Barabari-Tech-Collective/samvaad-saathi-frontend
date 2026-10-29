@@ -65,7 +65,7 @@ function HistoryWorkspace({ account }: { account: string }) {
       <PageHeading
         eyebrow="Your interview journal"
         title="Interview history"
-        description="Find saved rounds, check completed work and return to feedback. Practice and assessment keep their own rules."
+        description="See your saved rounds and your feedback."
         action={
           <Link href="/practice" className="ws-button">
             Back to Practice
@@ -195,7 +195,7 @@ function HistoryWorkspace({ account }: { account: string }) {
                     <>
                       <p className="mt-4 text-sm leading-6 text-gray-600">
                         {href
-                          ? "Reopening checks current access, the saved plan and any device ownership rules before you continue."
+                          ? "When you open this, we first check that it is safe to continue."
                           : tab === "closed"
                             ? "This round is retained in your history. Its status does not offer a continuation action."
                             : item.status === "preparing"

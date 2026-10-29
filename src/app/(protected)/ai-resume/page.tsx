@@ -14,9 +14,7 @@ export default function AIResumePage() {
         {/* Title Section */}
         <div className="space-y-2">
           <h1 className="text-2xl font-bold text-slate-900">Resume review</h1>
-          <p className="text-slate-500 text-sm">
-            Optimize your resume for ATS and role-specific hiring.
-          </p>
+          <p className="text-slate-600 text-sm">Make your resume better for the job you want.</p>
         </div>
 
         {/* Form */}

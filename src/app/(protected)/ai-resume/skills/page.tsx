@@ -17,7 +17,7 @@ export default function SkillsFeedbackPage() {
         {/* Title Section */}
         <div className="space-y-1">
           <h1 className="text-2xl font-bold text-slate-900">Skills & Projects</h1>
-          <p className="text-slate-500 text-sm">Where your resume shines and where to grow.</p>
+          <p className="text-slate-600 text-sm">Where your resume shines and where to grow.</p>
         </div>
 
         {/* Content */}

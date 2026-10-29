@@ -40,7 +40,7 @@ it("keeps icon navigation named and identifies the current page", () => {
   );
   const nav = screen.getByRole("navigation", { name: "Student navigation" });
   expect(within(nav).getByRole("link", { name: "Home" })).toHaveAttribute("aria-current", "page");
-  expect(within(nav).getByRole("link", { name: "Assessment reviews" })).toHaveAttribute(
+  expect(within(nav).getByRole("link", { name: "Test reviews" })).toHaveAttribute(
     "href",
     "/assessment-reviews"
   );
@@ -91,7 +91,7 @@ it("makes every destination available through the mobile menu and closes after s
   );
   fireEvent.click(screen.getByRole("button", { name: "Open navigation" }));
   const dialog = screen.getByRole("dialog", { name: "Your workspace" });
-  expect(within(dialog).getByRole("link", { name: "Human interviews" })).toHaveAttribute(
+  expect(within(dialog).getByRole("link", { name: "Live interviews" })).toHaveAttribute(
     "href",
     "/human-interviews"
   );

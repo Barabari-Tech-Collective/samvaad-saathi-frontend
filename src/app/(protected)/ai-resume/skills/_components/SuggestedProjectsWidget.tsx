@@ -25,7 +25,7 @@ export function SuggestedProjectsWidget() {
             <h3 className="font-bold text-[15px] text-slate-800 leading-snug pr-2">
               {suggestedProject.title}
             </h3>
-            <p className="text-[13px] text-slate-500 font-medium leading-relaxed">
+            <p className="text-[13px] text-slate-600 font-medium leading-relaxed">
               {suggestedProject.description}
             </p>
 

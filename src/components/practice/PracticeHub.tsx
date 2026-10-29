@@ -24,22 +24,22 @@ import { useEffect, useState } from "react";
 const MODULES = [
   {
     key: "structure",
-    title: "Structure your answers",
-    description: "Frame ideas with clarity, logic and proof.",
+    title: "Plan your answers",
+    description: "Say your idea, your reason and an example.",
     href: "/structure-your-answer",
     icon: ListBulletIcon,
   },
   {
     key: "pronunciation",
     title: "Pronunciation",
-    description: "Make important words easier to understand.",
+    description: "Practise saying words clearly.",
     href: "/pronunciation-practice",
     icon: MicrophoneIcon,
   },
   {
     key: "pace",
-    title: "Control your pace",
-    description: "Use pauses and reduce filler words.",
+    title: "Speak at a good speed",
+    description: "Pause. Say less 'um'.",
     href: "/control-your-pace",
     icon: SignalIcon,
   },
@@ -52,8 +52,8 @@ const MODULES = [
   },
   {
     key: "think_fast",
-    title: "Think fast: 60-second topics",
-    description: "Build confidence answering without preparation.",
+    title: "Think fast: 60 seconds",
+    description: "Practise answering with no time to prepare.",
     href: "/think-fast",
     icon: BoltIcon,
   },
@@ -168,7 +168,7 @@ export function PracticeHubView({
           href="/history"
           className="inline-flex min-h-11 items-center rounded-xl border border-[#DEE8FB] bg-white px-4 focus-visible:outline-2"
         >
-          Saved sessions &amp; feedback
+          Saved practice and feedback
         </Link>
       </nav>
       <section className="grid gap-5 lg:grid-cols-[1.2fr_0.9fr]" aria-label="Practice plan">
@@ -201,7 +201,7 @@ export function PracticeHubView({
                   : "Your session is saved. Reopen it to check question preparation."
               : status === "error"
                 ? "Open History to check your saved sessions before starting another round, or choose a skill builder below."
-                : "Practise spoken answers with AI coaching. Before you begin, check your microphone and the plan for the round."}
+                : "Speak your answers and get tips from AI. First, check your microphone."}
           </p>
           {status === "loading" || status === "refreshing" ? (
             <p className="mt-7 text-sm">Your saved-session action will appear after this check.</p>
@@ -241,7 +241,7 @@ export function PracticeHubView({
             </button>
           )}
           <p className="mt-4 text-sm text-gray-600">
-            Refreshing or changing tabs will not end a Practice interview.
+            You will not lose your practice if you refresh the page.
           </p>
         </div>
 
@@ -261,12 +261,12 @@ export function PracticeHubView({
           ) : verified ? (
             <>
               <h2 className="mt-4 text-lg font-semibold">
-                {enoughEvidence ? "Keep exploring your skills" : "Build your feedback history"}
+                {enoughEvidence ? "Keep exploring your skills" : "Build your feedback"}
               </h2>
               <p className="mt-2 leading-6 text-gray-700">
                 {enoughEvidence
                   ? "There are enough saved answers to look for patterns, but no single focus stands out yet. Choose any skill below."
-                  : `Complete at least ${verified.focusEvidenceRequired} spoken answers. We suggest a focus when your saved feedback shows a clear pattern.`}
+                  : `Give ${verified.focusEvidenceRequired} spoken answers. Then we will tell you what to practise next.`}
               </p>
               <div
                 className="mt-5 h-2 overflow-hidden rounded-full bg-white/70"
@@ -306,9 +306,7 @@ export function PracticeHubView({
           <h2 id="skill-builders-title" className="text-xl font-semibold">
             Skill builders
           </h2>
-          <p className="mt-1 text-gray-600">
-            Short practice for the part you want to improve today.
-          </p>
+          <p className="mt-1 text-gray-600">Short practice for one skill.</p>
         </div>
         <div className="ws-skill-grid">
           {MODULES.map((module) => {

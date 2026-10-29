@@ -19,7 +19,7 @@ const LevelsPage = () => {
     return (
       <div className="studio-stack">
         <PageHeading
-          eyebrow="Pace & pauses"
+          eyebrow="Speaking speed"
           title="Choose your level"
           description="Build a steady speaking rhythm, one exercise at a time."
         />
@@ -77,7 +77,7 @@ const LevelsPage = () => {
     <div className="studio-stack">
       {/* Header */}
       <PageHeading
-        eyebrow="Pace & pauses"
+        eyebrow="Speaking speed"
         title="Choose your level"
         description="Build a steady speaking rhythm, one exercise at a time."
       />

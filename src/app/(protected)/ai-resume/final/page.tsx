@@ -173,7 +173,7 @@ function ResumeTemplateFullViewContent() {
     return (
       <div className="w-full flex flex-col items-center justify-center py-20 gap-4">
         <span className="loading loading-spinner loading-lg text-primary"></span>
-        <p className="text-slate-500 font-medium text-sm">
+        <p className="text-slate-600 font-medium text-sm">
           Generating your resume from template...
         </p>
       </div>
@@ -210,7 +210,7 @@ function ResumeTemplateFullViewContent() {
         {/* Title Section */}
         <div className="space-y-1">
           <h1 className="text-2xl font-bold text-slate-900">ATS Resume Template</h1>
-          <p className="text-slate-500 text-sm">Professional ATS-friendly resume format.</p>
+          <p className="text-slate-600 text-sm">Professional ATS-friendly resume format.</p>
         </div>
 
         {documentError && (
@@ -250,7 +250,7 @@ function ResumeTemplateFullViewContent() {
                   <DocumentTextIcon className="size-4 text-primary" />
                   <span className="text-sm font-semibold text-slate-700">Full resume preview</span>
                 </div>
-                <span className="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded-md font-medium">
+                <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md font-medium">
                   Preview · PDF pagination may differ
                 </span>
               </div>
@@ -439,7 +439,7 @@ export default function ResumeTemplateFullViewPage() {
       fallback={
         <div className="w-full flex flex-col items-center justify-center py-20 gap-4">
           <span className="loading loading-spinner loading-lg text-primary"></span>
-          <p className="text-slate-500 font-medium text-sm">Loading resume template view...</p>
+          <p className="text-slate-600 font-medium text-sm">Loading resume template view...</p>
         </div>
       }
     >

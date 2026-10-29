@@ -248,7 +248,7 @@ test("free practice preserves selected N through device checks and creation", as
     });
   });
   await page.goto("/?fixture=start&mode=practice");
-  await page.getByLabel("What role are you practising for?").selectOption("General interview");
+  await page.getByLabel("Which job are you practising for?").selectOption("General interview");
   await page.getByLabel("Questions in this practice round").fill("7");
   await page.getByRole("button", { name: "Continue to device check" }).click();
   await expect(page.getByText("7 questions · about 21 min")).toBeVisible();

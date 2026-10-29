@@ -352,8 +352,8 @@ export default function ProfilePage() {
     <div className="mx-auto max-w-4xl space-y-6 py-6">
       <PageHeading
         eyebrow="Your account"
-        title="Profile and preferences"
-        description="Your details, interview voice and practice sharing, all in one place."
+        title="Your profile"
+        description="Your details, the interview voice and who can see your practice."
       />
       <ResumeStorageRecovery />
       <GraduationStatus />

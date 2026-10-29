@@ -115,12 +115,12 @@ test("a new student's verified zero state differs from malformed data", async ({
     return route.fulfill({ json: malformed ? { ...hub, focusEvidenceRequired: 0 } : hub });
   });
   await page.goto("/?fixture=practice-hub");
-  await expect(page.getByText("0 mocks · 0 drills this week")).toBeVisible();
+  await expect(page.getByText("0 interviews · 0 skill rounds this week")).toBeVisible();
   await expect(page.getByRole("link", { name: "Begin mock interview" })).toBeVisible();
   malformed = true;
   await page.evaluate(() => window.dispatchEvent(new Event("practice-test-refresh")));
   await expect(page.getByRole("link", { name: "Find saved interviews" })).toBeVisible();
-  await expect(page.getByText("0 mocks · 0 drills this week")).toHaveCount(0);
+  await expect(page.getByText("0 interviews · 0 skill rounds this week")).toHaveCount(0);
 });
 
 for (const readiness of [

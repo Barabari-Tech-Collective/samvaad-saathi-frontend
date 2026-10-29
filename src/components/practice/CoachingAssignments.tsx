@@ -30,10 +30,10 @@ export function CoachingAssignments({ accountKey = "current" }: { accountKey?: s
   const data = query.isError || query.isFetching ? undefined : query.data;
   return (
     <section
-      aria-label="Your coaching follow-ups"
+      aria-label="Tasks from your teacher"
       className="mb-7 space-y-4 rounded-2xl border border-[#DEE8FB] bg-white p-5 sm:p-6"
     >
-      <h2 className="text-xl font-semibold text-[#1F285B]">Your coaching follow-ups</h2>
+      <h2 className="text-xl font-semibold text-[#1F285B]">Tasks from your teacher</h2>
       {query.isError ? (
         <div role="alert">
           <p>Follow-ups could not be loaded. You can still practise independently.</p>
@@ -49,7 +49,7 @@ export function CoachingAssignments({ accountKey = "current" }: { accountKey?: s
           {!data.items.length && (
             <p>
               {page === 1
-                ? "Nothing assigned right now. Choose a skill to practise independently."
+                ? "Nothing from your teacher now. Choose a skill to practise."
                 : "No coaching follow-ups on this page."}
             </p>
           )}

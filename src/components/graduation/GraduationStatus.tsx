@@ -19,11 +19,11 @@ export default function GraduationStatus() {
   return (
     <section className="studio-profile-card space-y-3" aria-labelledby="graduation-heading">
       <h2 id="graduation-heading" className="text-xl font-semibold">
-        Placement and graduation
+        Course and job status
       </h2>
       <p className="studio-muted">
-        Your team verifies course completion and job placement. An administrator then approves
-        graduation. You can continue learning afterward.
+        Your teacher checks that you finished the course and got a job. Then you are marked as
+        graduated. You can keep learning after that.
       </p>
       {query.isError ? (
         <p role="alert">Your graduation status could not be loaded.</p>
@@ -46,7 +46,7 @@ export default function GraduationStatus() {
                   ? `Graduation approved${row.graduated_at ? ` on ${new Date(row.graduated_at).toLocaleDateString()}` : ""}.`
                   : row.state === "ready"
                     ? "Both checks are complete. Awaiting administrator approval."
-                    : "Your team is gathering the required verification."}
+                    : "Your teacher is checking."}
               </p>
             </li>
           ))}
@@ -58,7 +58,7 @@ export default function GraduationStatus() {
         disabled={query.isFetching}
         onClick={() => void query.refetch()}
       >
-        Refresh graduation status
+        Refresh
       </button>
     </section>
   );

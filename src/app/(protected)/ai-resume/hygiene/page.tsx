@@ -197,7 +197,7 @@ export default function HygieneAndTemplatePage() {
         {/* Title Section */}
         <div className="space-y-1">
           <h1 className="text-2xl font-bold text-slate-900">Polish your resume</h1>
-          <p className="text-slate-500 text-sm">Final polish and an ATS-ready template.</p>
+          <p className="text-slate-600 text-sm">Final polish and an ATS-ready template.</p>
         </div>
 
         {/* Content */}
@@ -219,7 +219,7 @@ export default function HygieneAndTemplatePage() {
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-slate-500 italic">
+              <p className="text-sm text-slate-600 italic">
                 No grammar or spelling issues detected!
               </p>
             )}
@@ -522,7 +522,7 @@ export default function HygieneAndTemplatePage() {
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-slate-500 italic">
+                <p className="text-sm text-slate-600 italic">
                   No recommendations details available.
                 </p>
               )}

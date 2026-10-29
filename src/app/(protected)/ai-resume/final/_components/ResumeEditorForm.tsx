@@ -81,7 +81,7 @@ export default function ResumeEditorForm({
     <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col gap-6 w-full animate-in fade-in zoom-in-95 duration-300">
       <div className="flex items-center justify-between border-b border-slate-100 pb-4">
         <h2 className="text-lg font-bold text-slate-900">Edit Resume Details</h2>
-        <button onClick={onCancel} className="p-2 hover:bg-slate-100 rounded-full text-slate-500">
+        <button onClick={onCancel} className="p-2 hover:bg-slate-100 rounded-full text-slate-600">
           <XMarkIcon className="size-5" />
         </button>
       </div>

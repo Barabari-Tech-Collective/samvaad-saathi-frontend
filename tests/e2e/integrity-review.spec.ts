@@ -32,7 +32,7 @@ test("Learner appeal is explicit, retry-safe and accessible", async ({ page }) =
       });
   });
   await page.goto("/?fixture=integrity");
-  await expect(page.getByRole("heading", { name: "Assessment reviews and appeals" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Test reviews" })).toBeVisible();
   await page
     .getByLabel("Your explanation (10–2,000 characters)")
     .fill("My connection dropped and I would like an independent review.");

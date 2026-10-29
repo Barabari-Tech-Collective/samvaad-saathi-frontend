@@ -99,7 +99,7 @@ export function FileDragDropZone({
               <p className="text-sm font-semibold text-slate-800 truncate max-w-[180px] sm:max-w-xs">
                 {file.name}
               </p>
-              <p className="text-xs text-slate-500">{formatBytes(file.size)}</p>
+              <p className="text-xs text-slate-600">{formatBytes(file.size)}</p>
             </div>
           </div>
           <button
@@ -142,14 +142,14 @@ export function FileDragDropZone({
         <div className="p-4 bg-primary/10 text-primary rounded-2xl mb-4 group-hover:scale-110 transition-transform">
           <ArrowUpTrayIcon className="size-6" />
         </div>
-        <p className="text-slate-800 font-semibold mb-1">Drag & drop your resume</p>
-        <p className="text-slate-500 text-sm mb-1">or browse from your device</p>
+        <p className="text-slate-800 font-semibold mb-1">Put your resume here</p>
+        <p className="text-slate-600 text-sm mb-1">or choose it from your phone</p>
         <p className="text-slate-600 text-sm mb-5">
           PDF or DOCX · Up to {MAX_AI_RESUME_SIZE_MB} MB
         </p>
 
         <div className="px-5 py-2 rounded-full border border-slate-200 bg-white text-slate-700 font-medium text-sm shadow-sm hover:border-primary/30 hover:text-primary transition-all peer-focus-visible:ring-2 peer-focus-visible:ring-primary peer-focus-visible:ring-offset-2">
-          Browse files
+          Choose file
         </div>
       </label>
       {error && (

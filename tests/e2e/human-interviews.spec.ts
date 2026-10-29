@@ -40,7 +40,7 @@ test("student gets a verified external Meet link, refresh removes it after revoc
   expect(joins).toBe(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   revoked = true;
-  await page.getByRole("button", { name: "Refresh appointments and access" }).click();
+  await page.getByRole("button", { name: "Refresh" }).click();
   await expect(link).toHaveCount(0);
   await expect(page.getByRole("alert")).toContainText("could not be loaded");
 });

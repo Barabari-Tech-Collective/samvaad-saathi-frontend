@@ -263,7 +263,7 @@ const PracticePage = () => {
   return (
     <div className="studio-panel studio-drill-room flex flex-col items-center">
       <PageHeading
-        eyebrow="Pace & pauses"
+        eyebrow="Speaking speed"
         title="Speak at your own pace."
         description="Read the prompt, take a breath, then record your response."
       />

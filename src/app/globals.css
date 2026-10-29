@@ -1235,3 +1235,11 @@ h6 {
     font-size: 17px;
   }
 }
+
+/* Form labels keep enough contrast (WCAG AA) on white and pale backgrounds. */
+.student-main .label,
+.student-main .label .label-text,
+.student-main .label-text {
+  color: #4b5563 !important;
+  opacity: 1;
+}

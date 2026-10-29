@@ -157,9 +157,12 @@ export function ResumeInputForm({
 
       {/* Experience Level */}
       <div className="space-y-2">
-        <label className="text-sm font-medium text-slate-700">Experience level</label>
+        <label htmlFor="resume-experience-level" className="text-sm font-medium text-slate-700">
+          Experience level
+        </label>
         <div className="relative">
           <select
+            id="resume-experience-level"
             {...register("experienceLevel")}
             className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none appearance-none transition-all"
           >
@@ -218,7 +221,7 @@ export function ResumeInputForm({
         disabled={!isValid || isSubmitting}
         className="mt-4 w-full py-4 bg-primary hover:opacity-90 disabled:opacity-50 disabled:bg-primary text-white rounded-2xl font-medium transition-all shadow-sm active:scale-[0.98]"
       >
-        {isSubmitting ? "Analyzing..." : "Analyze My Resume"}
+        {isSubmitting ? "Analyzing..." : "Check my resume"}
       </button>
     </form>
   );

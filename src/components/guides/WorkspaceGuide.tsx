@@ -304,9 +304,12 @@ function GuideSession({
     const left = beside
       ? spot.left + spot.width + gap
       : Math.max(16, Math.min(spot.left, window.innerWidth - width - 16));
-    const top = Math.min(
-      beside ? Math.max(16, spot.top) : spot.top + spot.height + gap,
-      window.innerHeight - 260
+    const top = Math.max(
+      16,
+      Math.min(
+        beside ? Math.max(16, spot.top) : spot.top + spot.height + gap,
+        window.innerHeight - 340
+      )
     );
     return { top, left, width } as const;
   })();

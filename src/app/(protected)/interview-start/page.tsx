@@ -109,10 +109,10 @@ const HR_SELECT_PREFIX = "hr::";
 const GENERAL_PRACTICE_ROLE = "General interview";
 
 const LEVEL_EXAMPLES: Record<string, string> = {
-  easy: "Fundamentals and familiar interview questions",
-  medium: "Applied questions using project examples",
-  hard: "Complex situations and trade-offs",
-  expert: "Leadership, scale and deep decisions",
+  easy: "Basic questions you often hear",
+  medium: "Questions about your own projects",
+  hard: "Harder, real work problems",
+  expert: "Very hard questions for experts",
 };
 
 function EntryRecovery({ title, children }: { title: string; children: React.ReactNode }) {
@@ -529,7 +529,7 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
           <label htmlFor="interview-role" className="mb-2 block text-base font-bold text-black">
             {mode === "assessment"
               ? "Which assessment are you joining?"
-              : "What role are you practising for?"}
+              : "Which job are you practising for?"}
           </label>
           {mode === "practice" && (
             <p className="mb-3 text-sm text-gray-600">
@@ -553,7 +553,7 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
                 {isLoadingProfiles ? "Loading roles..." : "Select a role"}
               </option>
               {mode === "practice" && (
-                <option value={GENERAL_PRACTICE_ROLE}>I am not sure: General interview</option>
+                <option value={GENERAL_PRACTICE_ROLE}>Not sure: General interview</option>
               )}
               {mode === "practice" &&
                 ROLE_OPTIONS.map((role) => (
@@ -645,13 +645,11 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
         <div className="mt-6 border-t border-gray-200 pt-6">
           <div className="flex items-center justify-between gap-4">
             <div className="flex min-w-0 flex-col">
-              <label className="text-[14px] font-noto font-[500] text-black">
-                Personalise with my resume
-              </label>
+              <label className="text-[14px] font-noto font-[500] text-black">Use my resume</label>
               <span className="text-[12px] text-gray-600 font-noto">
                 {useResume
                   ? "Your saved resume will help tailor the questions."
-                  : "Optional for most roles. You can practise without it."}
+                  : "You do not need it. You can practise without it."}
               </span>
             </div>
 
