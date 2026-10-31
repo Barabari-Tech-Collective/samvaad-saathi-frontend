@@ -12,11 +12,18 @@ vi.mock("@/lib/api-config", () => ({
           {
             id: 1,
             title: "Interview",
+            opportunity_title: "Software Developer",
+            round_name: "Technical Round 1",
             status: "scheduled",
             can_join: true,
             starts_at: "2026-10-22",
             ends_at: "2099-10-22",
             join_opens_at: "2026-10-22",
+            timezone: "Asia/Kolkata",
+            duration_minutes: 45,
+            interviewer_name: "Assigned interviewer",
+            meeting_platform: "Google Meet",
+            instructions: "Prepare to discuss your project.",
           },
         ],
         total: 1,
@@ -75,6 +82,15 @@ it("blocks a meeting-access request from the old page before remount", () => {
   login("second");
   fireEvent.click(screen.getByRole("button", { name: "Check meeting access" }));
   expect(f.get).not.toHaveBeenCalled();
+});
+it("shows the scheduled Human Interview details before the student requests the meeting link", () => {
+  render(<HumanInterviews accountKey="first" />);
+  expect(screen.getByRole("heading", { name: "Technical Round 1" })).toBeVisible();
+  expect(screen.getByText("Software Developer")).toBeVisible();
+  expect(screen.getByText("45 minutes")).toBeVisible();
+  expect(screen.getByText("Assigned interviewer")).toBeVisible();
+  expect(screen.getByText("Prepare to discuss your project.")).toBeVisible();
+  expect(screen.queryByRole("link", { name: /Open Google Meet/ })).toBeNull();
 });
 it.each(["success", "failure"])(
   "ignores delayed meeting %s after account switch",

@@ -9,9 +9,16 @@ import { apiClient } from "@/lib/api-config";
 interface Appointment {
   id: number;
   title: string;
+  opportunity_title?: string | null;
+  round_name?: string | null;
   starts_at: string;
   ends_at: string;
   join_opens_at: string;
+  timezone?: string | null;
+  duration_minutes?: number | null;
+  interviewer_name?: string | null;
+  meeting_platform?: string | null;
+  instructions?: string | null;
   status: string;
   can_join: boolean;
   outcome_source: string | null;
@@ -23,6 +30,29 @@ interface Appointments {
 }
 const button =
   "inline-flex min-h-11 items-center justify-center rounded-xl border border-[#C0CFF2] px-4 py-2 font-medium text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:opacity-50";
+
+function statusLabel(status: string) {
+  return status.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function appointmentTime(iso: string, timezone: string | null | undefined) {
+  try {
+    return new Intl.DateTimeFormat(undefined, {
+      dateStyle: "medium",
+      timeStyle: "short",
+      ...(timezone ? { timeZone: timezone } : {}),
+    }).format(new Date(iso));
+  } catch {
+    return new Date(iso).toLocaleString();
+  }
+}
+
+function appointmentDuration(row: Appointment) {
+  if (typeof row.duration_minutes === "number" && row.duration_minutes > 0)
+    return `${row.duration_minutes} minutes`;
+  const minutes = Math.round((Date.parse(row.ends_at) - Date.parse(row.starts_at)) / 60_000);
+  return Number.isFinite(minutes) && minutes > 0 ? `${minutes} minutes` : null;
+}
 
 function AppointmentCard({ row }: { row: Appointment }) {
   const ownerRevision = useRef(getAuthRevision()).current;
@@ -36,21 +66,58 @@ function AppointmentCard({ row }: { row: Appointment }) {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const platform = row.meeting_platform?.trim() || "Google Meet";
+  const duration = appointmentDuration(row);
   return (
     <li className="space-y-4 rounded-2xl border border-[#DEE8FB] bg-white p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <h2 className="min-w-0 break-words text-xl font-semibold text-[#1F285B]">{row.title}</h2>
+        <div>
+          <p className="studio-eyebrow">Human Interview</p>
+          <h2 className="min-w-0 break-words text-xl font-semibold text-[#1F285B]">
+            {row.round_name?.trim() || row.title}
+          </h2>
+        </div>
         <span className="rounded-full bg-[#F5F9FF] px-3 py-1 text-sm">
-          {row.status.replaceAll("_", " ")}
+          {statusLabel(row.status)}
         </span>
       </div>
-      <p>
-        {new Date(row.starts_at).toLocaleString()} – {new Date(row.ends_at).toLocaleTimeString()}{" "}
-        (your device time)
-      </p>
+      <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-[10rem_1fr]">
+        {row.opportunity_title?.trim() && (
+          <>
+            <dt className="font-semibold text-[#1F285B]">Opportunity</dt>
+            <dd>{row.opportunity_title}</dd>
+          </>
+        )}
+        <dt className="font-semibold text-[#1F285B]">Date and time</dt>
+        <dd>
+          {appointmentTime(row.starts_at, row.timezone)}
+          {row.timezone ? ` (${row.timezone})` : " (your device time)"}
+        </dd>
+        {duration && (
+          <>
+            <dt className="font-semibold text-[#1F285B]">Duration</dt>
+            <dd>{duration}</dd>
+          </>
+        )}
+        {row.interviewer_name?.trim() && (
+          <>
+            <dt className="font-semibold text-[#1F285B]">Interviewer</dt>
+            <dd>{row.interviewer_name}</dd>
+          </>
+        )}
+        <dt className="font-semibold text-[#1F285B]">Meeting platform</dt>
+        <dd>{platform}</dd>
+        {row.instructions?.trim() && (
+          <>
+            <dt className="font-semibold text-[#1F285B]">Instructions</dt>
+            <dd className="whitespace-pre-wrap">{row.instructions}</dd>
+          </>
+        )}
+      </dl>
       <p className="text-sm text-gray-600">
-        Human interviewer · Google Meet opens separately
-        {row.outcome_source ? " · outcome reported by your host" : ""}
+        {row.outcome_source
+          ? "Outcome reported by your host."
+          : "Attendance is not confirmed when you open the meeting link."}
       </p>
       {row.can_join ? (
         <button
@@ -110,10 +177,11 @@ function AppointmentCard({ row }: { row: Appointment }) {
             Open Google Meet in a new tab
           </a>
           <p className="text-sm text-gray-600">
-            Keep this page open. Your host admits you in Meet; opening this link does not confirm
-            attendance. Check the Google account shown in Meet and allow camera and microphone
-            access there. If disconnected, return here and check access again while the join window
-            is open. If admission is denied or the host is absent, contact your program team.
+            Keep this page open. Your host admits you in {platform}; opening this link does not
+            confirm attendance. Check the account shown in {platform} and allow camera and
+            microphone access there. If disconnected, return here and check access again while the
+            join window is open. If admission is denied or the host is absent, contact your program
+            team.
           </p>
         </div>
       )}
