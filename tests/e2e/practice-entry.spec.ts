@@ -18,7 +18,7 @@ for (const viewport of [
     hub.resume!.track = "VeryLongUnbrokenTrackName".repeat(12);
     await page.route("**/api/practice/hub", (route) => route.fulfill({ json: hub }));
     await page.goto("/?fixture=practice-hub");
-    await expect(page.getByRole("link", { name: "Continue saved interview" })).toHaveAttribute(
+    await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveAttribute(
       "href",
       "/interview?interviewId=42&resumed=true&interviewMode=practice"
     );
@@ -26,8 +26,8 @@ for (const viewport of [
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true
     );
-    await page.getByRole("link", { name: "Continue saved interview" }).focus();
-    await expect(page.getByRole("link", { name: "Continue saved interview" })).toBeFocused();
+    await page.getByRole("link", { name: "Continue Mock Interview" }).focus();
+    await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toBeFocused();
   });
 }
 
@@ -49,13 +49,13 @@ test("failed refresh removes cached progress, then retry restores the verified a
     return route.fulfill({ json: practiceHub() });
   });
   await page.goto("/?fixture=practice-hub");
-  await page.getByRole("link", { name: "Continue saved interview" }).waitFor();
+  await page.getByRole("link", { name: "Continue Mock Interview" }).waitFor();
   phase = "refresh";
   await page.evaluate(() => window.dispatchEvent(new Event("practice-test-refresh")));
   await expect(
     page.getByText("Checking your latest coach plan. Your saved answers are retained.")
   ).toBeVisible();
-  await expect(page.getByRole("link", { name: "Continue saved interview" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveCount(0);
   phase = "revoked";
   await expect.poll(() => !!release).toBe(true);
   release!();
@@ -65,7 +65,7 @@ test("failed refresh removes cached progress, then retry restores the verified a
   await expect(page.getByRole("link", { name: "Warm-up chat" })).toBeVisible();
   phase = "ready";
   await page.getByRole("button", { name: "Try again" }).click();
-  await expect(page.getByRole("link", { name: "Continue saved interview" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toBeVisible();
 });
 
 test("account change clears another student's progress while the new plan loads", async ({
@@ -83,12 +83,12 @@ test("account change clears another student's progress while the new plan loads"
     return route.fulfill({ json: hub });
   });
   await page.goto("/?fixture=practice-hub");
-  await page.getByRole("link", { name: "Continue saved interview" }).waitFor();
+  await page.getByRole("link", { name: "Continue Mock Interview" }).waitFor();
   account = "2";
   await page.evaluate(() =>
     window.dispatchEvent(new CustomEvent("practice-test-account", { detail: "2" }))
   );
-  await expect(page.getByRole("link", { name: "Continue saved interview" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveCount(0);
   await expect(page.getByText(/2 of 5 answers are saved/)).toHaveCount(0);
   await expect.poll(() => !!release).toBe(true);
   release!();
@@ -101,9 +101,9 @@ test("an expired saved session cannot remain the continue action", async ({ page
   hub.resume!.expiresAt = new Date(Date.now() + 3500).toISOString();
   await page.route("**/api/practice/hub", (route) => route.fulfill({ json: hub }));
   await page.goto("/?fixture=practice-hub");
-  await page.getByRole("link", { name: "Continue saved interview" }).waitFor();
+  await page.getByRole("link", { name: "Continue Mock Interview" }).waitFor();
   await expect(page.getByText(/resume window has ended/)).toBeVisible();
-  await expect(page.getByRole("link", { name: "Continue saved interview" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveCount(0);
 });
 
 test("a new student's verified zero state differs from malformed data", async ({ page }) => {
@@ -150,7 +150,7 @@ for (const readiness of [
       "href",
       "/history"
     );
-    await expect(page.getByRole("link", { name: "Continue saved interview" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Begin mock interview" })).toHaveCount(0);
     await expect(page.getByText(/2 of 5 answers are saved/)).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Check again" })).toBeVisible();
@@ -171,7 +171,7 @@ test("restoring course readiness re-enables the original saved session", async (
   await expect(page.getByRole("heading", { name: "Check your course enrollment" })).toBeVisible();
   restored = true;
   await page.getByRole("button", { name: "Check again" }).click();
-  await expect(page.getByRole("link", { name: "Continue saved interview" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveAttribute(
     "href",
     "/interview?interviewId=42&resumed=true&interviewMode=practice"
   );
