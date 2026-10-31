@@ -35,7 +35,10 @@ function CurrentStep({
   });
   if (step.kind === "drill" && step.module)
     return (
-      <Link className="ws-button" href={drillHref(step.module)}>
+      <Link
+        className="ws-button"
+        href={`${drillHref(step.module)}?planAssignment=${assignment.id}&planStep=${step.id}`}
+      >
         Start {step.moduleLabel ?? step.title}
       </Link>
     );

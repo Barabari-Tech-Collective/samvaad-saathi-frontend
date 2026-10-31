@@ -93,6 +93,7 @@ export default function GuidedSpeakingDrill({
 }: GuidedSpeakingDrillProps) {
   const apiClient = createApiClient(APIService.INTERVIEWS);
   const [assignmentId, setAssignmentId] = useState<number | undefined>();
+  const [planStep, setPlanStep] = useState<{ assignmentId: number; stepId: number } | null>(null);
   const [assignmentError, setAssignmentError] = useState<string | null>(null);
   useEffect(() => {
     const value = new URLSearchParams(window.location.search).get("assignment");
@@ -104,6 +105,15 @@ export default function GuidedSpeakingDrill({
           "This assignment link is invalid. Return to Practice and open your follow-up again."
         );
     }
+    const planAssignment = new URLSearchParams(window.location.search).get("planAssignment");
+    const planStep = new URLSearchParams(window.location.search).get("planStep");
+    if (
+      planAssignment &&
+      planStep &&
+      /^[1-9]\d*$/.test(planAssignment) &&
+      /^[1-9]\d*$/.test(planStep)
+    )
+      setPlanStep({ assignmentId: Number(planAssignment), stepId: Number(planStep) });
   }, []);
   const [levelKey, setLevelKey] = useState<SpeakingDrillLevel["key"]>("beginner");
   const [promptIndex, setPromptIndex] = useState(0);
@@ -131,6 +141,14 @@ export default function GuidedSpeakingDrill({
     key: ["coaching-assignment-start", assignmentId],
     enabled: Boolean(assignmentId),
     options: { staleTime: 0, gcTime: 0, retry: false },
+  });
+  const bindPlanReceipt = apiClient.useMutation<unknown, { completion_id: number }>({
+    url: planStep
+      ? `v2/learning-plans/me/${planStep.assignmentId}/steps/${planStep.stepId}/drill-completion`
+      : "v2/learning-plans/me/invalid/drill-completion",
+    method: "post",
+    showToastError: false,
+    options: { retry: false },
   });
 
   const level = levels.find((item) => item.key === levelKey) ?? levels[0];
@@ -271,10 +289,11 @@ export default function GuidedSpeakingDrill({
       const receipt = await recordCompletion(completion);
       if (assignmentId && receipt.assignmentId !== assignmentId)
         throw new Error("Assignment receipt was not confirmed");
+      if (planStep) await bindPlanReceipt.mutateAsync({ completion_id: receipt.completionId });
     } catch {
-      if (assignmentId) {
+      if (assignmentId || planStep) {
         setAssignmentError(
-          "Assignment completion could not be confirmed. It may have been cancelled or your enrollment may have changed. Retry saving, or return to Practice to check its status."
+          "Completion could not be confirmed for this assigned step. It may be closed or your enrollment may have changed. Retry saving, or return to Coaching to check the plan."
         );
         return;
       }
