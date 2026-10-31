@@ -40,6 +40,15 @@ const PronunciationPracticeStartPage = () => {
       : "v2/pronunciation/invalid/complete",
     method: "post",
   });
+  const { mutateAsync: advancePronunciation } = apiClient.useMutation<
+    unknown,
+    { word_index: number }
+  >({
+    url: practiceData
+      ? `v2/pronunciation/${practiceData.practiceId}/advance`
+      : "v2/pronunciation/invalid/advance",
+    method: "post",
+  });
   const { mutateAsync: bindPlanSession } = apiClient.useMutation<unknown, { session_id: number }>({
     url:
       planStep && practiceData
@@ -101,11 +110,24 @@ const PronunciationPracticeStartPage = () => {
   const handleNext = async () => {
     if (completing) return;
     if (practiceData && currentWordIndex < practiceData.words.length - 1) {
-      setCurrentWordIndex(currentWordIndex + 1);
+      setCompleting(true);
+      setCompletionError("");
+      try {
+        await advancePronunciation({ word_index: currentWordIndex });
+        if (mounted.current) setCurrentWordIndex(currentWordIndex + 1);
+      } catch {
+        if (mounted.current)
+          setCompletionError(
+            "This word could not be saved. Refresh the session before trying again."
+          );
+      } finally {
+        if (mounted.current) setCompleting(false);
+      }
     } else if (practiceData && currentWordIndex === practiceData.words.length - 1) {
       setCompleting(true);
       setCompletionError("");
       try {
+        await advancePronunciation({ word_index: currentWordIndex });
         await completePronunciation({});
         if (planStep) await bindPlanSession({ session_id: practiceData.practiceId });
         if (mounted.current) setShowCompletion(true);
