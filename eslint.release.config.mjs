@@ -33,6 +33,7 @@ const files = [
   "src/lib/workspace-navigation.ts",
   "src/lib/human-interviews.ts",
   "src/lib/assessment-reviews.ts",
+  "src/lib/interview-catalogue.ts",
   "src/features/ai-resume/services/aiResumeService.ts",
   "src/lib/auth-session.ts",
   "src/lib/token-utils.ts",

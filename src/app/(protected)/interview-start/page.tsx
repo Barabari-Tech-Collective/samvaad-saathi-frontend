@@ -17,6 +17,11 @@ import {
 } from "@/lib/interview-difficulty";
 import { profilesForMode, type InterviewMode } from "@/lib/interview-mode";
 import { createdInterview, publishedQuestionCount } from "@/lib/interview-entry";
+import {
+  parseInterviewCatalogue,
+  type InterviewCataloguePage,
+  type InterviewCatalogueProfile,
+} from "@/lib/interview-catalogue";
 import { responseStatus } from "@/lib/interview-history";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -28,7 +33,7 @@ import {
   trackStartInterviewButtonClick,
 } from "@/lib/posthog/tracking.utils";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/components/providers/auth-provider";
 import PracticePreflight from "@/components/practice/PracticePreflight";
@@ -53,36 +58,6 @@ interface CreateInterviewResponse {
    * worst case, proctoring simply doesn't activate.
    */
   interviewMode?: "practice" | "assessment";
-}
-
-interface JobProfile {
-  questionsPerInterview?: number | null;
-  id: number;
-  title: string;
-  description: string;
-  category?: string;
-  interviewMode?: InterviewMode;
-  created_at: string;
-  /**
-   * Difficulties the facilitator has published enough questions for, easiest
-   * first, as decided by the server.
-   *
-   * This picker used to offer all four levels unconditionally. If a facilitator
-   * published only easy questions and a student picked medium, the backend
-   * silently generated AI questions instead - so the student was assessed
-   * against that facilitator's role on questions the facilitator had never
-   * seen. The server now refuses that, and this field is how the picker avoids
-   * offering a level that would be refused.
-   *
-   * Optional because free-practice roles have no job profile behind them; there
-   * every level is available.
-   */
-  availableDifficulties?: string[];
-}
-
-interface JobProfilesResponse {
-  items: JobProfile[];
-  total: number;
 }
 
 interface GenerateNonTechRequest {
@@ -175,45 +150,34 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
   const { user } = useAuth();
   const apiClient = createApiClient(APIServiceV2.INTERVIEWS);
 
-  const catalogue = useQuery<JobProfilesResponse>({
+  const catalogue = useQuery<InterviewCataloguePage>({
     queryKey: ["interview-entry-profiles", account, mode],
     queryFn: async ({ signal }) => {
       assertAuthRevision(ownerRevision);
-      const value = await apiClient.get<JobProfilesResponse>(ENDPOINTS_V2.JOB_PROFILES, { signal });
+      const value = await apiClient.get<unknown>(ENDPOINTS_V2.JOB_PROFILES, { signal });
       assertAuthRevision(ownerRevision);
-      if (
-        !value ||
-        !Array.isArray(value.items) ||
-        value.items.some(
-          (p) =>
-            !p ||
-            !Number.isSafeInteger(p.id) ||
-            p.id < 1 ||
-            typeof p.title !== "string" ||
-            (p.category != null && typeof p.category !== "string") ||
-            (p.availableDifficulties !== undefined &&
-              (!Array.isArray(p.availableDifficulties) ||
-                p.availableDifficulties.some(
-                  (d) => !["easy", "medium", "hard", "expert"].includes(d)
-                )))
-        )
-      )
-        throw new Error("Role catalogue could not be verified.");
-      if (new Set(value.items.map((p) => p.id)).size !== value.items.length)
-        throw new Error("Role catalogue contains duplicate roles.");
-      return value;
+      const parsed = parseInterviewCatalogue(value);
+      if (!parsed) throw new Error("Role catalogue could not be verified.");
+      return parsed;
     },
-    staleTime: 0,
+    // A student can deliberately refresh below. Avoid a focus/reconnect fan-out when an entire
+    // lab of students returns to the tab at once; start authorization remains server-enforced.
+    staleTime: 30_000,
     gcTime: 0,
     retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
   const catalogueReady = useRef(false);
   useLayoutEffect(() => {
     catalogueReady.current = !!catalogue.data && !catalogue.isFetching && !catalogue.isError;
   }, [catalogue.data, catalogue.isFetching, catalogue.isError]);
   const jobProfiles = catalogue.data?.items ?? [];
-  const assessmentProfiles = profilesForMode(jobProfiles, "assessment");
-  const selectableProfiles = profilesForMode(jobProfiles, mode);
+  const assessmentProfiles = useMemo(
+    () => profilesForMode(jobProfiles, "assessment"),
+    [jobProfiles]
+  );
+  const selectableProfiles = useMemo(() => profilesForMode(jobProfiles, mode), [jobProfiles, mode]);
   const isLoadingProfiles = catalogue.isFetching;
 
   const selectedProfile =
@@ -234,6 +198,21 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
   // A string dep, so the effect below does not re-run on every render just
   // because `find` returned a new array reference.
   const offeredKey = offered?.join(",") ?? "";
+
+  // A facilitator can revoke or retarget a role while this tab is open. Do not let a stale,
+  // locally selected role be posted after the student intentionally refreshes the catalogue.
+  useEffect(() => {
+    setSelection((previous) => {
+      if (previous?.kind !== "hr") return previous;
+      const profile = selectableProfiles.find((item) => item.id === previous.jobProfileId);
+      if (!profile) return null;
+      const jobName = profile.title;
+      const category = profile.category || "HR & Non-Technical";
+      return previous.jobName === jobName && previous.category === category
+        ? previous
+        : { ...previous, jobName, category };
+    });
+  }, [selectableProfiles]);
 
   // Correct the current level when a facilitator has published only
   // easy questions would have every student submit an unavailable level and see
@@ -270,18 +249,25 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
     if (value.startsWith(HR_SELECT_PREFIX)) {
       const rest = value.slice(HR_SELECT_PREFIX.length);
       const separatorIdx = rest.indexOf("::");
+      if (separatorIdx < 1) {
+        setSelection(null);
+        return;
+      }
       const idStr = rest.slice(0, separatorIdx);
-      const jobName = rest.slice(separatorIdx + 2);
-
       const profileId = Number(idStr);
-      const profile = jobProfiles.find((p) => p.id === profileId);
-      const category = profile?.category || "HR & Non-Technical";
+      const profile = selectableProfiles.find((p) => p.id === profileId);
+      if (!profile) {
+        setSelection(null);
+        return;
+      }
+      const category = profile.category || "HR & Non-Technical";
 
-      setSelection({ kind: "hr", jobProfileId: profileId, jobName, category });
+      setSelection({ kind: "hr", jobProfileId: profileId, jobName: profile.title, category });
+      trackRoleSelected(profile.title);
     } else {
       setSelection({ kind: "tech", track: value });
+      trackRoleSelected(value);
     }
-    trackRoleSelected(value);
   };
 
   const getSelectValue = () => {
@@ -570,7 +556,7 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
                       acc[category].push(profile);
                       return acc;
                     },
-                    {} as Record<string, JobProfile[]>
+                    {} as Record<string, InterviewCatalogueProfile[]>
                   )
                 ).map(([category, profiles]) => (
                   <optgroup

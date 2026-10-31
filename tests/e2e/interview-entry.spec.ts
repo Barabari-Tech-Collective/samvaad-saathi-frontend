@@ -131,6 +131,27 @@ test("422 rejection rechecks the catalogue and allows corrected setup", async ({
   await expect(page).toHaveURL(/interview\?interviewId=9/);
   expect(posts).toBe(2);
 });
+test("a role revoked during a rejected start is cleared before a retry", async ({ page }) => {
+  let roleIsAvailable = true;
+  await page.route("**/api/v2/job-profiles", (r) =>
+    r.fulfill({
+      json: { items: roleIsAvailable ? [profile()] : [], total: roleIsAvailable ? 1 : 0 },
+    })
+  );
+  await page.route("**/api/v2/interviews/create", (r) => {
+    roleIsAvailable = false;
+    return r.fulfill({ status: 422, json: {} });
+  });
+  await page.goto(url);
+  await page.getByRole("combobox").selectOption("hr::1::Role 1");
+  await page.getByRole("button", { name: "Start assessment" }).click();
+  await expect(page.getByRole("alert")).toContainText("request was rejected");
+  await expect(
+    page.getByText("No assessment roles are available yet.", { exact: false })
+  ).toBeVisible();
+  await expect(page.getByRole("combobox")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Start assessment" })).toBeDisabled();
+});
 for (const change of ["account", "mode"]) {
   test(`a pending creation cannot redirect after ${change} changes`, async ({ page }) => {
     let posts = 0;
