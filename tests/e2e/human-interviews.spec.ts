@@ -42,7 +42,7 @@ test("student gets a verified external Meet link, refresh removes it after revoc
   revoked = true;
   await page.getByRole("button", { name: "Refresh" }).click();
   await expect(link).toHaveCount(0);
-  await expect(page.getByRole("alert")).toContainText("could not be loaded");
+  await expect(page.getByRole("alert")).toContainText("could not be verified");
 });
 test("closed appointment gives replacement guidance without an AI fallback", async ({ page }) => {
   await page.route("**/api/v2/human-interviews/me**", (route) =>

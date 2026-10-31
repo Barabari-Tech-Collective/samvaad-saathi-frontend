@@ -1,37 +1,21 @@
 "use client";
 
 import { getAuthRevision } from "@/lib/auth-session";
+import {
+  parseHumanInterviewsPage,
+  verifiedGoogleMeetUrl,
+  type HumanInterviewAppointment,
+  type HumanInterviewStatus,
+} from "@/lib/human-interviews";
 
 import PageHeading from "@/components/studio/PageHeading";
 import { useLayoutEffect, useRef, useState } from "react";
 import { apiClient } from "@/lib/api-config";
 
-interface Appointment {
-  id: number;
-  title: string;
-  opportunity_title?: string | null;
-  round_name?: string | null;
-  starts_at: string;
-  ends_at: string;
-  join_opens_at: string;
-  timezone?: string | null;
-  duration_minutes?: number | null;
-  interviewer_name?: string | null;
-  meeting_platform?: string | null;
-  instructions?: string | null;
-  status: string;
-  can_join: boolean;
-  outcome_source: string | null;
-}
-interface Appointments {
-  items: Appointment[];
-  total: number;
-  notice: string;
-}
 const button =
   "inline-flex min-h-11 items-center justify-center rounded-xl border border-[#C0CFF2] px-4 py-2 font-medium text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:opacity-50";
 
-function statusLabel(status: string) {
+function statusLabel(status: HumanInterviewStatus) {
   return status.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
@@ -47,14 +31,14 @@ function appointmentTime(iso: string, timezone: string | null | undefined) {
   }
 }
 
-function appointmentDuration(row: Appointment) {
-  if (typeof row.duration_minutes === "number" && row.duration_minutes > 0)
-    return `${row.duration_minutes} minutes`;
-  const minutes = Math.round((Date.parse(row.ends_at) - Date.parse(row.starts_at)) / 60_000);
+function appointmentDuration(row: HumanInterviewAppointment) {
+  if (typeof row.durationMinutes === "number" && row.durationMinutes > 0)
+    return `${row.durationMinutes} minutes`;
+  const minutes = Math.round((Date.parse(row.endsAt) - Date.parse(row.startsAt)) / 60_000);
   return Number.isFinite(minutes) && minutes > 0 ? `${minutes} minutes` : null;
 }
 
-function AppointmentCard({ row }: { row: Appointment }) {
+function AppointmentCard({ row }: { row: HumanInterviewAppointment }) {
   const ownerRevision = useRef(getAuthRevision()).current;
   const alive = useRef(true);
   useLayoutEffect(() => {
@@ -66,7 +50,8 @@ function AppointmentCard({ row }: { row: Appointment }) {
   const [url, setUrl] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const platform = row.meeting_platform?.trim() || "Google Meet";
+  const joinLock = useRef(false);
+  const platform = row.meetingPlatform;
   const duration = appointmentDuration(row);
   return (
     <li className="space-y-4 rounded-2xl border border-[#DEE8FB] bg-white p-5 sm:p-6">
@@ -74,7 +59,7 @@ function AppointmentCard({ row }: { row: Appointment }) {
         <div>
           <p className="studio-eyebrow">Human Interview</p>
           <h2 className="min-w-0 break-words text-xl font-semibold text-[#1F285B]">
-            {row.round_name?.trim() || row.title}
+            {row.roundName || row.title}
           </h2>
         </div>
         <span className="rounded-full bg-[#F5F9FF] px-3 py-1 text-sm">
@@ -82,15 +67,15 @@ function AppointmentCard({ row }: { row: Appointment }) {
         </span>
       </div>
       <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-[10rem_1fr]">
-        {row.opportunity_title?.trim() && (
+        {row.opportunityTitle && (
           <>
             <dt className="font-semibold text-[#1F285B]">Opportunity</dt>
-            <dd>{row.opportunity_title}</dd>
+            <dd>{row.opportunityTitle}</dd>
           </>
         )}
         <dt className="font-semibold text-[#1F285B]">Date and time</dt>
         <dd>
-          {appointmentTime(row.starts_at, row.timezone)}
+          {appointmentTime(row.startsAt, row.timezone)}
           {row.timezone ? ` (${row.timezone})` : " (your device time)"}
         </dd>
         {duration && (
@@ -99,15 +84,15 @@ function AppointmentCard({ row }: { row: Appointment }) {
             <dd>{duration}</dd>
           </>
         )}
-        {row.interviewer_name?.trim() && (
+        {row.interviewerName && (
           <>
             <dt className="font-semibold text-[#1F285B]">Interviewer</dt>
-            <dd>{row.interviewer_name}</dd>
+            <dd>{row.interviewerName}</dd>
           </>
         )}
         <dt className="font-semibold text-[#1F285B]">Meeting platform</dt>
         <dd>{platform}</dd>
-        {row.instructions?.trim() && (
+        {row.instructions && (
           <>
             <dt className="font-semibold text-[#1F285B]">Instructions</dt>
             <dd className="whitespace-pre-wrap">{row.instructions}</dd>
@@ -115,33 +100,35 @@ function AppointmentCard({ row }: { row: Appointment }) {
         )}
       </dl>
       <p className="text-sm text-gray-600">
-        {row.outcome_source
+        {row.outcomeSource
           ? "Outcome reported by your host."
           : "Attendance is not confirmed when you open the meeting link."}
       </p>
-      {row.can_join ? (
+      {row.canJoin ? (
         <button
           className={button}
           disabled={busy}
           onClick={async () => {
-            if (!alive.current || getAuthRevision() !== ownerRevision) return;
+            if (joinLock.current || !alive.current || getAuthRevision() !== ownerRevision) return;
+            joinLock.current = true;
             setBusy(true);
             setError("");
             setUrl("");
             try {
-              const link = await apiClient.get<{ url: string }>(
+              const response = await apiClient.get<unknown>(
                 `v2/human-interviews/me/${row.id}/join`
               );
               if (!alive.current || getAuthRevision() !== ownerRevision) return;
-              if (!/^https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}$/.test(link.url))
-                throw new Error("Invalid meeting link");
-              setUrl(link.url);
+              const link = verifiedGoogleMeetUrl(response);
+              if (!link) throw new Error("Invalid meeting link");
+              setUrl(link);
             } catch {
               if (alive.current && getAuthRevision() === ownerRevision)
                 setError(
                   "The meeting link could not be verified. Refresh to check the time and your enrollment, or contact your program team. No attendance or score was recorded."
                 );
             } finally {
+              joinLock.current = false;
               if (alive.current && getAuthRevision() === ownerRevision) setBusy(false);
             }
           }}
@@ -149,9 +136,9 @@ function AppointmentCard({ row }: { row: Appointment }) {
           Check meeting access
         </button>
       ) : (
-        row.status === "scheduled" && (
+        ["scheduled", "rescheduled"].includes(row.status) && (
           <p className="text-sm text-gray-600">
-            Joining opens {new Date(row.join_opens_at).toLocaleString()} and closes at the scheduled
+            Joining opens {new Date(row.joinOpensAt).toLocaleString()} and closes at the scheduled
             end. Refresh when it is time.
           </p>
         )
@@ -162,7 +149,7 @@ function AppointmentCard({ row }: { row: Appointment }) {
             className={`${button} bg-black text-white`}
             href={url}
             onClick={(event) => {
-              if (getAuthRevision() !== ownerRevision || Date.now() >= Date.parse(row.ends_at)) {
+              if (getAuthRevision() !== ownerRevision || Date.now() >= Date.parse(row.endsAt)) {
                 event.preventDefault();
                 setUrl("");
                 setError(
@@ -208,12 +195,13 @@ function AppointmentCard({ row }: { row: Appointment }) {
 
 export function HumanInterviews({ accountKey }: { accountKey: string }) {
   const [page, setPage] = useState(1);
-  const query = apiClient.useQuery<Appointments>({
+  const query = apiClient.useQuery<unknown>({
     url: `v2/human-interviews/me?page=${page}`,
     key: ["human-interviews", accountKey, page],
     options: { staleTime: 0, gcTime: 0, retry: false, refetchOnWindowFocus: true },
   });
-  const data = query.isError || query.isFetching ? undefined : query.data;
+  const data = query.isError || query.isFetching ? undefined : parseHumanInterviewsPage(query.data);
+  const invalidResponse = !query.isError && !query.isFetching && query.data !== undefined && !data;
   return (
     <section
       aria-label="Your live interviews"
@@ -233,11 +221,11 @@ export function HumanInterviews({ accountKey }: { accountKey: string }) {
           </button>
         }
       />
-      {query.isError ? (
+      {query.isError || invalidResponse ? (
         <div role="alert">
           <p>
-            Appointments could not be loaded. Check your connection and sign-in, then refresh. Your
-            program team can help verify enrollment.
+            Appointments could not be verified. Check your connection and sign-in, then refresh.
+            Your program team can help verify enrollment.
           </p>
         </div>
       ) : !data ? (

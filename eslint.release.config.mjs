@@ -31,6 +31,7 @@ const files = [
   "src/app/(protected)/assessments/page.tsx",
   "src/lib/account-request.ts",
   "src/lib/workspace-navigation.ts",
+  "src/lib/human-interviews.ts",
   "src/features/ai-resume/services/aiResumeService.ts",
   "src/lib/auth-session.ts",
   "src/lib/token-utils.ts",

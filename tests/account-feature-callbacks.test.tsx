@@ -92,6 +92,19 @@ it("shows the scheduled Human Interview details before the student requests the 
   expect(screen.getByText("Prepare to discuss your project.")).toBeVisible();
   expect(screen.queryByRole("link", { name: /Open Google Meet/ })).toBeNull();
 });
+it("sends one join-link request when a student double-clicks the access control", async () => {
+  const pending = deferred<{ url: string }>();
+  f.get.mockReturnValue(pending.promise);
+  render(<HumanInterviews accountKey="first" />);
+  const check = screen.getByRole("button", { name: "Check meeting access" });
+  fireEvent.click(check);
+  fireEvent.click(check);
+  expect(f.get).toHaveBeenCalledOnce();
+  await act(async () => {
+    pending.resolve({ url: "https://meet.google.com/abc-defg-hij" });
+  });
+  expect(screen.getByRole("link", { name: /Open Google Meet/ })).toBeVisible();
+});
 it.each(["success", "failure"])(
   "ignores delayed meeting %s after account switch",
   async (outcome) => {
