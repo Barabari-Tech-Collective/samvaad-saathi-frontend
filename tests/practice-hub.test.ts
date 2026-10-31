@@ -14,6 +14,7 @@ describe("Practice hub presentation", () => {
         practiceDaysStreak: 0,
         completedMocksThisWeek: 1,
         completedDrillsThisWeek: 2,
+        dailyActivity: [],
       })
     ).toBe("1 mock · 2 drills this week");
   });
@@ -35,7 +36,12 @@ it("accepts valid verified state including a new student's zero activity", () =>
   const hub = practiceHub();
   expect(parsePracticeHub(hub)).toBe(hub);
   hub.resume = null;
-  hub.activity = { practiceDaysStreak: 0, completedMocksThisWeek: 0, completedDrillsThisWeek: 0 };
+  hub.activity = {
+    practiceDaysStreak: 0,
+    completedMocksThisWeek: 0,
+    completedDrillsThisWeek: 0,
+    dailyActivity: practiceHub().activity.dailyActivity,
+  };
   expect(parsePracticeHub(hub)).toBe(hub);
 });
 it.each([null, {}, [], { activity: null }])("rejects missing hub fields: %j", (value) => {
@@ -46,6 +52,14 @@ it.each([-1, NaN, Infinity, 1.5, "3"])("rejects malformed activity counts: %s", 
   expect(
     parsePracticeHub({ ...hub, activity: { ...hub.activity, completedMocksThisWeek: count } })
   ).toBeNull();
+});
+it("rejects malformed or non-contiguous daily activity", () => {
+  const hub = practiceHub();
+  hub.activity.dailyActivity[3].date = "not-a-date";
+  expect(parsePracticeHub(hub)).toBeNull();
+  const gap = practiceHub();
+  gap.activity.dailyActivity[3].date = "2026-10-20";
+  expect(parsePracticeHub(gap)).toBeNull();
 });
 it.each([
   { interviewId: 0 },

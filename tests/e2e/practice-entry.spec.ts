@@ -111,7 +111,12 @@ test("a new student's verified zero state differs from malformed data", async ({
   await page.route("**/api/practice/hub", (route) => {
     const hub = practiceHub();
     hub.resume = null;
-    hub.activity = { practiceDaysStreak: 0, completedMocksThisWeek: 0, completedDrillsThisWeek: 0 };
+    hub.activity = {
+      practiceDaysStreak: 0,
+      completedMocksThisWeek: 0,
+      completedDrillsThisWeek: 0,
+      dailyActivity: hub.activity.dailyActivity,
+    };
     return route.fulfill({ json: malformed ? { ...hub, focusEvidenceRequired: 0 } : hub });
   });
   await page.goto("/?fixture=practice-hub");

@@ -74,6 +74,14 @@ it("does not render malformed unreleased outcomes", () => {
   render(<OutcomesPage />);
   expect(screen.queryByText("Developer")).toBeNull();
 });
+it("fails closed when a released outcome has malformed or duplicate identity data", () => {
+  f.response.data = { items: [{ ...released, decision: "maybe" }] };
+  const { rerender } = render(<OutcomesPage />);
+  expect(screen.getByRole("alert")).toBeInTheDocument();
+  f.response.data = { items: [released, { ...released }] };
+  rerender(<OutcomesPage />);
+  expect(screen.getByRole("alert")).toBeInTheDocument();
+});
 it("does not request results before identity is known", () => {
   f.loading = true;
   render(<OutcomesPage />);

@@ -2,6 +2,7 @@ export interface PracticeHubActivity {
   practiceDaysStreak: number;
   completedMocksThisWeek: number;
   completedDrillsThisWeek: number;
+  dailyActivity: Array<{ date: string; completedMocks: number; completedDrills: number }>;
 }
 
 export interface PracticeHubResumeCard {
@@ -76,11 +77,34 @@ export function parsePracticeHub(value: unknown): PracticeHubResponse | null {
     typeof n === "number" && Number.isSafeInteger(n) && n >= 0;
   const text = (s: unknown): s is string => typeof s === "string" && s.trim().length > 0;
   const activity = hub.activity as PracticeHubActivity | undefined;
+  const dailyActivity = activity?.dailyActivity;
+  const validDailyActivity =
+    Array.isArray(dailyActivity) &&
+    dailyActivity.length === 7 &&
+    dailyActivity.every(
+      (day) =>
+        !!day &&
+        typeof day === "object" &&
+        typeof day.date === "string" &&
+        /^\d{4}-\d{2}-\d{2}$/.test(day.date) &&
+        Number.isFinite(Date.parse(`${day.date}T00:00:00Z`)) &&
+        count(day.completedMocks) &&
+        count(day.completedDrills)
+    ) &&
+    new Set(dailyActivity.map((day) => day.date)).size === dailyActivity.length &&
+    dailyActivity.every(
+      (day, index) =>
+        index === 0 ||
+        Date.parse(`${day.date}T00:00:00Z`) -
+          Date.parse(`${dailyActivity[index - 1].date}T00:00:00Z`) ===
+          86_400_000
+    );
   if (
     !activity ||
     !count(activity.practiceDaysStreak) ||
     !count(activity.completedMocksThisWeek) ||
     !count(activity.completedDrillsThisWeek) ||
+    !validDailyActivity ||
     !count(hub.focusEvidenceAnswerCount) ||
     !count(hub.focusEvidenceRequired) ||
     hub.focusEvidenceRequired === 0

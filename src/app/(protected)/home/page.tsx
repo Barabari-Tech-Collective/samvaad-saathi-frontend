@@ -13,6 +13,7 @@ import {
   ClockIcon,
 } from "@heroicons/react/24/outline";
 import HomePractice from "@/components/workspace/HomePractice";
+import { StudentToday } from "@/components/workspace/StudentToday";
 import { firstName } from "@/lib/practice-hub";
 import { useAuth } from "@/components/providers/auth-provider";
 import { apiClient } from "@/lib/api-config";
@@ -63,6 +64,7 @@ export default function HomePage() {
           </Link>
         </aside>
       )}
+      <StudentToday key={`today-${account}`} accountKey={String(account)} />
       <section className="ws-home-start" aria-label="Choose your next step">
         <HomePractice key={String(account)} accountKey={String(account)} />
         <div className="ws-secondary-tasks">

@@ -2,27 +2,16 @@
 
 import PageHeading from "@/components/studio/PageHeading";
 import { apiClient } from "@/lib/api-config";
-
-interface Outcome {
-  opportunity_id: number;
-  revision: number;
-  title: string;
-  organisation: string;
-  decision: "include" | "exclude";
-  feedback: string;
-  next_step: string;
-  released_at: string;
-}
+import { parseOpportunityOutcomes } from "@/lib/opportunity-outcomes";
 export function OpportunityOutcomes({ accountKey }: { accountKey: string }) {
-  const query = apiClient.useQuery<{ items: Outcome[] }>({
+  const query = apiClient.useQuery<unknown>({
     url: "v2/opportunities/me/outcomes",
     key: ["opportunity-outcomes", accountKey],
     options: { staleTime: 0, gcTime: 0, retry: false, refetchOnWindowFocus: true },
   });
-  const data = query.isError || query.isFetching ? undefined : query.data;
-  const outcomes = data?.items.filter(
-    (item) => !!item.released_at && ["include", "exclude"].includes(item.decision)
-  );
+  const outcomes = query.isError || query.isFetching ? null : parseOpportunityOutcomes(query.data);
+  const invalidResponse =
+    !query.isError && !query.isFetching && query.data !== undefined && !outcomes;
   return (
     <section
       className="mx-auto w-full max-w-4xl space-y-6 py-6"
@@ -42,13 +31,15 @@ export function OpportunityOutcomes({ accountKey }: { accountKey: string }) {
           </button>
         }
       />
-      {query.isError ? (
+      {query.isError || invalidResponse ? (
         <div role="alert" className="studio-panel">
-          <p>Your outcomes could not be loaded. Check your connection and sign-in, then refresh.</p>
+          <p>
+            Your outcomes could not be verified. Check your connection and sign-in, then refresh.
+          </p>
         </div>
-      ) : !data ? (
+      ) : outcomes === null ? (
         <output>Checking your released outcomes…</output>
-      ) : !outcomes?.length ? (
+      ) : !outcomes.length ? (
         <div className="studio-panel">
           <h2>No released outcomes yet</h2>
           <p>
@@ -61,7 +52,7 @@ export function OpportunityOutcomes({ accountKey }: { accountKey: string }) {
           {outcomes.map((item) => (
             <li
               className="studio-panel space-y-3 break-words"
-              key={`${item.opportunity_id}:${item.revision}`}
+              key={`${item.opportunityId}:${item.revision}`}
             >
               <p>{item.organisation}</p>
               <h2 className="text-xl font-semibold">{item.title}</h2>
@@ -71,7 +62,7 @@ export function OpportunityOutcomes({ accountKey }: { accountKey: string }) {
                   : "Not shortlisted for this opportunity"}
               </p>
               <p className="text-sm">
-                Released {new Date(item.released_at).toLocaleString()} · Revision {item.revision}
+                Released {new Date(item.releasedAt).toLocaleString()} · Revision {item.revision}
               </p>
               <div>
                 <h3 className="font-medium">Feedback</h3>
@@ -79,7 +70,7 @@ export function OpportunityOutcomes({ accountKey }: { accountKey: string }) {
               </div>
               <div>
                 <h3 className="font-medium">Next step</h3>
-                <p className="whitespace-pre-wrap">{item.next_step}</p>
+                <p className="whitespace-pre-wrap">{item.nextStep}</p>
               </div>
               <p className="text-sm">
                 For questions about this outcome, contact your placement team.

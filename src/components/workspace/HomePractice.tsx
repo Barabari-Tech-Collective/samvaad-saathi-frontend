@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ArrowRightIcon, MicrophoneIcon } from "@heroicons/react/24/outline";
 import { trackButtonClick } from "@/lib/posthog/tracking.utils";
 import { apiClient, ENDPOINTS } from "@/lib/api-config";
+import { ActivityTrend } from "@/components/workspace/ActivityTrend";
 import {
   parsePracticeHub,
   practiceReadinessMessage,
@@ -133,6 +134,7 @@ export default function HomePractice({ accountKey }: { accountKey: string }) {
           <ArrowRightIcon aria-hidden="true" />
         </Link>
       )}
+      {hub && <ActivityTrend activity={hub.activity} />}
     </article>
   );
 }
