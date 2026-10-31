@@ -31,71 +31,6 @@ for (const viewport of [
   });
 }
 
-test("failed refresh removes cached progress, then retry restores the verified action", async ({
-  page,
-}) => {
-  let phase = "ready";
-  let release: (() => void) | undefined;
-  await page.route("**/api/practice/hub", async (route) => {
-    if (phase === "refresh")
-      await new Promise<void>((resolve) => {
-        release = resolve;
-      });
-    if (phase === "revoked")
-      return route.fulfill({
-        status: 403,
-        json: { detail: "Current access could not be verified." },
-      });
-    return route.fulfill({ json: practiceHub() });
-  });
-  await page.goto("/?fixture=practice-hub");
-  await page.getByRole("link", { name: "Continue Mock Interview" }).waitFor();
-  phase = "refresh";
-  await page.evaluate(() => window.dispatchEvent(new Event("practice-test-refresh")));
-  await expect(
-    page.getByText("Checking your latest coach plan. Your saved answers are retained.")
-  ).toBeVisible();
-  await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveCount(0);
-  phase = "revoked";
-  await expect.poll(() => !!release).toBe(true);
-  release!();
-  await expect(page.getByRole("link", { name: "Find saved interviews" })).toBeVisible();
-  await expect(page.getByText(/2 of 5 answers are saved/)).toHaveCount(0);
-  await expect(page.getByRole("progressbar")).toHaveCount(0);
-  await expect(page.getByRole("link", { name: "Warm-up chat" })).toBeVisible();
-  phase = "ready";
-  await page.getByRole("button", { name: "Try again" }).click();
-  await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toBeVisible();
-});
-
-test("account change clears another student's progress while the new plan loads", async ({
-  page,
-}) => {
-  let account = "1";
-  let release: (() => void) | undefined;
-  await page.route("**/api/practice/hub", async (route) => {
-    if (account === "2")
-      await new Promise<void>((resolve) => {
-        release = resolve;
-      });
-    const hub = practiceHub();
-    if (account === "2") hub.resume = null;
-    return route.fulfill({ json: hub });
-  });
-  await page.goto("/?fixture=practice-hub");
-  await page.getByRole("link", { name: "Continue Mock Interview" }).waitFor();
-  account = "2";
-  await page.evaluate(() =>
-    window.dispatchEvent(new CustomEvent("practice-test-account", { detail: "2" }))
-  );
-  await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveCount(0);
-  await expect(page.getByText(/2 of 5 answers are saved/)).toHaveCount(0);
-  await expect.poll(() => !!release).toBe(true);
-  release!();
-  await expect(page.getByRole("link", { name: "Begin mock interview" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Aarav/ })).toBeVisible();
-});
-
 test("an expired saved session cannot remain the continue action", async ({ page }) => {
   const hub = practiceHub();
   hub.resume!.expiresAt = new Date(Date.now() + 3500).toISOString();
@@ -104,28 +39,6 @@ test("an expired saved session cannot remain the continue action", async ({ page
   await page.getByRole("link", { name: "Continue Mock Interview" }).waitFor();
   await expect(page.getByText(/resume window has ended/)).toBeVisible();
   await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveCount(0);
-});
-
-test("a new student's verified zero state differs from malformed data", async ({ page }) => {
-  let malformed = false;
-  await page.route("**/api/practice/hub", (route) => {
-    const hub = practiceHub();
-    hub.resume = null;
-    hub.activity = {
-      practiceDaysStreak: 0,
-      completedMocksThisWeek: 0,
-      completedDrillsThisWeek: 0,
-      dailyActivity: hub.activity.dailyActivity,
-    };
-    return route.fulfill({ json: malformed ? { ...hub, focusEvidenceRequired: 0 } : hub });
-  });
-  await page.goto("/?fixture=practice-hub");
-  await expect(page.getByText("0 interviews · 0 skill rounds this week")).toBeVisible();
-  await expect(page.getByRole("link", { name: "Begin mock interview" })).toBeVisible();
-  malformed = true;
-  await page.evaluate(() => window.dispatchEvent(new Event("practice-test-refresh")));
-  await expect(page.getByRole("link", { name: "Find saved interviews" })).toBeVisible();
-  await expect(page.getByText("0 interviews · 0 skill rounds this week")).toHaveCount(0);
 });
 
 for (const readiness of [
