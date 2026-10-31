@@ -126,6 +126,15 @@ it("clears a previous mutation result after session invalidation", async () => {
   await waitFor(() => expect(hook.result.current.data).toBeUndefined());
 });
 
+it("keeps mutation callbacks stable across ordinary re-renders", async () => {
+  const { session, api, wrapper } = setup();
+  await session.status();
+  const hook = renderHook(() => api.useMutation({ url: "interviews/create" }), { wrapper });
+  const first = hook.result.current.mutateAsync;
+  hook.rerender();
+  expect(hook.result.current.mutateAsync).toBe(first);
+});
+
 it.each([
   ["different URLs", { url: "practice/other" }],
   ["different methods", { method: "post" as const }],

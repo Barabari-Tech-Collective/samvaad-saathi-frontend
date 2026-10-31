@@ -2,7 +2,7 @@
 
 import { productSession } from "@/lib/session-runtime";
 import { assertAuthRevision, getAuthRevision, SessionChangedError } from "@/lib/auth-session";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { ServerSessionClient, SessionClientError } from "@/lib/server-session-client";
 import { subscribeAuthRevision } from "@/lib/auth-session";
 import { trackApiError } from "@/lib/posthog/tracking.utils";
@@ -161,8 +161,10 @@ export const createApiClient = (
       }
     };
 
-    const ownsMutation = () =>
-      !session || (session.snapshot().authenticated && revision() === ownerRevision);
+    const ownsMutation = useCallback(
+      () => !session || (session.snapshot().authenticated && revision() === ownerRevision),
+      [ownerRevision]
+    );
     const invalidateOwnedQueries = () => {
       if (!keyToInvalidate) return;
       if (!session) {
@@ -284,31 +286,43 @@ export const createApiClient = (
     }, [ownerRevision, resetMutation]);
 
     // Per-call callbacks need the same ownership checks as hook-level callbacks.
-    const ownedCallbacks = (callbacks: Parameters<typeof mutation.mutate>[1]) => {
-      if (!session || !callbacks) return callbacks;
-      return {
-        ...callbacks,
-        onSuccess: (...args: Parameters<NonNullable<typeof callbacks.onSuccess>>) => {
-          if (ownsMutation()) callbacks.onSuccess?.(...args);
-        },
-        onError: (...args: Parameters<NonNullable<typeof callbacks.onError>>) => {
-          if (ownsMutation()) callbacks.onError?.(...args);
-        },
-        onSettled: (...args: Parameters<NonNullable<typeof callbacks.onSettled>>) => {
-          if (ownsMutation()) callbacks.onSettled?.(...args);
-        },
-      };
-    };
+    const { mutate: rawMutate, mutateAsync: rawMutateAsync } = mutation;
+    const ownedCallbacks = useCallback(
+      (callbacks: Parameters<typeof rawMutate>[1]) => {
+        if (!session || !callbacks) return callbacks;
+        return {
+          ...callbacks,
+          onSuccess: (...args: Parameters<NonNullable<typeof callbacks.onSuccess>>) => {
+            if (ownsMutation()) callbacks.onSuccess?.(...args);
+          },
+          onError: (...args: Parameters<NonNullable<typeof callbacks.onError>>) => {
+            if (ownsMutation()) callbacks.onError?.(...args);
+          },
+          onSettled: (...args: Parameters<NonNullable<typeof callbacks.onSettled>>) => {
+            if (ownsMutation()) callbacks.onSettled?.(...args);
+          },
+        };
+      },
+      [ownsMutation]
+    );
+    const mutate = useCallback(
+      (variables: TParams, callbacks?: Parameters<typeof rawMutate>[1]) =>
+        rawMutate(variables, ownedCallbacks(callbacks)),
+      [ownedCallbacks, rawMutate]
+    );
+    const mutateAsync = useCallback(
+      (variables: TParams, callbacks?: Parameters<typeof rawMutateAsync>[1]) =>
+        rawMutateAsync(variables, ownedCallbacks(callbacks)),
+      [ownedCallbacks, rawMutateAsync]
+    );
     // Return a cleaner interface with loading and data
     return {
       ...mutation,
       loading: mutation.isPending,
       data: visibleMutation ? mutation.data : undefined,
       error: visibleMutation ? mutation.error : null,
-      mutate: (variables: TParams, callbacks?: Parameters<typeof mutation.mutate>[1]) =>
-        mutation.mutate(variables, ownedCallbacks(callbacks)),
-      mutateAsync: (variables: TParams, callbacks?: Parameters<typeof mutation.mutateAsync>[1]) =>
-        mutation.mutateAsync(variables, ownedCallbacks(callbacks)),
+      mutate,
+      mutateAsync,
     };
   };
 
