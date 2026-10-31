@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { CoachingAssignments } from "@/components/practice/CoachingAssignments";
+import { LearningPlans } from "@/components/practice/LearningPlans";
 import {
   PracticeHubSkeleton,
   PracticeHubView,
@@ -48,7 +49,10 @@ export default function LearningWorkspace({ area }: { area: LearningArea }) {
       onRefresh={() => void query.refetch()}
     >
       {area !== "mock" && (
-        <CoachingAssignments key={String(account)} accountKey={String(account)} />
+        <>
+          <LearningPlans key={`plans:${account}`} accountKey={String(account)} />
+          <CoachingAssignments key={String(account)} accountKey={String(account)} />
+        </>
       )}
     </PracticeHubView>
   );
