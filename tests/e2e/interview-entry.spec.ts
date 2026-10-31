@@ -270,13 +270,13 @@ test("free practice preserves selected N through device checks and creation", as
   });
   await page.goto("/?fixture=start&mode=practice");
   await page.getByLabel("Which job are you practising for?").selectOption("General interview");
-  await page.getByLabel("Questions in this practice round").fill("7");
+  await page.getByLabel("Questions in this Mock Interview").fill("7");
   await page.getByRole("button", { name: "Continue to device check" }).click();
   await expect(page.getByText("7 questions · about 21 min")).toBeVisible();
   expect(body).toBeUndefined();
   await page.getByRole("button", { name: "Check microphone" }).click();
   await page.getByRole("button", { name: "Play test sound" }).click();
-  await page.getByRole("button", { name: "Start practice interview" }).click();
+  await page.getByRole("button", { name: "Start Mock Interview" }).click();
   await expect(page).toHaveURL(/interview\?interviewId=12.*interviewMode=practice/);
   expect(body).toMatchObject({
     questionCount: 7,
