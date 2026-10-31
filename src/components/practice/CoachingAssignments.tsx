@@ -59,7 +59,6 @@ export function CoachingAssignments({ accountKey = "current" }: { accountKey?: s
                 <h3 className="font-semibold">
                   {row.module === "warm_up" ? "Warm-up chat" : "Think fast"} · {row.status}
                 </h3>
-                <p className="break-words text-xs text-gray-500">Course: {row.course_id}</p>
                 <p className="break-words">{row.reason}</p>
                 {row.note && (
                   <p className="whitespace-pre-wrap break-words text-sm text-gray-600">
