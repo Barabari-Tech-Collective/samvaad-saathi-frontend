@@ -4,6 +4,8 @@ import reactHooks from "eslint-plugin-react-hooks";
 // Enforce real TypeScript linting on this release. The legacy global config
 // only has ignores; expanding enforcement across legacy modules is separate work.
 const files = [
+  "src/components/opportunity-outcomes/**/*.tsx",
+  "src/app/(protected)/opportunity-outcomes/page.tsx",
   "src/components/providers/cookie-auth-provider.tsx",
   "src/lib/session-bootstrap.ts",
   "src/lib/session-runtime.ts",
@@ -13,6 +15,7 @@ const files = [
   "src/lib/server-session-client.ts",
   "src/lib/posthog/tracking.utils.ts",
   "src/components/providers/analytics-provider.tsx",
+  "src/components/providers/posthog-page-view.tsx",
   "src/app/(protected)/ai-resume/preview/page.tsx",
   "src/app/(protected)/ai-resume/final/page.tsx",
   "src/app/(protected)/ai-resume/_components/ResumeInputForm.tsx",
@@ -22,7 +25,11 @@ const files = [
   "src/lib/resume-readiness.ts",
   "src/app/(protected)/interview-start/page.tsx",
   "src/app/(protected)/interview-completed/page.tsx",
+  "src/app/(protected)/report-summary/page.tsx",
+  "src/app/(protected)/coaching/page.tsx",
+  "src/app/(protected)/mock-interviews/page.tsx",
   "src/lib/account-request.ts",
+  "src/lib/workspace-navigation.ts",
   "src/features/ai-resume/services/aiResumeService.ts",
   "src/lib/auth-session.ts",
   "src/lib/token-utils.ts",
@@ -49,6 +56,7 @@ const files = [
   "src/components/integrity-review/**/*.tsx",
   "src/app/(protected)/assessment-reviews/page.tsx",
   "src/components/workspace/**/*.tsx",
+  "src/components/workspace/ProductNavigation.tsx",
   "src/components/TopNav.tsx",
   "src/components/BottomNav.tsx",
   "src/app/(protected)/home/page.tsx",

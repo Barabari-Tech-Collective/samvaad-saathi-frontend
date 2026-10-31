@@ -15,16 +15,23 @@ const steps: GuideStep[] = [
   },
   {
     title: "Home: your starting point",
-    body: "See what you did lately and what to do next. A good first step is one short practice round.",
+    body: "Choose Coaching for a short skill activity or Mock Interviews for a full rehearsal.",
     href: "/home",
     target: link("/home"),
     optional: true,
   },
   {
-    title: "Practice: learn without pressure",
-    body: "Pick a practice round and speak your answers. You can try again and again. There is no pass or fail.",
-    href: "/practice",
-    target: link("/practice"),
+    title: "Coaching: build one skill at a time",
+    body: "Choose a short exercise, work on your suggested skill, or complete a task from your teacher.",
+    href: "/coaching",
+    target: link("/coaching"),
+    optional: true,
+  },
+  {
+    title: "Mock Interviews: rehearse an interview",
+    body: "Rehearse an interview, continue a saved round, and review feedback. Mock Interviews are separate from assessments.",
+    href: "/mock-interviews",
+    target: link("/mock-interviews"),
     optional: true,
   },
   {
@@ -90,20 +97,20 @@ const phoneSteps: GuideStep[] = [
     target: tab("/home"),
   },
   {
-    title: "Practice",
-    body: "Speak your answers out loud. You can try again and again. There is no pass or fail.",
-    href: "/practice",
-    target: tab("/practice"),
+    title: "Coaching",
+    body: "Work on one skill with short exercises and tasks from your teacher.",
+    href: "/coaching",
+    target: tab("/coaching"),
   },
   {
-    title: "History",
-    body: "See your finished practice and the feedback you got.",
-    href: "/history",
-    target: tab("/history"),
+    title: "Mock Interviews",
+    body: "Rehearse an interview or continue a saved round. This is practice, not an assessment.",
+    href: "/mock-interviews",
+    target: tab("/mock-interviews"),
   },
   {
     title: "More",
-    body: "Touch More to find your resume, your profile, your interviews and your test results.",
+    body: "Touch More to find History, your resume, your profile, your human interviews and your test reviews.",
     target: 'nav[aria-label="Bottom Navigation"] button[aria-label="More features"]',
   },
   {
@@ -134,7 +141,14 @@ export default function StudentGuide() {
     <WorkspaceGuide
       storageKey={key}
       steps={shown}
-      offerHere={["/home", "/practice", "/history", "/profile"].includes(path)}
+      offerHere={[
+        "/home",
+        "/practice",
+        "/coaching",
+        "/mock-interviews",
+        "/history",
+        "/profile",
+      ].includes(path)}
     />
   );
 }

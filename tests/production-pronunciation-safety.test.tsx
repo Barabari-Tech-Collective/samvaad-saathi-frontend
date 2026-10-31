@@ -147,7 +147,7 @@ it("loads valid words immediately, labels the final action accurately, and compl
   render(<Start />);
   expect(await screen.findByText("Practice", { exact: true })).toBeVisible();
   fireEvent.click(screen.getByRole("button", { name: "Finish practice" }));
-  const back = screen.getByRole("link", { name: "Back to practice" });
+  const back = screen.getByRole("link", { name: "Back to Coaching" });
   expect(back.querySelector("button")).toBeNull();
-  expect(back).toHaveAttribute("href", "/practice");
+  expect(back).toHaveAttribute("href", "/coaching");
 });

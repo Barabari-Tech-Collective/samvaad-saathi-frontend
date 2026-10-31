@@ -48,9 +48,9 @@ export default function HomePage() {
   return (
     <div className="ws-home">
       <PageHeading
-        eyebrow={t("Interview practice")}
+        eyebrow={t("Your learning workspace")}
         title={`${t("Hi,")} ${firstName(user.authorizedUser.name)}.`}
-        description={t("Practise a full interview or a short skill. Start here.")}
+        description={t("Build skills with Coaching or rehearse with Mock Interviews.")}
       />
       {noticeCount > 0 && (
         <aside className="ws-notice">
@@ -66,6 +66,22 @@ export default function HomePage() {
       <section className="ws-home-start" aria-label="Choose your next step">
         <HomePractice key={String(account)} accountKey={String(account)} />
         <div className="ws-secondary-tasks">
+          <Link className="ws-task-link" href="/coaching">
+            <ListBulletIcon aria-hidden="true" />
+            <span>
+              <strong>{t("Coaching")}</strong>
+              <small>Build one skill with short activities and feedback</small>
+            </span>
+            <ArrowRightIcon aria-hidden="true" />
+          </Link>
+          <Link className="ws-task-link" href="/mock-interviews">
+            <ChatBubbleLeftRightIcon aria-hidden="true" />
+            <span>
+              <strong>{t("Mock Interviews")}</strong>
+              <small>Rehearse a full interview and review feedback</small>
+            </span>
+            <ArrowRightIcon aria-hidden="true" />
+          </Link>
           <Link className="ws-task-link" href="/interview-start?mode=assessment">
             <ClipboardDocumentCheckIcon aria-hidden="true" />
             <span>
@@ -82,6 +98,14 @@ export default function HomePage() {
             </span>
             <ArrowRightIcon aria-hidden="true" />
           </Link>
+          <Link className="ws-task-link" href="/opportunity-outcomes">
+            <ClipboardDocumentCheckIcon aria-hidden="true" />
+            <span>
+              <strong>Opportunity outcomes</strong>
+              <small>Read released placement feedback and next steps</small>
+            </span>
+            <ArrowRightIcon aria-hidden="true" />
+          </Link>
           <Link className="ws-task-link" href="/ai-resume">
             <DocumentTextIcon aria-hidden="true" />
             <span>
@@ -95,8 +119,8 @@ export default function HomePage() {
       <section aria-labelledby="home-skills-title">
         <div className="ws-section-heading">
           <h2 id="home-skills-title">{t("Work on one skill")}</h2>
-          <Link className="ws-button" href="/practice#skill-builders-title">
-            {t("All skills")} <ArrowRightIcon aria-hidden="true" />
+          <Link className="ws-button" href="/coaching#skill-builders-title">
+            {t("All Coaching activities")} <ArrowRightIcon aria-hidden="true" />
           </Link>
         </div>
         <div className="ws-quick-skills">

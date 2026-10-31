@@ -159,7 +159,7 @@ const StructureYourAnswerInterviewPage = () => {
       // All questions completed - could redirect to completion page
       // For now, just show a message or redirect
       console.log("All questions completed!");
-      router.push("/practice");
+      router.push("/coaching");
     }
   };
 
@@ -171,7 +171,7 @@ const StructureYourAnswerInterviewPage = () => {
       setShowReport(false);
       setHasStartedPractice(false);
     } else {
-      router.push("/practice");
+      router.push("/coaching");
     }
   };
 
@@ -206,8 +206,8 @@ const StructureYourAnswerInterviewPage = () => {
           <button onClick={() => loadPractice()} className="btn btn-outline">
             Try Again
           </button>
-          <button onClick={() => router.push("/practice")} className="btn btn-neutral">
-            Back to Practice
+          <button onClick={() => router.push("/coaching")} className="btn btn-neutral">
+            Back to Coaching
           </button>
         </div>
       </div>

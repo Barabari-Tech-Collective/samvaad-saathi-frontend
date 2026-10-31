@@ -67,8 +67,8 @@ function HistoryWorkspace({ account }: { account: string }) {
         title="Interview history"
         description="See your saved rounds and your feedback."
         action={
-          <Link href="/practice" className="ws-button">
-            Back to Practice
+          <Link href="/mock-interviews" className="ws-button">
+            Mock Interviews
           </Link>
         }
       />
@@ -132,7 +132,7 @@ function HistoryWorkspace({ account }: { account: string }) {
               <p className="mt-2 text-sm text-gray-600">
                 {query.hasNextPage
                   ? "Older pages may contain more. Load older sessions to check."
-                  : "Choose another view or return to Practice when you’re ready."}
+                  : "Choose another view or explore Mock Interviews when you’re ready."}
               </p>
             </section>
           )}
@@ -147,7 +147,7 @@ function HistoryWorkspace({ account }: { account: string }) {
                   <div className="mb-3 flex flex-wrap gap-2 text-xs font-semibold text-[#344499]">
                     <span>
                       {item.interviewMode === "practice"
-                        ? "Practice"
+                        ? "Mock Interview"
                         : item.interviewMode === "assessment"
                           ? "Assessment"
                           : "Interview mode unverified"}
@@ -221,7 +221,7 @@ function HistoryWorkspace({ account }: { account: string }) {
                         >
                           {item.interviewMode === "assessment"
                             ? "Open assessment"
-                            : "Continue practice"}
+                            : "Continue Mock Interview"}
                         </Link>
                       )}
                     </>

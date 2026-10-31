@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   HomeIcon,
   MicrophoneIcon,
+  AcademicCapIcon,
   ClockIcon,
   ShieldCheckIcon,
   VideoCameraIcon,
@@ -24,7 +25,8 @@ import { useLanguage } from "@/lib/i18n/language";
 
 const destinations = [
   { href: "/home", label: "Home", icon: HomeIcon },
-  { href: "/practice", label: "Practice", icon: MicrophoneIcon },
+  { href: "/coaching", label: "Coaching", icon: AcademicCapIcon },
+  { href: "/mock-interviews", label: "Mock Interviews", icon: MicrophoneIcon },
   { href: "/history", label: "History", icon: ClockIcon },
   { href: "/assessment-reviews", label: "Test reviews", icon: ShieldCheckIcon },
   { href: "/human-interviews", label: "Live interviews", icon: VideoCameraIcon },
@@ -33,11 +35,14 @@ const destinations = [
 ];
 const titles: Record<string, string> = {
   home: "Home",
-  practice: "Practice",
+  practice: "Learning workspace",
+  coaching: "Coaching",
+  "mock-interviews": "Mock Interviews",
   history: "Interview history",
   profile: "Profile",
   "assessment-reviews": "Test reviews",
   "human-interviews": "Live interviews",
+  "opportunity-outcomes": "Opportunity outcomes",
   "interview-start": "Interview setup",
   interview: "Interview",
   "report-summary": "Feedback",

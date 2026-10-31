@@ -48,6 +48,8 @@ describe("explicit cookie Axios transport", () => {
     "users/login",
     "%61uth/sso/refresh",
     "practice/hub#secret",
+    "v2/opportunities/1/selection",
+    "v2/opportunities/me/outcomes/extra",
   ])("rejects unreviewed destination %s", async (path) => {
     const { api, adapter, identity } = setup();
     await expect(api.get(path)).rejects.toBeDefined();
@@ -130,7 +132,7 @@ it.each([
   expect(adapter.mock.calls[0][0].headers.get("X-CSRF-Token")).toBe("csrf");
 });
 
-it.each(["v2/graduation/me", "v2/practice-dashboard/consents/me"])(
+it.each(["v2/graduation/me", "v2/practice-dashboard/consents/me", "v2/opportunities/me/outcomes"])(
   "permits session-owned profile feature %s",
   async (path) => {
     const { api, adapter } = setup();

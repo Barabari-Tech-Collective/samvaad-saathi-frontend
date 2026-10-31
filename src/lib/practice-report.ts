@@ -53,7 +53,7 @@ export const safeDrillHref = (href: string | null | undefined): string => {
     "/warm-up-chat",
     "/think-fast",
   ]);
-  return href && allowed.has(href) ? href : "/practice";
+  return href && allowed.has(href) ? href : "/coaching";
 };
 
 export function reportRecoveryCopy(

@@ -7,6 +7,9 @@ export const hi: Record<string, string> = {
   // Menu
   Home: "होम",
   Practice: "अभ्यास",
+  Coaching: "कोचिंग",
+  "Mock Interviews": "मॉक इंटरव्यू",
+  "Mock Interview": "मॉक इंटरव्यू",
   History: "इतिहास",
   More: "और",
   "Test reviews": "टेस्ट की समीक्षा",
@@ -15,10 +18,19 @@ export const hi: Record<string, string> = {
   Profile: "प्रोफ़ाइल",
   "All products": "सभी प्रोडक्ट",
   "Your workspace": "आपकी जगह",
+  "Your learning workspace": "आपके सीखने की जगह",
 
   // Home
   "Hi,": "नमस्ते,",
   "Interview practice": "इंटरव्यू का अभ्यास",
+  "Saved Mock Interview": "सेव किया हुआ मॉक इंटरव्यू",
+  "Rehearse your next interview": "अपने अगले इंटरव्यू की तैयारी करें",
+  "Set up a Mock Interview": "मॉक इंटरव्यू की तैयारी करें",
+  "Continue Mock Interview": "मॉक इंटरव्यू जारी रखें",
+  "Check saved Mock Interview": "सेव किया हुआ मॉक इंटरव्यू देखें",
+  "All Coaching activities": "कोचिंग की सभी गतिविधियाँ",
+  "Build skills with Coaching or rehearse with Mock Interviews.":
+    "कोचिंग से अपनी स्किल सुधारें या मॉक इंटरव्यू से तैयारी करें।",
   "Practise a full interview or a short skill. Start here.":
     "पूरे इंटरव्यू का या एक छोटी स्किल का अभ्यास करें। यहीं से शुरू करें।",
   "Practise your next interview": "अपने अगले इंटरव्यू का अभ्यास करें",
@@ -93,10 +105,28 @@ export const hi: Record<string, string> = {
   "You can stop and come back. Saved answers stay on your account.":
     "आप रुककर बाद में लौट सकते हैं। सेव किए हुए जवाब आपके खाते में रहते हैं।",
   "Start practice interview": "अभ्यास इंटरव्यू शुरू करें",
+  "Start Mock Interview": "मॉक इंटरव्यू शुरू करें",
+  "This Mock Interview is for rehearsal. It is not an assessment.":
+    "यह मॉक इंटरव्यू अभ्यास के लिए है। यह मूल्यांकन नहीं है।",
   "First do the checks above.": "पहले ऊपर की जाँचें पूरी करें।",
   "Change setup": "चुनाव बदलें",
 
-  // Phone tour
+  // Student tour
+  "Home: your starting point": "होम: यहीं से शुरू करें",
+  "Choose Coaching for a short skill activity or Mock Interviews for a full rehearsal.":
+    "एक स्किल के छोटे अभ्यास के लिए कोचिंग चुनें। पूरे इंटरव्यू का अभ्यास करने के लिए मॉक इंटरव्यू चुनें।",
+  "Coaching: build one skill at a time": "कोचिंग: एक बार में एक स्किल सुधारें",
+  "Choose a short exercise, work on your suggested skill, or complete a task from your teacher.":
+    "एक छोटा अभ्यास चुनें, सुझाई गई स्किल पर काम करें या अपने टीचर का दिया हुआ काम पूरा करें।",
+  "Mock Interviews: rehearse an interview": "मॉक इंटरव्यू: इंटरव्यू की तैयारी करें",
+  "Rehearse an interview, continue a saved round, and review feedback. Mock Interviews are separate from assessments.":
+    "इंटरव्यू का अभ्यास करें, सेव किया हुआ राउंड जारी रखें और फ़ीडबैक देखें। मॉक इंटरव्यू और मूल्यांकन अलग हैं।",
+  "Work on one skill with short exercises and tasks from your teacher.":
+    "छोटे अभ्यासों और टीचर के दिए काम से एक स्किल सुधारें।",
+  "Rehearse an interview or continue a saved round. This is practice, not an assessment.":
+    "इंटरव्यू का अभ्यास करें या सेव किया हुआ राउंड जारी रखें। यह अभ्यास है, मूल्यांकन नहीं।",
+  "Touch More to find History, your resume, your profile, your human interviews and your test reviews.":
+    "इतिहास, रिज़्यूमे, प्रोफ़ाइल, व्यक्ति के साथ इंटरव्यू और टेस्ट की समीक्षा देखने के लिए “और” दबाएँ।",
   "Welcome!": "स्वागत है!",
   "We will show you where things are. It takes one minute. You can stop any time.":
     "हम आपको दिखाएँगे कि सब कुछ कहाँ है। इसमें एक मिनट लगेगा। आप कभी भी रुक सकते हैं।",

@@ -305,7 +305,7 @@ const InterviewPage = () => {
           if (!lifetime.isCurrent()) return;
           const status = (error as { response?: { status?: number } })?.response?.status;
           if (status === 410) {
-            setResumeError("This saved interview has expired. Start a new practice interview.");
+            setResumeError("This saved interview has expired. Start a new Mock Interview.");
             return;
           }
           setResumeError(
@@ -721,15 +721,15 @@ const InterviewPage = () => {
               This interview is open somewhere else
             </h2>
             <p className="py-4 text-slate-700">
-              To protect your answers, only one device or browser tab can edit a Practice interview
-              at a time. Continuing here will immediately stop the other session from saving.
+              To protect your answers, only one device or browser tab can edit a Mock Interview at a
+              time. Continuing here will immediately stop the other session from saving.
             </p>
             <div className="modal-action">
               <button
                 className="btn btn-ghost"
                 onClick={() => {
                   trackEvent("interview_session_conflict_exit", { interview_id: interviewId });
-                  router.push("/practice");
+                  router.push("/mock-interviews");
                 }}
               >
                 Go back
@@ -895,7 +895,7 @@ const InterviewPage = () => {
             <div className="min-w-0 rounded-2xl border border-[var(--border-subtle)] bg-white px-5 py-2 sm:px-8 sm:py-4">
               <p className="mt-4 text-sm font-medium text-[var(--brand-blue)]">
                 {interviewModeValue === "practice"
-                  ? "Practice interview"
+                  ? "Mock Interview"
                   : "Assessment · AI interviewer"}
               </p>
               <Question

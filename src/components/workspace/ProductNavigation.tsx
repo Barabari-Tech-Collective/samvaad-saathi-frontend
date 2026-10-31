@@ -29,6 +29,8 @@ export default function ProductNavigation() {
   const guarded = ![
     "/home",
     "/practice",
+    "/coaching",
+    "/mock-interviews",
     "/history",
     "/assessment-reviews",
     "/human-interviews",

@@ -74,7 +74,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
             {attemptMeta?.interviewMode === "assessment"
               ? "Assessment feedback"
               : attemptMeta?.interviewMode === "practice"
-                ? "Practice coaching"
+                ? "Mock Interview feedback"
                 : "Interview feedback"}
           </p>
           <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold">
@@ -115,12 +115,21 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
             An overall score is not available from this report’s current evidence. Missing or
             unclear speech is not treated as a low score.
           </p>
-          <Link
-            className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-[#344499] px-4 font-bold text-[#344499]"
-            href="/interview-start?mode=practice"
-          >
-            Start another practice interview
-          </Link>
+          {attemptMeta?.interviewMode === "practice" ? (
+            <Link
+              className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-[#344499] px-4 font-bold text-[#344499]"
+              href="/interview-start?mode=practice"
+            >
+              Start a Mock Interview
+            </Link>
+          ) : (
+            <Link
+              className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-[#344499] px-4 font-bold text-[#344499]"
+              href="/history"
+            >
+              View interview history
+            </Link>
+          )}
         </section>
       )}
 
@@ -135,7 +144,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
             <CheckCircleIcon className="mt-0.5 size-7 shrink-0 text-[#344499]" aria-hidden="true" />
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.12em] text-amber-900">
-                Your next practice
+                Your next coaching activity
               </p>
               <h2 id="next-practice-title" className="mt-2 text-2xl font-bold">
                 {recommendation.title}
@@ -154,7 +163,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
                 }
                 className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#FFCC33] px-6 font-bold text-[#1F285B] transition hover:bg-[#FFB800] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
               >
-                Start this drill
+                Start this coaching activity
                 <ArrowRightIcon className="size-5" aria-hidden="true" />
               </Link>
             </div>
@@ -182,9 +191,9 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
         </Link>
         <Link
           className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#D6E0FB] px-5 font-bold text-[#344499]"
-          href="/practice"
+          href="/coaching"
         >
-          Back to Practice
+          Explore Coaching
         </Link>
       </div>
     </div>

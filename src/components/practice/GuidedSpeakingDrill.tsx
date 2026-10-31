@@ -325,7 +325,7 @@ export default function GuidedSpeakingDrill({
             This assignment cannot be started. It may be closed, unavailable for this drill, or your
             enrollment may have changed.
           </p>
-          <Link className="ws-button" href="/practice">
+          <Link className="ws-button" href="/coaching">
             Return to Practice
           </Link>
         </div>
@@ -350,7 +350,7 @@ export default function GuidedSpeakingDrill({
             Retry saving assignment completion
           </button>
         )}
-        <Link href="/practice" className="ws-button">
+        <Link href="/coaching" className="ws-button">
           Return to Practice
         </Link>
       </div>
@@ -380,10 +380,10 @@ export default function GuidedSpeakingDrill({
               </button>
             )}
             <Link
-              href="/practice"
+              href="/coaching"
               className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#1F285B] px-6 font-bold text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
             >
-              Back to Practice
+              Back to Coaching
             </Link>
           </div>
         </div>

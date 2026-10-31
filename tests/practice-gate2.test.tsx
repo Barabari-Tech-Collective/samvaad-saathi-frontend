@@ -103,7 +103,7 @@ describe("Gate 2 Practice audio-only contract", () => {
       />
     );
 
-    expect(screen.getByRole("button", { name: "Start practice interview" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Start Mock Interview" })).toBeDisabled();
     expect(screen.queryByLabelText("Use typed answers")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Check microphone" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Play test sound" })).toBeEnabled();

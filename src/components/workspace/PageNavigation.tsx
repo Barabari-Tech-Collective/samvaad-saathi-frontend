@@ -4,8 +4,12 @@ import { workspaceSection } from "@/lib/workspace-navigation";
 
 function parentDestination(path: string) {
   if (path === "/report-summary") return { href: "/history", label: "History" };
-  if (workspaceSection(path) === "/practice" && path !== "/practice") {
-    return { href: "/practice", label: "Practice" };
+  const section = workspaceSection(path);
+  if (section === "/coaching" && path !== "/coaching") {
+    return { href: "/coaching", label: "Coaching" };
+  }
+  if (section === "/mock-interviews" && path !== "/mock-interviews") {
+    return { href: "/mock-interviews", label: "Mock Interviews" };
   }
   const resumeParents: Record<string, { href: string; label: string }> = {
     "/ai-resume/score": { href: "/ai-resume", label: "Resume upload" },

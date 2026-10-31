@@ -172,8 +172,8 @@ const PronunciationPracticeStartPage = () => {
           </p>
 
           {/* Back Button */}
-          <Link href="/practice" className="btn btn-primary">
-            Back to practice
+          <Link href="/coaching" className="btn btn-primary">
+            Back to Coaching
           </Link>
         </div>
       </div>

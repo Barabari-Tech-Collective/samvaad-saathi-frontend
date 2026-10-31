@@ -35,7 +35,7 @@ export default function HomePractice({ accountKey }: { accountKey: string }) {
   const href = resume
     ? ready
       ? `/interview?interviewId=${resume.interviewId}&resumed=true&interviewMode=practice`
-      : "/practice"
+      : "/mock-interviews"
     : hub
       ? "/interview-start?mode=practice"
       : "/history";
@@ -47,7 +47,7 @@ export default function HomePractice({ accountKey }: { accountKey: string }) {
           <MicrophoneIcon aria-hidden="true" />
         </span>
         <span className="ws-card-kicker">
-          {resume ? t("Saved practice") : t("Interview practice")}
+          {resume ? t("Saved Mock Interview") : t("Mock Interview")}
         </span>
       </div>
       <div>
@@ -56,7 +56,7 @@ export default function HomePractice({ accountKey }: { accountKey: string }) {
             ? ready
               ? `Continue ${resume.track}`
               : message.title
-            : t("Practise your next interview")}
+            : t("Rehearse your next interview")}
         </h2>
         <p>
           {checking
@@ -94,10 +94,10 @@ export default function HomePractice({ accountKey }: { accountKey: string }) {
           >
             {resume
               ? ready
-                ? t("Continue interview")
-                : t("Check saved practice")
+                ? t("Continue Mock Interview")
+                : t("Check saved Mock Interview")
               : hub
-                ? t("Set up an interview")
+                ? t("Set up a Mock Interview")
                 : t("Check saved sessions")}
             <ArrowRightIcon aria-hidden="true" />
           </Link>
@@ -109,7 +109,7 @@ export default function HomePractice({ accountKey }: { accountKey: string }) {
         )}
       </div>
       {!resume && hub && (
-        <ol className="ws-round-steps" aria-label="Practice interview steps">
+        <ol className="ws-round-steps" aria-label="Mock Interview steps">
           <li>
             <span>1</span>
             {t("Choose & check mic")}
@@ -125,7 +125,7 @@ export default function HomePractice({ accountKey }: { accountKey: string }) {
         </ol>
       )}
       {hub?.focus && (
-        <Link className="ws-focus-link" href={hub.focus.href}>
+        <Link className="ws-focus-link" href="/coaching">
           <span>
             <strong>Suggested skill: {hub.focus.title}</strong>
             <small>{hub.focus.reason}</small>

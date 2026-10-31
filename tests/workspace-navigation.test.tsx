@@ -61,7 +61,7 @@ it("keeps icon navigation named and identifies the current page", () => {
     "true"
   );
 });
-it("offers a deterministic parent when a practice drill is opened directly", () => {
+it("offers a deterministic Coaching parent when a drill is opened directly", () => {
   fixture.path = "/pronunciation-practice";
   render(
     <StudentShell>
@@ -69,10 +69,10 @@ it("offers a deterministic parent when a practice drill is opened directly", () 
     </StudentShell>
   );
   expect(
-    within(screen.getByRole("main")).getByRole("link", { name: "Back to Practice" })
-  ).toHaveAttribute("href", "/practice");
+    within(screen.getByRole("main")).getByRole("link", { name: "Back to Coaching" })
+  ).toHaveAttribute("href", "/coaching");
   const header = screen.getByRole("banner");
-  expect(within(header).queryByRole("link", { name: "Back to Practice" })).toBeNull();
+  expect(within(header).queryByRole("link", { name: "Back to Coaching" })).toBeNull();
   expect(within(header).queryByRole("button", { name: "Collapse navigation" })).toBeNull();
   expect(within(header).getByRole("link", { name: "Samvaad Saathi home" })).toHaveTextContent(
     "Samvaad Saathi"
@@ -155,7 +155,7 @@ it("opens all features from the bottom bar and resets expanded state on close", 
 });
 
 it.each([
-  ["/pronunciation-practice", "Practice"],
+  ["/pronunciation-practice", "Coaching"],
   ["/report-summary", "History"],
 ])("keeps the parent section selected on %s", (path, label) => {
   fixture.path = path;
@@ -167,7 +167,31 @@ it.each([
   const nav = screen.getByRole("navigation", { name: "Student navigation" });
   expect(within(nav).getByRole("link", { name: label })).toHaveAttribute("aria-current", "page");
   const bottom = screen.getByRole("navigation", { name: "Bottom Navigation" });
+  if (path === "/report-summary") {
+    expect(within(bottom).getByRole("button", { name: "More features" })).toHaveAttribute(
+      "data-active",
+      "true"
+    );
+  } else {
+    expect(
+      within(bottom).getByRole("link", { name: `Go to ${label.toLowerCase()}` })
+    ).toHaveAttribute("aria-current", "page");
+  }
+});
+
+it("keeps assessment setup outside Mock Interviews while mock setup has a clear parent page", () => {
+  fixture.path = "/interview-start";
+  render(
+    <StudentShell>
+      <h1>Interview setup</h1>
+    </StudentShell>
+  );
+  const nav = screen.getByRole("navigation", { name: "Student navigation" });
+  expect(within(nav).getByRole("link", { name: "Mock Interviews" })).not.toHaveAttribute(
+    "aria-current",
+    "page"
+  );
   expect(
-    within(bottom).getByRole("link", { name: `Go to ${label.toLowerCase()}` })
-  ).toHaveAttribute("aria-current", "page");
+    within(screen.getByRole("main")).getByRole("link", { name: "Back to Home" })
+  ).toHaveAttribute("href", "/home");
 });

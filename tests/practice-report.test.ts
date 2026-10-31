@@ -19,7 +19,7 @@ describe("Practice report presentation rules", () => {
 
   it("allows only real Practice drill routes", () => {
     expect(safeDrillHref("/control-your-pace")).toBe("/control-your-pace");
-    expect(safeDrillHref("https://malicious.example")).toBe("/practice");
-    expect(safeDrillHref("/missing-drill")).toBe("/practice");
+    expect(safeDrillHref("https://malicious.example")).toBe("/coaching");
+    expect(safeDrillHref("/missing-drill")).toBe("/coaching");
   });
 });

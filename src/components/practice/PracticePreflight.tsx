@@ -319,7 +319,7 @@ export default function PracticePreflight({
       <section className="mt-6 rounded-2xl bg-[#FFE4BF] p-5">
         <h2 className="font-bold">{t("Before you begin")}</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-gray-800">
-          <li>{t("This is practice. It is not a test.")}</li>
+          <li>{t("This Mock Interview is for rehearsal. It is not an assessment.")}</li>
           <li>{t("Nothing bad happens if you refresh, get a call or change pages.")}</li>
           <li>{t("You can stop and come back. Saved answers stay on your account.")}</li>
           <li>Your voice is saved safely so we can give you feedback. It is deleted later.</li>
@@ -342,7 +342,7 @@ export default function PracticePreflight({
           disabled={!ready || isStarting}
           className="min-h-12 w-full rounded-xl bg-[#FFCC33] px-6 text-base font-bold text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500"
         >
-          {isStarting ? "Creating your interview…" : t("Start practice interview")}
+          {isStarting ? "Creating your interview…" : t("Start Mock Interview")}
         </button>
         {!ready && (
           <p className="mt-3 text-center text-sm text-gray-600">

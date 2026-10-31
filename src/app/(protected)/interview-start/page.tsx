@@ -124,8 +124,8 @@ function EntryRecovery({ title, children }: { title: string; children: React.Rea
         <Link className="ws-button" href="/history">
           Check History
         </Link>
-        <Link className="ws-button" href="/practice">
-          Back to practice
+        <Link className="ws-button" href="/home">
+          Go to dashboard
         </Link>
       </div>
     </div>
@@ -138,7 +138,7 @@ export default function InterviewStartPage() {
   if (raw !== null && raw !== "practice" && raw !== "assessment")
     return (
       <EntryRecovery title="Check this interview purpose">
-        <p role="alert">Choose Practice or Assessment from the platform before starting.</p>
+        <p role="alert">Choose Mock Interviews or Assessments from the platform before starting.</p>
       </EntryRecovery>
     );
   if (loading || !user?.userId)
@@ -344,13 +344,13 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
       selection.kind === "tech" && selectedTrack === FULL_STACK_ROLE && difficulty === "medium";
     if (resumeRequired && !useResume) {
       toast.error(
-        "Medium Full Stack practice uses your resume. Turn on resume personalisation or choose another level."
+        "Medium Full Stack Mock Interviews use your resume. Turn on resume personalisation or choose another level."
       );
       return false;
     }
     if (resumeRequired && !user?.authorizedUser?.hasResume) {
       toast.error(
-        "Save a resume from the Resume section before starting Medium Full Stack practice, or choose another level."
+        "Save a resume from the Resume section before starting a Medium Full Stack Mock Interview, or choose another level."
       );
       return false;
     }
@@ -499,7 +499,7 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
       <PageHeading
         className="studio-setup-heading"
         eyebrow={mode === "assessment" ? "Formal assessment" : "Prepare your round"}
-        title={mode === "assessment" ? "Assessment Interview" : "Practice Interview"}
+        title={mode === "assessment" ? "Assessment Interview" : "Mock Interview"}
         description={
           mode === "assessment"
             ? "Questions are set by your facilitator and reviewed as a formal result."
@@ -575,7 +575,7 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
                 ).map(([category, profiles]) => (
                   <optgroup
                     key={category}
-                    label={`${mode === "practice" ? "Curated practice · " : ""}${category.charAt(0).toUpperCase() + category.slice(1)}`}
+                    label={`${mode === "practice" ? "Curated Mock Interviews · " : ""}${category.charAt(0).toUpperCase() + category.slice(1)}`}
                   >
                     {profiles.map((profile) => (
                       <option
@@ -666,7 +666,7 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
         <div className="mt-5 border-t border-[#DEE8FB] pt-5">
           {selection?.kind === "tech" ? (
             <label className="block font-semibold">
-              Questions in this practice round
+              Questions in this Mock Interview
               <input
                 type="number"
                 min={1}
@@ -690,7 +690,7 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
           ) : null}
           {selection?.kind === "tech" && (
             <p className="mt-2 text-sm text-gray-600">
-              Choose 1–10 questions. You can save and return to practice.
+              Choose 1–10 questions. You can save and return to your Mock Interview.
             </p>
           )}
         </div>

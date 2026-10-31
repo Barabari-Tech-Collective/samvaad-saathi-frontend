@@ -33,8 +33,8 @@ function CompletionCard({ title, children }: { title: string; children: React.Re
           >
             View history
           </Link>
-          <Link href="/practice" className="ws-button">
-            Back to practice
+          <Link href="/home" className="ws-button">
+            Go to dashboard
           </Link>
         </div>
       </section>
@@ -170,7 +170,7 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
         completion.data.interviewMode === "assessment"
           ? "Assessment submission confirmed"
           : completion.data.interviewMode === "practice"
-            ? "Practice submission confirmed"
+            ? "Mock Interview submission confirmed"
             : "Interview submission confirmed"
       }
     >

@@ -36,9 +36,9 @@ beforeEach(() => {
   fixture.useQuery.mockClear();
 });
 afterEach(() => vi.useRealTimers());
-it("offers a direct practice-only continuation for a verified saved round", () => {
+it("offers a direct Mock Interview continuation for a verified saved round", () => {
   render(<HomePractice accountKey="student-1" />);
-  expect(screen.getByRole("link", { name: "Continue interview" })).toHaveAttribute(
+  expect(screen.getByRole("link", { name: "Continue Mock Interview" })).toHaveAttribute(
     "href",
     "/interview?interviewId=42&resumed=true&interviewMode=practice"
   );
@@ -58,18 +58,18 @@ it.each([
   hub.resume!.readiness = readiness;
   fixture.query.data = hub;
   render(<HomePractice accountKey="student-1" />);
-  expect(screen.queryByRole("link", { name: "Continue interview" })).toBeNull();
-  expect(screen.getByRole("link", { name: "Check saved practice" })).toHaveAttribute(
+  expect(screen.queryByRole("link", { name: "Continue Mock Interview" })).toBeNull();
+  expect(screen.getByRole("link", { name: "Check saved Mock Interview" })).toHaveAttribute(
     "href",
-    "/practice"
+    "/mock-interviews"
   );
-  expect(screen.queryByRole("link", { name: "Set up an interview" })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Set up a Mock Interview" })).toBeNull();
 });
 it.each(["isLoading", "isFetching"] as const)("suppresses stale continuation while %s", (key) => {
   fixture.query[key] = true;
   render(<HomePractice accountKey="student-1" />);
-  expect(screen.queryByRole("link", { name: "Continue interview" })).toBeNull();
-  expect(screen.queryByRole("link", { name: "Set up an interview" })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Continue Mock Interview" })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Set up a Mock Interview" })).toBeNull();
 });
 it.each([null, { malformed: true }])(
   "offers recovery rather than a duplicate round for invalid data",
@@ -87,7 +87,7 @@ it.each([null, { malformed: true }])(
 it("does not use cached session data after a request failure", () => {
   fixture.query.isError = true;
   render(<HomePractice accountKey="student-1" />);
-  expect(screen.queryByRole("link", { name: "Continue interview" })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Continue Mock Interview" })).toBeNull();
   expect(screen.getByRole("link", { name: "Check saved sessions" })).toBeVisible();
 });
 it("shows a setup path and steps only when no saved round is confirmed", () => {
@@ -95,11 +95,11 @@ it("shows a setup path and steps only when no saved round is confirmed", () => {
   hub.resume = null;
   fixture.query.data = hub;
   render(<HomePractice accountKey="student-1" />);
-  expect(screen.getByRole("link", { name: "Set up an interview" })).toHaveAttribute(
+  expect(screen.getByRole("link", { name: "Set up a Mock Interview" })).toHaveAttribute(
     "href",
     "/interview-start?mode=practice"
   );
-  expect(screen.getByRole("list", { name: "Practice interview steps" })).toBeVisible();
+  expect(screen.getByRole("list", { name: "Mock Interview steps" })).toBeVisible();
 });
 it("expires a continuation while Home remains open", () => {
   vi.useFakeTimers();
@@ -108,8 +108,8 @@ it("expires a continuation while Home remains open", () => {
   hub.resume!.expiresAt = "2026-10-22T10:00:02Z";
   fixture.query.data = hub;
   render(<HomePractice accountKey="student-1" />);
-  expect(screen.getByRole("link", { name: "Continue interview" })).toBeVisible();
+  expect(screen.getByRole("link", { name: "Continue Mock Interview" })).toBeVisible();
   act(() => vi.advanceTimersByTime(2000));
-  expect(screen.queryByRole("link", { name: "Continue interview" })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Continue Mock Interview" })).toBeNull();
   expect(screen.getByText(/resume window has ended/)).toBeVisible();
 });
