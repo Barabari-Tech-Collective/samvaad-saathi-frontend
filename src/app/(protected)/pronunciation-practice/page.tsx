@@ -7,6 +7,7 @@ import { ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
 import { trackDifficultySelected } from "@/lib/posthog/tracking.utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
+import { learningPlanStepContext, learningPlanStepQuery } from "@/lib/learning-plan-context";
 
 import {
   PRONUNCIATION_STORAGE_KEY,
@@ -60,6 +61,7 @@ const LoadingState = () => (
 const PronunciationPracticeContent = () => {
   const searchParams = useSearchParams();
   const difficultyParam = searchParams.get("difficulty");
+  const planStep = learningPlanStepContext(searchParams);
   const [difficulty, setDifficulty] = useState(
     PRONUNCIATION_DIFFICULTIES.find((level) => level === difficultyParam) ?? ""
   );
@@ -108,7 +110,9 @@ const PronunciationPracticeContent = () => {
         if (!pendingSession.current) throw new Error("invalid-session");
       }
       sessionStorage.setItem(PRONUNCIATION_STORAGE_KEY, JSON.stringify(pendingSession.current));
-      router.push("/pronunciation-practice/start");
+      router.push(
+        `/pronunciation-practice/start${learningPlanStepQuery(planStep).replace("&", "?")}`
+      );
     } catch {
       if (mounted.current)
         setError(

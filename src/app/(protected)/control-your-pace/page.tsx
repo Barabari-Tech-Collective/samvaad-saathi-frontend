@@ -1,8 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import SkillLanding from "@/components/studio/SkillLanding";
+import { useSearchParams } from "next/navigation";
+import { learningPlanStepContext, learningPlanStepQuery } from "@/lib/learning-plan-context";
 
 export default function ControlYourPacePage() {
+  const planStep = learningPlanStepContext(useSearchParams());
   return (
     <SkillLanding
       title="Find a pace that feels natural."
@@ -31,7 +36,10 @@ export default function ControlYourPacePage() {
       <div className="my-6 border-y border-[var(--studio-line)] py-5 text-sm studio-muted">
         You’ll need a microphone and a quiet place to speak.
       </div>
-      <Link href="/control-your-pace/levels" className="btn btn-neutral studio-wide-action">
+      <Link
+        href={`/control-your-pace/levels${learningPlanStepQuery(planStep).replace("&", "?")}`}
+        className="btn btn-neutral studio-wide-action"
+      >
         Choose your level <ArrowRightIcon className="size-4" aria-hidden="true" />
       </Link>
     </SkillLanding>

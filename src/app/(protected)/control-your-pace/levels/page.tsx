@@ -7,8 +7,12 @@ import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService } from "@/lib/api-config/src/config";
 import { ENDPOINTS } from "@/lib/api-config/src/endpoints";
 import type { PacingLevelsResponse } from "@/lib/pacing-practice/types";
+import { useSearchParams } from "next/navigation";
+import { learningPlanStepContext, learningPlanStepQuery } from "@/lib/learning-plan-context";
 
 const LevelsPage = () => {
+  const planStep = learningPlanStepContext(useSearchParams());
+  const planQuery = learningPlanStepQuery(planStep);
   const apiClient = createApiClient(APIService.PACING);
   const { data, isLoading, error, refetch } = apiClient.useQuery<PacingLevelsResponse>({
     key: ["pacing-levels"],
@@ -143,7 +147,7 @@ const LevelsPage = () => {
           ) : (
             <Link
               key={level.level}
-              href={`/control-your-pace/level-intro?level=${level.level}`}
+              href={`/control-your-pace/level-intro?level=${level.level}${planQuery}`}
               className={`${cardClass} block cursor-pointer hover:shadow-md transition-shadow`}
               aria-label={`Start ${level.name}`}
             >
@@ -157,7 +161,7 @@ const LevelsPage = () => {
       {lastUnlockedLevel ? (
         <div className="mt-auto pb-4">
           <Link
-            href={`/control-your-pace/level-intro?level=${lastUnlockedLevel.level}`}
+            href={`/control-your-pace/level-intro?level=${lastUnlockedLevel.level}${planQuery}`}
             className="btn btn-neutral btn-block btn-lg bg-[#0F172A] text-white rounded-xl"
           >
             Start level {lastUnlockedLevel.level} Practice

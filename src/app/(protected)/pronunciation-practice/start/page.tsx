@@ -9,6 +9,8 @@ import { ArrowPathIcon, ArrowRightIcon, SpeakerWaveIcon } from "@heroicons/react
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { learningPlanStepContext } from "@/lib/learning-plan-context";
 
 import {
   readPronunciationSession,
@@ -22,9 +24,29 @@ const PronunciationPracticeStartPage = () => {
   const [playError, setPlayError] = useState(false);
   const [isSlow, setIsSlow] = useState(false);
   const [showCompletion, setShowCompletion] = useState(false);
+  const [completionError, setCompletionError] = useState("");
+  const [completing, setCompleting] = useState(false);
+  const mounted = useRef(true);
   const audioUrlRef = useRef<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const apiClient = createApiClient(APIServiceV2.INTERVIEWS);
+  const planStep = learningPlanStepContext(useSearchParams());
+  const { mutateAsync: completePronunciation } = apiClient.useMutation<
+    unknown,
+    Record<string, never>
+  >({
+    url: practiceData
+      ? `v2/pronunciation/${practiceData.practiceId}/complete`
+      : "v2/pronunciation/invalid/complete",
+    method: "post",
+  });
+  const { mutateAsync: bindPlanSession } = apiClient.useMutation<unknown, { session_id: number }>({
+    url:
+      planStep && practiceData
+        ? `v2/learning-plans/me/${planStep.assignmentId}/steps/${planStep.stepId}/drill-session`
+        : "v2/learning-plans/me/invalid/steps/invalid/drill-session",
+    method: "post",
+  });
 
   // Get current word safely
   const currentWord = practiceData?.words[currentWordIndex];
@@ -61,6 +83,13 @@ const PronunciationPracticeStartPage = () => {
     }
   }, []);
 
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
   // Call API when word changes or slow toggle changes
   useEffect(() => {
     if (practiceData && currentWord && !showCompletion) {
@@ -69,12 +98,27 @@ const PronunciationPracticeStartPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentWordIndex, practiceData, isSlow, showCompletion, currentWord]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    if (completing) return;
     if (practiceData && currentWordIndex < practiceData.words.length - 1) {
       setCurrentWordIndex(currentWordIndex + 1);
     } else if (practiceData && currentWordIndex === practiceData.words.length - 1) {
-      // All words completed, show congratulations screen
-      setShowCompletion(true);
+      setCompleting(true);
+      setCompletionError("");
+      try {
+        await completePronunciation({});
+        if (planStep) await bindPlanSession({ session_id: practiceData.practiceId });
+        if (mounted.current) setShowCompletion(true);
+      } catch {
+        if (mounted.current)
+          setCompletionError(
+            planStep
+              ? "Your practice was saved, but your Learning Plan could not be updated. Keep this page open and try Finish practice again."
+              : "Your practice could not be confirmed. Keep this page open and try Finish practice again."
+          );
+      } finally {
+        if (mounted.current) setCompleting(false);
+      }
     }
   };
 
@@ -244,13 +288,23 @@ const PronunciationPracticeStartPage = () => {
         </div>
 
         {/* Navigation Button */}
+        {completionError && (
+          <p role="alert" className="text-sm text-red-700">
+            {completionError}
+          </p>
+        )}
         <div className="flex justify-end mt-8">
           <button
-            onClick={handleNext}
+            onClick={() => void handleNext()}
+            disabled={completing}
             className="btn bg-[#1f285b] hover:bg-[#1f285b]/90 text-white px-6 py-3 rounded-xl flex items-center gap-2"
           >
             <span>
-              {currentWordIndex === practiceData.words.length - 1 ? "Finish practice" : "Next word"}
+              {currentWordIndex === practiceData.words.length - 1
+                ? completing
+                  ? "Confirming…"
+                  : "Finish practice"
+                : "Next word"}
             </span>
             <ArrowRightIcon className="h-5 w-5" />
           </button>

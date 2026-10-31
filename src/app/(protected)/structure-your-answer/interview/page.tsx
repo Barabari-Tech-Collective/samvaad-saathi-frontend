@@ -9,6 +9,7 @@ import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AnswerTypeStep, QuestionReport } from "./_components";
+import { learningPlanStepContext } from "@/lib/learning-plan-context";
 
 interface Question {
   text: string;
@@ -35,6 +36,7 @@ const StructureYourAnswerInterviewPage = () => {
   const searchParams = useSearchParams();
   const interviewId = searchParams.get("interviewId");
   const role = searchParams.get("role");
+  const planStep = learningPlanStepContext(searchParams);
 
   const [structuredPractice, setStructuredPractice] = useState<StructuredPracticeResponse | null>(
     null
@@ -46,6 +48,7 @@ const StructureYourAnswerInterviewPage = () => {
   const [showWelcome, setShowWelcome] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [completionError, setCompletionError] = useState<string | null>(null);
 
   const apiClient = createApiClient(APIServiceV2.INTERVIEWS);
 
@@ -54,6 +57,12 @@ const StructureYourAnswerInterviewPage = () => {
     { interviewId?: string; track?: string; difficulty?: string }
   >({
     url: ENDPOINTS_V2.GENERATE_STRUCTURED_PRACTICE,
+    method: "post",
+  });
+  const { mutateAsync: bindPlanSession } = apiClient.useMutation<unknown, { session_id: number }>({
+    url: planStep
+      ? `v2/learning-plans/me/${planStep.assignmentId}/steps/${planStep.stepId}/drill-session`
+      : "v2/learning-plans/me/invalid/steps/invalid/drill-session",
     method: "post",
   });
 
@@ -148,7 +157,8 @@ const StructureYourAnswerInterviewPage = () => {
   };
 
   // Handle moving to next question after report
-  const handleNextQuestion = () => {
+  const handleNextQuestion = async () => {
+    if (!structuredPractice) return;
     if (structuredPractice && currentQuestionIndex < structuredPractice.questions.length - 1) {
       // Move to next question
       setCurrentQuestionIndex((prev) => prev + 1);
@@ -156,9 +166,17 @@ const StructureYourAnswerInterviewPage = () => {
       setShowReport(false);
       setHasStartedPractice(false);
     } else {
-      // All questions completed - could redirect to completion page
-      // For now, just show a message or redirect
-      console.log("All questions completed!");
+      if (planStep) {
+        setCompletionError(null);
+        try {
+          await bindPlanSession({ session_id: structuredPractice.practiceId });
+        } catch {
+          setCompletionError(
+            "Your answer analysis is saved, but your Learning Plan could not be updated. Try Finish practice again."
+          );
+          return;
+        }
+      }
       router.push("/coaching");
     }
   };
@@ -234,12 +252,19 @@ const StructureYourAnswerInterviewPage = () => {
   // Show report if all sections are completed
   if (showReport) {
     return (
-      <QuestionReport
-        practiceId={structuredPractice?.practiceId?.toString() || ""}
-        questionIndex={currentQuestionIndex}
-        onNextQuestion={handleNextQuestion}
-        isLastQuestion={currentQuestionIndex === structuredPractice.questions.length - 1}
-      />
+      <>
+        {completionError && (
+          <p role="alert" className="studio-panel text-red-700">
+            {completionError}
+          </p>
+        )}
+        <QuestionReport
+          practiceId={structuredPractice?.practiceId?.toString() || ""}
+          questionIndex={currentQuestionIndex}
+          onNextQuestion={() => void handleNextQuestion()}
+          isLastQuestion={currentQuestionIndex === structuredPractice.questions.length - 1}
+        />
+      </>
     );
   }
 

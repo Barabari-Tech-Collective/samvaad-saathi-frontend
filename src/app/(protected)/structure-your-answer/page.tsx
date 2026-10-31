@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { ROLE_OPTIONS } from "@/lib/constants";
 import SkillLanding from "@/components/studio/SkillLanding";
+import { learningPlanStepContext, learningPlanStepQuery } from "@/lib/learning-plan-context";
 
 export default function StructureYourAnswerPage() {
   const router = useRouter();
+  const planStep = learningPlanStepContext(useSearchParams());
   const [selectedRole, setSelectedRole] = useState("");
   return (
     <SkillLanding
@@ -49,7 +51,7 @@ export default function StructureYourAnswerPage() {
         onClick={() => {
           if (selectedRole)
             router.push(
-              `/structure-your-answer/interview?role=${encodeURIComponent(selectedRole)}`
+              `/structure-your-answer/interview?role=${encodeURIComponent(selectedRole)}${learningPlanStepQuery(planStep)}`
             );
         }}
       >

@@ -17,6 +17,7 @@ import type {
   SubmitPacingSessionResponse,
 } from "@/lib/pacing-practice/types";
 import { useDrillRecorder } from "@/hooks/useDrillRecorder";
+import { learningPlanStepContext } from "@/lib/learning-plan-context";
 const PracticePage = () => {
   const router = useRouter();
   const { user } = useAuth();
@@ -25,6 +26,7 @@ const PracticePage = () => {
   const searchParams = useSearchParams();
   const levelParam = searchParams.get("level");
   const level = levelParam ? Number(levelParam) : 1;
+  const planStep = learningPlanStepContext(searchParams);
 
   const recording = useDrillRecorder(level);
   const recordingStatus = recording.status;
@@ -69,6 +71,12 @@ const PracticePage = () => {
       },
     },
     keyToInvalidate: { queryKey: ["pacing-levels"] },
+  });
+  const { mutateAsync: bindPlanSession } = apiClient.useMutation<unknown, { session_id: number }>({
+    url: planStep
+      ? `v2/learning-plans/me/${planStep.assignmentId}/steps/${planStep.stepId}/drill-session`
+      : "v2/learning-plans/me/invalid/steps/invalid/drill-session",
+    method: "post",
   });
 
   useEffect(() => {
@@ -198,6 +206,7 @@ const PracticePage = () => {
       const formData = new FormData();
       formData.append("file", new File([wavBlob], "recording.wav", { type: "audio/wav" }));
       await submitAudio(formData);
+      if (planStep) await bindPlanSession({ session_id: session.sessionId });
       if (revision === sessionRevision.current) {
         if (account && creationKey.current)
           clearPacingRequestKey(account, level, creationKey.current);
@@ -212,6 +221,7 @@ const PracticePage = () => {
           const recovered = await createSession({ level, clientRequestId: creationKey.current });
           if (revision !== sessionRevision.current) return;
           if (recovered.status === "completed") {
+            if (planStep) await bindPlanSession({ session_id: recovered.sessionId });
             clearPacingRequestKey(account, level, creationKey.current);
             router.push(`/control-your-pace/report?sessionId=${recovered.sessionId}`);
             return;

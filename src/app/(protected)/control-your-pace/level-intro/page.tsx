@@ -8,6 +8,7 @@ import { createApiClient } from "@/lib/api-config/src/client";
 import { APIService } from "@/lib/api-config/src/config";
 import { ENDPOINTS } from "@/lib/api-config/src/endpoints";
 import type { PacingLevelsResponse } from "@/lib/pacing-practice/types";
+import { learningPlanStepContext, learningPlanStepQuery } from "@/lib/learning-plan-context";
 
 const LEVEL_NAMES: Record<number, string> = {
   1: "Level 1 - Sentence Control",
@@ -19,6 +20,7 @@ const LevelIntroPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const level = searchParams.get("level") ? Number(searchParams.get("level")) : 1;
+  const planStep = learningPlanStepContext(searchParams);
   const apiClient = createApiClient(APIService.PACING);
   const { data: levelsData } = apiClient.useQuery<PacingLevelsResponse>({
     key: ["pacing-levels"],
@@ -39,7 +41,7 @@ const LevelIntroPage = () => {
         return;
       }
     }
-    router.push(`/control-your-pace/practice?level=${level}`);
+    router.push(`/control-your-pace/practice?level=${level}${learningPlanStepQuery(planStep)}`);
   };
 
   return (
