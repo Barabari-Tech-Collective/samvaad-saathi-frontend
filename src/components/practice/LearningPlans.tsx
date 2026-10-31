@@ -41,8 +41,11 @@ function CurrentStep({
     );
   if (step.kind === "mock")
     return (
-      <Link className="ws-button" href="/mock-interviews">
-        Open Mock Interviews
+      <Link
+        className="ws-button"
+        href={`/interview-start?mode=practice&jobProfileId=${step.jobProfileId}&courseId=${encodeURIComponent(assignment.courseId)}`}
+      >
+        Start {step.jobName ?? "assigned mock"}
       </Link>
     );
   return (

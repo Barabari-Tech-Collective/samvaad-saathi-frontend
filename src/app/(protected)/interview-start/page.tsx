@@ -44,6 +44,7 @@ interface CreateInterviewRequest {
   difficulty: string;
   jobProfileId?: number;
   questionCount?: number;
+  courseId?: string;
 }
 
 interface CreateInterviewResponse {
@@ -108,7 +109,8 @@ function EntryRecovery({ title, children }: { title: string; children: React.Rea
 }
 
 export default function InterviewStartPage() {
-  const raw = useSearchParams().get("mode");
+  const search = useSearchParams();
+  const raw = search.get("mode");
   const { user, loading } = useAuth();
   if (raw !== null && raw !== "practice" && raw !== "assessment")
     return (
@@ -123,12 +125,36 @@ export default function InterviewStartPage() {
       </EntryRecovery>
     );
   const mode = raw ?? "practice";
+  const profileParam = search.get("jobProfileId");
+  const courseParam = search.get("courseId");
+  const preselectedProfileId =
+    profileParam && /^[1-9]\d*$/.test(profileParam) && Number.isSafeInteger(Number(profileParam))
+      ? Number(profileParam)
+      : undefined;
+  const courseId =
+    courseParam && /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/.test(courseParam) ? courseParam : undefined;
   return (
-    <InterviewSetup key={`${user.userId}:${mode}`} account={String(user.userId)} mode={mode} />
+    <InterviewSetup
+      key={`${user.userId}:${mode}:${preselectedProfileId ?? ""}:${courseId ?? ""}`}
+      account={String(user.userId)}
+      mode={mode}
+      preselectedProfileId={preselectedProfileId}
+      courseId={courseId}
+    />
   );
 }
 
-function InterviewSetup({ account, mode }: { account: string; mode: InterviewMode }) {
+function InterviewSetup({
+  account,
+  mode,
+  preselectedProfileId,
+  courseId,
+}: {
+  account: string;
+  mode: InterviewMode;
+  preselectedProfileId?: number;
+  courseId?: string;
+}) {
   const ownerRevision = useRef(getAuthRevision()).current;
   const current = useRef(true);
   const submitting = useRef(false);
@@ -213,6 +239,18 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
         : { ...previous, jobName, category };
     });
   }, [selectableProfiles]);
+
+  useEffect(() => {
+    if (mode !== "practice" || !preselectedProfileId) return;
+    const profile = selectableProfiles.find((item) => item.id === preselectedProfileId);
+    if (!profile) return;
+    setSelection({
+      kind: "hr",
+      jobProfileId: profile.id,
+      jobName: profile.title,
+      category: profile.category || "HR & Non-Technical",
+    });
+  }, [mode, preselectedProfileId, selectableProfiles]);
 
   // Correct the current level when a facilitator has published only
   // easy questions would have every student submit an unavailable level and see
@@ -376,6 +414,7 @@ function InterviewSetup({ account, mode }: { account: string; mode: InterviewMod
           track,
           difficulty,
           jobProfileId,
+          ...(courseId ? { courseId } : {}),
           ...(selection.kind === "tech" ? { questionCount: freeQuestionCount } : {}),
         });
         if (!current.current || getAuthRevision() !== ownerRevision) return;
