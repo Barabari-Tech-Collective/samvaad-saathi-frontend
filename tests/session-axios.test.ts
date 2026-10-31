@@ -136,7 +136,7 @@ it.each([
 
 it.each([
   "v2/graduation/me",
-  "v2/practice-dashboard/consents/me",
+  "v2/privacy-notice",
   "v2/opportunities/me/outcomes",
   "v2/learning-plans/",
   "v2/learning-plans/me/assignments",

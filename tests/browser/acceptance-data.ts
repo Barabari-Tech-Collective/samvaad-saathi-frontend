@@ -16,6 +16,8 @@ export function acceptanceData(path: string): unknown | undefined {
     };
   if (path.includes("human-interviews"))
     return { items: [], total: 0, notice: "Your host will schedule a human interview." };
+  if (path.includes("privacy-notice"))
+    return { version: "t", title: "t", paragraphs: [], accepted: true, accepted_at: null };
   if (path.includes("consent")) return [];
   if (path.includes("guides")) return { dismissed: false, completed: false, step: 0 };
   return undefined;
