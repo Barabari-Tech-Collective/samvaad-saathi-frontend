@@ -1,29 +1,17 @@
 "use client";
 import PageHeading from "@/components/studio/PageHeading";
 import { useLayoutEffect, useRef, useState } from "react";
+import { getAuthRevision } from "@/lib/auth-session";
+import {
+  parseAssessmentReviewsPage,
+  validReviewReason,
+  type AssessmentReviewCase,
+} from "@/lib/assessment-reviews";
 import { apiClient } from "@/lib/api-config/src/instance";
 
-type Case = {
-  id: number;
-  interview_id: number;
-  state: string;
-  outcome: string | null;
-  version: number;
-  appeal_deadline: string | null;
-  can_explain: boolean;
-  can_appeal: boolean;
-  history: {
-    kind: string;
-    reason: string;
-    at: string;
-    source?: string;
-    outcome?: string;
-    signals?: { eventId: string; reason: string; recordedAt: string }[];
-  }[];
-};
 const button =
   "inline-flex min-h-11 items-center justify-center rounded-xl border border-[#C0CFF2] px-4 py-2 font-medium text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:opacity-50";
-function ReviewCard({ row, refresh }: { row: Case; refresh: () => void }) {
+function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () => void }) {
   const submit = apiClient.useMutation<unknown, Record<string, unknown>>({
     url: `v2/integrity/me/cases/${row.id}/actions`,
     method: "post",
@@ -32,6 +20,7 @@ function ReviewCard({ row, refresh }: { row: Case; refresh: () => void }) {
   const [reason, setReason] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const ownerRevision = useRef(getAuthRevision()).current;
   const alive = useRef(true);
   const lock = useRef(false);
   const retry = useRef<{ body: string; key: string } | null>(null);
@@ -41,19 +30,19 @@ function ReviewCard({ row, refresh }: { row: Case; refresh: () => void }) {
       alive.current = false;
     };
   }, []);
-  const options = [...(row.can_explain ? ["explain"] : []), ...(row.can_appeal ? ["appeal"] : [])];
+  const options = [...(row.canExplain ? ["explain"] : []), ...(row.canAppeal ? ["appeal"] : [])];
   const selected = options.includes(action) ? action : options[0];
   return (
     <article className="space-y-4 rounded-2xl border border-[#DEE8FB] bg-white p-5">
       <h2 className="text-xl font-semibold">
-        Assessment {row.interview_id} · Review {row.id}
+        Assessment {row.interviewId} · Review {row.id}
       </h2>
       <p>
         Status: {row.state}. Outcome: {row.outcome ?? "No decision"}.
       </p>
-      {row.appeal_deadline && (
+      {row.appealDeadline && (
         <p>
-          Appeal deadline: {new Date(row.appeal_deadline).toLocaleString()} (your device time). The
+          Appeal deadline: {new Date(row.appealDeadline).toLocaleString()} (your device time). The
           server checks this deadline.
         </p>
       )}
@@ -69,7 +58,8 @@ function ReviewCard({ row, refresh }: { row: Case; refresh: () => void }) {
             </p>
             <p className="whitespace-pre-wrap break-words">{event.reason}</p>
             <p className="text-sm text-gray-600">
-              {event.source?.replaceAll("_", " ")} · {new Date(event.at).toLocaleString()}
+              {(event.source ?? "System").replaceAll("_", " ")} ·{" "}
+              {new Date(event.at).toLocaleString()}
             </p>
             {event.signals && (
               <details>
@@ -93,35 +83,50 @@ function ReviewCard({ row, refresh }: { row: Case; refresh: () => void }) {
           className="space-y-3"
           onSubmit={async (event) => {
             event.preventDefault();
-            if (lock.current) return;
+            if (lock.current || !alive.current || getAuthRevision() !== ownerRevision) return;
+            const normalizedReason = validReviewReason(reason);
+            if (!normalizedReason) {
+              setError("Enter 10–2,000 characters before submitting your explanation.");
+              return;
+            }
             lock.current = true;
             setBusy(true);
             setError("");
             const value = {
               action: selected,
-              reason: reason.trim(),
+              reason: normalizedReason,
               expected_version: row.version,
             };
             const body = JSON.stringify(value);
-            if (retry.current?.body !== body) retry.current = { body, key: crypto.randomUUID() };
+            if (retry.current?.body !== body) {
+              if (typeof globalThis.crypto?.randomUUID !== "function") {
+                lock.current = false;
+                setBusy(false);
+                setError(
+                  "This browser cannot safely submit the action. Update it or contact support."
+                );
+                return;
+              }
+              retry.current = { body, key: globalThis.crypto.randomUUID() };
+            }
             try {
               await submit.mutateAsync({
                 ...value,
                 request_key: retry.current.key,
               });
-              if (alive.current) {
+              if (alive.current && getAuthRevision() === ownerRevision) {
                 retry.current = null;
                 setReason("");
                 refresh();
               }
             } catch {
-              if (alive.current)
+              if (alive.current && getAuthRevision() === ownerRevision)
                 setError(
                   "Could not confirm this action. Retry the same text, or reload to check the current case and deadline. Your text is kept here."
                 );
             } finally {
               lock.current = false;
-              if (alive.current) setBusy(false);
+              if (alive.current && getAuthRevision() === ownerRevision) setBusy(false);
             }
           }}
         >
@@ -177,12 +182,14 @@ function ReviewCard({ row, refresh }: { row: Case; refresh: () => void }) {
 }
 export function AssessmentReviews({ accountKey }: { accountKey: string }) {
   const [page, setPage] = useState(1);
-  const query = apiClient.useQuery<{ items: Case[]; total: number; notice: string }>({
+  const query = apiClient.useQuery<unknown>({
     url: `v2/integrity/me/cases?page=${page}`,
     key: ["assessment-reviews", accountKey, page],
     options: { staleTime: 0, gcTime: 0, retry: false, refetchOnWindowFocus: true },
   });
-  const data = query.isError || query.isFetching ? undefined : query.data;
+  const data =
+    query.isError || query.isFetching ? undefined : parseAssessmentReviewsPage(query.data);
+  const invalidResponse = !query.isError && !query.isFetching && query.data !== undefined && !data;
   return (
     <section className="mx-auto max-w-4xl space-y-6 py-6">
       <PageHeading
@@ -203,9 +210,9 @@ export function AssessmentReviews({ accountKey }: { accountKey: string }) {
         This page is only for tests, not practice. A flag is not proof of cheating. A review does
         not change your score by itself.
       </p>
-      {query.isError ? (
+      {query.isError || invalidResponse ? (
         <p role="alert">
-          Review notices could not be loaded. Check your session and reload. Previously cached
+          Review notices could not be verified. Check your session and reload. Previously cached
           evidence is hidden.
         </p>
       ) : !data ? (
