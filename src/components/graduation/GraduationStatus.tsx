@@ -8,6 +8,20 @@ type Progress = {
   placement_verified: boolean;
   graduated_at: string | null;
 };
+
+const isProgress = (value: unknown): value is Progress => {
+  if (!value || typeof value !== "object") return false;
+  const row = value as Record<string, unknown>;
+  return (
+    typeof row.course_id === "string" &&
+    row.course_id.trim().length > 0 &&
+    typeof row.state === "string" &&
+    typeof row.course_verified === "boolean" &&
+    typeof row.placement_verified === "boolean" &&
+    (typeof row.graduated_at === "string" || row.graduated_at === null)
+  );
+};
+
 export default function GraduationStatus() {
   const { user } = useAuth();
   const query = apiClient.useQuery<{ items: Progress[] }>({
@@ -16,6 +30,7 @@ export default function GraduationStatus() {
     options: { enabled: !!user, staleTime: 0, gcTime: 0, retry: false, refetchOnWindowFocus: true },
   });
   const data = query.isError || query.isFetching ? undefined : query.data;
+  const items = Array.isArray(data?.items) && data.items.every(isProgress) ? data.items : null;
   return (
     <section className="studio-profile-card space-y-3" aria-labelledby="graduation-heading">
       <h2 id="graduation-heading" className="text-xl font-semibold">
@@ -29,14 +44,16 @@ export default function GraduationStatus() {
         <p role="alert">Your graduation status could not be loaded.</p>
       ) : !data ? (
         <p role="status">Loading your progress…</p>
-      ) : !data.items.length ? (
+      ) : !items ? (
+        <p role="alert">Your graduation status could not be verified. Refresh to try again.</p>
+      ) : !items.length ? (
         <p>
           No verification record yet. Contact your course team when you have completed the course
           and joined a job.
         </p>
       ) : (
         <ul className="space-y-3">
-          {data.items.map((row) => (
+          {items.map((row) => (
             <li key={row.course_id} className="rounded-xl border p-4">
               <h3 className="font-medium">Course {row.course_id}</h3>
               <p>Course completion: {row.course_verified ? "Verified" : "Awaiting verification"}</p>

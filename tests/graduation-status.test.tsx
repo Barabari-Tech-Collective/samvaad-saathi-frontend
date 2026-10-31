@@ -42,3 +42,10 @@ it("makes an empty verification record actionable", () => {
   render(<GraduationStatus />);
   expect(screen.getByText(/Contact your course team/)).toBeVisible();
 });
+
+it("fails closed when the server returns a malformed verification record", () => {
+  f.query.data = { items: [{}] };
+  render(<GraduationStatus />);
+  expect(screen.getByRole("alert")).toHaveTextContent("could not be verified");
+  expect(screen.queryByRole("list")).toBeNull();
+});
