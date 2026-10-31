@@ -42,17 +42,10 @@ const steps: GuideStep[] = [
     optional: true,
   },
   {
-    title: "Test reviews",
-    body: "If one of your tests is flagged, you can read why here and ask for a second look.",
-    href: "/assessment-reviews",
-    target: link("/assessment-reviews"),
-    optional: true,
-  },
-  {
-    title: "Live interviews",
-    body: "Book and join an interview with a real person when your course offers it.",
-    href: "/human-interviews",
-    target: link("/human-interviews"),
+    title: "Assessments: AI or Human Interview",
+    body: "Open an assigned AI Interview or see the details for a Human Interview. Assessment instructions are separate from Mock Interviews.",
+    href: "/assessments",
+    target: link("/assessments"),
     optional: true,
   },
   {
@@ -110,7 +103,7 @@ const phoneSteps: GuideStep[] = [
   },
   {
     title: "More",
-    body: "Touch More to find History, your resume, your profile, your human interviews and your test reviews.",
+    body: "Touch More to find Assessments, History, your resume and your profile.",
     target: 'nav[aria-label="Bottom Navigation"] button[aria-label="More features"]',
   },
   {

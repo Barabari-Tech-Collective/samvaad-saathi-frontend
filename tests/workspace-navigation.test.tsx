@@ -40,9 +40,9 @@ it("keeps icon navigation named and identifies the current page", () => {
   );
   const nav = screen.getByRole("navigation", { name: "Student navigation" });
   expect(within(nav).getByRole("link", { name: "Home" })).toHaveAttribute("aria-current", "page");
-  expect(within(nav).getByRole("link", { name: "Test reviews" })).toHaveAttribute(
+  expect(within(nav).getByRole("link", { name: "Assessments" })).toHaveAttribute(
     "href",
-    "/assessment-reviews"
+    "/assessments"
   );
   expect(screen.queryByRole("link", { name: "Bulk ATS" })).toBeNull();
   expect(screen.getByRole("button", { name: "Collapse navigation" })).toHaveAttribute(
@@ -91,9 +91,9 @@ it("makes every destination available through the mobile menu and closes after s
   );
   fireEvent.click(screen.getByRole("button", { name: "Open navigation" }));
   const dialog = screen.getByRole("dialog", { name: "Your workspace" });
-  expect(within(dialog).getByRole("link", { name: "Live interviews" })).toHaveAttribute(
+  expect(within(dialog).getByRole("link", { name: "Assessments" })).toHaveAttribute(
     "href",
-    "/human-interviews"
+    "/assessments"
   );
   fireEvent.click(within(dialog).getByRole("link", { name: "Home" }));
   expect(screen.queryByRole("dialog")).toBeNull();
@@ -156,6 +156,7 @@ it("opens all features from the bottom bar and resets expanded state on close", 
 
 it.each([
   ["/pronunciation-practice", "Coaching"],
+  ["/human-interviews", "Assessments"],
   ["/report-summary", "History"],
 ])("keeps the parent section selected on %s", (path, label) => {
   fixture.path = path;
@@ -167,7 +168,7 @@ it.each([
   const nav = screen.getByRole("navigation", { name: "Student navigation" });
   expect(within(nav).getByRole("link", { name: label })).toHaveAttribute("aria-current", "page");
   const bottom = screen.getByRole("navigation", { name: "Bottom Navigation" });
-  if (path === "/report-summary") {
+  if (path === "/report-summary" || path === "/human-interviews") {
     expect(within(bottom).getByRole("button", { name: "More features" })).toHaveAttribute(
       "data-active",
       "true"

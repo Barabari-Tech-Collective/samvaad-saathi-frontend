@@ -11,6 +11,9 @@ function parentDestination(path: string) {
   if (section === "/mock-interviews" && path !== "/mock-interviews") {
     return { href: "/mock-interviews", label: "Mock Interviews" };
   }
+  if (section === "/assessments" && path !== "/assessments") {
+    return { href: "/assessments", label: "Assessments" };
+  }
   const resumeParents: Record<string, { href: string; label: string }> = {
     "/ai-resume/score": { href: "/ai-resume", label: "Resume upload" },
     "/ai-resume/skills": { href: "/ai-resume/score", label: "Resume review" },

@@ -10,6 +10,15 @@ export function workspaceSection(path: string): string {
     ].some((route) => path === route || path.startsWith(`${route}/`))
   )
     return "/coaching";
+  if (
+    path === "/assessments" ||
+    path.startsWith("/assessments/") ||
+    path === "/assessment-reviews" ||
+    path.startsWith("/assessment-reviews/") ||
+    path === "/human-interviews" ||
+    path.startsWith("/human-interviews/")
+  )
+    return "/assessments";
   // `/interview-start` can prepare either a Mock Interview or a formal assessment.
   // The route pathname alone cannot safely choose a parent, so leave it unselected.
   if (path === "/interview-start" || path.startsWith("/interview-start/")) return path;

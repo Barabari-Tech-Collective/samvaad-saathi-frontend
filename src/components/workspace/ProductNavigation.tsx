@@ -32,6 +32,7 @@ export default function ProductNavigation() {
     "/coaching",
     "/mock-interviews",
     "/history",
+    "/assessments",
     "/assessment-reviews",
     "/human-interviews",
   ].includes(pathname);

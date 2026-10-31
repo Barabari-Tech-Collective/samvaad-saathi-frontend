@@ -82,11 +82,11 @@ export default function HomePage() {
             </span>
             <ArrowRightIcon aria-hidden="true" />
           </Link>
-          <Link className="ws-task-link" href="/interview-start?mode=assessment">
+          <Link className="ws-task-link" href="/assessments">
             <ClipboardDocumentCheckIcon aria-hidden="true" />
             <span>
-              <strong>{t("Tests")}</strong>
-              <small>{t("See your tests and how to take them")}</small>
+              <strong>{t("Assessments")}</strong>
+              <small>Open your assigned AI or Human Interview</small>
             </span>
             <ArrowRightIcon aria-hidden="true" />
           </Link>

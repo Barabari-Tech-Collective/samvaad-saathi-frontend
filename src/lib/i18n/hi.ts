@@ -8,6 +8,7 @@ export const hi: Record<string, string> = {
   Home: "होम",
   Practice: "अभ्यास",
   Coaching: "कोचिंग",
+  Assessments: "मूल्यांकन",
   "Mock Interviews": "मॉक इंटरव्यू",
   "Mock Interview": "मॉक इंटरव्यू",
   History: "इतिहास",
@@ -121,12 +122,15 @@ export const hi: Record<string, string> = {
   "Mock Interviews: rehearse an interview": "मॉक इंटरव्यू: इंटरव्यू की तैयारी करें",
   "Rehearse an interview, continue a saved round, and review feedback. Mock Interviews are separate from assessments.":
     "इंटरव्यू का अभ्यास करें, सेव किया हुआ राउंड जारी रखें और फ़ीडबैक देखें। मॉक इंटरव्यू और मूल्यांकन अलग हैं।",
+  "Assessments: AI or Human Interview": "मूल्यांकन: एआई या व्यक्ति के साथ इंटरव्यू",
+  "Open an assigned AI Interview or see the details for a Human Interview. Assessment instructions are separate from Mock Interviews.":
+    "दिया गया एआई इंटरव्यू खोलें या व्यक्ति के साथ इंटरव्यू की जानकारी देखें। मूल्यांकन के निर्देश मॉक इंटरव्यू से अलग हैं।",
   "Work on one skill with short exercises and tasks from your teacher.":
     "छोटे अभ्यासों और टीचर के दिए काम से एक स्किल सुधारें।",
   "Rehearse an interview or continue a saved round. This is practice, not an assessment.":
     "इंटरव्यू का अभ्यास करें या सेव किया हुआ राउंड जारी रखें। यह अभ्यास है, मूल्यांकन नहीं।",
-  "Touch More to find History, your resume, your profile, your human interviews and your test reviews.":
-    "इतिहास, रिज़्यूमे, प्रोफ़ाइल, व्यक्ति के साथ इंटरव्यू और टेस्ट की समीक्षा देखने के लिए “और” दबाएँ।",
+  "Touch More to find Assessments, History, your resume and your profile.":
+    "मूल्यांकन, इतिहास, रिज़्यूमे और प्रोफ़ाइल देखने के लिए “और” दबाएँ।",
   "Welcome!": "स्वागत है!",
   "We will show you where things are. It takes one minute. You can stop any time.":
     "हम आपको दिखाएँगे कि सब कुछ कहाँ है। इसमें एक मिनट लगेगा। आप कभी भी रुक सकते हैं।",

@@ -11,6 +11,7 @@ const PATH_TO_SCREEN_MAP: Record<string, string> = {
   "/practice": SCREEN_VIEW.PRACTICE_LIST_PAGE,
   "/coaching": SCREEN_VIEW.PRACTICE_LIST_PAGE,
   "/mock-interviews": SCREEN_VIEW.PRACTICE_LIST_PAGE,
+  "/assessments": SCREEN_VIEW.INTERVIEW_SETUP_PAGE,
   "/profile": SCREEN_VIEW.PROFILE_PAGE,
   "/onboarding": SCREEN_VIEW.ONBOARDING_PAGE,
   "/interview": SCREEN_VIEW.INTERVIEW_PAGE,
