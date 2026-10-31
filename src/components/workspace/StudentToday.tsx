@@ -47,7 +47,15 @@ function parseToday(value: unknown): Today | null {
   const href = action.href;
   const safeHref =
     (kind === "human_interview" && href === "/human-interviews") ||
-    (kind === "learning_plan" && href === "/coaching") ||
+    (kind === "learning_plan" &&
+      typeof href === "string" &&
+      (href === "/coaching" ||
+        /^\/(?:warm-up-chat|think-fast|pronunciation-practice|structure-your-answer|control-your-pace)\?planAssignment=[1-9]\d*&planStep=[1-9]\d*$/.test(
+          href
+        ) ||
+        /^\/interview-start\?mode=practice&jobProfileId=[1-9]\d*&courseId=[A-Za-z0-9%._-]+$/.test(
+          href
+        ))) ||
     (kind === "ai_interview" &&
       typeof href === "string" &&
       /^\/interview\?interviewId=[1-9]\d*&interviewMode=assessment$/.test(href)) ||
