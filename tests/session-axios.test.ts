@@ -50,6 +50,8 @@ describe("explicit cookie Axios transport", () => {
     "practice/hub#secret",
     "v2/opportunities/1/selection",
     "v2/opportunities/me/outcomes/extra",
+    "v2/learning-plans-private",
+    "v2/mock-assignments-admin",
   ])("rejects unreviewed destination %s", async (path) => {
     const { api, adapter, identity } = setup();
     await expect(api.get(path)).rejects.toBeDefined();
@@ -132,12 +134,17 @@ it.each([
   expect(adapter.mock.calls[0][0].headers.get("X-CSRF-Token")).toBe("csrf");
 });
 
-it.each(["v2/graduation/me", "v2/practice-dashboard/consents/me", "v2/opportunities/me/outcomes"])(
-  "permits session-owned profile feature %s",
-  async (path) => {
-    const { api, adapter } = setup();
-    await api.get(path);
-    expect(adapter).toHaveBeenCalledOnce();
-    expect(adapter.mock.calls[0][0].headers.get("X-Session-Principal")).toBe("u");
-  }
-);
+it.each([
+  "v2/graduation/me",
+  "v2/practice-dashboard/consents/me",
+  "v2/opportunities/me/outcomes",
+  "v2/learning-plans/",
+  "v2/learning-plans/me/assignments",
+  "v2/mock-assignments/",
+  "v2/mock-assignments/me",
+])("permits session-owned profile feature %s", async (path) => {
+  const { api, adapter } = setup();
+  await api.get(path);
+  expect(adapter).toHaveBeenCalledOnce();
+  expect(adapter.mock.calls[0][0].headers.get("X-Session-Principal")).toBe("u");
+});
