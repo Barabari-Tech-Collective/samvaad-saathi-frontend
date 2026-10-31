@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { CoachingAssignments } from "@/components/practice/CoachingAssignments";
 import { LearningPlans } from "@/components/practice/LearningPlans";
+import { MockAssignments } from "@/components/practice/MockAssignments";
 import {
   PracticeHubSkeleton,
   PracticeHubView,
@@ -54,6 +55,7 @@ export default function LearningWorkspace({ area }: { area: LearningArea }) {
           <CoachingAssignments key={String(account)} accountKey={String(account)} />
         </>
       )}
+      {area === "mock" && <MockAssignments key={`mocks:${account}`} accountKey={String(account)} />}
     </PracticeHubView>
   );
 }
