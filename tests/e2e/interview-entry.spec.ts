@@ -214,8 +214,8 @@ test("legacy reattempt links do not read questions or reopen a completed assessm
     return r.fulfill({ json: {} });
   });
   await page.goto("/?fixture=reattempt&interviewId=9&role=Assessment&attemptsCount=99");
-  await expect(page.getByRole("heading", { name: "Start a fresh practice round" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Set up practice" })).toHaveAttribute(
+  await expect(page.getByRole("heading", { name: "Start a new Mock Interview" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Set up a Mock Interview" })).toHaveAttribute(
     "href",
     "/interview-start?mode=practice"
   );

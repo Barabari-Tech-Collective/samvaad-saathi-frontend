@@ -137,7 +137,7 @@ async function openPractice(page: Page) {
     })
   );
   await page.goto("/?fixture=active&interviewId=7&resumed=true&interviewMode=practice");
-  await page.getByRole("button", { name: "Begin practice interview", exact: true }).click();
+  await page.getByRole("button", { name: "Begin Mock Interview", exact: true }).click();
   await expect(page.getByText("Explain a project decision", { exact: true })).toBeVisible();
 }
 test("stored practice mute prevents provider calls; resizing never remounts question speech", async ({
@@ -180,7 +180,7 @@ test("late account change cannot reuse the former account's companion preference
   await page.evaluate(() =>
     window.dispatchEvent(new CustomEvent("practice-test-account", { detail: "2" }))
   );
-  await page.getByRole("button", { name: "Begin practice interview", exact: true }).click();
+  await page.getByRole("button", { name: "Begin Mock Interview", exact: true }).click();
   await expect(page.getByRole("button", { name: "Hide Saathi" })).toBeVisible();
   await expect(page.locator(face)).toHaveAttribute("data-companion-motion", "true");
 });
