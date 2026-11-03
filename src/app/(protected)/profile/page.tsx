@@ -10,6 +10,7 @@ import {
 import { assertResumeDataSaved } from "@/lib/resume-readiness";
 import ResumeStorageRecovery from "@/components/resume/ResumeStorageRecovery";
 import GraduationStatus from "@/components/graduation/GraduationStatus";
+import MyCourses from "@/components/placement/MyCourses";
 import PageHeading from "@/components/studio/PageHeading";
 import { useAuth } from "@/components/providers/auth-provider";
 import { createApiClient, ENDPOINTS, extractApiErrorMessage } from "@/lib/api-config";
@@ -355,6 +356,7 @@ export default function ProfilePage() {
         description="Your details, the interview voice and who can see your practice."
       />
       <ResumeStorageRecovery />
+      <MyCourses />
       <GraduationStatus />
       <section className="studio-profile-card">
         <div className="studio-profile-identity">
