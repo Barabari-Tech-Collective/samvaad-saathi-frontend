@@ -180,7 +180,12 @@ function InterviewSetup({
     queryKey: ["interview-entry-profiles", account, mode],
     queryFn: async ({ signal }) => {
       assertAuthRevision(ownerRevision);
-      const value = await apiClient.get<unknown>(ENDPOINTS_V2.JOB_PROFILES, { signal });
+      const value = await apiClient.get<unknown>(ENDPOINTS_V2.JOB_PROFILES, {
+        signal,
+        // A network request without a deadline turns a missing assignment into a permanent
+        // loading screen. The recovery state below gives the learner a safe retry instead.
+        timeout: 15_000,
+      });
       assertAuthRevision(ownerRevision);
       const parsed = parseInterviewCatalogue(value);
       if (!parsed) throw new Error("Role catalogue could not be verified.");
