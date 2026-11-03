@@ -115,13 +115,15 @@ it("does not turn a session outage into a login loop", async () => {
   expect(await screen.findByText("We could not verify your session")).toBeTruthy();
   expect(runtime.replace).not.toHaveBeenCalled();
 });
-it("replaces the account and removes previous profile data on focus verification", async () => {
+it("does not re-verify a healthy session simply because the learner changes browser tabs", async () => {
   mount();
   expect(await screen.findByText("Learner 1")).toBeTruthy();
+  const callsAfterInitialLoad = transport.mock.calls.length;
   principal = "2";
   fireEvent.focus(window);
-  expect(await screen.findByText("Learner 2")).toBeTruthy();
-  expect(screen.queryByText("Learner 1")).toBeNull();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  expect(transport).toHaveBeenCalledTimes(callsAfterInitialLoad);
+  expect(screen.getByText("Learner 1")).toBeTruthy();
 });
 it("ignores its own channel messages but invalidates when another tab changes the session", async () => {
   const channels: { onmessage: ((event: { data: unknown }) => void) | null }[] = [];
