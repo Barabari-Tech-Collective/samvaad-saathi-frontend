@@ -79,6 +79,7 @@ export default function StudentShell({ children }: { children: React.ReactNode }
   const previous = useRef(pathname);
   const main = useRef<HTMLElement>(null);
   const immersive = pathname === "/interview" || pathname === "/onboarding";
+  const isHome = pathname === "/home";
   useEffect(() => {
     document.title = `${titles[pathname.split("/")[1]] ?? "Workspace"} · Samvaad Saathi`;
     if (previous.current !== pathname) {
@@ -217,7 +218,7 @@ export default function StudentShell({ children }: { children: React.ReactNode }
       )}
       <main ref={main} id="student-content" tabIndex={-1} className="student-main">
         {!immersive && <PageNavigation pathname={pathname} />}
-        {children}
+        {immersive || isHome ? children : <div className="studio-page-frame">{children}</div>}
       </main>
       {!immersive && <BottomNav onMoreClick={openMenu} menuOpen={menuOpen} />}
     </div>
