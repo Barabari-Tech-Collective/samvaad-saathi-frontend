@@ -65,9 +65,13 @@ export function parseInterviewCatalogue(value: unknown): InterviewCataloguePage 
     const title = text(row.title, 200);
     const description = text(row.description, 5_000);
     const category = optionalText(row.category, 100);
+    // The API names this createdAt; older fixtures and responses used created_at. Accept either
+    // so the field's name cannot reject every role, but a date that is present and not a real
+    // date (or absent under both names) still rejects the role.
+    const rawCreatedAt = row.createdAt ?? row.created_at;
     const createdAt =
-      typeof row.created_at === "string" && Number.isFinite(Date.parse(row.created_at))
-        ? row.created_at
+      typeof rawCreatedAt === "string" && Number.isFinite(Date.parse(rawCreatedAt))
+        ? rawCreatedAt
         : null;
     const mode = row.interviewMode;
     const difficulties = row.availableDifficulties;
