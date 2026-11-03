@@ -183,7 +183,12 @@ export function CookieAuthProvider({ children }: { children: React.ReactNode }) 
         setLeaving(false);
       });
   };
-  const signOut = () => performSignOut(true);
+  // A normal student logout must always be able to end this browser's Samvaad
+  // session.  Requiring Central Auth's cross-device revocation here meant a
+  // temporary central outage stranded the student on a protected screen.  The
+  // global endpoint remains available for an explicit "sign out everywhere"
+  // control; the ordinary navigation/profile action is intentionally local.
+  const signOut = () => performSignOut(false);
   if (query.isError || logoutError)
     return (
       <main className="studio-page">
