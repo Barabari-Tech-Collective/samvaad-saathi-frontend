@@ -82,15 +82,17 @@ export function StudentToday({ accountKey }: { accountKey: string }) {
     url: "v2/student-home/today",
     options: { staleTime: 0, gcTime: 0, retry: false, refetchOnWindowFocus: true },
   });
-  const today = query.isError || query.isFetching ? null : parseToday(query.data);
-  const invalid = !query.isError && !query.isFetching && query.data !== undefined && !today;
+  // Keep the last verified action visible during a background focus refresh.
+  // Hiding it made an ordinary tab switch look like an app-wide reload.
+  const today = query.isError ? null : parseToday(query.data);
+  const invalid = !query.isError && !query.isLoading && query.data !== undefined && !today;
   return (
     <section className="ws-today" aria-labelledby="today-title">
       <div>
         <p className="studio-eyebrow">Today</p>
         <h2 id="today-title">Your next action</h2>
       </div>
-      {query.isFetching ? (
+      {query.isLoading ? (
         <output>Checking your assigned work…</output>
       ) : query.isError || invalid ? (
         <div role="alert">

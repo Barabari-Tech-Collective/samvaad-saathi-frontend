@@ -9,9 +9,9 @@ export function OpportunityOutcomes({ accountKey }: { accountKey: string }) {
     key: ["opportunity-outcomes", accountKey],
     options: { staleTime: 0, gcTime: 0, retry: false, refetchOnWindowFocus: true },
   });
-  const outcomes = query.isError || query.isFetching ? null : parseOpportunityOutcomes(query.data);
+  const outcomes = query.isError ? null : parseOpportunityOutcomes(query.data);
   const invalidResponse =
-    !query.isError && !query.isFetching && query.data !== undefined && !outcomes;
+    !query.isError && !query.isLoading && query.data !== undefined && !outcomes;
   return (
     <section
       className="mx-auto w-full max-w-4xl space-y-6 py-6"
@@ -37,7 +37,7 @@ export function OpportunityOutcomes({ accountKey }: { accountKey: string }) {
             Your outcomes could not be verified. Check your connection and sign-in, then refresh.
           </p>
         </div>
-      ) : outcomes === null ? (
+      ) : query.isLoading || outcomes === null ? (
         <output>Checking your released outcomes…</output>
       ) : !outcomes.length ? (
         <div className="studio-panel">

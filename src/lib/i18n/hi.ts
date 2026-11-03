@@ -112,7 +112,6 @@ export const hi: Record<string, string> = {
   "First do the checks above.": "पहले ऊपर की जाँचें पूरी करें।",
   "Change setup": "चुनाव बदलें",
 
-  // Student tour
   "Home: your starting point": "होम: यहीं से शुरू करें",
   "Choose Coaching for a short skill activity or Mock Interviews for a full rehearsal.":
     "एक स्किल के छोटे अभ्यास के लिए कोचिंग चुनें। पूरे इंटरव्यू का अभ्यास करने के लिए मॉक इंटरव्यू चुनें।",
@@ -144,12 +143,8 @@ export const hi: Record<string, string> = {
   "Before you speak": "बोलने से पहले",
   "When your phone asks, touch Allow for the microphone. Speak, then wait for the word Saved before the next question.":
     "जब फ़ोन पूछे, तो माइक्रोफ़ोन के लिए Allow दबाएँ। बोलें, फिर अगले सवाल से पहले “Saved” लिखा आने तक रुकें।",
-  "Take a one-minute tour.": "एक मिनट का टूर लें।",
   "Not now": "अभी नहीं",
-  "Start guide": "टूर शुरू करें",
-  "Skip guide": "टूर छोड़ें",
   Next: "आगे",
   Back: "पीछे",
   "Got it": "समझ गया",
-  "Quick guide": "जल्दी मार्गदर्शन",
 };

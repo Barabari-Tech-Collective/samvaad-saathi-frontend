@@ -12,7 +12,6 @@ import ProfilePage from "@/app/(protected)/profile/page";
 import StudentShell from "@/components/workspace/StudentShell";
 import PracticePage from "@/app/(protected)/practice/page";
 import { AssessmentFixture } from "./assessment-fixture";
-import { GuideFixture } from "./guide-fixture";
 import "./workspace.css";
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -130,8 +129,6 @@ createRoot(document.getElementById("root")!).render(
             },
           ]}
         />
-      ) : location.search.includes("fixture=guide") ? (
-        <GuideFixture />
       ) : (
         <Fixture />
       )}

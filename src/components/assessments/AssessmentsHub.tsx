@@ -75,11 +75,11 @@ export default function AssessmentsHub() {
     options: { staleTime: 0, gcTime: 0, retry: false, refetchOnWindowFocus: true },
   });
   const aiInterviews =
-    assignments.isError || assignments.isFetching || loading
+    assignments.isError || assignments.isLoading || loading
       ? undefined
       : assignedAiInterviews(assignments.data);
   const invalidAssignmentResponse =
-    !assignments.isError && !assignments.isFetching && !loading && aiInterviews === null;
+    !assignments.isError && !assignments.isLoading && !loading && aiInterviews === null;
   const openAiInterview = aiInterviews?.find((assignment) => assignment.phase === "open");
   const upcomingAiInterview = aiInterviews?.find((assignment) => assignment.phase === "upcoming");
 

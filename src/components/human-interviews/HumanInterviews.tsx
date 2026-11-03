@@ -200,8 +200,8 @@ export function HumanInterviews({ accountKey }: { accountKey: string }) {
     key: ["human-interviews", accountKey, page],
     options: { staleTime: 0, gcTime: 0, retry: false, refetchOnWindowFocus: true },
   });
-  const data = query.isError || query.isFetching ? undefined : parseHumanInterviewsPage(query.data);
-  const invalidResponse = !query.isError && !query.isFetching && query.data !== undefined && !data;
+  const data = query.isError ? undefined : parseHumanInterviewsPage(query.data);
+  const invalidResponse = !query.isError && !query.isLoading && query.data !== undefined && !data;
   return (
     <section
       aria-label="Your live interviews"
@@ -228,7 +228,7 @@ export function HumanInterviews({ accountKey }: { accountKey: string }) {
             Your program team can help verify enrollment.
           </p>
         </div>
-      ) : !data ? (
+      ) : query.isLoading || !data ? (
         <output>Checking your appointments…</output>
       ) : (
         <>
@@ -243,7 +243,7 @@ export function HumanInterviews({ accountKey }: { accountKey: string }) {
           )}
           <ul className="space-y-4">
             {data.items.map((row) => (
-              <AppointmentCard key={`${row.id}:${query.dataUpdatedAt}`} row={row} />
+              <AppointmentCard key={row.id} row={row} />
             ))}
           </ul>
           {(page > 1 || data.total > 10) && (

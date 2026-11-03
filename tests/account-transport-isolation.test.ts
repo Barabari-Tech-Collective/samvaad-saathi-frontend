@@ -109,3 +109,29 @@ it("an old failed refresh cannot log out the replacement account", async () => {
   await rejected;
   expect(document.cookie).toContain(`token=${token("b")}`);
 });
+
+it("keeps the learner signed in when the refresh service is temporarily unavailable", async () => {
+  login("a");
+  const client = createAxiosInstance("https://example.invalid");
+  vi.spyOn(axios, "post").mockRejectedValue(
+    new AxiosError("unavailable", "ERR_BAD_RESPONSE", undefined, null, {
+      data: {},
+      status: 503,
+      statusText: "Service Unavailable",
+      headers: new AxiosHeaders(),
+      config: { headers: new AxiosHeaders() } as never,
+    })
+  );
+  client.defaults.adapter = async (config) => {
+    throw new AxiosError("expired", "ERR_BAD_REQUEST", config, null, {
+      data: {},
+      status: 401,
+      statusText: "Unauthorized",
+      headers: new AxiosHeaders(),
+      config,
+    });
+  };
+  await expect(client.get("/report")).rejects.toMatchObject({ response: { status: 401 } });
+  expect(document.cookie).toContain(`token=${token("a")}`);
+  expect(document.cookie).toContain("refresh_token=refresh-a");
+});

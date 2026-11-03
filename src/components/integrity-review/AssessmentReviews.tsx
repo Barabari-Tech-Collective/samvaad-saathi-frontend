@@ -187,9 +187,11 @@ export function AssessmentReviews({ accountKey }: { accountKey: string }) {
     key: ["assessment-reviews", accountKey, page],
     options: { staleTime: 0, gcTime: 0, retry: false, refetchOnWindowFocus: true },
   });
-  const data =
-    query.isError || query.isFetching ? undefined : parseAssessmentReviewsPage(query.data);
-  const invalidResponse = !query.isError && !query.isFetching && query.data !== undefined && !data;
+  // Keep the already verified case list and the student's unsent explanation on
+  // screen during a focus refresh. A tab switch must not look like their review
+  // evidence vanished.
+  const data = query.isError ? undefined : parseAssessmentReviewsPage(query.data);
+  const invalidResponse = !query.isError && !query.isLoading && query.data !== undefined && !data;
   return (
     <section className="mx-auto max-w-4xl space-y-6 py-6">
       <PageHeading
@@ -215,7 +217,7 @@ export function AssessmentReviews({ accountKey }: { accountKey: string }) {
           Review notices could not be verified. Check your session and reload. Previously cached
           evidence is hidden.
         </p>
-      ) : !data ? (
+      ) : query.isLoading || !data ? (
         <output>Checking your review notices…</output>
       ) : (
         <>

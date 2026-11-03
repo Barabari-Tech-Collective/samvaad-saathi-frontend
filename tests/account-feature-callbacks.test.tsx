@@ -3,6 +3,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { HumanInterviews } from "@/components/human-interviews/HumanInterviews";
 import InterviewCompleted from "@/app/(protected)/interview-completed/page";
 const f = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn(), replace: vi.fn(), refetch: vi.fn() }));
+let interviewMode: "practice" | "assessment" = "assessment";
 vi.mock("@/lib/api-config", () => ({
   apiClient: {
     get: f.get,
@@ -50,7 +51,7 @@ vi.mock("@/lib/posthog/tracking.utils", () => ({ trackEvent: vi.fn() }));
 vi.mock("@tanstack/react-query", () => ({
   useQuery: ({ queryKey }: { queryKey: string[] }) =>
     queryKey[0] === "completion-status"
-      ? { data: { status: "completed", interviewMode: "practice" }, isFetching: false }
+      ? { data: { status: "completed", interviewMode }, isFetching: false }
       : {
           isError: true,
           error: { response: { status: 404 } },
@@ -72,6 +73,7 @@ function deferred<T>() {
 }
 beforeEach(() => {
   vi.clearAllMocks();
+  interviewMode = "assessment";
   login("first");
 });
 afterEach(() => {
@@ -157,6 +159,15 @@ it("still opens feedback after same-account preparation", async () => {
   render(<InterviewCompleted />);
   fireEvent.click(screen.getByRole("button", { name: "Prepare feedback" }));
   await act(async () => {});
+  expect(f.replace).toHaveBeenCalledWith("/report-summary?interviewId=1");
+});
+
+it("automatically prepares feedback after a completed Mock Interview", async () => {
+  interviewMode = "practice";
+  f.post.mockResolvedValue({});
+  render(<InterviewCompleted />);
+  await act(async () => {});
+  expect(f.post).toHaveBeenCalledWith({ interviewId: 1 });
   expect(f.replace).toHaveBeenCalledWith("/report-summary?interviewId=1");
 });
 

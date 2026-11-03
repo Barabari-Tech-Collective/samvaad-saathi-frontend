@@ -27,8 +27,11 @@ export default function HomePractice({ accountKey }: { accountKey: string }) {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, []);
-  const checking = query.isLoading || query.isFetching;
-  const hub = checking || query.isError ? null : parsePracticeHub(query.data);
+  // A focus refresh must not replace an already usable action with a loading
+  // screen. That made returning to Chrome look like the entire page had reset.
+  const checking = query.isLoading;
+  const refreshing = query.isFetching && !query.isLoading;
+  const hub = query.isError ? null : parsePracticeHub(query.data);
   const expired = savedPracticeExpired(hub?.resume ?? null, now);
   const resume = expired ? null : hub?.resume;
   const ready = resume?.readiness === "ready";
@@ -74,7 +77,7 @@ export default function HomePractice({ accountKey }: { accountKey: string }) {
         </p>
       </div>
       <div className="ws-action-row">
-        {checking ? (
+        {checking || refreshing ? (
           <output>{t("Loading your next step…")}</output>
         ) : (
           <Link

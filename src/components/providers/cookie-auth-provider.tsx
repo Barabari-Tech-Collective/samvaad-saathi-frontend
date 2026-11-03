@@ -14,6 +14,7 @@ import { loginDestination } from "@/lib/login-destination";
 import { clearLogoutStorage } from "@/lib/logout-storage";
 import { resetUser } from "@/lib/posthog/tracking.utils";
 import { ENDPOINTS } from "@/lib/api-config";
+import type { UserProfile } from "@/lib/types/user";
 
 let bootstrap: SessionBootstrap | undefined;
 let completion: Promise<string> | undefined;
@@ -47,6 +48,12 @@ export function CookieAuthProvider({ children }: { children: React.ReactNode }) 
   const cache = useQueryClient();
   const [logoutError, setLogoutError] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  // A cookie session is deliberately checked when this provider mounts and after an
+  // explicit cross-tab account change.  Do not throw away a verified in-memory user
+  // because a *background* check is interrupted by a flaky network, a sleeping
+  // laptop, or a short Central Auth outage.  A confirmed anonymous response still
+  // clears this value and follows the normal sign-in path below.
+  const [lastConfirmedUser, setLastConfirmedUser] = useState<UserProfile | null>(null);
   const logoutFlight = useRef(false);
   const publicPage = pathname === "/auth/signup" || pathname === "/auth/session-workspace";
   const query = useQuery({
@@ -99,9 +106,27 @@ export function CookieAuthProvider({ children }: { children: React.ReactNode }) 
       return bootstrap.load();
     },
   });
-  const user = query.data ?? null;
   useEffect(() => {
-    if (query.isPending || query.isError || leaving || pathname === "/auth/session-workspace")
+    if (query.data) {
+      setLastConfirmedUser(query.data);
+    } else if (!query.isPending && !query.isError) {
+      // This was a successful, confirmed anonymous response—not a transient outage.
+      setLastConfirmedUser(null);
+    }
+  }, [query.data, query.isError, query.isPending]);
+  // A successful anonymous response is authoritative immediately. This avoids even a
+  // single render of protected content after an explicit logout or an expired session.
+  const confirmedAnonymous = !query.isPending && !query.isError && !query.data;
+  const user = confirmedAnonymous
+    ? null
+    : (query.data ?? (query.isError ? lastConfirmedUser : null));
+  useEffect(() => {
+    if (
+      query.isPending ||
+      (query.isError && !lastConfirmedUser) ||
+      leaving ||
+      pathname === "/auth/session-workspace"
+    )
       return;
     if (!user && !publicPage) {
       router.replace(
@@ -129,7 +154,16 @@ export function CookieAuthProvider({ children }: { children: React.ReactNode }) 
       callbackDestination = undefined;
       router.replace(target);
     }
-  }, [query.isPending, query.isError, user, pathname, publicPage, router, leaving]);
+  }, [
+    query.isPending,
+    query.isError,
+    user,
+    pathname,
+    publicPage,
+    router,
+    leaving,
+    lastConfirmedUser,
+  ]);
 
   const refetch = query.refetch;
   useEffect(() => {
@@ -139,26 +173,13 @@ export function CookieAuthProvider({ children }: { children: React.ReactNode }) 
       channel.onmessage = (event) => {
         if (event.data?.source === sessionBroadcastSource) return;
         lifecycle().session.invalidate();
+        void refetch();
       };
     } catch {
-      /* Focus verification also covers browsers without BroadcastChannel. */
+      /* A browser without BroadcastChannel continues with its current verified session. */
     }
-    const verify = () => {
-      void refetch();
-    };
-    const visible = () => {
-      if (document.visibilityState === "visible") verify();
-    };
-    const timer = window.setInterval(visible, 60_000);
-    window.addEventListener("focus", verify);
-    window.addEventListener("pageshow", verify);
-    document.addEventListener("visibilitychange", visible);
     return () => {
       channel?.close();
-      window.clearInterval(timer);
-      window.removeEventListener("focus", verify);
-      window.removeEventListener("pageshow", verify);
-      document.removeEventListener("visibilitychange", visible);
     };
   }, [refetch]);
 
@@ -189,7 +210,7 @@ export function CookieAuthProvider({ children }: { children: React.ReactNode }) 
   // global endpoint remains available for an explicit "sign out everywhere"
   // control; the ordinary navigation/profile action is intentionally local.
   const signOut = () => performSignOut(false);
-  if (query.isError || logoutError)
+  if ((query.isError && !lastConfirmedUser) || logoutError)
     return (
       <main className="studio-page">
         <h1>

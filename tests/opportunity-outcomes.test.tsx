@@ -43,11 +43,16 @@ it("shows released feedback and next steps without internal notes", () => {
   expect(screen.getByText(released.next_step)).toBeInTheDocument();
   expect(screen.queryByText(released.reason)).toBeNull();
 });
-it.each(["isError", "isFetching"])("hides prior results while %s", (state) => {
-  f.response[state] = true;
+it("hides outcomes after a verified request failure", () => {
+  f.response.isError = true;
   render(<OutcomesPage />);
   expect(screen.queryByText("Developer")).toBeNull();
-  if (state === "isError") expect(screen.getByRole("alert")).toBeInTheDocument();
+  expect(screen.getByRole("alert")).toBeInTheDocument();
+});
+it("keeps released outcomes visible while a background refresh is in flight", () => {
+  f.response.isFetching = true;
+  render(<OutcomesPage />);
+  expect(screen.getByText("Developer")).toBeInTheDocument();
 });
 it("binds requests to the current account and hides stale results on account change", () => {
   const { rerender } = render(<OutcomesPage />);

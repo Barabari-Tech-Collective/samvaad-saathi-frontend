@@ -17,12 +17,12 @@ it("does not throw when both storage APIs are blocked", () => {
     });
   expect(clearLogoutStorage).not.toThrow();
 });
-it("keeps only guide preferences and clears account/session data", () => {
+it("clears account data while keeping only the language preference", () => {
   const removeItem = vi.fn();
   const clear = vi.fn();
   vi.spyOn(window, "localStorage", "get").mockReturnValue({
     length: 2,
-    key: (index: number) => ["samvaad-guide:1", "answer-draft"][index],
+    key: (index: number) => ["samvaad-language", "answer-draft"][index],
     removeItem,
   } as unknown as Storage);
   vi.spyOn(window, "sessionStorage", "get").mockReturnValue({ clear } as unknown as Storage);
@@ -33,8 +33,8 @@ it("keeps only guide preferences and clears account/session data", () => {
 it("keeps the chosen language, which is a device preference and not account data", () => {
   const removeItem = vi.fn();
   vi.spyOn(window, "localStorage", "get").mockReturnValue({
-    length: 3,
-    key: (index: number) => ["samvaad-language", "samvaad-guide:1", "answer-draft"][index],
+    length: 2,
+    key: (index: number) => ["samvaad-language", "answer-draft"][index],
     removeItem,
   } as unknown as Storage);
   vi.spyOn(window, "sessionStorage", "get").mockReturnValue({

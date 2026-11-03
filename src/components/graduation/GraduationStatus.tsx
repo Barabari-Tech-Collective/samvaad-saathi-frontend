@@ -29,7 +29,7 @@ export default function GraduationStatus() {
     key: ["graduation-status", user?.userId],
     options: { enabled: !!user, staleTime: 0, gcTime: 0, retry: false, refetchOnWindowFocus: true },
   });
-  const data = query.isError || query.isFetching ? undefined : query.data;
+  const data = query.isError ? undefined : query.data;
   const items = Array.isArray(data?.items) && data.items.every(isProgress) ? data.items : null;
   return (
     <section className="studio-profile-card space-y-3" aria-labelledby="graduation-heading">
@@ -42,7 +42,7 @@ export default function GraduationStatus() {
       </p>
       {query.isError ? (
         <p role="alert">Your graduation status could not be loaded.</p>
-      ) : !data ? (
+      ) : query.isLoading || !data ? (
         <p role="status">Loading your progress…</p>
       ) : !items ? (
         <p role="alert">Your graduation status could not be verified. Refresh to try again.</p>

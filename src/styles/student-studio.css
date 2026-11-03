@@ -8,7 +8,7 @@
 .student-workspace .student-main {
   padding-inline: clamp(20px, 3vw, 48px);
 }
-.student-workspace .student-main > :not(.workspace-guide-trigger):not(dialog) {
+.student-workspace .student-main > :not(dialog) {
   max-width: 1180px;
 }
 .student-workspace .student-topbar {

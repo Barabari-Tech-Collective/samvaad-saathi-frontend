@@ -14,6 +14,11 @@ export function pacingRequestKey(account: string, level: number): string {
   return key;
 }
 export function clearPacingRequestKey(account: string, level: number, expected: string) {
-  const key = `pacing-create:${account}:${level}`;
-  if (sessionStorage.getItem(key) === expected) sessionStorage.removeItem(key);
+  try {
+    const key = `pacing-create:${account}:${level}`;
+    if (sessionStorage.getItem(key) === expected) sessionStorage.removeItem(key);
+  } catch {
+    // A successful server response must still take the learner to its report when
+    // browser storage becomes unavailable after the session was created.
+  }
 }

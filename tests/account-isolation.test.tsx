@@ -12,6 +12,9 @@ import {
 function token(email: string, expires = 1) {
   return `header.${btoa(JSON.stringify({ sub: "access", email, exp: expires }))}.signature`;
 }
+function centralToken(userUniqueId: string, email: string, expires = 1) {
+  return `header.${btoa(JSON.stringify({ sub: email, userUniqueId, exp: expires, jti: `rotation-${expires}` }))}.signature`;
+}
 function login(email: string) {
   document.cookie = `token=${token(email)}; path=/`;
   announceAuthChange();
@@ -31,6 +34,14 @@ it("keeps the current session on same-account token refresh", () => {
   login("a@test.local");
   const before = getAuthRevision();
   document.cookie = `token=${token("a@test.local", 2)}; path=/`;
+  announceAuthChange();
+  expect(getAuthRevision()).toBe(before);
+});
+it("does not remount the workspace when Central Auth rotates a JWT for the same learner", () => {
+  document.cookie = `token=${centralToken("learner-1", "a@test.local")}; path=/`;
+  announceAuthChange();
+  const before = getAuthRevision();
+  document.cookie = `token=${centralToken("learner-1", "a@test.local", 2)}; path=/`;
   announceAuthChange();
   expect(getAuthRevision()).toBe(before);
 });

@@ -33,6 +33,9 @@ export default function LearningWorkspace({ area }: { area: LearningArea }) {
   }, [account, area]);
   if (loading || !account) return <PracticeHubSkeleton area={area} />;
   const hub = query.isError ? null : parsePracticeHub(query.data);
+  // Do not offer a new mock or resume action from stale data while this workspace
+  // is being reconciled after a tab return. The focused card retains its context,
+  // but its action stays gated until the verified response arrives.
   const status = query.isLoading
     ? "loading"
     : query.isFetching

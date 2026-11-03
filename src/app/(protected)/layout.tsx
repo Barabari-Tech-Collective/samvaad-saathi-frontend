@@ -1,5 +1,4 @@
 "use client";
-import StudentGuide from "@/components/guides/StudentGuide";
 import PrivacyNoticeGate from "@/components/PrivacyNoticeGate";
 import StudentShell from "@/components/workspace/StudentShell";
 export default function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -7,7 +6,6 @@ export default function ProtectedLayout({ children }: { children: React.ReactNod
     <StudentShell>
       {children}
       <PrivacyNoticeGate />
-      <StudentGuide />
     </StudentShell>
   );
 }

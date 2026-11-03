@@ -105,28 +105,21 @@ export const createAxiosInstance = (baseURL: string, session?: ServerSessionClie
         } catch (err: unknown) {
           // An old refresh must never overwrite or log out the new account.
           assertAuthRevision(expected);
-          // Check if it's an AxiosError
-          if (err && typeof err === "object" && "response" in err) {
-            const axiosError = err as AxiosError<ErrorResponse>;
-            const errorStatus = axiosError.response?.status;
-            const errorCode = axiosError.response?.data?.error?.code;
+          const axiosError = err as AxiosError<ErrorResponse>;
+          const errorStatus = axiosError.response?.status;
+          const errorCode = axiosError.response?.data?.error?.code;
+          const confirmedInvalidRefresh =
+            errorStatus === 400 ||
+            errorStatus === 401 ||
+            errorCode === "REFRESH_TOKEN_EXPIRED" ||
+            errorCode === "INVALID_REFRESH_TOKEN";
 
-            if (errorStatus === 401 || errorStatus === 400) {
-              console.log("Refresh token expired or invalid, logging out user");
-            } else if (
-              errorCode === "REFRESH_TOKEN_EXPIRED" ||
-              errorCode === "INVALID_REFRESH_TOKEN"
-            ) {
-              console.log("Refresh token has expired, logging out user");
-            } else {
-              console.log("Unknown refresh token error, logging out user for security");
-            }
-          } else {
-            console.log("Non-axios error during token refresh, logging out user for security");
-          }
-
-          // Logout user and clear all tokens
-          logoutUser();
+          // A network timeout, 429, or 5xx from Central Auth says nothing about the
+          // student's credentials. Clearing their browser in that case creates an
+          // unnecessary logout loop when they return to a tab. Keep the existing
+          // refresh token so a later request can recover; only a confirmed invalid
+          // refresh credential ends the local session.
+          if (confirmedInvalidRefresh) logoutUser();
         }
       }
 

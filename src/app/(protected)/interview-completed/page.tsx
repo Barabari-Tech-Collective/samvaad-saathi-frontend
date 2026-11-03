@@ -14,7 +14,7 @@ import { trackEvent } from "@/lib/posthog/tracking.utils";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const action =
   "inline-flex min-h-12 items-center justify-center rounded-xl bg-black px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]";
@@ -76,6 +76,7 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
   const client = createApiClient(APIServiceV2.INTERVIEWS);
   const current = useRef(true);
   const inFlight = useRef(false);
+  const autoPreparationStarted = useRef(false);
   const [retryWarning, setRetryWarning] = useState(false);
   const [generation, setGeneration] = useState<"idle" | "pending" | "uncertain" | "confirmed">(
     "idle"
@@ -127,6 +128,61 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
     options: { retry: false },
   });
 
+  // A mock interview is the learner's own rehearsal. There is no programme-team
+  // decision or release policy to wait for, so once its submission is confirmed we
+  // prepare feedback automatically. Assessments remain explicit and policy-controlled.
+  // The ref guarantees one request per mounted completion view even under React
+  // StrictMode, duplicate UI events, or a slow network response.
+  useEffect(() => {
+    const reportIsMissing = responseStatus(existing.error) === 404;
+    const isCompletedMock =
+      completion.data?.status === "completed" && completion.data.interviewMode === "practice";
+    if (
+      !isCompletedMock ||
+      !reportIsMissing ||
+      existing.isFetching ||
+      generation !== "idle" ||
+      autoPreparationStarted.current ||
+      inFlight.current
+    ) {
+      return;
+    }
+    autoPreparationStarted.current = true;
+    inFlight.current = true;
+    setGeneration("pending");
+    trackEvent("feedback_preparation_requested", {
+      source: "mock_completion_automatic",
+    });
+    void post
+      .mutateAsync({ interviewId: Number(interviewId) })
+      .then(() => {
+        if (!current.current || getAuthRevision() !== ownerRevision || !verifiedNow.current) {
+          return;
+        }
+        setGeneration("confirmed");
+        router.replace(`/report-summary?interviewId=${interviewId}`);
+      })
+      .catch(() => {
+        if (current.current && getAuthRevision() === ownerRevision) {
+          setGeneration("uncertain");
+          setRetryWarning(true);
+        }
+      })
+      .finally(() => {
+        inFlight.current = false;
+      });
+  }, [
+    completion.data?.interviewMode,
+    completion.data?.status,
+    existing.error,
+    existing.isFetching,
+    generation,
+    interviewId,
+    ownerRevision,
+    post,
+    router,
+  ]);
+
   if (completion.isFetching || (!completion.data && !completion.error))
     return (
       <CompletionCard title="Checking submission">
@@ -163,7 +219,8 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
   const receipt = completion.data.receipt;
   const missing = responseStatus(existing.error) === 404;
   const denied = [401, 403].includes(responseStatus(existing.error) ?? 0);
-  const canPrepare = missing && generation === "idle" && !existing.isFetching;
+  const canPrepare =
+    missing && (generation === "idle" || generation === "uncertain") && !existing.isFetching;
   return (
     <CompletionCard
       title={
@@ -214,7 +271,9 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
                 : generation === "uncertain"
                   ? "Preparation was not confirmed. Check for saved feedback before sending another preparation request."
                   : missing
-                    ? "No saved feedback was found. You can request preparation for this completed session."
+                    ? completion.data.interviewMode === "practice"
+                      ? "We are preparing feedback for your Mock Interview."
+                      : "No saved feedback was found. You can request preparation for this completed session."
                     : "Feedback availability could not be checked. Retry the check before requesting preparation."}
             </p>
             <div className="flex flex-wrap gap-3">
@@ -267,7 +326,9 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
                     }
                   }}
                 >
-                  Prepare feedback
+                  {completion.data.interviewMode === "practice"
+                    ? "Try feedback again"
+                    : "Prepare feedback"}
                 </button>
               )}
             </div>
