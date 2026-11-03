@@ -1024,6 +1024,68 @@
   padding: 10px;
 }
 
+/* Every non-Home route sits on the same quiet product canvas.  This is an
+   intentional shared frame, not a second card added by each feature: it keeps
+   short empty states, long histories and dense form flows equally calm. */
+.student-workspace .studio-page-frame {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  padding: clamp(20px, 3vw, 40px);
+  border: 1px solid var(--studio-line);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 100% 0, var(--studio-blue-wash), transparent 28rem),
+    var(--studio-paper);
+  box-shadow: var(--studio-shadow);
+}
+.student-workspace .studio-page-frame::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  right: clamp(24px, 4vw, 56px);
+  width: 52px;
+  height: 4px;
+  border-radius: 0 0 999px 999px;
+  background: var(--studio-yellow);
+}
+.student-workspace .studio-page-frame > * {
+  min-width: 0;
+}
+.student-workspace .studio-page-frame :is(.studio-panel, .ws-history-list) {
+  box-shadow: none;
+}
+.student-workspace .studio-page-frame .studio-page-heading {
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--studio-line);
+}
+.student-workspace .studio-page-frame .studio-heading-action {
+  display: flex;
+  min-width: 0;
+  gap: var(--studio-space-2);
+}
+.student-workspace .studio-page-frame :is(output, [role="status"]) {
+  color: var(--studio-muted);
+}
+.student-workspace .studio-page-frame [role="alert"] {
+  border-inline-start: 3px solid var(--studio-danger);
+  padding-inline-start: var(--studio-space-3);
+}
+@media (max-width: 767px) {
+  .student-workspace .student-main {
+    padding-inline: 12px;
+  }
+  .student-workspace .studio-page-frame {
+    padding: 20px 16px 28px;
+    border-radius: 18px;
+  }
+  .student-workspace .studio-page-frame .studio-page-heading {
+    margin-bottom: 20px;
+  }
+}
+
 /* Phone: the first thing to do (choose a role) must be on the first screen, so the intro text
    and the step list shrink to a single quiet line. */
 @media (max-width: 767px) {
