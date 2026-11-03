@@ -33,18 +33,16 @@ function Product() {
   );
 }
 
-it("restores a cookie identity through the real account boundary, hides content on logout failure and confirms logout before routing", async () => {
+it("ends the local student session even when Central Auth global revocation is unavailable", async () => {
   let authenticated = true;
-  let failLogout = true;
   const transport = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     expect(init?.credentials).toBe("include");
     expect(new Headers(init?.headers).has("Authorization")).toBe(false);
     const path = new URL(String(input)).pathname;
-    if (path.endsWith("/logout-all")) {
+    if (path.endsWith("/logout")) {
       expect(new Headers(init?.headers).get("X-CSRF-Token")).toBe("csrf");
-      if (failLogout) return Response.json({}, { status: 503 });
       authenticated = false;
-      return Response.json({ authenticated: false, globally_revoked: true });
+      return Response.json({ authenticated: false });
     }
     if (path.endsWith("/me"))
       return Response.json({
@@ -82,11 +80,10 @@ it("restores a cookie identity through the real account boundary, hides content 
   expect(await screen.findByText("Test learner")).toBeTruthy();
   expect(state.replace).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
-  expect(await screen.findByText("Sign-out could not be confirmed")).toBeTruthy();
-  expect(screen.queryByText("Test learner")).toBeNull();
-  expect(state.replace).not.toHaveBeenCalled();
-  failLogout = false;
-  fireEvent.click(screen.getByRole("button", { name: "Try again" }));
   await waitFor(() => expect(state.replace).toHaveBeenCalledWith("/auth/signup"));
   expect(screen.queryByText("Test learner")).toBeNull();
+  expect(transport).toHaveBeenCalledWith(
+    "https://api.example.test/api/auth/session/logout",
+    expect.objectContaining({ method: "POST" })
+  );
 });
