@@ -1103,3 +1103,37 @@
     color: var(--studio-muted);
   }
 }
+
+.ws-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 12px 0;
+  padding: 0;
+  list-style: none;
+}
+.ws-messages li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fff8e1;
+  box-shadow: inset 0 0 0 1px rgb(255 204 51 / 60%);
+}
+.ws-messages span {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.ws-messages strong,
+.ws-messages small {
+  display: block;
+}
+.ws-messages small {
+  font-size: 14px;
+}
+.ws-messages a {
+  font-weight: 600;
+}

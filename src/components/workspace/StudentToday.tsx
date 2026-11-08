@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import { apiClient } from "@/lib/api-config";
+import { StudentMessages } from "@/components/workspace/StudentMessages";
 import type { PracticeHubActivity } from "@/lib/practice-hub";
 
 type ActionKind = "human_interview" | "ai_interview" | "learning_plan" | "mock_assignment";
@@ -92,6 +93,7 @@ export function StudentToday({ accountKey }: { accountKey: string }) {
         <p className="studio-eyebrow">Today</p>
         <h2 id="today-title">Your next action</h2>
       </div>
+      <StudentMessages accountKey={accountKey} />
       {query.isLoading ? (
         <output>Checking your assigned work…</output>
       ) : query.isError || invalid ? (
