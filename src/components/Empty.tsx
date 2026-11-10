@@ -60,7 +60,7 @@ const Empty: React.FC<EmptyProps> = ({
     sm: {
       icon: "w-12 h-12",
       title: "text-base",
-      description: "text-xs",
+      description: "text-sm",
       container: "py-6",
     },
     md: {

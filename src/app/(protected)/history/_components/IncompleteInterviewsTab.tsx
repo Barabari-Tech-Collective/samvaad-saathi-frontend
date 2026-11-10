@@ -13,7 +13,7 @@ export default function IncompleteInterviewsTab({
 }: IncompleteInterviewsTabProps) {
   return (
     <div>
-      <p className="text-[12px] text-black/60 mb-3">
+      <p className="text-sm text-black/60 mb-3">
         This page lists all interviews you have put on hold.
       </p>
 

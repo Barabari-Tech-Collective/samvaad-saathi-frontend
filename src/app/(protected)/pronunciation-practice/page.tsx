@@ -50,7 +50,7 @@ const DIFFICULTY_LEVELS = [
 const LoadingState = () => (
   <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
     <span className="loading loading-spinner loading-lg text-primary" />
-    <p className="text-sm text-gray-600">Starting practice session...</p>
+    <p className="text-sm text-gray-600">Starting…</p>
   </div>
 );
 
@@ -117,8 +117,8 @@ const PronunciationPracticeContent = () => {
       if (mounted.current)
         setError(
           pendingSession.current
-            ? "Your practice is ready, but this browser could not save it. Free some browser storage, then select Continue practice."
-            : "We could not open practice. Check your connection and allow browser storage, then try again."
+            ? "Your practice is ready, but your browser is full. Clear some space and continue."
+            : "We couldn't open your practice. Check your connection and try again."
         );
     } finally {
       inFlight.current = false;

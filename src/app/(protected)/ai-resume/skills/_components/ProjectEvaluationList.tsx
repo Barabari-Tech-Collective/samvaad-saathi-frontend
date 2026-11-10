@@ -25,7 +25,7 @@ export function ProjectEvaluationList() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-[15px] font-bold text-slate-800">Project evaluation</h2>
-        <span className="text-xs font-semibold text-slate-400">{projects.length} detected</span>
+        <span className="text-sm font-semibold text-slate-400">{projects.length} detected</span>
       </div>
 
       <div className="flex flex-col gap-4">
@@ -45,12 +45,12 @@ export function ProjectEvaluationList() {
                   </span>
                 </div>
                 <span
-                  className={`px-3 py-1 rounded-full text-[11px] uppercase tracking-wider font-bold ${getStatusColor(proj.rating)}`}
+                  className={`px-3 py-1 rounded-full text-sm uppercase tracking-wider font-bold ${getStatusColor(proj.rating)}`}
                 >
                   {proj.rating}
                 </span>
               </div>
-              <p className="text-[13px] leading-relaxed text-slate-600 font-medium mb-2">
+              <p className="text-sm leading-relaxed text-slate-600 font-medium mb-2">
                 {proj.feedback}
               </p>
               {proj.projectUrl &&
@@ -61,7 +61,7 @@ export function ProjectEvaluationList() {
                     href={proj.projectUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs text-primary hover:underline font-semibold"
+                    className="text-sm text-primary hover:underline font-semibold"
                   >
                     View Project Link ↗
                   </a>

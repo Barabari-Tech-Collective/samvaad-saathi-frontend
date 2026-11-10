@@ -37,7 +37,7 @@ export function createSessionAxios(baseURL: string, session: ServerSessionClient
     const relative = target.pathname.slice(base.pathname.length);
     if (
       target.pathname.includes("%") ||
-      !/^(?:me\/(?:resume-storage|resume-operations)\/|practice(?:\/|$)|interviews(?:\/|$)|interviews-with-summary$|users\/profile$|(?:extract-resume|set-active-resume|download-original|save-final-resume|transcribe-whisper|complete-analysis|summary-report)$|(?:tts|audio|final-report|pacing-practice|ai-resume|resume-builder|bulk-ats)(?:\/|$)|v2\/(?:interviews|summary-report|pronunciation|structure-practice|human-interviews|coaching-assignments|learning-plans|mock-assignments|integrity|graduation|student-home|placement)(?:\/|$)|v2\/opportunities\/me\/outcomes$|v2\/job-profiles$|v2\/privacy-notice(?:\/accept)?$)/.test(
+      !/^(?:me\/(?:resume-storage|resume-operations)\/|practice(?:\/|$)|interviews(?:\/|$)|interviews-with-summary$|users\/profile$|(?:extract-resume|set-active-resume|download-original|save-final-resume|transcribe-whisper|complete-analysis|summary-report)$|(?:tts|audio|final-report|pacing-practice|ai-resume|resume-builder)(?:\/|$)|v2\/(?:interviews|summary-report|pronunciation|structure-practice|human-interviews|coaching-assignments|learning-plans|mock-assignments|integrity|graduation|student-home|placement|accommodations|profile-context|assessment-assignments|notifications)(?:\/|$)|v2\/opportunities\/me\/outcomes$|v2\/job-profiles$|v2\/privacy-notice(?:\/accept)?$)/.test(
         relative
       )
     )

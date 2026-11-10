@@ -50,7 +50,7 @@ const LEVELS: SpeakingDrillLevel[] = [
     ],
     checklist: [
       "I made my position clear",
-      "I supported it with evidence or an example",
+      "I gave an example",
       "I considered another view",
       "I finished with a conclusion",
     ],

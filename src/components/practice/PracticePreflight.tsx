@@ -295,7 +295,7 @@ export default function PracticePreflight({
               <li>{t("Touch Permissions, then Microphone, then Allow.")}</li>
               <li>{t("Come back here and touch Check microphone again.")}</li>
             </ol>
-            <p className="mt-2">{t("Still stuck? Ask your facilitator or teacher to help you.")}</p>
+            <p className="mt-2">{t("Still stuck? Ask your teacher for help.")}</p>
           </div>
         )}
         <CheckRow
@@ -323,7 +323,7 @@ export default function PracticePreflight({
           <li>{t("Nothing bad happens if you refresh, get a call or change pages.")}</li>
           <li>{t("You can stop and come back. Saved answers stay on your account.")}</li>
           <li>Your voice is saved safely so we can give you feedback. It is deleted later.</li>
-          <li>Your teacher may see a short summary if you allowed it in your profile.</li>
+          <li>Your teacher can see a short summary.</li>
         </ul>
       </section>
 

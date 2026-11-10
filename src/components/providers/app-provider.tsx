@@ -78,7 +78,7 @@ function AccountBoundary({ children }: { children: React.ReactNode }) {
     }
   }, [revision, readyRevision]);
   // Unmount media, drafts and observers before a new account mounts, not just /me.
-  if (readyRevision !== revision) return <p role="status">Updating your session…</p>;
+  if (readyRevision !== revision) return <p role="status">Just a moment…</p>;
   return <AccountCache key={revision}>{children}</AccountCache>;
 }
 const AppProvider = ({ children }: { children: React.ReactNode }) => (

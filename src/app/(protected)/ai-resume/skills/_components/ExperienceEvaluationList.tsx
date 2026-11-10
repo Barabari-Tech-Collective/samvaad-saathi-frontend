@@ -24,7 +24,7 @@ export function ExperienceEvaluationList() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-[15px] font-bold text-slate-800">Experience evaluation</h2>
-        <span className="text-xs font-semibold text-slate-400">
+        <span className="text-sm font-semibold text-slate-400">
           {evaluation ? "Evaluated" : "Not evaluated"}
         </span>
       </div>
@@ -39,15 +39,15 @@ export function ExperienceEvaluationList() {
                 </div>
                 <span className="font-semibold text-[15px] text-slate-800">Overall Experience</span>
               </div>
-              <p className="mt-2 text-xs text-primary font-semibold">{evaluation?.rating}</p>
+              <p className="mt-2 text-sm text-primary font-semibold">{evaluation?.rating}</p>
 
               {/* <span
-                className={`px-3 py-1 rounded-full text-[11px] uppercase tracking-wider font-bold ${getStatusColor(evaluation?.rating || "")}`}
+                className={`px-3 py-1 rounded-full text-sm uppercase tracking-wider font-bold ${getStatusColor(evaluation?.rating || "")}`}
               >
                 {evaluation?.rating}
               </span> */}
             </div>
-            <p className="text-[13px] leading-relaxed text-slate-600 font-medium">
+            <p className="text-sm leading-relaxed text-slate-600 font-medium">
               {evaluation?.feedback}
             </p>
           </div>

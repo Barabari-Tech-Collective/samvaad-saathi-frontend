@@ -1,5 +1,6 @@
 "use client";
 
+import { statusWord } from "@/lib/dates";
 import PageHeading from "@/components/studio/PageHeading";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -21,7 +22,7 @@ import {
 
 const client = createApiClient(APIService.INTERVIEWS);
 const filters: { value: HistoryGroup; title: string }[] = [
-  { value: "incomplete", title: "Saved sessions" },
+  { value: "incomplete", title: "Your interviews" },
   { value: "completed", title: "Completed" },
   { value: "closed", title: "Closed & other" },
 ];
@@ -63,8 +64,8 @@ function HistoryWorkspace({ account }: { account: string }) {
   return (
     <div className="mx-auto w-full min-w-0 max-w-6xl space-y-6 pb-10 text-[#111827] [overflow-wrap:anywhere]">
       <PageHeading
-        eyebrow="Your interview journal"
-        title="Interview history"
+        eyebrow="Your interviews"
+        title="Progress"
         description="See your saved rounds and your feedback."
         action={
           <Link href="/mock-interviews" className="ws-button">
@@ -72,7 +73,7 @@ function HistoryWorkspace({ account }: { account: string }) {
           </Link>
         }
       />
-      <nav aria-label="History filters" className="flex flex-wrap gap-2">
+      <nav aria-label="Filter" className="flex flex-wrap gap-2">
         {filters.map((filter) => (
           <button
             key={filter.value}
@@ -85,20 +86,20 @@ function HistoryWorkspace({ account }: { account: string }) {
           </button>
         ))}
       </nav>
-      {query.isPending && <p role="status">Loading your saved sessions…</p>}
+      {query.isPending && <p role="status">Loading your interviews…</p>}
       {query.isError && (
         <section role="alert" className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
           <h2 className="font-semibold">
             {denied
-              ? "History access could not be verified"
+              ? "We couldn't open your progress"
               : items.length
-                ? "More history could not be loaded"
-                : "Your history could not be loaded"}
+                ? "We couldn't load more"
+                : "We couldn't load your progress"}
           </h2>
           <p className="mt-2 text-sm">
             {denied
-              ? "Previously loaded sessions are hidden. Check your account access, then try again."
-              : "This is a loading problem, not an empty history. Your saved rounds have not been removed."}
+              ? "Please check you are signed in, then try again."
+              : "Your interviews are safe. Please try again."}
           </p>
           <button
             type="button"
@@ -108,22 +109,22 @@ function HistoryWorkspace({ account }: { account: string }) {
             }
             className="mt-3 min-h-11 rounded-xl border border-[#344499] px-4 font-semibold text-[#344499] disabled:opacity-50"
           >
-            Try loading history again
+            Try again
           </button>
         </section>
       )}
       {!query.isPending && !denied && (
         <>
           <p className="text-sm text-gray-600">
-            {items.length} sessions loaded · {visible.length} in this view
-            {query.hasNextPage ? " · Older sessions are available below" : ""}
+            {items.length} interviews · {visible.length} in this view
+            {query.hasNextPage ? " · See older ones below" : ""}
           </p>
           {!visible.length && !query.isError && (
             <section className="rounded-2xl border border-[#DEE8FB] bg-white p-6">
               <h2 className="font-semibold text-[#1F285B]">
                 No{" "}
                 {tab === "incomplete"
-                  ? "saved sessions"
+                  ? "saved practice"
                   : tab === "completed"
                     ? "completed rounds"
                     : "closed rounds"}{" "}
@@ -131,7 +132,7 @@ function HistoryWorkspace({ account }: { account: string }) {
               </h2>
               <p className="mt-2 text-sm text-gray-600">
                 {query.hasNextPage
-                  ? "Older pages may contain more. Load older sessions to check."
+                  ? "Older pages may contain more. Show older interviews to check."
                   : "Choose another view or explore Mock Interviews when you’re ready."}
               </p>
             </section>
@@ -144,15 +145,15 @@ function HistoryWorkspace({ account }: { account: string }) {
                   key={item.interviewId}
                   className="min-w-0 rounded-2xl border border-[#DEE8FB] bg-white p-5 sm:p-6"
                 >
-                  <div className="mb-3 flex flex-wrap gap-2 text-xs font-semibold text-[#344499]">
+                  <div className="mb-3 flex flex-wrap gap-2 text-sm font-semibold text-[#344499]">
                     <span>
                       {item.interviewMode === "practice"
                         ? "Mock Interview"
                         : item.interviewMode === "assessment"
                           ? "Assessment"
-                          : "Interview mode unverified"}
+                          : "Open to check"}
                     </span>
-                    <span>· {item.status}</span>
+                    <span>· {statusWord(item.status)}</span>
                     <span>· {item.difficulty}</span>
                   </div>
                   <h2 className="text-xl font-semibold text-[#1F285B]">{item.track}</h2>
@@ -181,8 +182,8 @@ function HistoryWorkspace({ account }: { account: string }) {
                       </dl>
                       <p className="mt-3 text-sm text-gray-600">
                         {item.summaryReportAvailable
-                          ? "A feedback record is available. Open it to check its evidence and status."
-                          : "A feedback record is not confirmed yet. Open the report page to check availability."}
+                          ? "Your feedback is ready."
+                          : "Your feedback isn't ready yet."}
                       </p>
                       <Link
                         href={`/report-summary?interviewId=${item.interviewId}`}
@@ -197,21 +198,21 @@ function HistoryWorkspace({ account }: { account: string }) {
                         {href
                           ? "When you open this, we first check that it is safe to continue."
                           : tab === "closed"
-                            ? "This round is retained in your history. Its status does not offer a continuation action."
+                            ? "This interview is saved here."
                             : item.status === "preparing"
                               ? "Preparation is not complete yet. Refresh history to check again."
                               : item.expiresAt && Date.parse(item.expiresAt) <= now
-                                ? "The resume window has ended. Your saved evidence remains retained."
+                                ? "This interview can no longer be continued. Your answers are safe."
                                 : !item.interviewMode
-                                  ? "The session mode needs verification before continuation. Refresh history or ask your program team for help."
-                                  : "This session cannot currently continue in its recorded state. Refresh history or ask your program team for help."}
+                                  ? "We can't continue this interview right now. Try again or ask your teacher."
+                                  : "This interview can't be continued right now. Try again or ask your teacher."}
                       </p>
                       {tab === "closed" && (
                         <Link
                           href={`/report-summary?interviewId=${item.interviewId}`}
                           className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-[#344499] px-5 py-3 font-semibold text-[#344499]"
                         >
-                          Check feedback &amp; receipt
+                          See your feedback
                         </Link>
                       )}
                       {href && !query.isFetching && (
@@ -237,7 +238,7 @@ function HistoryWorkspace({ account }: { account: string }) {
               onClick={() => void query.fetchNextPage()}
               className="min-h-11 rounded-xl border border-[#344499] bg-white px-5 py-3 font-semibold text-[#344499] disabled:opacity-50"
             >
-              {query.isFetchingNextPage ? "Loading older sessions…" : "Load older sessions"}
+              {query.isFetchingNextPage ? "Loading…" : "Show older interviews"}
             </button>
           )}
         </>

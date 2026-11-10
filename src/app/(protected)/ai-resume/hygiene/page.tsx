@@ -207,7 +207,7 @@ export default function HygieneAndTemplatePage() {
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-slate-900">Grammar & spelling</h2>
               <span
-                className={`text-xs font-medium px-2.5 py-1 rounded-full ${grammarIssues.length > 0 ? "bg-orange-50 text-orange-600" : "bg-green-50 text-green-600"}`}
+                className={`text-sm font-medium px-2.5 py-1 rounded-full ${grammarIssues.length > 0 ? "bg-orange-50 text-orange-600" : "bg-green-50 text-green-600"}`}
               >
                 {grammarIssues.length} {grammarIssues.length === 1 ? "issue" : "issues"}
               </span>
@@ -241,7 +241,7 @@ export default function HygieneAndTemplatePage() {
                   </button>
 
                   {/* Custom CSS Tooltip */}
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-3 py-1.5 bg-slate-800 text-white text-xs font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[60] shadow-lg">
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-3 py-1.5 bg-slate-800 text-white text-sm font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[60] shadow-lg">
                     Important details that student has to read
                     {/* Tooltip Arrow */}
                     <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
@@ -400,7 +400,7 @@ export default function HygieneAndTemplatePage() {
                             setExpandedNotes((prev) => ({ ...prev, [link.name]: !prev[link.name] }))
                           }
                           aria-expanded={!!expandedNotes[link.name]}
-                          className="min-h-11 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-medium border border-amber-200 hover:bg-amber-100 transition-colors"
+                          className="min-h-11 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-sm font-medium border border-amber-200 hover:bg-amber-100 transition-colors"
                         >
                           <InformationCircleIcon className="size-3" />
                           Note
@@ -418,10 +418,10 @@ export default function HygieneAndTemplatePage() {
                     </div>
                   </div>
                   {link.error && !link.valid && (
-                    <span className="text-xs text-red-500">{link.error}</span>
+                    <span className="text-sm text-red-500">{link.error}</span>
                   )}
                   {link.note && link.valid && expandedNotes[link.name] && (
-                    <div className="mt-1 p-2 rounded-md bg-amber-50 text-amber-700 text-xs border border-amber-100 animate-in fade-in slide-in-from-top-1">
+                    <div className="mt-1 p-2 rounded-md bg-amber-50 text-amber-700 text-sm border border-amber-100 animate-in fade-in slide-in-from-top-1">
                       {link.note}
                     </div>
                   )}
@@ -440,7 +440,7 @@ export default function HygieneAndTemplatePage() {
                       return (
                         <p
                           key={idx}
-                          className={`text-xs flex items-start gap-1.5 ${
+                          className={`text-sm flex items-start gap-1.5 ${
                             isNote ? "text-amber-600 bg-amber-50 p-2 rounded-md" : "text-red-500"
                           }`}
                         >
@@ -462,7 +462,7 @@ export default function HygieneAndTemplatePage() {
             <div className="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-slate-900">Education</h2>
-                <span className="text-slate-400 text-xs">Academic Review</span>
+                <span className="text-slate-400 text-sm">Academic Review</span>
               </div>
 
               <div className="space-y-3">
@@ -548,7 +548,7 @@ export default function HygieneAndTemplatePage() {
             <div className="flex flex-col gap-3 flex-1">
               <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/20 w-fit rounded-full">
                 <DocumentTextIcon className="size-3 text-white" />
-                <span className="text-white text-[10px] font-medium uppercase tracking-wider">
+                <span className="text-white text-sm font-medium uppercase tracking-wider">
                   ATS Optimized
                 </span>
               </div>
@@ -560,7 +560,7 @@ export default function HygieneAndTemplatePage() {
                       ? firstTemplate.name
                       : "ATS-friendly resume template"}
                 </h3>
-                <p className="text-white/70 text-xs mt-1">
+                <p className="text-white/70 text-sm mt-1">
                   {firstTemplate?.description ||
                     "Professionally structured for ATS systems and modern recruiters."}
                 </p>
@@ -568,14 +568,14 @@ export default function HygieneAndTemplatePage() {
               <div className="flex flex-wrap gap-2 mt-1">
                 <Link
                   href={`/ai-resume/preview?templateId=${firstTemplate?.templateId || "default"}`}
-                  className="flex items-center gap-1 px-3 py-1.5 bg-white/10 hover:bg-white/20 transition-colors rounded-lg text-white text-xs font-medium"
+                  className="flex items-center gap-1 px-3 py-1.5 bg-white/10 hover:bg-white/20 transition-colors rounded-lg text-white text-sm font-medium"
                 >
                   <EyeIcon className="size-3.5" />
                   Preview
                 </Link>
                 <Link
                   href={`/ai-resume/final?templateId=${firstTemplate?.templateId || "default"}`}
-                  className="flex items-center gap-1 px-4 py-1.5 bg-white hover:bg-slate-50 transition-colors rounded-lg text-primary text-xs font-semibold ml-auto"
+                  className="flex items-center gap-1 px-4 py-1.5 bg-white hover:bg-slate-50 transition-colors rounded-lg text-primary text-sm font-semibold ml-auto"
                 >
                   Use
                   <ArrowRightIcon className="size-3" />

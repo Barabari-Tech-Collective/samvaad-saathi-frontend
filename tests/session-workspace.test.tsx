@@ -79,7 +79,7 @@ describe("session workspace", () => {
   it("shows callback failure without fetching profile", async () => {
     window.history.replaceState({}, "", "/auth/session-workspace#error=denied");
     render(<Page />);
-    expect(await screen.findByRole("alert")).toHaveTextContent("Sign-in could not");
+    expect(await screen.findByRole("alert")).toHaveTextContent("We couldn't sign you in");
     expect(mock.profile).not.toHaveBeenCalled();
   });
   it("anonymous session offers sign-in without fictional profile", async () => {
@@ -96,7 +96,7 @@ describe("session workspace", () => {
     render(<Page />);
     await screen.findByText("Asha");
     fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Sign-out could not");
+    expect(await screen.findByRole("alert")).toHaveTextContent("We couldn't sign you out");
     expect(screen.getByText("Asha")).toBeInTheDocument();
   });
   it("confirmed logout clears profile", async () => {
@@ -111,13 +111,13 @@ describe("session workspace", () => {
     act(() => window.dispatchEvent(new Event("focus")));
     expect(screen.queryByText("Asha")).not.toBeInTheDocument();
     expect(mock.invalidate).toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Check session" }));
+    fireEvent.click(screen.getByRole("button", { name: "Check again" }));
     await screen.findByText("Asha");
   });
   it("recovery reloads verified profile after refresh", async () => {
     render(<Page />);
     await screen.findByText("Asha");
-    fireEvent.click(screen.getByRole("button", { name: "Recover session" }));
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     await waitFor(() => expect(mock.refresh).toHaveBeenCalledOnce());
     await screen.findByText("Asha");
     expect(mock.profile).toHaveBeenCalledTimes(2);
@@ -126,7 +126,7 @@ describe("session workspace", () => {
     mock.refresh.mockRejectedValue(new Error("expired"));
     render(<Page />);
     await screen.findByText("Asha");
-    fireEvent.click(screen.getByRole("button", { name: "Recover session" }));
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("sign in again");
   });
 });

@@ -85,7 +85,7 @@ export default function ResumeStorageRecovery() {
             !["started", "completed", "failed"].includes(operation.state) ||
             typeof operation.dataSaved !== "boolean"
           )
-            throw new Error("Invalid operation receipt");
+            throw new Error("Something went wrong. Please try again.");
           if (current()) {
             setRepairKey(operation.state === "completed" && operation.dataSaved ? key : null);
             setRecoverable(
@@ -97,18 +97,18 @@ export default function ResumeStorageRecovery() {
             setOperationMessage(
               operation.state === "completed"
                 ? operation.dataSaved
-                  ? "The extraction operation confirms your résumé data was saved."
-                  : "The extraction finished without confirming saved résumé data. Contact your program team before retrying."
+                  ? "Your resume is saved."
+                  : "We're not sure your resume saved. Please ask your teacher before trying again."
                 : operation.state === "failed"
-                  ? "The extraction operation failed. Check the saved file result and contact your program team before starting another attempt."
-                  : "The extraction started, but its outcome is not confirmed. It will not be automatically repeated."
+                  ? "We couldn't read your resume. Please ask your teacher before trying again."
+                  : "We're still reading your resume. Check back in a moment."
             );
           }
         } catch {
           if (current()) {
             setRecoverable(null);
             setOperationMessage(
-              "The extraction operation could not be checked. This does not confirm failure; try checking again."
+              "We couldn't check that. Please try again."
             );
           }
         }
@@ -141,12 +141,12 @@ export default function ResumeStorageRecovery() {
       acceptResumeRecovery(hash, recoverable, receipt, owner);
       setRecoverable(null);
       setOperationMessage(
-        "Another attempt is ready. Select the same file and submit the upload when you are ready. Nothing has been uploaded again yet."
+        "You can try again now. Choose the same file and upload it."
       );
     } catch {
       if (current())
         setOperationMessage(
-          "Another attempt could not be prepared. Check the operation again; no upload was sent."
+          "That didn't work. Please try again."
         );
     } finally {
       if (current()) {
@@ -180,12 +180,12 @@ export default function ResumeStorageRecovery() {
       setDelivery(null);
       setRepairFile(null);
       setRepairMessage(
-        "Your exact file has a saved record. AI extraction and profile data were not changed."
+        "Your file is saved. Your profile didn't change."
       );
     } catch {
       if (current())
         setRepairMessage(
-          "Storage was not confirmed. Check file storage before retrying, and make sure you selected the exact original file."
+          "We're not sure your file saved. Choose the same file and try again."
         );
     } finally {
       if (current()) {
@@ -205,20 +205,20 @@ export default function ResumeStorageRecovery() {
       </p>
       <p role="status" aria-live="polite">
         {busy
-          ? "Checking saved file records…"
+          ? "Checking your file…"
           : status === "registered"
-            ? "This exact file has a saved record in your account. This confirms a saved file record, not that your latest profile changes were completed."
+            ? "Your file is saved."
             : status === "unconfirmed" && delivery === "pending"
-              ? "Your original file is queued for storage. You can leave this page; delivery does not repeat AI extraction. Check again later."
+              ? "Your file is on its way. You can leave this page and check again later."
               : status === "unconfirmed" && delivery === "failed"
-                ? "Automatic file delivery stopped after unsuccessful attempts. Your résumé data may still be saved. Check the extraction result below before restoring the original file."
+                ? "We couldn't save your original file. Your resume details may still be saved, so check below before uploading it again."
                 : status === "unconfirmed" && delivery === "expired"
-                  ? "The file delivery window has ended. Check the extraction result below to restore the original file, or contact your program team."
+                  ? "Your original file wasn't saved in time. Upload it again below, or ask your teacher."
                   : status === "unconfirmed"
-                    ? "No saved record was found for this file. Storage may be delayed, unsuccessful, or the file may have been removed. Check again later or contact your program team."
+                    ? "We couldn't find this file. Check again later, or ask your teacher."
                     : status === "error"
-                      ? "The file check could not be completed. Try checking again; no file was uploaded."
-                      : "File storage has not been checked in this visit."}
+                      ? "We couldn't check your file. Please try again."
+                      : "Not checked yet."}
       </p>
       {operationMessage && (
         <p role="status" className="text-sm">
@@ -233,9 +233,8 @@ export default function ResumeStorageRecovery() {
       {repairKey && status === "unconfirmed" && delivery !== "pending" && (
         <div className="space-y-2">
           <p className="text-sm">
-            Your extraction is saved. Restore only the missing file by selecting the exact original.
-            This will not repeat AI extraction or change profile data. The normal three-file limit
-            still applies.
+            Your resume details are saved. Choose the same file to add it back. Nothing else will
+            change.
           </p>
           <label className="block text-sm" htmlFor="resume-repair-file">
             Original résumé file
@@ -264,9 +263,8 @@ export default function ResumeStorageRecovery() {
       {recoverable && (
         <div className="space-y-2">
           <p className="text-sm">
-            Review your Profile first: earlier writes may already exist. A new attempt can repeat
-            extraction and replace résumé data. This button prepares it; you still choose when to
-            upload.
+            Check your Profile first, as your details may already be there. Trying again can replace
+            them.
           </p>
           <button
             type="button"

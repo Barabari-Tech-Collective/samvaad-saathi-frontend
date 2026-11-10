@@ -15,6 +15,10 @@ vi.mock("@/components/providers/auth-provider", () => ({
   useAuth: () => ({ user: { authorizedUser: { canUseBulkAts: fixture.bulk } } }),
 }));
 vi.mock("@/lib/posthog/tracking.utils", () => ({ trackBottomNavClick: vi.fn() }));
+vi.mock("@/components/workspace/NextStep", () => ({
+  useToday: () => ({ data: null, isError: true }),
+  parseToday: () => null,
+}));
 beforeEach(() => {
   const records = new Map<string, string>();
   vi.stubGlobal("localStorage", {
@@ -155,9 +159,9 @@ it("opens all features from the bottom bar and resets expanded state on close", 
 });
 
 it.each([
-  ["/pronunciation-practice", "Coaching"],
+  ["/pronunciation-practice", "Practice"],
   ["/human-interviews", "Assessments"],
-  ["/report-summary", "History"],
+  ["/report-summary", "Progress"],
 ])("keeps the parent section selected on %s", (path, label) => {
   fixture.path = path;
   render(
@@ -168,7 +172,7 @@ it.each([
   const nav = screen.getByRole("navigation", { name: "Student navigation" });
   expect(within(nav).getByRole("link", { name: label })).toHaveAttribute("aria-current", "page");
   const bottom = screen.getByRole("navigation", { name: "Bottom Navigation" });
-  if (path === "/report-summary" || path === "/human-interviews") {
+  if (path === "/human-interviews") {
     expect(within(bottom).getByRole("button", { name: "More features" })).toHaveAttribute(
       "data-active",
       "true"
@@ -188,7 +192,7 @@ it("keeps assessment setup outside Mock Interviews while mock setup has a clear 
     </StudentShell>
   );
   const nav = screen.getByRole("navigation", { name: "Student navigation" });
-  expect(within(nav).getByRole("link", { name: "Mock Interviews" })).not.toHaveAttribute(
+  expect(within(nav).getByRole("link", { name: "Practice" })).not.toHaveAttribute(
     "aria-current",
     "page"
   );

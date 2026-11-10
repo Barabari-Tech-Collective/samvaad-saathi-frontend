@@ -75,7 +75,7 @@ it("does not create a session when storage is blocked", async () => {
   });
   render(<Entry />);
   fireEvent.click(screen.getByRole("button", { name: "Start practice" }));
-  expect(await screen.findByRole("alert")).toHaveTextContent("allow browser storage");
+  expect(await screen.findByRole("alert")).toHaveTextContent("We couldn't open your practice");
   expect(f.create).not.toHaveBeenCalled();
 });
 it("retries saving the existing result after quota failure without creating twice", async () => {
@@ -135,7 +135,7 @@ it("handles unreadable storage and invalid JSON", () => {
 it("renders a usable recovery action on a direct start link with corrupt storage", async () => {
   sessionStorage.setItem("pronunciationPracticeData", '{"practiceId":1}');
   render(<Start />);
-  expect(await screen.findByRole("alert")).toHaveTextContent("could not be read");
+  expect(await screen.findByRole("alert")).toHaveTextContent("couldn't open this practice");
   expect(screen.getByRole("link", { name: "Choose a level" })).toHaveAttribute(
     "href",
     "/pronunciation-practice"

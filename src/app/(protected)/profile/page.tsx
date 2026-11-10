@@ -11,6 +11,8 @@ import { assertResumeDataSaved } from "@/lib/resume-readiness";
 import ResumeStorageRecovery from "@/components/resume/ResumeStorageRecovery";
 import GraduationStatus from "@/components/graduation/GraduationStatus";
 import MyCourses from "@/components/placement/MyCourses";
+import AboutMyWork from "@/components/profile/AboutMyWork";
+import ExtraSupport from "@/components/profile/ExtraSupport";
 import PageHeading from "@/components/studio/PageHeading";
 import { useAuth } from "@/components/providers/auth-provider";
 import { createApiClient, ENDPOINTS, extractApiErrorMessage } from "@/lib/api-config";
@@ -353,11 +355,13 @@ export default function ProfilePage() {
       <PageHeading
         eyebrow="Your account"
         title="Your profile"
-        description="Your details, the interview voice and who can see your practice."
+        description="Your details and the interview voice."
       />
       <ResumeStorageRecovery />
       <MyCourses />
       <GraduationStatus />
+      <AboutMyWork />
+      <ExtraSupport />
       <section className="studio-profile-card">
         <div className="studio-profile-identity">
           <div className="studio-profile-avatar" aria-hidden="true">
@@ -572,7 +576,7 @@ export default function ProfilePage() {
                     <div className="flex flex-col gap-3">
                       {/* Option 1: Upload a new resume → POST /extract-resume */}
                       <div className="flex flex-col gap-1">
-                        <p className="text-xs text-gray-500">
+                        <p className="text-sm text-gray-500">
                           Upload a new resume (PDF only, max 5MB, replaces current)
                         </p>
                         <input
@@ -598,9 +602,9 @@ export default function ProfilePage() {
                       {/* Option 2: Replace with ATS resume → POST /resume/set-active-resume */}
                       {/* Always shown; disabled with tooltip when no ATS resume */}
                       <>
-                        <div className="divider my-0 text-xs text-gray-400">OR</div>
+                        <div className="divider my-0 text-sm text-gray-400">OR</div>
                         <div className="flex flex-col gap-1">
-                          <p className="text-xs text-gray-500">
+                          <p className="text-sm text-gray-500">
                             {user.authorizedUser.atsResumeId
                               ? "Use your final ATS resume for interviews"
                               : "Complete the ATS feature to unlock this"}

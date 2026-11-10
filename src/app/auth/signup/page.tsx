@@ -94,7 +94,7 @@ function LegacySignupPage() {
           router.replace(completedDestination);
         } catch {
           setIsProcessing(false);
-          setLoginError("Sign-in could not be completed. Please start again.");
+          setLoginError("We couldn't sign you in. Please start again.");
         }
         return;
       }
@@ -107,7 +107,7 @@ function LegacySignupPage() {
         return;
       }
       if (callbackError) {
-        setLoginError("Sign-in could not be completed. Please start again.");
+        setLoginError("We couldn't sign you in. Please start again.");
         return;
       }
       // A new callback must be processed before considering stale account cookies.
@@ -220,7 +220,7 @@ function LegacySignupPage() {
       >
         {!accessDeniedRequestCode ? (
           <p role="status" className="studio-panel">
-            Please contact your facilitator or administrator to request Samvaad access.
+            Please ask your teacher for access to Samvaad.
           </p>
         ) : requestState === "submitted" ? (
           <p role="status" className="studio-panel">
@@ -264,10 +264,10 @@ function LegacySignupPage() {
       ) : (
         <>
           <button disabled className="studio-auth-action">
-            Sign-in unavailable
+            Sign-in isn't working right now
           </button>
           <p role="alert" className="mt-4 studio-muted">
-            Please try again later or contact your facilitator.
+            Please try again later or ask your teacher.
           </p>
         </>
       )}

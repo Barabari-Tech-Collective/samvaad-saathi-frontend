@@ -96,7 +96,10 @@ export default function AssessmentsHub() {
           An assessment is shown only when your placement team has made it available. It has its own
           instructions, timing and result-release policy.
         </p>
-      </section>
+        <Link className="block min-h-11 font-semibold underline" href="/profile#extra-support">
+            Need extra time or other help? Ask here.
+          </Link>
+        </section>
       <section aria-label="Assessment round types" className="grid gap-5 md:grid-cols-2">
         <AssessmentCard
           title="AI Interview"
@@ -107,7 +110,7 @@ export default function AssessmentsHub() {
             <output>Checking for an assigned AI Interview…</output>
           ) : assignments.isError || invalidAssignmentResponse ? (
             <div className="space-y-2" role="alert">
-              <p>We could not verify your AI Interview assignment.</p>
+              <p>We couldn't load your AI Interview.</p>
               <button className="ws-button" onClick={() => void assignments.refetch()}>
                 Try again
               </button>
@@ -130,7 +133,7 @@ export default function AssessmentsHub() {
         </AssessmentCard>
         <AssessmentCard
           title="Human Interview"
-          description="See a scheduled meeting, preparation instructions and the verified link to join your interviewer."
+          description="See your interview time, how to prepare, and the link to join."
           icon={VideoCameraIcon}
         >
           <Link className="ws-button ws-button-primary" href="/human-interviews">

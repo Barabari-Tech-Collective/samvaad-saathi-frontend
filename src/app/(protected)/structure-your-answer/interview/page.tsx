@@ -170,7 +170,7 @@ const StructureYourAnswerInterviewPage = () => {
           await bindPlanSession({ session_id: structuredPractice.practiceId });
         } catch {
           setCompletionError(
-            "Your answer analysis is saved, but your Learning Plan could not be updated. Try Finish practice again."
+            "Your practice is saved. We couldn't update your plan yet, so please try again."
           );
           return;
         }
@@ -272,7 +272,7 @@ const StructureYourAnswerInterviewPage = () => {
       <div className="studio-panel studio-drill-room flex flex-col">
         {/* Title */}
         <PageHeading
-          eyebrow="Answer structure"
+          eyebrow="Plan your answers"
           title="Build a complete answer."
           description="Use the suggested framework to make your example easy to follow."
         />

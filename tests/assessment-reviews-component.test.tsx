@@ -64,7 +64,7 @@ afterEach(() => vi.unstubAllGlobals());
 it("fails closed and hides stale review evidence when its response is malformed", () => {
   fixture.query.data = { items: [{ id: 7 }], total: 1, notice: "" };
   render(<AssessmentReviews accountKey="student-1" />);
-  expect(screen.getByRole("alert")).toHaveTextContent("could not be verified");
+  expect(screen.getByRole("alert")).toHaveTextContent("couldn't load your reviews");
   expect(screen.queryByText(/Shared human observation/)).toBeNull();
 });
 

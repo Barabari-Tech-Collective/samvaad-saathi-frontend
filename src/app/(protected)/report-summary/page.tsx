@@ -112,8 +112,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
         <section className="rounded-3xl border border-[#D6E0FB] bg-white p-6" role="status">
           <h2 className="text-xl font-bold">No overall score yet</h2>
           <p className="mt-2 max-w-2xl leading-6 text-gray-600">
-            An overall score is not available from this report’s current evidence. Missing or
-            unclear speech is not treated as a low score.
+            We couldn't work out an overall score. Unclear speech never lowers your score.
           </p>
           {attemptMeta?.interviewMode === "practice" ? (
             <Link
@@ -127,7 +126,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
               className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-[#344499] px-4 font-bold text-[#344499]"
               href="/history"
             >
-              View interview history
+              Open Progress
             </Link>
           )}
         </section>
@@ -187,7 +186,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
           className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#1F285B] px-5 font-bold text-[#1F285B]"
           href="/history"
         >
-          View interview history
+          Open Progress
         </Link>
         <Link
           className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#D6E0FB] px-5 font-bold text-[#344499]"

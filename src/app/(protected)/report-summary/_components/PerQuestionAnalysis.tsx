@@ -20,14 +20,13 @@ export default function PerQuestionAnalysis({ questionAnalysis }: PerQuestionAna
     <section className="space-y-3" id="per-question-analysis" aria-labelledby="answer-review-title">
       <div>
         <p className="text-sm font-bold uppercase tracking-[0.12em] text-[#344499]">
-          Your evidence
+          What you said
         </p>
         <h2 id="answer-review-title" className="mt-2 text-2xl font-bold">
           Review each answer
         </h2>
         <p className="mt-1 text-gray-600">
-          The transcript is the observation. Coaching is shown separately and only when evidence is
-          usable.
+          This is what we heard you say. Tips appear when we could hear enough.
         </p>
       </div>
 
@@ -38,15 +37,15 @@ export default function PerQuestionAnalysis({ questionAnalysis }: PerQuestionAna
             <summary className="flex min-h-16 cursor-pointer list-none items-start justify-between gap-4 p-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-semibold text-gray-500">
+                  <span className="text-sm font-semibold text-gray-500">
                     Question {index + 1} of {question.totalQuestions}
                   </span>
-                  <span className="rounded-full bg-[#EEF2FF] px-2.5 py-1 text-xs font-semibold text-[#344499]">
+                  <span className="rounded-full bg-[#EEF2FF] px-2.5 py-1 text-sm font-semibold text-[#344499]">
                     {question.type}
                   </span>
                   {status && (
                     <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${badgeClasses(status)}`}
+                      className={`rounded-full px-2.5 py-1 text-sm font-semibold ${badgeClasses(status)}`}
                     >
                       {questionEvidenceCopy(status)}
                     </span>
@@ -105,7 +104,7 @@ export default function PerQuestionAnalysis({ questionAnalysis }: PerQuestionAna
                   <h3 className="font-semibold text-amber-950">No score was inferred</h3>
                   <p className="mt-1 text-sm leading-6 text-amber-900">
                     {question.evidence?.uncertainty ??
-                      "This answer did not contain enough reliable evidence for coaching."}
+                      "We couldn't hear enough of this answer to give tips."}
                   </p>
                 </div>
               )}

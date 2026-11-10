@@ -1,4 +1,5 @@
 "use client";
+import { friendlyDateTime } from "@/lib/dates";
 import PageHeading from "@/components/studio/PageHeading";
 import { useLayoutEffect, useRef, useState } from "react";
 import { getAuthRevision } from "@/lib/auth-session";
@@ -42,7 +43,7 @@ function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () =
       </p>
       {row.appealDeadline && (
         <p>
-          Appeal deadline: {new Date(row.appealDeadline).toLocaleString()} (your device time). The
+          Appeal deadline: {friendlyDateTime(row.appealDeadline)}. The
           server checks this deadline.
         </p>
       )}
@@ -59,12 +60,12 @@ function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () =
             <p className="whitespace-pre-wrap break-words">{event.reason}</p>
             <p className="text-sm text-gray-600">
               {(event.source ?? "System").replaceAll("_", " ")} ·{" "}
-              {new Date(event.at).toLocaleString()}
+              {friendlyDateTime(event.at)}
             </p>
             {event.signals && (
               <details>
                 <summary className="min-h-11 cursor-pointer py-2">
-                  View unverified browser observations
+                  See what was noticed during the assessment
                 </summary>
                 <ul>
                   {event.signals.map((signal) => (
@@ -103,7 +104,7 @@ function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () =
                 lock.current = false;
                 setBusy(false);
                 setError(
-                  "This browser cannot safely submit the action. Update it or contact support."
+                  "Please update your browser and try again."
                 );
                 return;
               }
@@ -122,7 +123,7 @@ function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () =
             } catch {
               if (alive.current && getAuthRevision() === ownerRevision)
                 setError(
-                  "Could not confirm this action. Retry the same text, or reload to check the current case and deadline. Your text is kept here."
+                  "That didn't save. Your text is still here, so please try again."
                 );
             } finally {
               lock.current = false;
@@ -172,8 +173,7 @@ function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () =
       )}
       {row.state === "appealed" && (
         <p>
-          Your appeal is awaiting an independent reviewer. The original decision-maker cannot
-          resolve it.
+          A different reviewer will look at your appeal.
         </p>
       )}
       {error && <p role="alert">{error}</p>}
@@ -214,8 +214,7 @@ export function AssessmentReviews({ accountKey }: { accountKey: string }) {
       </p>
       {query.isError || invalidResponse ? (
         <p role="alert">
-          Review notices could not be verified. Check your session and reload. Previously cached
-          evidence is hidden.
+          We couldn't load your reviews. Please reload the page.
         </p>
       ) : query.isLoading || !data ? (
         <output>Checking your review notices…</output>

@@ -9,10 +9,10 @@ interface CompletedInterviewsTabProps {
 export default function CompletedInterviewsTab({ completed }: CompletedInterviewsTabProps) {
   return (
     <div>
-      <p className="text-[12px] text-black/60 mb-3">Access Your Interview History</p>
+      <p className="text-sm text-black/60 mb-3">Your finished interviews</p>
       {completed.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500">No completed interviews found.</p>
+          <p className="text-gray-500">No finished interviews yet.</p>
         </div>
       ) : (
         <div className="space-y-3">

@@ -34,7 +34,7 @@ const InterviewError = ({
             <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700 mb-2">
               Technical Details (Development Only)
             </summary>
-            <div className="bg-gray-100 rounded-lg p-4 text-xs font-mono text-gray-700 overflow-auto max-h-40">
+            <div className="bg-gray-100 rounded-lg p-4 text-sm font-mono text-gray-700 overflow-auto max-h-40">
               <p className="mb-2">
                 <strong>Error:</strong> {error.message}
               </p>
@@ -48,7 +48,7 @@ const InterviewError = ({
             Try Again
           </button>
           <button onClick={() => (window.location.href = "/history")} className="btn btn-outline">
-            Open history
+            Open Progress
           </button>
         </div>
       </div>

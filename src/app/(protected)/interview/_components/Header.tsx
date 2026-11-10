@@ -57,7 +57,7 @@ const Header = ({
     // Create interview-specific storage key
     const storageKey = `interviewEndTime_${interviewId}`;
 
-    // Check session storage for existing timer
+    // Check again storage for existing timer
     const savedEndTime = sessionStorage.getItem(storageKey);
 
     if (savedEndTime) {

@@ -112,7 +112,7 @@ it("preserves the cold visitor deep link without rendering protected content", a
 it("does not turn a session outage into a login loop", async () => {
   mode = "offline";
   mount();
-  expect(await screen.findByText("We could not verify your session")).toBeTruthy();
+  expect(await screen.findByText("We couldn't check your account")).toBeTruthy();
   expect(runtime.replace).not.toHaveBeenCalled();
 });
 it("does not re-verify a healthy session simply because the learner changes browser tabs", async () => {
@@ -168,7 +168,7 @@ it("does not silently reuse an old account when central authorization is denied"
   runtime.path = "/auth/signup";
   window.history.replaceState({}, "", "/auth/signup# error=access_denied".replace("# ", "#"));
   mount();
-  expect(await screen.findByText("We could not verify your session")).toBeTruthy();
+  expect(await screen.findByText("We couldn't check your account")).toBeTruthy();
   expect(screen.queryByText("Learner 1")).toBeNull();
   expect(runtime.replace).not.toHaveBeenCalled();
   expect(window.location.hash).toBe("");
@@ -177,7 +177,7 @@ it("rejects legacy browser credentials when secure session mode is selected", as
   runtime.path = "/auth/signup";
   window.history.replaceState({}, "", "/auth/signup?token=unexpected&refresh_token=unexpected");
   mount();
-  expect(await screen.findByText("We could not verify your session")).toBeTruthy();
+  expect(await screen.findByText("We couldn't check your account")).toBeTruthy();
   expect(runtime.replace).not.toHaveBeenCalled();
   expect(window.location.search).toBe("?flow=rejected");
 });

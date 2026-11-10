@@ -4,7 +4,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { apiClient } from "@/lib/api-config";
 import { parsePlacementOptions, parsePlacementOverview } from "@/lib/placement";
 
-const saveFailed = "Your choice could not be saved. Please try again.";
+const saveFailed = "We couldn't save your choice. Please try again.";
 
 // What a learner has chosen, what they can still choose, and how to save a new choice.
 // Account-scoped keys, and errored or refetching data is hidden rather than shown stale.

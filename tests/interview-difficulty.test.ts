@@ -148,7 +148,7 @@ describe("unavailableDifficultyMessage", () => {
   it("tells the student the facilitator must act when nothing is ready", () => {
     const message = unavailableDifficultyMessage("medium", []);
 
-    expect(message).toContain("facilitator");
+    expect(message).toContain("isn't ready");
     // Must not imply another level would work, because none would.
     expect(message).not.toContain("Available now");
   });

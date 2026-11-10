@@ -93,5 +93,5 @@ export function unavailableDifficultyMessage(
   if (offered && offered.length > 0) {
     return `The ${difficulty} level is not ready for this role yet. Available now: ${offered.join(", ")}.`;
   }
-  return "This role has no interview levels ready yet. Please check back once your facilitator has added questions.";
+  return "This job isn't ready yet. Please choose another.";
 }

@@ -107,7 +107,7 @@ const CodeView: React.FC<CodeViewProps> = ({ supplement, isLoading = false }) =>
             )}
             {/* Gradient overlay */}
             <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1e1e1e] to-transparent pointer-events-none flex items-end justify-center pb-2">
-              <span className="text-xs text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-sm text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
                 Click to expand
               </span>
             </div>

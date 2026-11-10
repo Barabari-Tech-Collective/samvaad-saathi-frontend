@@ -96,7 +96,7 @@ export default function PracticeCompanion({
           <div className="min-w-0">
             <p className="font-heading text-lg font-semibold text-[var(--brand-navy)]">
               Saathi{" "}
-              <span className="ml-1 rounded-full bg-[#FFE4BF] px-2 py-1 text-xs font-medium">
+              <span className="ml-1 rounded-full bg-[#FFE4BF] px-2 py-1 text-sm font-medium">
                 AI
               </span>
             </p>

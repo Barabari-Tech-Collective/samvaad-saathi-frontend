@@ -1,8 +1,10 @@
 "use client";
+import { friendlyDate } from "@/lib/dates";
 import { apiClient } from "@/lib/api-config/src/instance";
 import { useAuth } from "@/components/providers/auth-provider";
 type Progress = {
   course_id: string;
+  course_name?: string | null;
   state: string;
   course_verified: boolean;
   placement_verified: boolean;
@@ -41,28 +43,27 @@ export default function GraduationStatus() {
         graduated. You can keep learning after that.
       </p>
       {query.isError ? (
-        <p role="alert">Your graduation status could not be loaded.</p>
+        <p role="alert">We couldn't load your graduation details.</p>
       ) : query.isLoading || !data ? (
         <p role="status">Loading your progress…</p>
       ) : !items ? (
-        <p role="alert">Your graduation status could not be verified. Refresh to try again.</p>
+        <p role="alert">We couldn't load your graduation details. Please try again.</p>
       ) : !items.length ? (
         <p>
-          No verification record yet. Contact your course team when you have completed the course
-          and joined a job.
+          Nothing yet. Tell your course team when you finish the course and join a job.
         </p>
       ) : (
         <ul className="space-y-3">
           {items.map((row) => (
             <li key={row.course_id} className="rounded-xl border p-4">
-              <h3 className="font-medium">Course {row.course_id}</h3>
-              <p>Course completion: {row.course_verified ? "Verified" : "Awaiting verification"}</p>
-              <p>Job placement: {row.placement_verified ? "Verified" : "Awaiting verification"}</p>
+              <h3 className="font-medium">{row.course_name ?? "Your course"}</h3>
+              <p>Course completion: {row.course_verified ? "Done" : "Being checked"}</p>
+              <p>Job placement: {row.placement_verified ? "Done" : "Being checked"}</p>
               <p>
                 {row.state === "graduated"
-                  ? `Graduation approved${row.graduated_at ? ` on ${new Date(row.graduated_at).toLocaleDateString()}` : ""}.`
+                  ? `Graduation approved${row.graduated_at ? ` on ${friendlyDate(row.graduated_at)}` : ""}.`
                   : row.state === "ready"
-                    ? "Both checks are complete. Awaiting administrator approval."
+                    ? "Both checks are complete. Waiting for final approval."
                     : "Your teacher is checking."}
               </p>
             </li>

@@ -37,7 +37,7 @@ test("an expired saved session cannot remain the continue action", async ({ page
   await page.route("**/api/practice/hub", (route) => route.fulfill({ json: hub }));
   await page.goto("/?fixture=practice-hub");
   await page.getByRole("link", { name: "Continue Mock Interview" }).waitFor();
-  await expect(page.getByText(/resume window has ended/)).toBeVisible();
+  await expect(page.getByText(/can no longer be continued/)).toBeVisible();
   await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveCount(0);
 });
 
@@ -59,7 +59,7 @@ for (const readiness of [
     }
     await page.route("**/api/practice/hub", (route) => route.fulfill({ json: hub }));
     await page.goto("/?fixture=practice-hub");
-    await expect(page.getByRole("link", { name: "View saved session" })).toHaveAttribute(
+    await expect(page.getByRole("link", { name: "Open in Progress" })).toHaveAttribute(
       "href",
       "/history"
     );
@@ -81,7 +81,7 @@ test("restoring course readiness re-enables the original saved session", async (
     return route.fulfill({ json: hub });
   });
   await page.goto("/?fixture=practice-hub");
-  await expect(page.getByRole("heading", { name: "Check your course enrollment" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Check your course" })).toBeVisible();
   restored = true;
   await page.getByRole("button", { name: "Check again" }).click();
   await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveAttribute(

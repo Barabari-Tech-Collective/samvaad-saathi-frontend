@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { CoachingAssignments } from "@/components/practice/CoachingAssignments";
 import { LearningPlans } from "@/components/practice/LearningPlans";
+import { NextStep } from "@/components/workspace/NextStep";
 import { MockAssignments } from "@/components/practice/MockAssignments";
 import {
   PracticeHubSkeleton,
@@ -45,6 +46,7 @@ export default function LearningWorkspace({ area }: { area: LearningArea }) {
         : "error";
   return (
     <PracticeHubView
+      top={area === "coaching" ? <NextStep accountKey={String(account)} /> : undefined}
       key={`${area}:${account}`}
       area={area}
       hub={hub}

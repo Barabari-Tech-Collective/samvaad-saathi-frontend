@@ -3,7 +3,7 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { workspaceSection } from "@/lib/workspace-navigation";
 
 function parentDestination(path: string) {
-  if (path === "/report-summary") return { href: "/history", label: "History" };
+  if (path === "/report-summary") return { href: "/history", label: "Progress" };
   const section = workspaceSection(path);
   if (section === "/coaching" && path !== "/coaching") {
     return { href: "/coaching", label: "Coaching" };

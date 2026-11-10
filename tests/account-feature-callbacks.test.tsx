@@ -135,7 +135,7 @@ it("blocks a previously verified meeting link after account switch", async () =>
 it("blocks feedback preparation from an old page", () => {
   render(<InterviewCompleted />);
   login("second");
-  fireEvent.click(screen.getByRole("button", { name: "Prepare feedback" }));
+  fireEvent.click(screen.getByRole("button", { name: "Get my feedback" }));
   expect(f.post).not.toHaveBeenCalled();
 });
 it.each(["success", "failure"])(
@@ -144,7 +144,7 @@ it.each(["success", "failure"])(
     const pending = deferred<unknown>();
     f.post.mockReturnValue(pending.promise);
     render(<InterviewCompleted />);
-    fireEvent.click(screen.getByRole("button", { name: "Prepare feedback" }));
+    fireEvent.click(screen.getByRole("button", { name: "Get my feedback" }));
     login("second");
     await act(async () => {
       if (outcome === "success") pending.resolve({});
@@ -157,7 +157,7 @@ it.each(["success", "failure"])(
 it("still opens feedback after same-account preparation", async () => {
   f.post.mockResolvedValue({});
   render(<InterviewCompleted />);
-  fireEvent.click(screen.getByRole("button", { name: "Prepare feedback" }));
+  fireEvent.click(screen.getByRole("button", { name: "Get my feedback" }));
   await act(async () => {});
   expect(f.replace).toHaveBeenCalledWith("/report-summary?interviewId=1");
 });

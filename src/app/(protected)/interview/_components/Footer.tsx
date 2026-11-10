@@ -336,7 +336,7 @@ export default function Footer({
       await onSubmit(action, answerVersionRef.current);
     } catch {
       setSubmitError(
-        "The interview could not be submitted. Your saved answers are safe. Select Submit to try again."
+        "We couldn't submit your interview. Your saved answers are safe. Select Submit to try again."
       );
     } finally {
       submittingRef.current = false;

@@ -42,7 +42,7 @@ test("student follow-up links to its speaking drill and preserves the receipt ac
   });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/?fixture=assignments");
-  await expect(page.getByRole("link", { name: "Start assigned practice" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Start", exact: true })).toHaveAttribute(
     "href",
     "/warm-up-chat?assignment=12"
   );
@@ -52,7 +52,7 @@ test("student follow-up links to its speaking drill and preserves the receipt ac
   await page.waitForTimeout(1400);
   await page.getByRole("button", { name: "Finish answer" }).click();
   await page.getByRole("button", { name: "Complete this practice" }).click();
-  await expect(page.getByRole("alert")).toContainText(/completion could not be confirmed/i);
+  await expect(page.getByRole("alert")).toContainText(/couldn't mark this as done/i);
   await page.getByRole("button", { name: "Retry saving assignment completion" }).click();
   await expect(page.getByRole("heading", { name: "Assignment complete" })).toBeVisible();
   expect(bodies).toHaveLength(2);

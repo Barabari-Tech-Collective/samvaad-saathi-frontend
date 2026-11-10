@@ -116,7 +116,7 @@ const PronunciationPracticeStartPage = () => {
       } catch {
         if (mounted.current)
           setCompletionError(
-            "This word could not be saved. Refresh the session before trying again."
+            "This word didn't save. Please refresh and try again."
           );
       } finally {
         if (mounted.current) setCompleting(false);
@@ -133,8 +133,8 @@ const PronunciationPracticeStartPage = () => {
         if (mounted.current)
           setCompletionError(
             planStep
-              ? "Your practice was saved, but your Learning Plan could not be updated. Keep this page open and try Finish practice again."
-              : "Your practice could not be confirmed. Keep this page open and try Finish practice again."
+              ? "Your practice is saved. We couldn't update your plan yet, so please try again."
+              : "We're still saving your practice. Keep this page open and try again."
           );
       } finally {
         if (mounted.current) setCompleting(false);
@@ -200,7 +200,7 @@ const PronunciationPracticeStartPage = () => {
         <h1>{loadError ? "Open a new practice" : "Opening practice…"}</h1>
         <p>
           {loadError
-            ? "This practice is missing or could not be read. Choose a level to begin again."
+            ? "We couldn't open this practice. Choose a level to start again."
             : "Loading your words."}
         </p>
         {loadError && (

@@ -48,7 +48,7 @@ const Welcome = ({
           ) : (
             <>
               <li>This is a formal assessment interview.</li>
-              <li>Complete it in one sitting and follow the disclosed monitoring rules.</li>
+              <li>Finish it in one go and follow the rules shown.</li>
               <li>
                 Tab changes or fullscreen exits may be recorded for review; they do not
                 automatically end the assessment. Your timer continues.

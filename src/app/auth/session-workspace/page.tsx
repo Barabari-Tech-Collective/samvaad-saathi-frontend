@@ -33,8 +33,8 @@ export default function SessionWorkspace() {
       if (revision.current === expected)
         setError(
           cause instanceof SessionClientError && cause.status === 409
-            ? "Your session changed. Check your session again."
-            : "We could not load your session. Please try again."
+            ? "Your sign-in changed. Please try again."
+            : "We couldn't load your account. Please try again."
         );
     } finally {
       if (revision.current === expected) setBusy(false);
@@ -60,7 +60,7 @@ export default function SessionWorkspace() {
           if (params.get("flow") === "handoff") await client.current.complete(ticket || "");
         } catch {
           setError(
-            "Sign-in could not be completed. Start again or check the session configuration."
+            "We couldn't sign you in. Please start again."
           );
           setBusy(false);
           throw new Error("Initialization failed");
@@ -77,7 +77,7 @@ export default function SessionWorkspace() {
       client.current?.invalidate();
       setProfile(null);
       setBusy(false);
-      setError("Your session may have changed in another tab. Check your session to continue.");
+      setError("You may have signed in somewhere else. Please try again.");
     };
     let channel: BroadcastChannel | undefined;
     try {
@@ -103,7 +103,7 @@ export default function SessionWorkspace() {
       await client.current!.refresh();
       await load();
     } catch {
-      setError("Session recovery could not be confirmed. Check your session or sign in again.");
+      setError("Please sign in again.");
       setBusy(false);
     }
   };
@@ -123,7 +123,7 @@ export default function SessionWorkspace() {
         /* Other tabs recheck on focus. */
       }
     } catch {
-      setError("Sign-out could not be confirmed. Please try again.");
+      setError("We couldn't sign you out. Please try again.");
     } finally {
       setBusy(false);
     }
@@ -134,7 +134,7 @@ export default function SessionWorkspace() {
       title="Your session"
       description="Preview the new sign-in experience. Practice and interviews remain in the current workspace."
     >
-      {busy && <p role="status">Checking your session…</p>}
+      {busy && <p role="status">Just a moment…</p>}
       {error && <p role="alert">{error}</p>}
       {profile && (
         <section aria-label="Signed-in profile">
@@ -149,14 +149,14 @@ export default function SessionWorkspace() {
           disabled={busy || !client.current}
           onClick={() => void load()}
         >
-          Check session
+          Check again
         </button>
         <button
           className="ws-button"
           disabled={busy || !client.current}
           onClick={() => void recover()}
         >
-          Recover session
+          Try again
         </button>
         <button
           className="ws-button"

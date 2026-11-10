@@ -41,21 +41,21 @@ it("reports registered only for the exact file", async () => {
   f.request.mockResolvedValue({ fileSha256: hash, status: "registered", resumeId: 12 });
   render(<ResumeStorageRecovery />);
   fireEvent.click(screen.getByRole("button"));
-  expect(await screen.findByText(/This exact file has a saved record/)).toBeVisible();
+  expect(await screen.findByText(/Your file is saved/)).toBeVisible();
   expect(f.request.mock.calls[0][0]).toContain(`/me/resume-storage/${hash}`);
 });
 it("keeps unconfirmed state actionable without claiming failure", async () => {
   f.request.mockResolvedValue({ fileSha256: hash, status: "unconfirmed", resumeId: null });
   render(<ResumeStorageRecovery />);
   fireEvent.click(screen.getByRole("button"));
-  expect(await screen.findByText(/No saved record was found/)).toBeVisible();
+  expect(await screen.findByText(/We couldn't find this file/)).toBeVisible();
   expect(screen.getByRole("button")).toBeEnabled();
 });
 it("rejects a mismatched receipt", async () => {
   f.request.mockResolvedValue({ fileSha256: "b".repeat(64), status: "registered", resumeId: 12 });
   render(<ResumeStorageRecovery />);
   fireEvent.click(screen.getByRole("button"));
-  expect(await screen.findByText(/could not be completed/)).toBeVisible();
+  expect(await screen.findByText(/We couldn't check your file/)).toBeVisible();
 });
 it("ignores old results when a newer upload is remembered", async () => {
   let finish!: (value: unknown) => void;
@@ -70,7 +70,7 @@ it("ignores old results when a newer upload is remembered", async () => {
     rememberResumeReceipt({ fileSha256: "b".repeat(64) }, getAuthRevision());
     finish({ fileSha256: hash, status: "registered", resumeId: 12 });
   });
-  expect(screen.queryByText(/This exact file has a saved record/)).toBeNull();
+  expect(screen.queryByText(/Your file is saved/)).toBeNull();
   expect(screen.getByRole("button")).toBeEnabled();
 });
 it("ignores results after an account switch", async () => {
@@ -84,7 +84,7 @@ it("ignores results after an account switch", async () => {
   fireEvent.click(screen.getByRole("button"));
   login("second");
   await act(async () => finish({ fileSha256: hash, status: "registered", resumeId: 12 }));
-  expect(screen.queryByText(/This exact file has a saved record/)).toBeNull();
+  expect(screen.queryByText(/Your file is saved/)).toBeNull();
 });
 it("storage denial never turns an acknowledged save into a failed upload", () => {
   vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
@@ -94,10 +94,10 @@ it("storage denial never turns an acknowledged save into a failed upload", () =>
 });
 
 it.each([
-  ["completed", true, "confirms your résumé data was saved"],
-  ["completed", false, "without confirming saved résumé data"],
-  ["started", false, "outcome is not confirmed"],
-  ["failed", false, "extraction operation failed"],
+  ["completed", true, "Your resume is saved"],
+  ["completed", false, "not sure your resume saved"],
+  ["started", false, "still reading your resume"],
+  ["failed", false, "couldn't read your resume"],
 ])("shows %s extraction independently of file storage", async (state, dataSaved, message) => {
   const key = resumeOperationKey(hash, getAuthRevision());
   f.request
@@ -106,7 +106,7 @@ it.each([
   render(<ResumeStorageRecovery />);
   fireEvent.click(screen.getByRole("button"));
   expect(await screen.findByText(new RegExp(String(message)))).toBeVisible();
-  expect(screen.getByText(/No saved record was found/)).toBeVisible();
+  expect(screen.getByText(/We couldn't find this file/)).toBeVisible();
 });
 
 it("prepares one recovery key without uploading a file", async () => {
@@ -124,7 +124,7 @@ it("prepares one recovery key without uploading a file", async () => {
   render(<ResumeStorageRecovery />);
   fireEvent.click(screen.getByRole("button", { name: "Check file storage" }));
   fireEvent.click(await screen.findByRole("button", { name: "Prepare another attempt" }));
-  expect(await screen.findByText(/Another attempt is ready/)).toBeVisible();
+  expect(await screen.findByText(/You can try again now/)).toBeVisible();
   expect(resumeOperationKey(hash, getAuthRevision())).toBe(child);
   expect(f.request).toHaveBeenCalledTimes(3);
   expect(f.request.mock.calls[2][2]).toEqual({ method: "POST" });
@@ -142,7 +142,7 @@ it("does not offer recovery for an unresolved operation", async () => {
     });
   render(<ResumeStorageRecovery />);
   fireEvent.click(screen.getByRole("button"));
-  await screen.findByText(/outcome is not confirmed/);
+  await screen.findByText(/still reading your resume/);
   expect(screen.queryByRole("button", { name: "Prepare another attempt" })).toBeNull();
 });
 
@@ -163,7 +163,7 @@ it("repairs only storage with the selected original and does not start extractio
   const file = new File(["pdf"], "original.pdf", { type: "application/pdf" });
   fireEvent.change(input, { target: { files: [file] } });
   fireEvent.click(screen.getByRole("button", { name: "Restore file only" }));
-  expect(await screen.findByText(/AI extraction and profile data were not changed/)).toBeVisible();
+  expect(await screen.findByText(/Your profile didn't change/)).toBeVisible();
   const request = f.request.mock.calls[2];
   expect(request[0]).toContain(`/me/resume-operations/${key}/restore-file`);
   expect(request[2].body.get("file")).toBe(file);
@@ -186,14 +186,14 @@ it("leaves storage unconfirmed and offers a check after an ambiguous repair fail
     target: { files: [new File(["pdf"], "original.pdf")] },
   });
   fireEvent.click(screen.getByRole("button", { name: "Restore file only" }));
-  expect(await screen.findByText(/Storage was not confirmed/)).toBeVisible();
+  expect(await screen.findByText(/not sure your file saved/)).toBeVisible();
   expect(screen.getByRole("button", { name: "Check file storage" })).toBeEnabled();
 });
 
 it.each([
-  ["pending", /queued for storage/],
-  ["failed", /Automatic file delivery stopped/],
-  ["expired", /delivery window has ended/],
+  ["pending", /on its way/],
+  ["failed", /couldn't save your original file/],
+  ["expired", /wasn't saved in time/],
 ])("explains %s delivery without sending a retry", async (deliveryStatus, message) => {
   f.request.mockResolvedValue({
     fileSha256: hash,
@@ -219,7 +219,7 @@ it("hides manual restoration while a saved extraction has pending delivery", asy
     });
   render(<ResumeStorageRecovery />);
   fireEvent.click(screen.getByRole("button", { name: "Check file storage" }));
-  expect(await screen.findByText(/operation confirms/)).toBeVisible();
+  expect(await screen.findByText(/Your resume is saved/)).toBeVisible();
   expect(screen.queryByRole("button", { name: "Restore file only" })).toBeNull();
 });
 
@@ -249,6 +249,6 @@ it("rejects unknown delivery states without offering restoration", async () => {
   });
   render(<ResumeStorageRecovery />);
   fireEvent.click(screen.getByRole("button", { name: "Check file storage" }));
-  expect(await screen.findByText(/could not be completed/)).toBeVisible();
+  expect(await screen.findByText(/We couldn't check your file/)).toBeVisible();
   expect(screen.queryByRole("button", { name: "Restore file only" })).toBeNull();
 });

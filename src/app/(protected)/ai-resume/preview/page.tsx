@@ -91,11 +91,11 @@ function TemplatePreviewContent() {
         <div className="grid grid-cols-2 gap-3">
           <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3">
             <ShieldCheckIcon className="size-4 text-primary" />
-            <span className="text-xs font-medium text-slate-700">ATS Friendly</span>
+            <span className="text-sm font-medium text-slate-700">ATS Friendly</span>
           </div>
           <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3">
             <UserGroupIcon className="size-4 text-primary" />
-            <span className="text-xs font-medium text-slate-700 leading-tight">
+            <span className="text-sm font-medium text-slate-700 leading-tight">
               Clear section
               <br />
               headings
@@ -103,11 +103,11 @@ function TemplatePreviewContent() {
           </div>
           <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3">
             <Squares2X2Icon className="size-4 text-primary" />
-            <span className="text-xs font-medium text-slate-700">Clean Structure</span>
+            <span className="text-sm font-medium text-slate-700">Clean Structure</span>
           </div>
           <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3">
             <AcademicCapIcon className="size-4 text-primary" />
-            <span className="text-xs font-medium text-slate-700 leading-tight">
+            <span className="text-sm font-medium text-slate-700 leading-tight">
               Optimized for
               <br />
               Freshers

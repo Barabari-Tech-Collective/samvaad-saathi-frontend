@@ -152,7 +152,7 @@ export function ResumeInputForm({
           {...register("targetRole")}
           className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
         />
-        {errors.targetRole && <p className="text-xs text-red-500">{errors.targetRole.message}</p>}
+        {errors.targetRole && <p className="text-sm text-red-500">{errors.targetRole.message}</p>}
       </div>
 
       {/* Experience Level */}
@@ -174,7 +174,7 @@ export function ResumeInputForm({
           <ChevronDownIcon className="absolute right-4 top-1/2 -translate-y-1/2 size-5 text-slate-400 pointer-events-none" />
         </div>
         {errors.experienceLevel && (
-          <p className="text-xs text-red-500">{errors.experienceLevel.message}</p>
+          <p className="text-sm text-red-500">{errors.experienceLevel.message}</p>
         )}
       </div>
 
@@ -188,7 +188,7 @@ export function ResumeInputForm({
           className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none"
         />
         {errors.jobDescription && (
-          <p className="text-xs text-red-500">{errors.jobDescription.message}</p>
+          <p className="text-sm text-red-500">{errors.jobDescription.message}</p>
         )}
       </div>
 
@@ -213,7 +213,7 @@ export function ResumeInputForm({
             />
           )}
         />
-        {errors.resume && <p className="text-xs text-red-500">{errors.resume.message as string}</p>}
+        {errors.resume && <p className="text-sm text-red-500">{errors.resume.message as string}</p>}
       </div>
 
       <button

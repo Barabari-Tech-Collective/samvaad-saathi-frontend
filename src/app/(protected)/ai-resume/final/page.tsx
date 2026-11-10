@@ -250,7 +250,7 @@ function ResumeTemplateFullViewContent() {
                   <DocumentTextIcon className="size-4 text-primary" />
                   <span className="text-sm font-semibold text-slate-700">Full resume preview</span>
                 </div>
-                <span className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md font-medium">
+                <span className="text-sm bg-slate-100 text-slate-600 px-2 py-1 rounded-md font-medium">
                   Preview · PDF pagination may differ
                 </span>
               </div>
@@ -266,7 +266,7 @@ function ResumeTemplateFullViewContent() {
                     {header.fullName || header.name}
                   </h2>
                   {header.title && <p className="text-sm text-[#334155] mt-1">{header.title}</p>}
-                  <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-[#64748b] mt-2 text-xs">
+                  <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-[#64748b] mt-2 text-sm">
                     {header.email && (
                       <span className="flex items-center gap-1">✉ {header.email}</span>
                     )}

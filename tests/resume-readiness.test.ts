@@ -6,7 +6,7 @@ it("accepts confirmed readable data for this upload", () => {
 it("rejects persistence failure even with readable text and suppresses backend details", () => {
   expect(() =>
     assertResumeDataSaved({ saved: false, textLength: 120, saveError: "private SQL" })
-  ).toThrow("could not be saved");
+  ).toThrow("couldn't save your resume");
 });
 it.each([
   undefined,
@@ -17,7 +17,7 @@ it.each([
   { saved: true, textLength: "10" },
   { saved: true, textLength: 1.5 },
 ])("does not treat malformed receipt %j as readiness", (value) => {
-  expect(() => assertResumeDataSaved(value)).toThrow("could not be confirmed");
+  expect(() => assertResumeDataSaved(value)).toThrow("not sure your resume saved");
 });
 it.each([0, -1])("rejects non-readable extraction length %i", (textLength) => {
   expect(() => assertResumeDataSaved({ saved: true, textLength })).toThrow("No readable text");

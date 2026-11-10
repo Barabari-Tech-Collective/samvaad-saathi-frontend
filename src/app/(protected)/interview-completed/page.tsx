@@ -4,6 +4,7 @@ import { assertAuthRevision, getAuthRevision } from "@/lib/auth-session";
 
 import { useAuth } from "@/components/providers/auth-provider";
 import { ReceiptSummary } from "@/components/interview/SubmissionReceipt";
+import { apiClient } from "@/lib/api-config";
 import { createApiClient } from "@/lib/api-config/src/client";
 import { APIServiceV2 } from "@/lib/api-config/src/config";
 import { ENDPOINTS_V2 } from "@/lib/api-config/src/endpoints";
@@ -31,10 +32,10 @@ function CompletionCard({ title, children }: { title: string; children: React.Re
             href="/history"
             className="inline-flex min-h-11 items-center rounded-xl border border-[#344499] px-5 py-3 font-semibold text-[#344499]"
           >
-            View history
+            Open Progress
           </Link>
           <Link href="/home" className="ws-button">
-            Go to dashboard
+            Go to Home
           </Link>
         </div>
       </section>
@@ -49,13 +50,13 @@ export default function InterviewCompleted() {
     return (
       <CompletionCard title="Check this interview link">
         <p role="alert">
-          This link does not identify a valid interview. Open your session from History.
+          This link isn't right. Find your interview in Progress.
         </p>
       </CompletionCard>
     );
   if (loading || !user?.userId)
     return (
-      <CompletionCard title="Checking your session">
+      <CompletionCard title="Just a moment">
         <p role="status">
           Sign in to the account that owns this interview before checking its submission.
         </p>
@@ -107,7 +108,7 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
         signal,
       });
       assertAuthRevision(ownerRevision);
-      if (!hasReportEnvelope(value)) throw new Error("Feedback details could not be verified.");
+      if (!hasReportEnvelope(value)) throw new Error("We couldn't open your feedback.");
       return value;
     },
     enabled: verified,
@@ -121,6 +122,12 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
       current.current = false;
     };
   }, []);
+  const typical = apiClient.useQuery<{ typical_minutes: number | null }>({
+    key: ["feedback-time"],
+    url: "v2/student-home/feedback-time",
+    options: { retry: false, staleTime: 300_000 },
+  });
+  const minutes = typical.isError ? null : (typical.data?.typical_minutes ?? null);
   const post = client.useMutation<unknown, { interviewId: number }>({
     url: ENDPOINTS_V2.SUMMARY_REPORT,
     method: "post",
@@ -185,34 +192,33 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
 
   if (completion.isFetching || (!completion.data && !completion.error))
     return (
-      <CompletionCard title="Checking submission">
-        <p role="status">Confirming the session status from your account…</p>
+      <CompletionCard title="Saving your interview">
+        <p role="status">Your answers are safe. This only takes a moment.</p>
       </CompletionCard>
     );
   if (completion.isError || !completion.data) {
     const code = responseStatus(completion.error);
     return (
-      <CompletionCard title="Submission could not be verified">
+      <CompletionCard title="We couldn't check your interview">
         <p role="alert">
           {code === 401 || code === 403 || code === 404
-            ? "This session is unavailable to your account. Check History and your sign-in before continuing."
-            : "The saved status could not be loaded or verified. This page cannot confirm completion yet."}
+            ? "This interview isn't on this account. Check that you are signed in to the right one."
+            : "Your answers are safe. Please try again in a moment."}
         </p>
         <button type="button" className={action} onClick={() => void completion.refetch()}>
-          Check submission again
+          Try again
         </button>
       </CompletionCard>
     );
   }
   if (!verified)
     return (
-      <CompletionCard title="Completion is not confirmed">
+      <CompletionCard title="We're still saving your interview">
         <p role="status">
-          The server has not marked this session completed. Return through History to check its
-          current state. Opening this page does not submit or reopen an interview.
+          Your answers are safe. You can check again here, or find this interview in Progress.
         </p>
         <button type="button" className={action} onClick={() => void completion.refetch()}>
-          Check submission again
+          Try again
         </button>
       </CompletionCard>
     );
@@ -225,56 +231,56 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
     <CompletionCard
       title={
         completion.data.interviewMode === "assessment"
-          ? "Assessment submission confirmed"
-          : completion.data.interviewMode === "practice"
-            ? "Mock Interview submission confirmed"
-            : "Interview submission confirmed"
+          ? "Your assessment is submitted"
+          : "Well done. Your interview is saved."
       }
     >
-      <p>
-        The server confirms this session is completed. Feedback availability is checked separately.
-      </p>
-      {receipt ? (
-        <ReceiptSummary receipt={receipt} />
-      ) : (
-        <p role="status">
-          This completed session has no detailed receipt. Saved-answer counts cannot be confirmed
-          from this response.
+      {!existing.isSuccess && (
+        <p>
+          {completion.data.interviewMode === "assessment"
+            ? "Your placement team will share your result when it is ready."
+            : minutes
+              ? `Feedback usually takes about ${minutes} ${minutes === 1 ? "minute" : "minutes"}. We'll let you know when it's ready.`
+              : "Feedback usually takes a few minutes. We'll let you know when it's ready."}
         </p>
       )}
+      {receipt ? (
+        <details className="text-sm">
+          <summary className="min-h-11 cursor-pointer font-semibold">See what was saved</summary>
+          <ReceiptSummary receipt={receipt} />
+        </details>
+      ) : null}
       {retryWarning && (
         <p role="status" className="text-sm text-gray-600">
-          An earlier request may still finish. Another preparation request may repeat processing;
-          you can wait and check feedback again.
+          Your feedback may still be on its way. Give it a minute before trying again.
         </p>
       )}
       <div className="space-y-3 rounded-2xl bg-[#F5F9FF] p-5" aria-live="polite">
         {generation === "pending" ? (
           <p role="status">
-            Preparing feedback. You can check History if you leave this page; leaving does not
-            cancel an accepted request.
+            We&apos;re preparing your feedback. You can leave this page and it will keep going.
           </p>
         ) : existing.isFetching ? (
-          <p role="status">Checking for saved feedback…</p>
+          <p role="status">Looking for your feedback…</p>
         ) : existing.isSuccess ? (
           <>
-            <p>Saved feedback is available.</p>
+            <p>Your feedback is ready.</p>
             <Link href={`/report-summary?interviewId=${interviewId}`} className={action}>
-              Open feedback
+              See your feedback
             </Link>
           </>
         ) : (
           <>
             <p role={missing ? "status" : "alert"}>
               {denied
-                ? "Feedback access could not be verified. Check your account and History."
+                ? "We couldn't open your feedback. Check that you are signed in to the right account."
                 : generation === "uncertain"
-                  ? "Preparation was not confirmed. Check for saved feedback before sending another preparation request."
+                  ? "Your feedback is taking longer than usual. Check again in a minute."
                   : missing
                     ? completion.data.interviewMode === "practice"
-                      ? "We are preparing feedback for your Mock Interview."
-                      : "No saved feedback was found. You can request preparation for this completed session."
-                    : "Feedback availability could not be checked. Retry the check before requesting preparation."}
+                      ? "We're preparing your feedback."
+                      : "Your feedback isn't ready yet."
+                    : "We couldn't check your feedback. Please try again."}
             </p>
             <div className="flex flex-wrap gap-3">
               <button
@@ -293,7 +299,7 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
                     setGeneration("idle");
                 }}
               >
-                Check feedback again
+                Check again
               </button>
               {canPrepare && (
                 <button
@@ -326,15 +332,18 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
                     }
                   }}
                 >
-                  {completion.data.interviewMode === "practice"
-                    ? "Try feedback again"
-                    : "Prepare feedback"}
+                  {generation === "uncertain" ? "Ask for feedback again" : "Get my feedback"}
                 </button>
               )}
             </div>
           </>
         )}
       </div>
+      {completion.data.interviewMode === "practice" && !existing.isSuccess && (
+        <Link href="/warm-up-chat" className="block min-h-11 font-semibold underline">
+          While you wait, try a two-minute warm-up
+        </Link>
+      )}
     </CompletionCard>
   );
 }

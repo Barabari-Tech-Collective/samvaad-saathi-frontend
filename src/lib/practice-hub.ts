@@ -171,27 +171,27 @@ export function practiceReadinessMessage(readiness: PracticeHubResumeCard["readi
     case "preparing":
       return {
         title: "Your questions are being prepared",
-        body: "Your saved session is retained. Check again shortly, or open it in History. A new round is not needed.",
+        body: "Your interview is safe. Check again in a moment. You don't need to start a new one.",
       };
     case "enrollment_revoked":
       return {
-        title: "Check your course enrollment",
-        body: "This session cannot continue with the current enrollment. Your saved answers are retained. Ask your program team to check access, then try again.",
+        title: "Check your course",
+        body: "You can't continue this interview right now. Your answers are safe. Ask your teacher for help.",
       };
     case "enrollment_unverified":
       return {
-        title: "Course access needs a fresh check",
-        body: "Current enrollment could not be verified. Your saved answers are retained. Ask your program team to refresh enrollment, then check again.",
+        title: "We need to check your course",
+        body: "We couldn't confirm your course. Your answers are safe. Ask your teacher for help.",
       };
     case "plan_unavailable":
       return {
-        title: "Your saved plan needs checking",
-        body: "The saved question plan could not be verified. Your answers are retained. Open History or ask your program team for help; do not start a replacement round to recover it.",
+        title: "We need to check your interview",
+        body: "We couldn't load your questions. Your answers are safe. Open Progress or ask your teacher for help. You don't need to start again to recover it.",
       };
     default:
       return {
-        title: "Check your saved session",
-        body: "This server has not confirmed whether the saved session can continue. Open History to check it. Your saved answers are retained.",
+        title: "Check your interview",
+        body: "We can't tell if this interview can continue. Your answers are safe. Check Progress.",
       };
   }
 }

@@ -55,7 +55,7 @@ export const hi: Record<string, string> = {
   "Answer structure": "जवाब का ढाँचा",
   "Give a clear answer from start to end": "शुरू से आख़िर तक साफ़ जवाब दें",
   "Recent interviews": "हाल के इंटरव्यू",
-  "View history": "इतिहास देखें",
+  "Open Progress": "इतिहास देखें",
   "View status": "स्थिति देखें",
   "Continue interview": "इंटरव्यू जारी रखें",
   "Try again": "फिर से कोशिश करें",

@@ -74,6 +74,6 @@ test("Revoked or failed reads hide old evidence", async ({ page }) => {
   await expect(page.getByText(row.history[0].reason)).toBeVisible();
   revoked = true;
   await page.getByRole("button", { name: "Reload review notices" }).click();
-  await expect(page.getByRole("alert")).toContainText("could not be verified");
+  await expect(page.getByRole("alert")).toContainText("couldn't");
   await expect(page.getByText(row.history[0].reason)).toHaveCount(0);
 });

@@ -185,7 +185,7 @@ export default function ResumeEditorForm({
               onClick={() =>
                 addArrayItem("experience", { company: "", role: "", duration: "", bullets: [] })
               }
-              className="text-xs flex items-center gap-1 text-primary hover:underline font-medium"
+              className="text-sm flex items-center gap-1 text-primary hover:underline font-medium"
             >
               <PlusIcon className="size-3" /> Add Role
             </button>
@@ -202,7 +202,7 @@ export default function ResumeEditorForm({
                 <TrashIcon className="size-4" />
               </button>
               <div className="grid grid-cols-2 gap-3 pr-6">
-                <label className="flex flex-col gap-1 text-xs text-slate-600">
+                <label className="flex flex-col gap-1 text-sm text-slate-600">
                   Company{" "}
                   <input
                     type="text"
@@ -213,7 +213,7 @@ export default function ResumeEditorForm({
                     }
                   />
                 </label>
-                <label className="flex flex-col gap-1 text-xs text-slate-600">
+                <label className="flex flex-col gap-1 text-sm text-slate-600">
                   Role{" "}
                   <input
                     type="text"
@@ -222,7 +222,7 @@ export default function ResumeEditorForm({
                     onChange={(e) => handleArrayChange("experience", idx, "role", e.target.value)}
                   />
                 </label>
-                <label className="flex flex-col gap-1 text-xs text-slate-600">
+                <label className="flex flex-col gap-1 text-sm text-slate-600">
                   Duration{" "}
                   <input
                     type="text"
@@ -234,7 +234,7 @@ export default function ResumeEditorForm({
                   />
                 </label>
               </div>
-              <label className="flex flex-col gap-1 text-xs text-slate-600">
+              <label className="flex flex-col gap-1 text-sm text-slate-600">
                 Bullet Points (One per line)
                 <textarea
                   className="textarea textarea-bordered textarea-xs h-20"
@@ -252,7 +252,7 @@ export default function ResumeEditorForm({
             <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Projects</h3>
             <button
               onClick={() => addArrayItem("projects", { title: "", duration: "", bullets: [] })}
-              className="text-xs flex items-center gap-1 text-primary hover:underline font-medium"
+              className="text-sm flex items-center gap-1 text-primary hover:underline font-medium"
             >
               <PlusIcon className="size-3" /> Add Project
             </button>
@@ -269,7 +269,7 @@ export default function ResumeEditorForm({
                 <TrashIcon className="size-4" />
               </button>
               <div className="grid grid-cols-2 gap-3 pr-6">
-                <label className="flex flex-col gap-1 text-xs text-slate-600">
+                <label className="flex flex-col gap-1 text-sm text-slate-600">
                   Title{" "}
                   <input
                     type="text"
@@ -278,7 +278,7 @@ export default function ResumeEditorForm({
                     onChange={(e) => handleArrayChange("projects", idx, "title", e.target.value)}
                   />
                 </label>
-                <label className="flex flex-col gap-1 text-xs text-slate-600">
+                <label className="flex flex-col gap-1 text-sm text-slate-600">
                   Duration{" "}
                   <input
                     type="text"
@@ -288,7 +288,7 @@ export default function ResumeEditorForm({
                   />
                 </label>
               </div>
-              <label className="flex flex-col gap-1 text-xs text-slate-600">
+              <label className="flex flex-col gap-1 text-sm text-slate-600">
                 Bullet Points / Description (One per line)
                 <textarea
                   className="textarea textarea-bordered textarea-xs h-20"
@@ -314,7 +314,7 @@ export default function ResumeEditorForm({
               onClick={() =>
                 addArrayItem("education", { institution: "", degree: "", duration: "" })
               }
-              className="text-xs flex items-center gap-1 text-primary hover:underline font-medium"
+              className="text-sm flex items-center gap-1 text-primary hover:underline font-medium"
             >
               <PlusIcon className="size-3" /> Add Education
             </button>
@@ -331,7 +331,7 @@ export default function ResumeEditorForm({
                 <TrashIcon className="size-4" />
               </button>
               <div className="grid grid-cols-2 gap-3 pr-6">
-                <label className="flex flex-col gap-1 text-xs text-slate-600">
+                <label className="flex flex-col gap-1 text-sm text-slate-600">
                   Institution{" "}
                   <input
                     type="text"
@@ -342,7 +342,7 @@ export default function ResumeEditorForm({
                     }
                   />
                 </label>
-                <label className="flex flex-col gap-1 text-xs text-slate-600">
+                <label className="flex flex-col gap-1 text-sm text-slate-600">
                   Degree{" "}
                   <input
                     type="text"
@@ -351,7 +351,7 @@ export default function ResumeEditorForm({
                     onChange={(e) => handleArrayChange("education", idx, "degree", e.target.value)}
                   />
                 </label>
-                <label className="flex flex-col gap-1 text-xs text-slate-600">
+                <label className="flex flex-col gap-1 text-sm text-slate-600">
                   Duration/Year{" "}
                   <input
                     type="text"

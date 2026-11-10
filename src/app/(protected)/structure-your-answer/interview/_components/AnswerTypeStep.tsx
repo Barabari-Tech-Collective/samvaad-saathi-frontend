@@ -328,7 +328,7 @@ const AnswerTypeStep = ({
       {/* Section Header */}
       <div className="mb-6">
         <p className="studio-eyebrow mb-3">
-          Answer structure · {currentStep} of {totalSteps}
+          Plan your answers · {currentStep} of {totalSteps}
         </p>
         <h1 className="mb-3">{sectionLabel}</h1>
         <p className="text-sm text-gray-600 mb-2">Framework: {framework}</p>

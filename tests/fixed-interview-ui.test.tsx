@@ -62,7 +62,7 @@ describe("Fixed interview deadline and receipt", () => {
       />
     );
     expect(screen.getByRole("heading")).toHaveTextContent("8 planned · 4 answers saved");
-    expect(screen.getByLabelText("Submission receipt")).toHaveTextContent("2 unreached");
+    expect(screen.getByLabelText("What was saved")).toHaveTextContent("2 unreached");
     expect(screen.getByText(/Time ended/)).toBeVisible();
   });
 });

@@ -49,8 +49,8 @@ for (const status of ["active", "paused", "terminated", "preparing", "expired", 
       return r.fulfill({ json: report });
     });
     await page.goto(url);
-    await expect(page.getByRole("heading", { name: "Completion is not confirmed" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Prepare feedback" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "We're still saving your interview" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Get my feedback" })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: /You passed/ })).toHaveCount(0);
     expect(reports).toBe(0);
   });
@@ -68,17 +68,18 @@ test("verified time-limit receipt and missing feedback require an explicit prepa
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto(url);
   await expect(
-    page.getByRole("heading", { name: "Assessment submission confirmed" })
+    page.getByRole("heading", { name: "Your assessment is submitted" })
   ).toBeVisible();
+  await page.getByText("See what was saved").click();
   await expect(page.getByRole("heading", { name: "5 planned · 2 answers saved" })).toBeVisible();
   await expect(page.getByText("Time ended", { exact: false })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Prepare feedback" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Get my feedback" })).toBeVisible();
   expect(posts).toBe(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: "test-results/build26-completed-320.png", fullPage: true });
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.screenshot({ path: "test-results/build26-completed-1280.png", fullPage: true });
-  await page.getByRole("button", { name: "Prepare feedback" }).click();
+  await page.getByRole("button", { name: "Get my feedback" }).click();
   await expect(page).toHaveURL(/report-summary\?interviewId=9/);
   expect(posts).toBe(1);
 });
@@ -95,13 +96,13 @@ test("saved feedback opens without regenerating it; completed legacy session has
   });
   await page.goto(url);
   await expect(
-    page.getByText("Saved-answer counts cannot be confirmed", { exact: false })
+    page.getByText("Well done", { exact: false })
   ).toBeVisible();
-  await expect(page.getByRole("link", { name: "Open feedback" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "See your feedback" })).toHaveAttribute(
     "href",
     "/report-summary?interviewId=9"
   );
-  await expect(page.getByRole("button", { name: "Prepare feedback" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Get my feedback" })).toHaveCount(0);
   expect(posts).toBe(0);
 });
 for (const code of [403, 404, 503]) {
@@ -118,9 +119,9 @@ for (const code of [403, 404, 503]) {
     });
     await page.goto(url);
     await expect(
-      page.getByRole("heading", { name: "Submission could not be verified" })
+      page.getByRole("heading", { name: "We couldn't check your interview" })
     ).toBeVisible();
-    await expect(page.getByRole("button", { name: "Check submission again" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Try again" })).toBeVisible();
     expect(reports).toBe(0);
   });
 }
@@ -130,9 +131,9 @@ test("malformed counts cannot become a submission confirmation", async ({ page }
   );
   await page.goto(url);
   await expect(
-    page.getByRole("heading", { name: "Submission could not be verified" })
+    page.getByRole("heading", { name: "We couldn't check your interview" })
   ).toBeVisible();
-  await expect(page.getByRole("region", { name: "Submission receipt" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "What was saved" })).toHaveCount(0);
 });
 for (const result of [403, 503, "malformed"]) {
   test(`unverified report result ${result} does not offer preparation`, async ({ page }) => {
@@ -141,9 +142,9 @@ for (const result of [403, 503, "malformed"]) {
       r.fulfill({ status: typeof result === "number" ? result : 200, json: {} })
     );
     await page.goto(url);
-    await expect(page.getByRole("button", { name: "Check feedback again" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Prepare feedback" })).toHaveCount(0);
-    await expect(page.getByRole("link", { name: "Open feedback" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Check again" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Get my feedback" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "See your feedback" })).toHaveCount(0);
   });
 }
 test("uncertain generation checks for an accepted report before offering another request", async ({
@@ -161,11 +162,11 @@ test("uncertain generation checks for an accepted report before offering another
       : r.fulfill({ status: 404, json: { detail: "Missing" } });
   });
   await page.goto(url);
-  await page.getByRole("button", { name: "Prepare feedback" }).click();
-  await expect(page.getByText("Preparation was not confirmed", { exact: false })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Prepare feedback" })).toHaveCount(0);
-  await page.getByRole("button", { name: "Check feedback again" }).click();
-  await expect(page.getByRole("link", { name: "Open feedback" })).toBeVisible();
+  await page.getByRole("button", { name: "Get my feedback" }).click();
+  await expect(page.getByText("taking longer than usual", { exact: false })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Get my feedback" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Check again" }).click();
+  await expect(page.getByRole("link", { name: "See your feedback" })).toBeVisible();
   expect(posts).toBe(1);
 });
 test("late report preparation cannot redirect a different account", async ({ page }) => {
@@ -184,12 +185,12 @@ test("late report preparation cannot redirect a different account", async ({ pag
     await r.fulfill({ json: report });
   });
   await page.goto(url);
-  await page.getByRole("button", { name: "Prepare feedback" }).click();
+  await page.getByRole("button", { name: "Get my feedback" }).click();
   await expect.poll(() => posts).toBe(1);
   denied = true;
   await switchAccount(page);
   await expect(
-    page.getByRole("heading", { name: "Submission could not be verified" })
+    page.getByRole("heading", { name: "We couldn't check your interview" })
   ).toBeVisible();
   const response = page.waitForResponse((r) => r.request().method() === "POST");
   release();
@@ -201,7 +202,7 @@ test("late report preparation cannot redirect a different account", async ({ pag
       )
   );
   await expect(page).toHaveURL(/fixture=completed/);
-  await expect(page.getByRole("region", { name: "Submission receipt" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "What was saved" })).toHaveCount(0);
 });
 test("changing the sitting ID rechecks completion instead of retaining the first submission", async ({
   page,
@@ -211,14 +212,14 @@ test("changing the sitting ID rechecks completion instead of retaining the first
   await page.route("**/api/v2/summary-report**", (r) => r.fulfill({ json: report }));
   await page.goto(url);
   await expect(
-    page.getByRole("heading", { name: "Assessment submission confirmed" })
+    page.getByRole("heading", { name: "Your assessment is submitted" })
   ).toBeVisible();
   await page.evaluate(() => {
     window.history.pushState({}, "", "/?fixture=completed&interviewId=10");
     window.dispatchEvent(new Event("popstate"));
   });
-  await expect(page.getByRole("heading", { name: "Completion is not confirmed" })).toBeVisible();
-  await expect(page.getByRole("region", { name: "Submission receipt" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "We're still saving your interview" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "What was saved" })).toHaveCount(0);
 });
 
 test("double submission clicks send one preparation request", async ({ page }) => {
@@ -234,7 +235,7 @@ test("double submission clicks send one preparation request", async ({ page }) =
     await r.fulfill({ json: report });
   });
   await page.goto(url);
-  await page.getByRole("button", { name: "Prepare feedback" }).evaluate((button) => {
+  await page.getByRole("button", { name: "Get my feedback" }).evaluate((button) => {
     (button as HTMLButtonElement).click();
     (button as HTMLButtonElement).click();
   });
@@ -261,12 +262,12 @@ test("rechecking completion during a pending preparation cannot redirect after a
     await r.fulfill({ json: report });
   });
   await page.goto(url);
-  await page.getByRole("button", { name: "Prepare feedback" }).click();
+  await page.getByRole("button", { name: "Get my feedback" }).click();
   await expect.poll(() => posts).toBe(1);
   denied = true;
   await page.evaluate(() => window.dispatchEvent(new Event("completion-test-refresh")));
   await expect(
-    page.getByRole("heading", { name: "Submission could not be verified" })
+    page.getByRole("heading", { name: "We couldn't check your interview" })
   ).toBeVisible();
   const response = page.waitForResponse((r) => r.request().method() === "POST");
   release();

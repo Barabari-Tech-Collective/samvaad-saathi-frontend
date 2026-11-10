@@ -167,7 +167,7 @@ it("enrollment denial blocks writing and displays a distinct message without a t
   const { result } = renderHook(() => useInterviewSessionLease({ interviewId: 7, enabled: true }));
   await waitFor(() => expect(result.current.status).toBe("error"));
   expect(result.current.canWrite).toBe(false);
-  expect(result.current.accessMessage).toContain("program team");
+  expect(result.current.accessMessage).toContain("teacher");
   expect(mocks.claim).toHaveBeenCalledWith({ interviewId: 7, force: false });
   mocks.claim.mockResolvedValue(response());
   await act(async () => {

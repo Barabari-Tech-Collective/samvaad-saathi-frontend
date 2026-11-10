@@ -52,14 +52,14 @@ export function ATSScoreCircle() {
           >
             <div className="flex flex-col items-center justify-center pt-[15px]">
               <span className="text-[40px] leading-none font-bold mb-1">{score}</span>
-              <span className="text-[10px] font-medium text-white/80 -mt-1">out of 100</span>
+              <span className="text-sm font-medium text-white/80 -mt-1">out of 100</span>
             </div>
           </div>
         </div>
 
         {/* Info Text */}
         <div className="flex-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 rounded-full text-xs font-semibold mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 rounded-full text-sm font-semibold mb-3">
             <ArrowTrendingUpIcon className="size-3.5" />
             {getStatusText(score)}
           </div>
@@ -73,7 +73,7 @@ export function ATSScoreCircle() {
           <div className="bg-white rounded-3xl border border-slate-100 p-5 shadow-sm">
             <h2 className="text-[15px] font-bold text-slate-800 mb-3">ATS Summary</h2>
 
-            <p className="text-[13px] leading-7 text-slate-600">{summary}</p>
+            <p className="text-sm leading-7 text-slate-600">{summary}</p>
           </div>
         )}
       </div>

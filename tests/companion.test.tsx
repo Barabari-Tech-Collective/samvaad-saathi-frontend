@@ -61,7 +61,7 @@ describe("honest companion activity", () => {
     );
   });
   it("does not invite recording while session controls are paused", () => {
-    expect(companionActivity({ ...baseline, blocked: true }).text).toContain("paused");
+    expect(companionActivity({ ...baseline, blocked: true }).text).toContain("read the message");
     expect(companionActivity({ ...baseline, answer: "recording", blocked: true }).state).toBe(
       "listening"
     );

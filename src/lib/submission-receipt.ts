@@ -11,7 +11,7 @@ export function parseSubmissionReceipt(
   value: unknown,
   interviewId?: string
 ): SubmissionReceiptData {
-  if (!value || typeof value !== "object") throw new Error("Receipt details are unavailable.");
+  if (!value || typeof value !== "object") throw new Error("Details aren't available.");
   const row = value as Record<string, unknown>;
   const counts = [row.planned, row.answered, row.skipped, row.unresolved, row.unreached];
   if (
@@ -36,14 +36,14 @@ export function parseSubmissionReceipt(
         (row.answered as number) + (row.skipped as number) + (row.unresolved as number))
   )
     throw new Error(
-      "Receipt details could not be verified. Check History before relying on these counts."
+      "We couldn't load these details."
     );
   return value as SubmissionReceiptData;
 }
 
 export function parseCompletionEnvelope(value: unknown, interviewId: string) {
   if (!value || typeof value !== "object")
-    throw new Error("Completion status could not be verified.");
+    throw new Error("We couldn't check your interview.");
   const row = value as Record<string, unknown>;
   if (
     typeof row.status !== "string" ||
@@ -51,7 +51,7 @@ export function parseCompletionEnvelope(value: unknown, interviewId: string) {
     !("receipt" in row) ||
     (row.interviewMode != null && !["practice", "assessment"].includes(row.interviewMode as string))
   )
-    throw new Error("Completion status could not be verified.");
+    throw new Error("We couldn't check your interview.");
   return {
     status: row.status,
     interviewMode: row.interviewMode as "practice" | "assessment" | null | undefined,

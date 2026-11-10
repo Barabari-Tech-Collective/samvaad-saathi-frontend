@@ -288,12 +288,12 @@ export default function GuidedSpeakingDrill({
     try {
       const receipt = await recordCompletion(completion);
       if (assignmentId && receipt.assignmentId !== assignmentId)
-        throw new Error("Assignment receipt was not confirmed");
+        throw new Error("We couldn't mark this as done yet");
       if (planStep) await bindPlanReceipt.mutateAsync({ completion_id: receipt.completionId });
     } catch {
       if (assignmentId || planStep) {
         setAssignmentError(
-          "Completion could not be confirmed for this assigned step. It may be closed or your enrollment may have changed. Retry saving, or return to Coaching to check the plan."
+          "We couldn't mark this as done. Please try again, or check it in Practice."
         );
         return;
       }
@@ -341,8 +341,7 @@ export default function GuidedSpeakingDrill({
       return (
         <div role="alert" className="mx-auto max-w-3xl space-y-4 rounded-2xl border p-6">
           <p>
-            This assignment cannot be started. It may be closed, unavailable for this drill, or your
-            enrollment may have changed.
+            This task can't be started right now. Ask your teacher if you need it.
           </p>
           <Link className="ws-button" href="/coaching">
             Return to Practice

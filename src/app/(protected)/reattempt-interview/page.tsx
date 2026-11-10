@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function ReAttemptInterview() {
   return (
     <div className="mx-auto w-full max-w-3xl space-y-5 rounded-3xl border border-[#DEE8FB] bg-white p-5 text-[#1F285B] sm:p-8">
-      <p className="text-xs font-semibold uppercase tracking-widest text-[#344499]">
+      <p className="text-sm font-semibold uppercase tracking-widest text-[#344499]">
         Keep practising
       </p>
       <h1 className="text-3xl font-bold">Start a new Mock Interview</h1>
@@ -17,7 +17,7 @@ export default function ReAttemptInterview() {
         assessment setup.
       </p>
       <p className="text-sm text-gray-600">
-        For a saved round that is still open, use its continuation option in History.
+        For a saved round that is still open, use its continuation option in Progress.
       </p>
       <div className="flex flex-wrap gap-3">
         <Link
@@ -30,7 +30,7 @@ export default function ReAttemptInterview() {
           className="inline-flex min-h-12 items-center rounded-xl border border-[#344499] px-5 py-3 font-semibold"
           href="/history"
         >
-          View history
+          Open Progress
         </Link>
       </div>
     </div>

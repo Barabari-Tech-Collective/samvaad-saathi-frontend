@@ -28,7 +28,7 @@ export function readResumeFingerprint(): string | null {
 }
 export function parseStorageStatus(value: unknown, hash: string): "registered" | "unconfirmed" {
   const receipt = value as { fileSha256?: unknown; status?: unknown; resumeId?: unknown } | null;
-  if (receipt?.fileSha256 !== hash) throw new Error("The file check could not be verified.");
+  if (receipt?.fileSha256 !== hash) throw new Error("We couldn't check your file. Please try again.");
   if (
     receipt.status === "registered" &&
     typeof receipt.resumeId === "number" &&
@@ -37,7 +37,7 @@ export function parseStorageStatus(value: unknown, hash: string): "registered" |
   )
     return "registered";
   if (receipt.status === "unconfirmed" && receipt.resumeId == null) return "unconfirmed";
-  throw new Error("The file check could not be verified.");
+  throw new Error("We couldn't check your file. Please try again.");
 }
 
 export type ResumeDeliveryStatus = "pending" | "failed" | "expired" | null;
@@ -49,7 +49,7 @@ export function parseDeliveryStatus(value: unknown, hash: string): ResumeDeliver
   // Missing fields remain compatible with older API versions.
   if (delivery == null) return null;
   if (delivery === "pending" || delivery === "failed" || delivery === "expired") return delivery;
-  throw new Error("The delivery check could not be verified.");
+  throw new Error("We couldn't check your file. Please try again.");
 }
 
 /** Remember the exact bytes before dispatch, even if the HTTP response is later lost. */
@@ -70,7 +70,7 @@ export async function prepareResumeUpload(file: File, revision: number): Promise
   assertAuthRevision(revision);
   if (!globalThis.crypto?.subtle)
     throw new Error(
-      "Secure file preparation is unavailable. Open the platform over HTTPS and try again."
+      "Your browser can't prepare this file. Please try another browser."
     );
   const digest = await crypto.subtle.digest("SHA-256", bytes);
   assertAuthRevision(revision);
@@ -131,7 +131,7 @@ export function acceptResumeRecovery(
     !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(receipt.operationKey) ||
     receipt.operationKey === previous
   )
-    throw new Error("The recovery request could not be verified.");
+    throw new Error("We couldn't restore your file. Please try again.");
   try {
     sessionStorage.setItem(
       OPERATION_KEY,
@@ -139,6 +139,6 @@ export function acceptResumeRecovery(
     );
     if (readResumeOperation(hash) !== receipt.operationKey) throw new Error("Storage unavailable");
   } catch {
-    throw new Error("Allow browser storage before preparing another attempt.");
+    throw new Error("Your browser is blocking this. Try a normal (not private) window.");
   }
 }

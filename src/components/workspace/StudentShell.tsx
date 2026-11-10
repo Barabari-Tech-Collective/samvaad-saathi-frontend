@@ -4,13 +4,10 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   HomeIcon,
-  MicrophoneIcon,
   AcademicCapIcon,
   ClockIcon,
   ShieldCheckIcon,
   DocumentTextIcon,
-  UserCircleIcon,
-  BriefcaseIcon,
   XMarkIcon,
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
@@ -20,23 +17,22 @@ import { workspaceSection } from "@/lib/workspace-navigation";
 import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import PageNavigation from "./PageNavigation";
+import { parseToday, useToday } from "./NextStep";
 import { useLanguage } from "@/lib/i18n/language";
 
 const destinations = [
   { href: "/home", label: "Home", icon: HomeIcon },
-  { href: "/coaching", label: "Coaching", icon: AcademicCapIcon },
-  { href: "/mock-interviews", label: "Mock Interviews", icon: MicrophoneIcon },
-  { href: "/history", label: "History", icon: ClockIcon },
-  { href: "/assessments", label: "Assessments", icon: ShieldCheckIcon },
+  { href: "/coaching", label: "Practice", icon: AcademicCapIcon },
+  { href: "/assessments", label: "Assessments", icon: ShieldCheckIcon, assigned: true },
+  { href: "/history", label: "Progress", icon: ClockIcon },
   { href: "/ai-resume", label: "Resume", icon: DocumentTextIcon },
-  { href: "/profile", label: "Profile", icon: UserCircleIcon },
 ];
 const titles: Record<string, string> = {
   home: "Home",
   practice: "Learning workspace",
-  coaching: "Coaching",
-  "mock-interviews": "Mock Interviews",
-  history: "Interview history",
+  coaching: "Practice",
+  "mock-interviews": "Practice",
+  history: "Progress",
   profile: "Profile",
   assessments: "Assessments",
   "assessment-reviews": "Assessment reviews",
@@ -46,10 +42,10 @@ const titles: Record<string, string> = {
   interview: "Interview",
   "report-summary": "Feedback",
   "ai-resume": "Resume",
-  "structure-your-answer": "Answer structure",
+  "structure-your-answer": "Plan your answers",
   "pronunciation-practice": "Pronunciation",
-  "control-your-pace": "Speaking pace",
-  "warm-up-chat": "Warm-up",
+  "control-your-pace": "Speak at a good speed",
+  "warm-up-chat": "Warm-up chat",
   "think-fast": "Think fast",
 };
 export default function StudentShell({ children }: { children: React.ReactNode }) {
@@ -57,6 +53,10 @@ export default function StudentShell({ children }: { children: React.ReactNode }
   const { t } = useLanguage();
   const { user } = useAuth();
   const selectedSection = workspaceSection(pathname);
+  const today = useToday(String(user?.userId ?? "signed-out"));
+  const known = today.isError ? null : parseToday(today.data);
+  // Show Assessments unless we know nothing is assigned, so a failed check never hides it.
+  const showAssessments = !known || known.has_assessments || selectedSection === "/assessments";
   const [compact, setCompact] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
@@ -106,7 +106,9 @@ export default function StudentShell({ children }: { children: React.ReactNode }
     return (
       <nav aria-label={mobile ? "Mobile workspace navigation" : "Student navigation"}>
         <ul className="student-nav-list">
-          {destinations.map(({ href, label, icon: Icon }) => (
+          {destinations
+            .filter((item) => !item.assigned || showAssessments)
+            .map(({ href, label, icon: Icon }) => (
             <li key={href}>
               <Link
                 href={href}
@@ -126,22 +128,6 @@ export default function StudentShell({ children }: { children: React.ReactNode }
               </Link>
             </li>
           ))}
-          {user?.authorizedUser.canUseBulkAts && (
-            <li>
-              <Link
-                href="/bulk-ats"
-                aria-label="Bulk ATS"
-                title="Bulk ATS"
-                onClick={() => {
-                  if (mobile) menu.current?.close();
-                }}
-                aria-current={pathname.startsWith("/bulk-ats") ? "page" : undefined}
-              >
-                <BriefcaseIcon aria-hidden="true" />
-                <span className="student-nav-label">Bulk ATS</span>
-              </Link>
-            </li>
-          )}
         </ul>
       </nav>
     );

@@ -35,17 +35,17 @@ it("shows pending admin approval only after both checks", () => {
     ],
   };
   render(<GraduationStatus />);
-  expect(screen.getByText(/Awaiting administrator approval/)).toBeVisible();
+  expect(screen.getByText(/Both checks are complete/)).toBeVisible();
 });
 it("makes an empty verification record actionable", () => {
   f.query.data = { items: [] };
   render(<GraduationStatus />);
-  expect(screen.getByText(/Contact your course team/)).toBeVisible();
+  expect(screen.getByText(/Tell your course team/)).toBeVisible();
 });
 
 it("fails closed when the server returns a malformed verification record", () => {
   f.query.data = { items: [{}] };
   render(<GraduationStatus />);
-  expect(screen.getByRole("alert")).toHaveTextContent("could not be verified");
+  expect(screen.getByRole("alert")).toHaveTextContent("couldn't load your graduation");
   expect(screen.queryByRole("list")).toBeNull();
 });

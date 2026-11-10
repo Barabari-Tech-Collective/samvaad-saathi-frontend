@@ -11,7 +11,7 @@ export const reportStatusCopy = (status: ReportStatus | undefined): string => {
     case "needs_review":
       return "Feedback needs review";
     case "insufficient_evidence":
-      return "More evidence needed";
+      return "A few more answers needed";
     default:
       return "Coaching report ready";
   }
@@ -20,13 +20,13 @@ export const reportStatusCopy = (status: ReportStatus | undefined): string => {
 export const confidenceCopy = (confidence: EvidenceConfidence): string => {
   switch (confidence) {
     case "high":
-      return "Strong evidence coverage";
+      return "Enough for clear feedback";
     case "medium":
-      return "Useful evidence coverage";
+      return "Enough for useful feedback";
     case "low":
-      return "Some analysis is still unavailable";
+      return "Some feedback is still on its way";
     default:
-      return "Not enough evidence to score reliably";
+      return "Not enough to give a score yet";
   }
 };
 
@@ -39,7 +39,7 @@ export const questionEvidenceCopy = (status: QuestionEvidenceStatus): string => 
     case "insufficient":
       return "Not enough speech";
     case "unavailable":
-      return "Evidence unavailable";
+      return "Not available yet";
     default:
       return "Not attempted";
   }
@@ -62,33 +62,33 @@ export function reportRecoveryCopy(
   switch (kind) {
     case "invalid":
       return {
-        title: "Choose a report from History",
-        body: "This link does not identify a valid interview. Open History and select the round you want to review.",
+        title: "Choose your feedback in Progress",
+        body: "This link isn't right. Open Progress and choose your interview.",
       };
     case "checking":
       return {
-        title: "Checking your report",
-        body: "We are loading the latest available feedback. No score is shown until it can be checked.",
+        title: "Just a moment",
+        body: "Getting your feedback…",
       };
     case "missing":
       return {
-        title: "This report is unavailable",
-        body: "A saved report could not be found for this request. It may not have been prepared, or this session may not be available to your account. Check History or try again later.",
+        title: "This feedback isn't available",
+        body: "We couldn't find this feedback. Check Progress or try again later.",
       };
     case "denied":
       return {
-        title: "Report access could not be verified",
-        body: "We cannot verify access to this report. Check that you are using the right account, or ask your program team for help.",
+        title: "We couldn't open your feedback",
+        body: "We couldn't open this feedback. Check you are on the right account, or ask your teacher.",
       };
     case "malformed":
       return {
-        title: "Report details could not be verified",
-        body: "The response is incomplete. No score has been substituted. Retry loading the report or return to History.",
+        title: "We couldn't open your feedback",
+        body: "Part of your feedback didn't load. Please try again.",
       };
     default:
       return {
-        title: "Your report could not be loaded",
-        body: "A connection or service problem prevented this check. This does not confirm whether feedback is ready. Try again or return to History.",
+        title: "We couldn't load your feedback",
+        body: "Please check your connection and try again.",
       };
   }
 }

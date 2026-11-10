@@ -54,7 +54,7 @@ export function SkillsAnalysisGroup() {
                   </div>
                   <span className="font-semibold text-[15px] text-slate-800">{group.title}</span>
                 </div>
-                <span className="text-xs font-semibold text-slate-400">{items.length}</span>
+                <span className="text-sm font-semibold text-slate-400">{items.length}</span>
               </div>
 
               <div className="flex flex-wrap gap-2">
@@ -62,18 +62,18 @@ export function SkillsAnalysisGroup() {
                   items.map((item, j) => (
                     <span
                       key={j}
-                      className={`px-3 py-1.5 rounded-full text-[13px] font-bold ${group.color}`}
+                      className={`px-3 py-1.5 rounded-full text-sm font-bold ${group.color}`}
                     >
                       {item}
                     </span>
                   ))
                 ) : (
-                  <span className="text-xs text-slate-400">No items</span>
+                  <span className="text-sm text-slate-400">No items</span>
                 )}
               </div>
 
               {group.description && (
-                <p className="mt-4 text-[13px] font-medium text-slate-400">{group.description}</p>
+                <p className="mt-4 text-sm font-medium text-slate-400">{group.description}</p>
               )}
             </div>
           );

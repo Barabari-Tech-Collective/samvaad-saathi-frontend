@@ -70,7 +70,7 @@ export function CookieAuthProvider({ children }: { children: React.ReactNode }) 
       ) {
         window.history.replaceState({}, "", "/auth/signup?flow=rejected");
         throw new Error(
-          "Sign-in was not completed. Please contact your facilitator if access was denied."
+          "We couldn't sign you in. Ask your teacher if this keeps happening."
         );
       }
       if (
@@ -79,7 +79,7 @@ export function CookieAuthProvider({ children }: { children: React.ReactNode }) 
         )
       ) {
         window.history.replaceState({}, "", "/auth/signup?flow=rejected");
-        throw new Error("Restart sign-in using the secure session flow.");
+        throw new Error("Please sign in again.");
       }
       if (url.pathname === "/auth/signup" && url.searchParams.get("flow") === "handoff") {
         const ticket = new URLSearchParams(url.hash.slice(1)).get("handoff") || "";
@@ -214,7 +214,7 @@ export function CookieAuthProvider({ children }: { children: React.ReactNode }) 
     return (
       <main className="studio-page">
         <h1>
-          {logoutError ? "Sign-out could not be confirmed" : "We could not verify your session"}
+          {logoutError ? "We couldn't sign you out" : "We couldn't check your account"}
         </h1>
         <p role="alert">Please try again. Your account data is hidden until this is resolved.</p>
         <button
@@ -228,7 +228,7 @@ export function CookieAuthProvider({ children }: { children: React.ReactNode }) 
         </button>
         {logoutError && (
           <button className="ws-button" onClick={() => performSignOut(false)}>
-            Sign out of this Samvaad session only
+            Sign out of Samvaad
           </button>
         )}
       </main>
@@ -240,7 +240,7 @@ export function CookieAuthProvider({ children }: { children: React.ReactNode }) 
       </AuthContext.Provider>
     );
   if (query.isPending || leaving || (!publicPage && !user))
-    return <p role="status">{leaving ? "Signing out…" : "Checking your session…"}</p>;
+    return <p role="status">{leaving ? "Signing out…" : "Just a moment…"}</p>;
   return (
     <AuthContext.Provider value={{ user, loading: query.isPending, signInWithSso: login, signOut }}>
       {children}

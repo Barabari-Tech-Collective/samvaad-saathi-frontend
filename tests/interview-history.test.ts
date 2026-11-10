@@ -76,8 +76,8 @@ describe("history and report recovery contracts", () => {
   it("handles URL filters and reports recovery reasons honestly", () => {
     expect(historyTab("completed")).toBe("completed");
     expect(historyTab("other")).toBe("incomplete");
-    expect(reportRecoveryCopy("missing").title).toBe("This report is unavailable");
-    expect(reportRecoveryCopy("denied").title).toContain("access");
-    expect(reportRecoveryCopy("unavailable").body).toContain("does not confirm");
+    expect(reportRecoveryCopy("missing").title).toBe("This feedback isn't available");
+    expect(reportRecoveryCopy("denied").title).toContain("open your feedback");
+    expect(reportRecoveryCopy("unavailable").body).toContain("connection");
   });
 });

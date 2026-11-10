@@ -5,15 +5,14 @@ import { useLanguage } from "@/lib/i18n/language";
 import {
   ArrowRightIcon,
   ChatBubbleLeftRightIcon,
-  SignalIcon,
   ListBulletIcon,
   ClipboardDocumentCheckIcon,
   VideoCameraIcon,
   DocumentTextIcon,
   ClockIcon,
 } from "@heroicons/react/24/outline";
-import HomePractice from "@/components/workspace/HomePractice";
-import { StudentToday } from "@/components/workspace/StudentToday";
+import { NextStep } from "@/components/workspace/NextStep";
+import { friendlyDate, statusWord } from "@/lib/dates";
 import { firstName } from "@/lib/practice-hub";
 import { useAuth } from "@/components/providers/auth-provider";
 import { apiClient } from "@/lib/api-config";
@@ -43,15 +42,15 @@ export default function HomePage() {
     enabled: !!account && !loading,
     options: { staleTime: 0, gcTime: 0, retry: false },
   });
-  const data = query.isError || query.isFetching ? undefined : query.data;
-  if (loading || !account) return <output>Checking your workspace…</output>;
+  const fresh = query.isError || query.isFetching ? undefined : query.data;
+  const data = fresh && Array.isArray(fresh.items) ? fresh : undefined;
+  if (loading || !account) return <output aria-label="Loading" className="ws-next-loading"><span /><span /><span /></output>;
   const noticeCount = !notices.isError && !notices.isFetching ? (notices.data?.count ?? 0) : 0;
   return (
     <div className="ws-home">
       <PageHeading
-        eyebrow={t("Your learning workspace")}
-        title={`${t("Hi,")} ${firstName(user.authorizedUser.name)}.`}
-        description={t("Build skills with Coaching or rehearse with Mock Interviews.")}
+                title={`${t("Hi,")} ${firstName(user.authorizedUser.name)}.`}
+        description={t("Here is what to do next.")}
       />
       {noticeCount > 0 && (
         <aside className="ws-notice">
@@ -64,125 +63,51 @@ export default function HomePage() {
           </Link>
         </aside>
       )}
-      <StudentToday key={`today-${account}`} accountKey={String(account)} />
-      <section className="ws-home-start" aria-label="Choose your next step">
-        <HomePractice key={String(account)} accountKey={String(account)} />
+      <NextStep key={`next-${account}`} accountKey={String(account)} trend />
+      <details className="ws-more">
+        <summary>{t("More practice")}</summary>
         <div className="ws-secondary-tasks">
-          <Link className="ws-task-link" href="/coaching">
-            <ListBulletIcon aria-hidden="true" />
-            <span>
-              <strong>{t("Coaching")}</strong>
-              <small>Build one skill with short activities and feedback</small>
-            </span>
-            <ArrowRightIcon aria-hidden="true" />
-          </Link>
-          <Link className="ws-task-link" href="/mock-interviews">
-            <ChatBubbleLeftRightIcon aria-hidden="true" />
-            <span>
-              <strong>{t("Mock Interviews")}</strong>
-              <small>Rehearse a full interview and review feedback</small>
-            </span>
-            <ArrowRightIcon aria-hidden="true" />
-          </Link>
-          <Link className="ws-task-link" href="/assessments">
-            <ClipboardDocumentCheckIcon aria-hidden="true" />
-            <span>
-              <strong>{t("Assessments")}</strong>
-              <small>Open your assigned AI or Human Interview</small>
-            </span>
-            <ArrowRightIcon aria-hidden="true" />
-          </Link>
-          <Link className="ws-task-link" href="/human-interviews">
-            <VideoCameraIcon aria-hidden="true" />
-            <span>
-              <strong>{t("Live interviews")}</strong>
-              <small>{t("See your interview time and join")}</small>
-            </span>
-            <ArrowRightIcon aria-hidden="true" />
-          </Link>
-          <Link className="ws-task-link" href="/opportunity-outcomes">
-            <ClipboardDocumentCheckIcon aria-hidden="true" />
-            <span>
-              <strong>Opportunity outcomes</strong>
-              <small>Read released placement feedback and next steps</small>
-            </span>
-            <ArrowRightIcon aria-hidden="true" />
-          </Link>
-          <Link className="ws-task-link" href="/ai-resume">
-            <DocumentTextIcon aria-hidden="true" />
-            <span>
-              <strong>{t("Your resume")}</strong>
-              <small>{t("Make or fix your resume")}</small>
-            </span>
-            <ArrowRightIcon aria-hidden="true" />
-          </Link>
-        </div>
-      </section>
-      <section aria-labelledby="home-skills-title">
-        <div className="ws-section-heading">
-          <h2 id="home-skills-title">{t("Work on one skill")}</h2>
-          <Link className="ws-button" href="/coaching#skill-builders-title">
-            {t("All Coaching activities")} <ArrowRightIcon aria-hidden="true" />
-          </Link>
-        </div>
-        <div className="ws-quick-skills">
           {[
-            {
-              href: "/warm-up-chat",
-              title: t("Warm-up chat"),
-              detail: t("Practise your introduction"),
-              icon: ChatBubbleLeftRightIcon,
-            },
-            {
-              href: "/control-your-pace",
-              title: t("Speaking speed"),
-              detail: t("Say less 'um' and speak at a good speed"),
-              icon: SignalIcon,
-            },
-            {
-              href: "/structure-your-answer",
-              title: t("Answer structure"),
-              detail: t("Give a clear answer from start to end"),
-              icon: ListBulletIcon,
-            },
-          ].map(({ href, title, detail, icon: Icon }) => (
-            <Link key={href} href={href} className="ws-quick-skill">
-              <Icon aria-hidden="true" />
-              <span>
-                <strong>{title}</strong>
-                <small>{detail}</small>
-              </span>
-              <ArrowRightIcon aria-hidden="true" />
-            </Link>
-          ))}
+            ["/coaching", ListBulletIcon, "Coaching", "Build one skill with short activities"],
+            ["/mock-interviews", ChatBubbleLeftRightIcon, "Mock Interviews", "Rehearse a full interview"],
+            ["/human-interviews", VideoCameraIcon, "Live interviews", "See your interview time and join"],
+            ["/opportunity-outcomes", ClipboardDocumentCheckIcon, "Job results", "See your results and next steps"],
+            ["/ai-resume", DocumentTextIcon, "Your resume", "Make or fix your resume"],
+          ].map(([href, Icon, title, detail]) => {
+            const Glyph = Icon as typeof ListBulletIcon;
+            return (
+              <Link key={href as string} className="ws-task-link" href={href as string}>
+                <Glyph aria-hidden="true" />
+                <span>
+                  <strong>{t(title as string)}</strong>
+                  <small>{t(detail as string)}</small>
+                </span>
+                <ArrowRightIcon aria-hidden="true" />
+              </Link>
+            );
+          })}
         </div>
-      </section>
+      </details>
       <section aria-labelledby="recent-interviews">
         <div className="ws-section-heading">
           <h2 id="recent-interviews">{t("Recent interviews")}</h2>
           <Link className="ws-button" href="/history">
-            {t("View history")} <ArrowRightIcon aria-hidden="true" />
+            {t("Open Progress")} <ArrowRightIcon aria-hidden="true" />
           </Link>
         </div>
-        {query.isError ? (
+        {query.isError || (query.isSuccess && !query.isFetching && !data) ? (
           <div role="alert" className="ws-empty">
-            <p>Your recent interviews could not be loaded. Your saved work is retained.</p>
+            <p>We couldn't load your recent interviews. Your work is safe.</p>
             <button className="ws-button mt-4" onClick={() => void query.refetch()}>
-              Retry
+              Try again
             </button>
           </div>
         ) : !data ? (
-          <output>Loading recent interviews…</output>
+          <output aria-label="Loading" className="ws-next-loading"><span /><span /><span /></output>
         ) : !data.items.length ? (
           <div className="ws-empty">
             <h3>{t("Your first round starts here")}</h3>
-            <p>
-              New to interviews? Try a warm-up chat before a full round. Saved interviews and
-              feedback will appear here.
-            </p>
-            <Link className="ws-button mt-4" href="/warm-up-chat">
-              Try a warm-up <ArrowRightIcon aria-hidden="true" />
-            </Link>
+            <p>Your interviews and feedback will appear here.</p>
           </div>
         ) : (
           <ul className="ws-history-list">
@@ -192,11 +117,7 @@ export default function HomePage() {
                 <div className="ws-history-title">
                   <h3>{row.track}</h3>
                   <p>
-                    {new Date(row.createdAt).toLocaleDateString(undefined, {
-                      day: "numeric",
-                      month: "short",
-                    })}{" "}
-                    · {row.difficulty} · {row.status.replaceAll("_", " ")}
+                    {friendlyDate(row.createdAt)} · {row.difficulty} · {statusWord(row.status)}
                   </p>
                 </div>
                 <Link
@@ -208,8 +129,8 @@ export default function HomePage() {
                   }
                 >
                   {row.status === "completed" && row.summaryReportAvailable
-                    ? "Feedback"
-                    : "View status"}
+                    ? "See feedback"
+                    : "Open"}
                   <ArrowRightIcon aria-hidden="true" />
                 </Link>
               </li>

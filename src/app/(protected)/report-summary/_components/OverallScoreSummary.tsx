@@ -30,8 +30,8 @@ function ScoreDimension({ title, dimension }: { title: string; dimension: Dimens
       <dl className="mt-4 flex flex-wrap gap-2">
         {Object.entries(dimension.criteria).map(([key, value]) => (
           <div key={key} className="rounded-full border border-[#D6E0FB] bg-white px-3 py-1.5">
-            <dt className="inline text-xs capitalize text-gray-600">{key}: </dt>
-            <dd className="inline text-xs font-bold text-[#1F285B]">{value}</dd>
+            <dt className="inline text-sm capitalize text-gray-600">{key}: </dt>
+            <dd className="inline text-sm font-bold text-[#1F285B]">{value}</dd>
           </div>
         ))}
       </dl>
@@ -55,7 +55,7 @@ export default function OverallScoreSummary({
         Coaching scores
       </h2>
       <p className="mt-1 text-gray-600">
-        These scores reflect the evidence shown below. They are not a hiring decision.
+        These scores come from your answers below. They are not a hiring decision.
       </p>
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         {knowledgeCompetence && (

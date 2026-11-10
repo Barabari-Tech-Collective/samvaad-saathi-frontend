@@ -1,4 +1,5 @@
 "use client";
+import { dueText, statusWord } from "@/lib/dates";
 import Link from "next/link";
 import { useState } from "react";
 import { apiClient } from "@/lib/api-config";
@@ -21,13 +22,13 @@ export function MockAssignments({ accountKey }: { accountKey: string }) {
       </h2>
       {query.isError || (query.data && !data) ? (
         <div role="alert">
-          <p>Your assigned Mock Interviews could not be verified.</p>
+          <p>We couldn't load your Mock Interviews.</p>
           <button className="ws-button mt-2" onClick={() => void query.refetch()}>
             Try again
           </button>
         </div>
       ) : !data ? (
-        <output>Loading assigned Mock Interviews…</output>
+        <output aria-label="Loading" className="ws-next-loading"><span /><span /><span /></output>
       ) : (
         <>
           <p className="text-sm text-gray-600">{data.notice}</p>
@@ -38,12 +39,12 @@ export function MockAssignments({ accountKey }: { accountKey: string }) {
               {data.items.map((item) => (
                 <li key={item.id} className="space-y-2 py-4">
                   <h3 className="font-semibold">
-                    {item.jobName} · {item.status}
+                    {item.jobName}{item.status !== "assigned" && ` · ${statusWord(item.status)}`}
                   </h3>
                   <p>{item.reason}</p>
                   {item.note && <p className="text-sm text-gray-600">{item.note}</p>}
                   {item.dueDate && (
-                    <p className="text-sm">Due {new Date(item.dueDate).toLocaleDateString()}</p>
+                    <p className="text-sm">{dueText(item.dueDate)}</p>
                   )}
                   {item.status === "assigned" && (
                     <Link

@@ -1,5 +1,6 @@
 "use client";
 
+import { friendlyDateTime, statusWord } from "@/lib/dates";
 import { getAuthRevision } from "@/lib/auth-session";
 import {
   parseHumanInterviewsPage,
@@ -15,10 +16,6 @@ import { apiClient } from "@/lib/api-config";
 const button =
   "inline-flex min-h-11 items-center justify-center rounded-xl border border-[#C0CFF2] px-4 py-2 font-medium text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:opacity-50";
 
-function statusLabel(status: HumanInterviewStatus) {
-  return status.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
 function appointmentTime(iso: string, timezone: string | null | undefined) {
   try {
     return new Intl.DateTimeFormat(undefined, {
@@ -27,7 +24,7 @@ function appointmentTime(iso: string, timezone: string | null | undefined) {
       ...(timezone ? { timeZone: timezone } : {}),
     }).format(new Date(iso));
   } catch {
-    return new Date(iso).toLocaleString();
+    return friendlyDateTime(iso);
   }
 }
 
@@ -63,7 +60,7 @@ function AppointmentCard({ row }: { row: HumanInterviewAppointment }) {
           </h2>
         </div>
         <span className="rounded-full bg-[#F5F9FF] px-3 py-1 text-sm">
-          {statusLabel(row.status)}
+          {statusWord(row.status)}
         </span>
       </div>
       <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-[10rem_1fr]">
@@ -102,7 +99,7 @@ function AppointmentCard({ row }: { row: HumanInterviewAppointment }) {
       <p className="text-sm text-gray-600">
         {row.outcomeSource
           ? "Outcome reported by your host."
-          : "Attendance is not confirmed when you open the meeting link."}
+          : "Opening the link doesn't mark you as present."}
       </p>
       {row.canJoin ? (
         <button
@@ -125,7 +122,7 @@ function AppointmentCard({ row }: { row: HumanInterviewAppointment }) {
             } catch {
               if (alive.current && getAuthRevision() === ownerRevision)
                 setError(
-                  "The meeting link could not be verified. Refresh to check the time and your enrollment, or contact your program team. No attendance or score was recorded."
+                  "We couldn't open the meeting link. Please try again or ask your teacher."
                 );
             } finally {
               joinLock.current = false;
@@ -138,7 +135,7 @@ function AppointmentCard({ row }: { row: HumanInterviewAppointment }) {
       ) : (
         ["scheduled", "rescheduled"].includes(row.status) && (
           <p className="text-sm text-gray-600">
-            Joining opens {new Date(row.joinOpensAt).toLocaleString()} and closes at the scheduled
+            Joining opens {friendlyDateTime(row.joinOpensAt)} and closes at the scheduled
             end. Refresh when it is time.
           </p>
         )
@@ -179,13 +176,13 @@ function AppointmentCard({ row }: { row: HumanInterviewAppointment }) {
       )}
       {row.status === "no_show" && (
         <p className="text-sm">
-          This was reported by the host, not detected automatically. Contact your program team if it
+          This was reported by the host, not detected automatically. Contact your teacher if it
           needs review.
         </p>
       )}
       {["cancelled", "technical_issue"].includes(row.status) && (
         <p className="text-sm">
-          Ask your program team about a replacement appointment. You will not be switched to an AI
+          Ask your teacher about a replacement appointment. You will not be switched to an AI
           interview.
         </p>
       )}
@@ -224,8 +221,7 @@ export function HumanInterviews({ accountKey }: { accountKey: string }) {
       {query.isError || invalidResponse ? (
         <div role="alert">
           <p>
-            Appointments could not be verified. Check your connection and sign-in, then refresh.
-            Your program team can help verify enrollment.
+            We couldn't load your interviews. Check your connection and try again, or ask your teacher.
           </p>
         </div>
       ) : query.isLoading || !data ? (

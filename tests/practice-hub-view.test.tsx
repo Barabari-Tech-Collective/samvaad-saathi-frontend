@@ -38,7 +38,7 @@ describe("Mock Interview entry", () => {
     render(<PracticeHubView status="error" hub={null} name="Riya" onRefresh={retry} area="mock" />);
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     expect(retry).toHaveBeenCalledOnce();
-    expect(screen.getByRole("link", { name: "Find saved interviews" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open Progress" })).toHaveAttribute(
       "href",
       "/history"
     );
@@ -50,7 +50,7 @@ describe("Mock Interview entry", () => {
     hub.resume!.totalQuestions = 0;
     hub.resume!.readiness = "preparing";
     render(view("ready", hub));
-    expect(screen.getByRole("link", { name: "View saved session" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Open in Progress" })).toBeVisible();
     expect(screen.queryByText(/0 of 0/)).toBeNull();
   });
   it("removes an expired resume action while the page stays open", () => {
@@ -62,16 +62,16 @@ describe("Mock Interview entry", () => {
     expect(screen.getByRole("link", { name: "Continue Mock Interview" })).toBeVisible();
     act(() => vi.advanceTimersByTime(2000));
     expect(screen.queryByRole("link", { name: "Continue Mock Interview" })).toBeNull();
-    expect(screen.getByText(/resume window has ended/)).toBeVisible();
+    expect(screen.getByText(/can no longer be continued/)).toBeVisible();
   });
 });
 
 it("shows personalised evidence guidance only in Coaching", () => {
   const hub = practiceHub();
-  hub.focusEvidenceAnswerCount = 4;
+  hub.focusEvidenceAnswerCount = 1;
+  hub.focus = null;
   render(view("ready", hub, "coaching"));
-  expect(screen.getByRole("heading", { name: "Keep exploring your skills" })).toBeVisible();
-  expect(screen.getByText(/no single focus stands out/)).toBeVisible();
+  expect(screen.getByText(/more answers and we can suggest/)).toBeVisible();
 });
 
 it.each([
@@ -92,7 +92,7 @@ it.each([
   expect(screen.queryByRole("link", { name: "Continue Mock Interview" })).toBeNull();
   expect(screen.queryByRole("link", { name: "Start Mock Interview" })).toBeNull();
   expect(screen.queryByText(/2 of 5 answers are saved/)).toBeNull();
-  expect(screen.getByRole("link", { name: "View saved session" })).toHaveAttribute(
+  expect(screen.getByRole("link", { name: "Open in Progress" })).toHaveAttribute(
     "href",
     "/history"
   );

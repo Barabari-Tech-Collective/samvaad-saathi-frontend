@@ -73,7 +73,7 @@ for (const query of [
     });
     await page.goto(`/?fixture=active&${query}`);
     await expect(
-      page.getByRole("heading", { name: "Restore this interview from History" })
+      page.getByRole("heading", { name: "Open this interview from Progress" })
     ).toBeVisible();
     expect(calls).toBe(0);
   });
@@ -87,7 +87,7 @@ test("denied restore never displays cached local questions", async ({ page }) =>
   );
   await page.route("**/api/interviews/resume", (r) => r.fulfill({ status: 403, json: {} }));
   await page.goto(url);
-  await expect(page.getByRole("alert")).toContainText("could not verify");
+  await expect(page.getByRole("alert")).toContainText("couldn't");
   await expect(page.getByText("Private cached question", { exact: true })).toHaveCount(0);
 });
 test("late restore cannot redirect the new account", async ({ page }) => {
@@ -108,7 +108,7 @@ test("late restore cannot redirect the new account", async ({ page }) => {
   await page.evaluate(() =>
     window.dispatchEvent(new CustomEvent("practice-test-account", { detail: "2" }))
   );
-  await expect(page.getByRole("alert")).toContainText("could not verify");
+  await expect(page.getByRole("alert")).toContainText("couldn't");
   release();
   await expect(page).toHaveURL(/fixture=active/);
 });
@@ -128,7 +128,7 @@ test("generation sends the explicit URL sitting and rejects a mismatched checkpo
   });
   await page.route("**/api/interviews/resume", (r) => r.fulfill({ json: checkpoint(8) }));
   await page.goto("/?fixture=active&interviewId=7&interviewMode=assessment");
-  await expect(page.getByRole("alert")).toContainText("could not confirm");
+  await expect(page.getByRole("alert")).toContainText("couldn't");
   expect(id).toBe(7);
 });
 test("sitting change removes the active question and loads the canonical new sitting", async ({
@@ -204,7 +204,7 @@ for (const phase of ["advance", "complete"])
           );
           window.dispatchEvent(new Event("popstate"));
         });
-      await expect(page.getByRole("alert")).toContainText("could not verify");
+      await expect(page.getByRole("alert")).toContainText("couldn't");
       await expect(page.getByText("Explain your project decision", { exact: true })).toHaveCount(0);
       release();
       await expect.poll(() => released).toBe(true);

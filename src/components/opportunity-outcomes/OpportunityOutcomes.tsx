@@ -1,5 +1,6 @@
 "use client";
 
+import { friendlyDateTime } from "@/lib/dates";
 import PageHeading from "@/components/studio/PageHeading";
 import { apiClient } from "@/lib/api-config";
 import { parseOpportunityOutcomes } from "@/lib/opportunity-outcomes";
@@ -34,7 +35,7 @@ export function OpportunityOutcomes({ accountKey }: { accountKey: string }) {
       {query.isError || invalidResponse ? (
         <div role="alert" className="studio-panel">
           <p>
-            Your outcomes could not be verified. Check your connection and sign-in, then refresh.
+            We couldn't load your results. Check your connection and try again.
           </p>
         </div>
       ) : query.isLoading || outcomes === null ? (
@@ -62,7 +63,7 @@ export function OpportunityOutcomes({ accountKey }: { accountKey: string }) {
                   : "Not shortlisted for this opportunity"}
               </p>
               <p className="text-sm">
-                Released {new Date(item.releasedAt).toLocaleString()} · Revision {item.revision}
+                Released {friendlyDateTime(item.releasedAt)} · Revision {item.revision}
               </p>
               <div>
                 <h3 className="font-medium">Feedback</h3>

@@ -231,7 +231,7 @@ h6 {
 .student-sidebar-heading > span {
   padding-left: 12px;
   color: #667085;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
 }
 .student-sidebar-toggle {
@@ -272,7 +272,7 @@ h6 {
   border: 1px solid var(--workspace-border);
   border-radius: 8px;
   padding: 6px 10px;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: #344054;
   background: #fff;
   text-decoration: none;
@@ -302,7 +302,7 @@ h6 {
   border-radius: 10px;
   padding: 10px 12px;
   color: #667085;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
 }
@@ -378,7 +378,7 @@ h6 {
   background: transparent;
   cursor: pointer;
   color: #667085;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   border-radius: 10px;
 }
@@ -410,7 +410,7 @@ h6 {
 }
 .workspace-eyebrow {
   color: #667085;
-  font-size: 0.6875rem;
+  font-size: 0.875rem;
   letter-spacing: 0.06em;
   font-weight: 600;
 }
@@ -456,7 +456,7 @@ h6 {
   border-radius: 9px;
   background: #fff;
   color: #344054;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.4;
   text-decoration: none;
@@ -581,7 +581,7 @@ h6 {
   display: block;
   margin-top: 4px;
   color: #667085;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
 }
 .ws-task-link:hover strong {
   color: #344499;
@@ -596,7 +596,7 @@ h6 {
   border: 1px solid #e6d89a;
   border-radius: 10px;
   background: #fffcf2;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
 }
 .ws-section-heading {
   display: flex;
@@ -646,12 +646,12 @@ h6 {
   font-weight: 600;
 }
 .ws-history-title p {
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   margin-top: 4px;
   color: #667085;
 }
 .ws-status {
-  font-size: 0.6875rem;
+  font-size: 0.875rem;
   color: #475467;
   border: 1px solid var(--workspace-border);
   border-radius: 6px;
@@ -799,7 +799,7 @@ h6 {
 .student-main .btn {
   border-radius: 9px;
   font-family: var(--font-inter), sans-serif;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   text-decoration: none;
 }
@@ -831,7 +831,7 @@ h6 {
   gap: 12px;
 }
 .ws-card-kicker {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: #475467;
 }
@@ -843,7 +843,7 @@ h6 {
   border-top: 1px solid var(--workspace-border);
   padding-top: 16px;
   width: 100%;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: #475467;
 }
 .ws-round-steps li {
@@ -872,7 +872,7 @@ h6 {
   color: #344499;
 }
 .ws-focus-link strong {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
 }
 .ws-focus-link small {
   display: block;
@@ -926,7 +926,7 @@ h6 {
 .ws-skill-link p {
   display: block;
   margin-top: 4px;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   line-height: 1.5;
   color: #667085;
 }

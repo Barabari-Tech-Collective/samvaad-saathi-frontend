@@ -56,6 +56,6 @@ it("does not invent a fingerprint when secure hashing is unavailable", async () 
   vi.stubGlobal("crypto", {});
   await expect(
     prepareResumeUpload(new File(["abc"], "resume.pdf"), getAuthRevision())
-  ).rejects.toThrow("Secure file preparation");
+  ).rejects.toThrow("Your browser can't prepare");
   expect(readResumeFingerprint()).toBeNull();
 });

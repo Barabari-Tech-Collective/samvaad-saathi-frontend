@@ -3,7 +3,7 @@ import { trackBottomNavClick } from "@/lib/posthog/tracking.utils";
 import {
   AcademicCapIcon,
   HomeIcon,
-  MicrophoneIcon,
+  ClockIcon,
   Squares2X2Icon,
 } from "@heroicons/react/24/outline";
 import { workspaceSection } from "@/lib/workspace-navigation";
@@ -12,8 +12,8 @@ import { useLanguage } from "@/lib/i18n/language";
 import { usePathname } from "next/navigation";
 const items = [
   { href: "/home", label: "Home", icon: HomeIcon },
-  { href: "/coaching", label: "Coaching", icon: AcademicCapIcon },
-  { href: "/mock-interviews", label: "Mock Interviews", icon: MicrophoneIcon },
+  { href: "/coaching", label: "Practice", icon: AcademicCapIcon },
+  { href: "/history", label: "Progress", icon: ClockIcon },
 ];
 export default function BottomNav({
   className = "",

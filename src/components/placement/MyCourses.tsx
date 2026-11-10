@@ -49,7 +49,7 @@ export default function MyCourses() {
           <p role="status">Loading the courses you can choose…</p>
         ) : p.choices.items.length === 0 ? (
           <div className="space-y-2">
-            <p>No courses are open for choosing yet. Ask your program team.</p>
+            <p>No courses are open for choosing yet. Ask your teacher.</p>
             <button
               type="button"
               className="btn btn-outline min-h-11"
@@ -83,7 +83,7 @@ export default function MyCourses() {
             <p>
               {overview.needs_placement
                 ? "You have not chosen a course yet."
-                : "Your course was set by your program team."}
+                : "Your course was set by your teacher."}
             </p>
           )}
           <button
@@ -99,7 +99,7 @@ export default function MyCourses() {
   );
 }
 
-// A batch the learner already holds stays selectable even if the program team has since closed it.
+// A batch the learner already holds stays selectable even if the teacher has since closed it.
 function mergeHeld<T extends { batch_key: string }>(open: T[], held: T[]): T[] {
   const keys = new Set(open.map((o) => o.batch_key));
   return [...open, ...held.filter((h) => !keys.has(h.batch_key))];

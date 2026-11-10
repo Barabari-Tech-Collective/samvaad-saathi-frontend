@@ -82,12 +82,12 @@ test("failed older-page load preserves previous pages and retries the same curso
     return route.fulfill({ json: { items: [item(5), item(4)], nextCursor: 4, limit: 20 } });
   });
   await page.goto("/?fixture=history");
-  await page.getByRole("button", { name: "Load older sessions" }).click();
-  await expect(page.getByRole("alert")).toContainText("More history could not be loaded");
+  await page.getByRole("button", { name: "Show older interviews" }).click();
+  await expect(page.getByRole("alert")).toContainText("We couldn't load more");
   await expect(page.getByRole("heading", { name: "Round 5" })).toBeVisible();
   failed = false;
-  await page.getByRole("button", { name: "Try loading history again" }).click();
-  await expect(page.getByText("3 sessions loaded · 1 in this view")).toBeVisible();
+  await page.getByRole("button", { name: "Try again" }).click();
+  await expect(page.getByText("3 interviews · 1 in this view")).toBeVisible();
   await page.getByRole("button", { name: "Completed", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Round 4" })).toHaveCount(1);
 });
@@ -105,7 +105,7 @@ test("access denial hides cached history instead of claiming it is empty", async
   await page.getByRole("heading", { name: "Round 5" }).waitFor();
   denied = true;
   await page.evaluate(() => window.dispatchEvent(new Event("history-test-refresh")));
-  await expect(page.getByRole("alert")).toContainText("History access could not be verified");
+  await expect(page.getByRole("alert")).toContainText("We couldn't open your progress");
   await expect(page.getByRole("heading", { name: "Round 5" })).toHaveCount(0);
 });
 
@@ -116,7 +116,7 @@ test("stalled cursors give a recoverable error without repeatedly fetching", asy
     return route.fulfill({ json: { items: [item(5)], nextCursor: 4, limit: 20 } });
   });
   await page.goto("/?fixture=history");
-  await page.getByRole("button", { name: "Load older sessions" }).click();
+  await page.getByRole("button", { name: "Show older interviews" }).click();
   await expect(page.getByRole("alert")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Round 5" })).toBeVisible();
   expect(requests).toBe(2);
@@ -139,7 +139,7 @@ test("expired and unverified-mode sessions have no unchecked resume action", asy
   await page.goto("/?fixture=history");
   await expect(page.getByRole("heading", { name: "Round 5" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Continue practice" })).toHaveCount(0);
-  await expect(page.getByText(/resume window has ended/)).toBeVisible();
+  await expect(page.getByText(/can no longer be continued/)).toBeVisible();
 });
 
 test("switching accounts clears accumulated history", async ({ page }) => {
@@ -154,13 +154,13 @@ test("switching accounts clears accumulated history", async ({ page }) => {
     window.dispatchEvent(new CustomEvent("practice-test-account", { detail: "2" }))
   );
   await expect(page.getByRole("heading", { name: "Round 5" })).toHaveCount(0);
-  await expect(page.getByText("0 sessions loaded · 0 in this view")).toBeVisible();
+  await expect(page.getByText("0 interviews · 0 in this view")).toBeVisible();
 });
 
 for (const [status, title] of [
-  [404, "This report is unavailable"],
-  [403, "Report access could not be verified"],
-  [503, "Your report could not be loaded"],
+  [404, "This feedback isn't available"],
+  [403, "We couldn't open your feedback"],
+  [503, "We couldn't load your feedback"],
 ] as const) {
   test(`report ${status} is distinct from a confirmed processing state`, async ({ page }) => {
     await page.route("**/api/v2/summary-report/42", (route) =>
@@ -184,13 +184,13 @@ test("report retry can recover partial feedback without inventing a score", asyn
     route.fulfill({ json: { interviewMode: "assessment", receipt: null } })
   );
   await page.goto("/?fixture=report&interviewId=42");
-  await page.getByRole("button", { name: "Try loading report again" }).waitFor();
+  await page.getByRole("button", { name: "Try again" }).waitFor();
   failed = false;
-  await page.getByRole("button", { name: "Try loading report again" }).click();
+  await page.getByRole("button", { name: "Try again" }).click();
   await expect(page.getByRole("heading", { name: "Communication report" })).toBeVisible();
   await expect(page.getByText("Assessment feedback", { exact: true })).toBeVisible();
   await expect(page.getByRole("progressbar")).toHaveCount(0);
-  await expect(page.getByText(/An overall score is not available/)).toBeVisible();
+  await expect(page.getByText(/We couldn't work out an overall score/)).toBeVisible();
 });
 
 test("invalid report IDs do not send report or receipt requests", async ({ page }) => {
@@ -200,7 +200,7 @@ test("invalid report IDs do not send report or receipt requests", async ({ page 
     return route.fulfill({ status: 500 });
   });
   await page.goto("/?fixture=report&interviewId=1e3");
-  await expect(page.getByRole("heading", { name: "Choose a report from History" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Choose your feedback in Progress" })).toBeVisible();
   expect(requests).toBe(0);
 });
 
@@ -222,13 +222,13 @@ test("a late older-page response cannot reappear after account switching", async
     });
   });
   await page.goto("/?fixture=history");
-  await page.getByRole("button", { name: "Load older sessions" }).click();
+  await page.getByRole("button", { name: "Show older interviews" }).click();
   await expect.poll(() => !!release).toBe(true);
   switched = true;
   await page.evaluate(() =>
     window.dispatchEvent(new CustomEvent("practice-test-account", { detail: "2" }))
   );
-  await expect(page.getByText("0 sessions loaded · 0 in this view")).toBeVisible();
+  await expect(page.getByText("0 interviews · 0 in this view")).toBeVisible();
   release!();
   await expect(page.getByRole("heading", { name: "Round 3" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Round 5" })).toHaveCount(0);
@@ -251,7 +251,7 @@ test("report denial after an account switch removes the previous account's cache
     window.dispatchEvent(new CustomEvent("practice-test-account", { detail: "2" }))
   );
   await expect(
-    page.getByRole("heading", { name: "Report access could not be verified" })
+    page.getByRole("heading", { name: "We couldn't open your feedback" })
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Communication report" })).toHaveCount(0);
 });
@@ -267,7 +267,7 @@ test("an incomplete report response uses recovery instead of crashing or inventi
   );
   await page.goto("/?fixture=report&interviewId=42");
   await expect(
-    page.getByRole("heading", { name: "Report details could not be verified" })
+    page.getByRole("heading", { name: "We couldn't open your feedback" })
   ).toBeVisible();
   await expect(page.getByRole("progressbar")).toHaveCount(0);
 });
@@ -294,8 +294,8 @@ test("a report that is unavailable does not hide the independently saved submiss
     })
   );
   await page.goto("/?fixture=report&interviewId=42");
-  await expect(page.getByRole("heading", { name: "This report is unavailable" })).toBeVisible();
-  await expect(page.getByRole("region", { name: "Submission receipt" })).toContainText(
+  await expect(page.getByRole("heading", { name: "This feedback isn't available" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "What was saved" })).toContainText(
     "5 planned · 2 answers saved"
   );
   await expect(page.getByText(/Time ended before all questions were resolved/)).toBeVisible();

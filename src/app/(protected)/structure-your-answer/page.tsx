@@ -14,7 +14,7 @@ export default function StructureYourAnswerPage() {
   return (
     <SkillLanding
       title="Give your answer a clear shape."
-      eyebrow="Answer structure"
+      eyebrow="Plan your answers"
       description="Practise turning what you know into an answer someone can follow. Choose a role to make the questions relevant to you."
       steps={[
         { title: "Choose your context", description: "Pick the role you want to practise for." },

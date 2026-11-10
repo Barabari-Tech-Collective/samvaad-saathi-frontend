@@ -197,7 +197,7 @@ it("shows a recoverable error without dispatch when session storage is unavailab
   });
   try {
     render(<Pacing />);
-    expect(await screen.findByRole("alert")).toHaveTextContent("browser storage is unavailable");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Your browser is blocking");
     expect(f.create).not.toHaveBeenCalled();
   } finally {
     vi.stubGlobal("sessionStorage", originalStorage);

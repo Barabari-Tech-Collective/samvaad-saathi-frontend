@@ -15,6 +15,7 @@ import { AssessmentFixture } from "./assessment-fixture";
 import "./workspace.css";
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
+import { LanguageProvider } from "@/lib/i18n/language";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CookiesProvider } from "react-cookie";
 import { CoachingAssignments } from "@/components/practice/CoachingAssignments";
@@ -66,6 +67,7 @@ window.addEventListener("practice-test-refresh", () => {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={client}>
     <CookiesProvider>
+      <LanguageProvider>
       {location.search.includes("fixture=student-shell") ? (
         <StudentShell>
           {location.search.includes("view=profile") ? <ProfilePage /> : <HomePage />}
@@ -132,6 +134,7 @@ createRoot(document.getElementById("root")!).render(
       ) : (
         <Fixture />
       )}
+    </LanguageProvider>
     </CookiesProvider>
   </QueryClientProvider>
 );

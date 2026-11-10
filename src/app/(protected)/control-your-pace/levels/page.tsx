@@ -39,7 +39,7 @@ const LevelsPage = () => {
       <div className="studio-stack">
         <div className="flex flex-1 items-center justify-center">
           <div role="alert" className="studio-panel">
-            <p>Levels could not be loaded.</p>
+            <p>We couldn't load the levels.</p>
             <button className="btn btn-neutral mt-4" onClick={() => void refetch()}>
               Try again
             </button>
@@ -122,13 +122,13 @@ const LevelsPage = () => {
                 </p>
                 <div className="flex justify-between items-center">
                   <span
-                    className={`badge badge-soft text-xs px-3 py-2 font-medium ${
+                    className={`badge badge-soft text-sm px-3 py-2 font-medium ${
                       level.status !== "locked" ? getStatusBadgeClass(level.status) : ""
                     }`}
                   >
                     {getStatusLabel(level.status)}
                   </span>
-                  <span className="text-xs text-gray-400">{level.unlockMessage}</span>
+                  <span className="text-sm text-gray-400">{level.unlockMessage}</span>
                 </div>
               </div>
               {isLocked ? (

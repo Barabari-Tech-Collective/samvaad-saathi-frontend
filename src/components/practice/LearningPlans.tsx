@@ -1,5 +1,6 @@
 "use client";
 
+import { dueText } from "@/lib/dates";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { apiClient } from "@/lib/api-config";
@@ -112,7 +113,7 @@ function PlanCard({
       </p>
       {assignment.reason && <p className="text-sm text-gray-600">{assignment.reason}</p>}
       {assignment.dueDate && (
-        <p className="text-sm">Due {new Date(assignment.dueDate).toLocaleDateString()}</p>
+        <p className="text-sm">{dueText(assignment.dueDate)}</p>
       )}
       {assignment.status === "active" && current ? (
         <section className="rounded-xl bg-[#F5F7FF] p-3">
@@ -161,43 +162,41 @@ export function LearningPlans({ accountKey }: { accountKey: string }) {
     void assigned.refetch();
     void available.refetch();
   };
+  // Hide the whole block when there is nothing to do here.
+  if (
+    !assigned.isError &&
+    !available.isError &&
+    (!plans || !plans.items.length) &&
+    (!choices || !choices.items.length)
+  )
+    return null;
   return (
-    <section
-      className="mb-7 space-y-4 rounded-2xl border border-[#DEE8FB] bg-white p-5 sm:p-6"
-      aria-label="Learning plans"
-    >
-      <h2 className="text-xl font-semibold text-[#1F285B]">Learning Plans</h2>
-      <p className="text-sm text-gray-600">
-        Follow one step at a time. Drill and mock progress is recorded by the server after you
-        finish it.
-      </p>
+    <section className="studio-panel space-y-4" aria-label="Learning Plans">
+      <h3 className="text-lg font-semibold text-[#1F285B]">Learning Plans</h3>
+      <p className="text-sm text-gray-600">One step at a time. Your progress updates when you finish each step.</p>
       {assigned.isError || (assigned.data && !plans) ? (
         <div role="alert">
-          <p>Your Learning Plans could not be verified.</p>
+          <p>We couldn&apos;t load your plans. Your progress is safe.</p>
           <button className="ws-button mt-2" onClick={refresh}>
             Try again
           </button>
         </div>
-      ) : !plans ? (
-        <output>Loading your Learning Plans…</output>
-      ) : plans.items.length ? (
+      ) : plans && plans.items.length > 0 ? (
         <ul className="space-y-3">
           {plans.items.map((plan) => (
             <PlanCard key={plan.id} assignment={plan} refresh={refresh} />
           ))}
         </ul>
-      ) : (
-        <p>No active Learning Plans yet. You can still choose a Coaching activity.</p>
-      )}
+      ) : null}
       <div className="border-t pt-4">
-        <h3 className="font-semibold">Available plans</h3>
+        <h4 className="font-semibold">Plans you can start</h4>
         {startError && <p role="alert">{startError}</p>}
         {available.isError || (available.data && !choices) ? (
-          <p>Available plans could not be verified right now.</p>
+          <p>We couldn&apos;t load more plans.</p>
         ) : !choices ? (
-          <output>Checking plans you can start…</output>
+          <output aria-label="Loading" className="ws-next-loading"><span /><span /><span /></output>
         ) : !choices.items.length ? (
-          <p className="text-sm text-gray-600">No additional plans are open to self-start.</p>
+          <p className="text-sm text-gray-600">No other plans right now.</p>
         ) : (
           <ul className="mt-3 space-y-3">
             {choices.items.map((plan) => (
@@ -212,7 +211,7 @@ export function LearningPlans({ accountKey }: { accountKey: string }) {
                     const requestKey = keys.current.get(mapKey) ?? newKey();
                     if (!requestKey)
                       return setStartError(
-                        "This browser cannot create a secure request key. Please use a current browser."
+                        "Please update your browser and try again."
                       );
                     keys.current.set(mapKey, requestKey);
                     setStartError("");

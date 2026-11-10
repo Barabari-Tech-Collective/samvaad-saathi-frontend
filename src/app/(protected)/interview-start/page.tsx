@@ -98,10 +98,10 @@ function EntryRecovery({ title, children }: { title: string; children: React.Rea
       {children}
       <div className="flex flex-wrap gap-4">
         <Link className="ws-button" href="/history">
-          Check History
+          Check Progress
         </Link>
         <Link className="ws-button" href="/home">
-          Go to dashboard
+          Go to Home
         </Link>
       </div>
     </div>
@@ -170,6 +170,7 @@ function InterviewSetup({
   const [difficulty, setDifficulty] = useState("easy");
   const [useResume, setUseResume] = useState(false);
   const [freeQuestionCount, setFreeQuestionCount] = useState(5);
+  const [quickStart, setQuickStart] = useState(true);
   const [showPreflight, setShowPreflight] = useState(false);
 
   const router = useRouter();
@@ -188,7 +189,7 @@ function InterviewSetup({
       });
       assertAuthRevision(ownerRevision);
       const parsed = parseInterviewCatalogue(value);
-      if (!parsed) throw new Error("Role catalogue could not be verified.");
+      if (!parsed) throw new Error("We couldn't load the job list.");
       return parsed;
     },
     // A student can deliberately refresh below. Avoid a focus/reconnect fan-out when an entire
@@ -336,7 +337,7 @@ function InterviewSetup({
       publishedQuestionCount(selectedProfile?.questionsPerInterview) === null
     ) {
       setStartError(
-        "This role does not have a verified published question count. Check the roles again or ask your facilitator."
+        "This job isn't ready yet. Choose another or ask your teacher."
       );
       return false;
     }
@@ -424,7 +425,7 @@ function InterviewSetup({
         });
         if (!current.current || getAuthRevision() !== ownerRevision) return;
         if (!catalogueReady.current)
-          throw new Error("Current role access must be checked in History.");
+          throw new Error("Please check Progress before trying again.");
         const expected =
           selection.kind === "tech"
             ? freeQuestionCount
@@ -442,7 +443,7 @@ function InterviewSetup({
         });
         if (!current.current || getAuthRevision() !== ownerRevision) return;
         if (!catalogueReady.current)
-          throw new Error("Current role access must be checked in History.");
+          throw new Error("Please check Progress before trying again.");
         const id = createdInterview(
           result,
           mode,
@@ -460,13 +461,13 @@ function InterviewSetup({
       const rejected = status !== undefined && [400, 401, 403, 404, 410, 422, 429].includes(status);
       if (rejected) {
         setStartError(
-          "The request was rejected. Check the role, resume and your current access before trying again."
+          "That didn't work. Please check your choices and try again."
         );
         void catalogue.refetch();
       } else {
         setUncertain(true);
         setStartError(
-          "Creation was not confirmed. A sitting may already exist. Check History before starting another interview."
+          "We're not sure your interview started. Check Progress before starting another."
         );
       }
     } finally {
@@ -483,30 +484,29 @@ function InterviewSetup({
 
   if (uncertain)
     return (
-      <EntryRecovery title="Check whether your interview was created">
+      <EntryRecovery title="Let's check your interview">
         <p role="alert">{startError}</p>
       </EntryRecovery>
     );
   if (catalogue.isError)
     return (
-      <EntryRecovery title="Interview roles could not be loaded">
+      <EntryRecovery title="We couldn't load the job list">
         <p role="alert">
-          We could not verify the current roles. This does not mean there are no assessments
-          available.
+          Please try again in a moment.
         </p>
         <button
           type="button"
           className="min-h-11 rounded-xl bg-black px-5 py-3 font-semibold text-white"
           onClick={() => void catalogue.refetch()}
         >
-          Check roles again
+          Try again
         </button>
       </EntryRecovery>
     );
   if (catalogue.isFetching || !catalogue.data)
     return (
-      <EntryRecovery title="Checking current interview roles">
-        <p role="status">Loading the roles available to your account…</p>
+      <EntryRecovery title="Getting your interview ready">
+        <p role="status">Just a moment…</p>
       </EntryRecovery>
     );
 
@@ -524,15 +524,43 @@ function InterviewSetup({
     );
   }
 
+  // Most people want the sensible default. Choices stay one tap away under "Change".
+  if (quickStart && mode === "practice" && !selection)
+    return (
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-[#111827]">
+        <PageHeading title="Mock Interview" description="A short rehearsal with common questions." />
+        <section className="studio-panel space-y-4" aria-label="Your interview">
+          <p className="text-lg font-semibold">General interview · Easy · 5 questions · about 15 minutes</p>
+          <button
+            type="button"
+            className="btn btn-neutral btn-block btn-lg"
+            disabled={isPending}
+            onClick={() => {
+              setSelection({ kind: "tech", track: GENERAL_PRACTICE_ROLE });
+              setDifficulty("easy");
+              setFreeQuestionCount(5);
+              trackEvent("practice_setup_started", { role_type: "tech", level: "easy", resume_enabled: useResume });
+              setShowPreflight(true);
+            }}
+          >
+            Continue to microphone check
+          </button>
+          <button type="button" className="min-h-11 font-semibold underline" onClick={() => setQuickStart(false)}>
+            Change
+          </button>
+        </section>
+      </div>
+    );
+
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-[#111827]">
       <PageHeading
         className="studio-setup-heading"
-        eyebrow={mode === "assessment" ? "Formal assessment" : "Prepare your round"}
+        eyebrow={mode === "assessment" ? "Formal assessment" : "Mock Interview"}
         title={mode === "assessment" ? "Assessment Interview" : "Mock Interview"}
         description={
           mode === "assessment"
-            ? "Questions are set by your facilitator and reviewed as a formal result."
+            ? "Your teacher set these questions. This one counts."
             : "Choose a role and level. Next, check your microphone before starting your spoken answers."
         }
       />
@@ -567,9 +595,8 @@ function InterviewSetup({
             </p>
           )}
           {mode === "assessment" && !isLoadingProfiles && assessmentProfiles.length === 0 ? (
-            <p className="text-[13px] text-gray-600 font-noto">
-              No assessment roles are available yet. Check back once your facilitator has published
-              one.
+            <p className="text-sm text-gray-600 font-noto">
+              Nothing is ready yet. Your teacher will add it here.
             </p>
           ) : (
             <select
@@ -656,7 +683,7 @@ function InterviewSetup({
                       </span>
                     </span>
                     {!available && (
-                      <span className="text-[12px] text-gray-500 font-noto">Not available yet</span>
+                      <span className="text-sm text-gray-500 font-noto">Not available yet</span>
                     )}
                   </label>
                 );
@@ -664,9 +691,8 @@ function InterviewSetup({
             </div>
 
             {offered?.length === 0 && (
-              <p className="text-[13px] text-gray-600 font-noto">
-                This role has no interview levels ready yet. Your facilitator needs to add more
-                questions before it can be started.
+              <p className="text-sm text-gray-600 font-noto">
+                This job isn't ready yet. Please choose another.
               </p>
             )}
           </div>
@@ -676,7 +702,7 @@ function InterviewSetup({
           <div className="flex items-center justify-between gap-4">
             <div className="flex min-w-0 flex-col">
               <label className="text-[14px] font-noto font-[500] text-black">Use my resume</label>
-              <span className="text-[12px] text-gray-600 font-noto">
+              <span className="text-sm text-gray-600 font-noto">
                 {useResume
                   ? "Your saved resume will help tailor the questions."
                   : "You do not need it. You can practise without it."}
@@ -714,8 +740,8 @@ function InterviewSetup({
           ) : selectedProfile ? (
             <p className="font-semibold">
               {questionCount
-                ? `${questionCount} approved questions · about ${questionCount * 3} minutes`
-                : "Published question count unavailable"}
+                ? `${questionCount} questions · about ${questionCount * 3} minutes`
+                : "Question count not available yet"}
             </p>
           ) : null}
           {selection?.kind === "tech" && (
@@ -733,7 +759,7 @@ function InterviewSetup({
             {isPending
               ? "Starting interview…"
               : mode === "practice"
-                ? "Continue to device check"
+                ? "Continue to microphone check"
                 : "Start assessment"}
           </button>
         </div>

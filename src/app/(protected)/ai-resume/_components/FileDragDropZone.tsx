@@ -94,12 +94,12 @@ export function FileDragDropZone({
             <div>
               <div className="flex items-center gap-1.5 text-emerald-600 mb-0.5">
                 <CheckCircleIcon className="size-4" />
-                <span className="text-xs font-semibold">File selected · Not uploaded yet</span>
+                <span className="text-sm font-semibold">File selected · Not uploaded yet</span>
               </div>
               <p className="text-sm font-semibold text-slate-800 truncate max-w-[180px] sm:max-w-xs">
                 {file.name}
               </p>
-              <p className="text-xs text-slate-600">{formatBytes(file.size)}</p>
+              <p className="text-sm text-slate-600">{formatBytes(file.size)}</p>
             </div>
           </div>
           <button

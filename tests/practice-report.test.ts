@@ -8,8 +8,8 @@ import {
 
 describe("Practice report presentation rules", () => {
   it("explains insufficient evidence without calling it a failure", () => {
-    expect(reportStatusCopy("insufficient_evidence")).toBe("More evidence needed");
-    expect(confidenceCopy("insufficient")).toContain("Not enough evidence");
+    expect(reportStatusCopy("insufficient_evidence")).toBe("A few more answers needed");
+    expect(confidenceCopy("insufficient")).toContain("Not enough to give a score");
   });
 
   it("uses plain-language question evidence labels", () => {

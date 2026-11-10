@@ -56,7 +56,7 @@ const PracticePage = () => {
   >({
     url: ENDPOINTS.PACING.SESSION_CREATE,
     method: "post",
-    errorMessage: "Failed to start practice session. Please try again.",
+    errorMessage: "We couldn't start your practice. Please try again.",
   });
 
   const { mutateAsync: submitAudio, isPending: isSubmitting } = apiClient.useMutation<
@@ -94,7 +94,7 @@ const PracticePage = () => {
       creationKey.current = pacingRequestKey(account, level);
     } catch {
       setSubmitError(
-        "Practice cannot start because browser storage is unavailable. Enable session storage and reload."
+        "Your browser is blocking this practice. Try a normal (not private) window."
       );
       return;
     }
@@ -230,7 +230,7 @@ const PracticePage = () => {
       }
       if (revision === sessionRevision.current)
         setSubmitError(
-          "Your recording is still here in this tab. We could not confirm a completed report. Keep this page open and try again."
+          "Your recording is safe in this tab. Keep this page open and try again."
         );
     } finally {
       if (revision === sessionRevision.current) {
@@ -259,7 +259,7 @@ const PracticePage = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-full bg-white p-6">
         <span className="loading loading-spinner loading-lg text-primary" />
-        <p className="text-sm text-gray-600 mt-4">Starting practice session...</p>
+        <p className="text-sm text-gray-600 mt-4">Starting…</p>
       </div>
     );
   }
@@ -339,7 +339,7 @@ const PracticePage = () => {
               >
                 <ArrowPathIcon className="w-6 h-6" />
               </button>
-              <span className="text-xs text-gray-500">Retry</span>
+              <span className="text-sm text-gray-500">Retry</span>
             </div>
 
             <div className="flex items-center gap-4 w-full">

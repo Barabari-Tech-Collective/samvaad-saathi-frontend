@@ -120,7 +120,7 @@ function MockInterviewCard({
             ? `Continue your ${resume.track} Mock Interview`
             : readiness.title
           : status === "error"
-            ? "Find your saved interview"
+            ? "We couldn't load your interview"
             : t("Rehearse your next interview")}
       </h2>
       <p>
@@ -129,18 +129,18 @@ function MockInterviewCard({
             ? readiness.body
             : (resume.totalQuestions ?? 0) > 0
               ? `${resume.answeredQuestions} of ${resume.totalQuestions} answers are saved. Your questions will stay in the same order.`
-              : "Your session is saved. Reopen it to check question preparation."
+              : "Your interview is saved."
           : status === "error"
-            ? "Open History to check your saved sessions before starting another round."
-            : "Choose a role, check your microphone, and speak your answers. Review feedback after the round."}
+            ? "Check Progress before starting another interview."
+            : "Choose a job, speak your answers, and get feedback."}
       </p>
       {expired && (
         <p role="status">
-          The saved session’s resume window has ended. Your submitted answers remain in History.
+          This interview can no longer be continued. Your answers are in Progress.
         </p>
       )}
       {checking ? (
-        <output>Checking your saved Mock Interview. Your saved answers are retained.</output>
+        <output>Your answers are safe. Just a moment…</output>
       ) : (
         <Link
           className="ws-button ws-button-primary"
@@ -161,9 +161,9 @@ function MockInterviewCard({
           {resume
             ? canResume
               ? t("Continue Mock Interview")
-              : "View saved session"
+              : "Open in Progress"
             : status === "error"
-              ? "Find saved interviews"
+              ? "Open Progress"
               : t("Start Mock Interview")}
         </Link>
       )}
@@ -173,60 +173,30 @@ function MockInterviewCard({
         </button>
       )}
       <p className="text-sm">
-        This is interview rehearsal. Formal assessments have their own instructions and rules.
+        This is only practice and never counts.
       </p>
     </section>
   );
 }
 
 function CoachingFocus({ hub }: { hub: PracticeHubResponse | null }) {
-  const enoughEvidence = !!hub && hub.focusEvidenceAnswerCount >= hub.focusEvidenceRequired;
-  const progress = hub ? focusProgress(hub.focusEvidenceAnswerCount, hub.focusEvidenceRequired) : 0;
+  const { t } = useLanguage();
+  if (!hub || hub.focus) return null;
+  const left = hub.focusEvidenceRequired - hub.focusEvidenceAnswerCount;
+  if (left <= 0) return null;
   return (
-    <section className="studio-panel space-y-4" aria-labelledby="coaching-focus-title">
-      <p className="studio-eyebrow">Suggested focus</p>
-      {hub?.focus ? (
-        <>
-          <h2 id="coaching-focus-title" className="text-xl font-semibold">
-            {hub.focus.title}
-          </h2>
-          <p>{hub.focus.reason}</p>
-          <Link className="ws-button" href={hub.focus.href}>
-            Practise this skill
-          </Link>
-        </>
-      ) : hub ? (
-        <>
-          <h2 id="coaching-focus-title" className="text-xl font-semibold">
-            {enoughEvidence ? "Keep exploring your skills" : "Build your feedback"}
-          </h2>
-          <p>
-            {enoughEvidence
-              ? "There are enough saved answers to look for patterns, but no single focus stands out yet. Choose any skill below."
-              : `A suggestion needs at least ${hub.focusEvidenceRequired} valid spoken answers. You can choose any Coaching activity while you build that evidence.`}
-          </p>
-          <progress
-            className="w-full"
-            aria-label="Evidence collected for personalised focus"
-            value={Math.min(hub.focusEvidenceAnswerCount, hub.focusEvidenceRequired)}
-            max={hub.focusEvidenceRequired}
-          />
-          <p className="text-sm">
-            {Math.min(hub.focusEvidenceAnswerCount, hub.focusEvidenceRequired)} of{" "}
-            {hub.focusEvidenceRequired} saved answers · {progress}% of the minimum evidence
-          </p>
-        </>
-      ) : (
-        <>
-          <h2 id="coaching-focus-title" className="text-xl font-semibold">
-            Choose one skill for today
-          </h2>
-          <p>
-            Your saved evidence is not available yet. Choose an activity below; a personalised
-            suggestion is optional.
-          </p>
-        </>
-      )}
+    <section className="ws-focus-note" aria-label={t("Your suggestion")}>
+      <p>
+        {left === 1
+          ? t("One more answer and we can suggest what to practise")
+          : `${left} ${t("more answers and we can suggest what to practise")}`}
+      </p>
+      <progress
+        className="w-full"
+        aria-hidden="true"
+        value={Math.min(hub.focusEvidenceAnswerCount, hub.focusEvidenceRequired)}
+        max={hub.focusEvidenceRequired}
+      />
     </section>
   );
 }
@@ -237,6 +207,7 @@ export function PracticeHubView({
   onRefresh,
   children,
   area = "legacy",
+  top,
 }: {
   hub: PracticeHubResponse | null;
   status: "loading" | "refreshing" | "ready" | "error";
@@ -244,6 +215,7 @@ export function PracticeHubView({
   onRefresh: () => void;
   children?: React.ReactNode;
   area?: LearningArea;
+  top?: React.ReactNode;
 }) {
   const { t } = useLanguage();
   const verified = status === "ready" ? hub : null;
@@ -252,64 +224,41 @@ export function PracticeHubView({
   return (
     <div className="mx-auto w-full min-w-0 max-w-6xl space-y-6 pb-8 [overflow-wrap:anywhere]">
       <PageHeading
-        eyebrow={t("Your learning workspace")}
-        title={
-          area === "mock"
-            ? t("Mock Interviews")
-            : area === "coaching"
-              ? t("Coaching")
-              : "Coaching and Mock Interviews"
-        }
+                title={t("Practice")}
         description={
           area === "mock"
-            ? "Rehearse a full interview and learn from feedback. This is separate from formal assessments."
-            : area === "coaching"
-              ? "Build one skill at a time with short activities, feedback and assignments."
-              : "Choose Coaching for focused skills or Mock Interviews for a full interview rehearsal."
+            ? "Rehearse a full interview and get feedback."
+            : "Short activities that build one skill at a time."
         }
       />
-      <nav aria-label="Learning shortcuts" className="flex flex-wrap gap-3">
-        {area !== "coaching" && (
-          <Link className="ws-button" href="/coaching">
-            {t("Coaching")}
-          </Link>
-        )}
-        {area !== "mock" && (
-          <Link className="ws-button" href="/mock-interviews">
-            {t("Mock Interviews")}
-          </Link>
-        )}
-        <Link className="ws-button" href="/history">
-          Saved interviews and feedback
+      <nav aria-label={t("Practice sections")} className="ws-tabs">
+        <Link href="/coaching" aria-current={area !== "mock" ? "page" : undefined}>
+          {t("Short activities")}
+        </Link>
+        <Link href="/mock-interviews" aria-current={area === "mock" ? "page" : undefined}>
+          {t("Mock Interviews")}
         </Link>
       </nav>
       {status === "error" && (
         <div role="status" className="studio-panel space-y-3">
-          <p>
-            Your saved activity could not be verified. Try again or check History.
-            {showCoaching ? " Coaching activities remain available." : ""}
-          </p>
+          <p>{t("We couldn't load your practice. Your work is safe.")}</p>
           <button type="button" className="ws-button" onClick={onRefresh}>
-            Try again
+            {t("Try again")}
           </button>
         </div>
       )}
-      {showCoaching && (status === "loading" || status === "refreshing") && (
-        <output>Checking your saved evidence for Coaching…</output>
-      )}
-      <div className={area === "legacy" ? "grid gap-5 lg:grid-cols-2" : "space-y-5"}>
-        {showMock && <MockInterviewCard hub={verified} status={status} onRefresh={onRefresh} />}
-        {showCoaching && <CoachingFocus hub={verified} />}
-      </div>
+      {top}
+      {showMock && <MockInterviewCard hub={verified} status={status} onRefresh={onRefresh} />}
       {showCoaching && (
         <>
+          <h2 className="text-xl font-semibold">{t("More practice")}</h2>
           {children}
+          <CoachingFocus hub={verified} />
           <section aria-labelledby="skill-builders-title">
             <div className="mb-4 space-y-1">
-              <h2 id="skill-builders-title" className="text-xl font-semibold">
-                Coaching activities
-              </h2>
-              <p>Choose a short activity for the skill you want to work on.</p>
+              <h3 id="skill-builders-title" className="text-lg font-semibold">
+                {t("Choose a short activity")}
+              </h3>
             </div>
             <div className="ws-skill-grid">
               {MODULES.map((module) => {

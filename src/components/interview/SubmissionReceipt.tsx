@@ -11,7 +11,7 @@ export function ReceiptSummary({ receipt }: { receipt: SubmissionReceiptData }) 
   return (
     <section
       className="rounded-xl border border-[#DEE8FB] bg-white p-5 text-left"
-      aria-label="Submission receipt"
+      aria-label="What was saved"
     >
       <h2 className="font-semibold text-[#1F285B]">
         {receipt.planned} planned · {receipt.answered} answers saved
@@ -43,7 +43,7 @@ export default function SubmissionReceipt({ interviewId }: { interviewId: string
   if (isFetching)
     return (
       <p role="status" className="text-sm text-gray-600">
-        Checking receipt details…
+        Loading…
       </p>
     );
   let receipt: SubmissionReceiptData | null = null;
@@ -58,7 +58,7 @@ export default function SubmissionReceipt({ interviewId }: { interviewId: string
       <p className="text-sm text-gray-600">
         Receipt details could not be loaded.{" "}
         <button type="button" className="min-h-11 underline" onClick={() => void refetch()}>
-          Retry receipt
+          Try again
         </button>
       </p>
     );

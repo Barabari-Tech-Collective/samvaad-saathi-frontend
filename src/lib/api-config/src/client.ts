@@ -443,8 +443,23 @@ export const createApiClient = (
     assertOwner(expected);
     return response.data;
   };
+  /** One-off write for buttons on list rows, where the URL depends on the row. */
+  const send = async <TData = unknown>(method: "post" | "put" | "patch" | "delete", url: string, data?: unknown): Promise<TData> => {
+    const expected = revision();
+    assertOwner(expected);
+    const token = session ? null : getTokenFromCookies();
+    const response = await axiosInstance.request<TData>({
+      method,
+      url,
+      data,
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+    assertOwner(expected);
+    return response.data;
+  };
   return {
     get,
+    send,
     useQuery: useQueryApi,
     useMutation: useMutationApi,
   };

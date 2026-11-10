@@ -29,7 +29,7 @@ const LEVELS: SpeakingDrillLevel[] = [
     ],
     checklist: [
       "My story had a clear order",
-      "I included evidence, not only claims",
+      "I gave real examples",
       "I connected my background to the role",
     ],
   },

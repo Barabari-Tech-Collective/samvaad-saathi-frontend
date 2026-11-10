@@ -39,7 +39,7 @@ export function parseHistoryPage(value: unknown, cursor: number | null): History
     page.items.length > page.limit ||
     !(page.nextCursor === null || id(page.nextCursor))
   )
-    throw new Error("History response is incomplete. Retry loading it.");
+    throw new Error("We couldn't load everything. Please try again.");
   if (
     page.items.some(
       (item) =>
@@ -53,7 +53,7 @@ export function parseHistoryPage(value: unknown, cursor: number | null): History
         !(item.interviewMode == null || ["practice", "assessment"].includes(item.interviewMode))
     )
   )
-    throw new Error("History details could not be verified. Retry loading them.");
+    throw new Error("We couldn't load this. Please try again.");
   if (
     page.nextCursor !== null &&
     (!page.items.length ||

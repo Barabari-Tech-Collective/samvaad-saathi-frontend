@@ -42,7 +42,7 @@ test("student gets a verified external Meet link, refresh removes it after revoc
   revoked = true;
   await page.getByRole("button", { name: "Refresh" }).click();
   await expect(link).toHaveCount(0);
-  await expect(page.getByRole("alert")).toContainText("could not be verified");
+  await expect(page.getByRole("alert")).toContainText("couldn't");
 });
 test("closed appointment gives replacement guidance without an AI fallback", async ({ page }) => {
   await page.route("**/api/v2/human-interviews/me**", (route) =>
@@ -63,7 +63,7 @@ test("closed appointment gives replacement guidance without an AI fallback", asy
   );
   await page.goto("/?fixture=human-interviews");
   await expect(
-    page.getByText("Ask your program team about a replacement appointment.", { exact: false })
+    page.getByText("Ask your teacher about a replacement appointment.", { exact: false })
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "Check meeting access" })).toHaveCount(0);
 });
@@ -77,6 +77,6 @@ test("student rejects an unexpected link even if the API returns it", async ({ p
   );
   await page.goto("/?fixture=human-interviews");
   await page.getByRole("button", { name: "Check meeting access" }).click();
-  await expect(page.getByRole("alert")).toContainText("could not be verified");
+  await expect(page.getByRole("alert")).toContainText("couldn't");
   await expect(page.getByRole("link", { name: "Open Google Meet in a new tab" })).toHaveCount(0);
 });

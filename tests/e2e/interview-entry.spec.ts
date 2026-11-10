@@ -36,15 +36,15 @@ test("role service failure is not an empty assessment catalogue and can recover"
   );
   await page.goto(url);
   await expect(
-    page.getByRole("heading", { name: "Interview roles could not be loaded" })
+    page.getByRole("heading", { name: "We couldn't load the job list" })
   ).toBeVisible();
   await expect(
-    page.getByText("No assessment roles are available yet.", { exact: false })
+    page.getByText("Nothing is ready yet", { exact: false })
   ).toHaveCount(0);
   failed = false;
-  await page.getByRole("button", { name: "Check roles again" }).click();
+  await page.getByRole("button", { name: "Try again" }).click();
   await expect(
-    page.getByText("No assessment roles are available yet.", { exact: false })
+    page.getByText("Nothing is ready yet", { exact: false })
   ).toBeVisible();
 });
 test("invalid purpose makes no catalogue or creation requests", async ({ page }) => {
@@ -67,7 +67,7 @@ for (const category of ["Tech", "HR & Non-Technical"]) {
       return r.fulfill({ json: result });
     });
     await choose(page, category);
-    await expect(page.getByText("5 approved questions · about 15 minutes")).toBeVisible();
+    await expect(page.getByText("5 questions · about 15 minutes")).toBeVisible();
     await page.setViewportSize({ width: 320, height: 740 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true
@@ -98,7 +98,7 @@ for (const data of [
     await choose(page);
     await page.getByRole("button", { name: "Start assessment" }).click();
     await expect(
-      page.getByRole("heading", { name: "Check whether your interview was created" })
+      page.getByRole("heading", { name: "Let's check your interview" })
     ).toBeVisible();
     await expect(page).toHaveURL(/fixture=start/);
     await expect(page.getByRole("button", { name: "Start assessment" })).toHaveCount(0);
@@ -114,8 +114,8 @@ test("an uncertain create response offers History instead of an automatic repeat
   });
   await choose(page);
   await page.getByRole("button", { name: "Start assessment" }).click();
-  await expect(page.getByRole("alert")).toContainText("A sitting may already exist");
-  await expect(page.getByRole("link", { name: "Check History" })).toBeVisible();
+  await expect(page.getByRole("alert")).toContainText("not sure your interview started");
+  await expect(page.getByRole("link", { name: "Check Progress" })).toBeVisible();
   expect(posts).toBe(1);
 });
 test("422 rejection rechecks the catalogue and allows corrected setup", async ({ page }) => {
@@ -126,7 +126,7 @@ test("422 rejection rechecks the catalogue and allows corrected setup", async ({
   });
   await choose(page);
   await page.getByRole("button", { name: "Start assessment" }).click();
-  await expect(page.getByRole("alert")).toContainText("request was rejected");
+  await expect(page.getByRole("alert")).toContainText("That didn't work");
   await page.getByRole("button", { name: "Start assessment" }).click();
   await expect(page).toHaveURL(/interview\?interviewId=9/);
   expect(posts).toBe(2);
@@ -145,9 +145,9 @@ test("a role revoked during a rejected start is cleared before a retry", async (
   await page.goto(url);
   await page.getByRole("combobox").selectOption("hr::1::Role 1");
   await page.getByRole("button", { name: "Start assessment" }).click();
-  await expect(page.getByRole("alert")).toContainText("request was rejected");
+  await expect(page.getByRole("alert")).toContainText("That didn't work");
   await expect(
-    page.getByText("No assessment roles are available yet.", { exact: false })
+    page.getByText("Nothing is ready yet", { exact: false })
   ).toBeVisible();
   await expect(page.getByRole("combobox")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Start assessment" })).toBeDisabled();
@@ -172,7 +172,8 @@ for (const change of ["account", "mode"]) {
         history.pushState({}, "", "/?fixture=start&mode=practice");
         window.dispatchEvent(new Event("popstate"));
       });
-    await expect(page.getByRole("combobox")).toHaveValue("");
+    if (change === "account") await expect(page.getByRole("combobox")).toHaveValue("");
+    else await expect(page.getByText(/General interview · Easy/)).toBeVisible();
     const response = page.waitForResponse((r) => r.request().method() === "POST");
     release();
     await response;
@@ -255,7 +256,7 @@ for (const items of [[{ ...profile(), title: null }], [profile(), profile()]]) {
     );
     await page.goto(url);
     await expect(
-      page.getByRole("heading", { name: "Interview roles could not be loaded" })
+      page.getByRole("heading", { name: "We couldn't load the job list" })
     ).toBeVisible();
   });
 }
@@ -269,9 +270,10 @@ test("free practice preserves selected N through device checks and creation", as
     });
   });
   await page.goto("/?fixture=start&mode=practice");
+  await page.getByRole("button", { name: "Change" }).click();
   await page.getByLabel("Which job are you practising for?").selectOption("General interview");
   await page.getByLabel("Questions in this Mock Interview").fill("7");
-  await page.getByRole("button", { name: "Continue to device check" }).click();
+  await page.getByRole("button", { name: "Continue to microphone check" }).click();
   await expect(page.getByText("7 questions · about 21 min")).toBeVisible();
   expect(body).toBeUndefined();
   await page.getByRole("button", { name: "Check microphone" }).click();
@@ -293,6 +295,6 @@ test("curated technical roles without level evidence cannot offer arbitrary diff
   await page.getByRole("combobox").selectOption("hr::1::Role 1");
   await expect(page.getByRole("button", { name: "Start assessment" })).toBeDisabled();
   await expect(
-    page.getByText("This role has no interview levels ready yet.", { exact: false })
+    page.getByText("This job isn't ready yet", { exact: false })
   ).toBeVisible();
 });

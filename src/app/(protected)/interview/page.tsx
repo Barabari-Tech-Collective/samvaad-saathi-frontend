@@ -228,10 +228,10 @@ const InterviewPage = () => {
     (response: ResumeInterviewResponse | PracticeNavigationResponse) => {
       requireCurrentView();
       if (String(response.interviewId) !== interviewId || !Array.isArray(response.questions))
-        throw new Error("The saved checkpoint belongs to another sitting or is incomplete.");
+        throw new Error("We couldn't restore this interview. Open it from Progress.");
       if ("track" in response) {
         if (response.interviewMode !== "practice" && response.interviewMode !== "assessment")
-          throw new Error("The saved purpose could not be verified.");
+          throw new Error("We couldn't open this interview.");
         setResumedInterviewMode(response.interviewMode);
       }
       setQuestions(response.questions);
@@ -283,18 +283,18 @@ const InterviewPage = () => {
       resumeInterview({ interviewId: id })
         .then((response) => {
           if (!lifetime.isCurrent()) return;
-          if (response.interviewId !== id) throw new Error("Unexpected sitting checkpoint.");
+          if (response.interviewId !== id) throw new Error("We couldn't restore this interview.");
           if (response.status === "completed") {
             router.replace(`/interview-completed?interviewId=${id}&role=${role || "Interview"}`);
             return;
           }
           if (response.status !== "active") {
-            setResumeError("This interview has ended and cannot be resumed.");
+            setResumeError("This interview has ended.");
             return;
           }
           applyCheckpoint(response);
           if (response.interviewMode !== "assessment" && response.interviewMode !== "practice")
-            throw new Error("The saved interview purpose could not be verified.");
+            throw new Error("We couldn't open this interview.");
           const mode = response.interviewMode;
           setResumedInterviewMode(mode);
           if (pendingStart) {
@@ -309,7 +309,7 @@ const InterviewPage = () => {
             return;
           }
           setResumeError(
-            "We could not verify this saved interview. Check your account, access and connection before restoring it again."
+            "We couldn't open this interview. Check your connection and try again."
           );
         });
       return;
@@ -331,7 +331,7 @@ const InterviewPage = () => {
     if (generatedQuestions?.items && generatedQuestions.items.length > 0) {
       const id = Number(interviewId ?? generatedQuestions.interviewId);
       if (generatedQuestions.interviewId !== id) {
-        setResumeError("Prepared questions did not match this sitting. Restore it from History.");
+        setResumeError("Something went wrong with this interview. Open it from Progress.");
         return;
       }
       if (
@@ -349,7 +349,7 @@ const InterviewPage = () => {
           if (pendingStart) {
             const mode = response.interviewMode;
             if (mode !== "assessment" && mode !== "practice")
-              throw new Error("The saved purpose could not be verified.");
+              throw new Error("We couldn't open this interview.");
             setResumedInterviewMode(mode);
             finishStart(mode);
           }
@@ -358,7 +358,7 @@ const InterviewPage = () => {
           if (!lifetime.isCurrent()) return;
           generationSyncRef.current = null;
           setResumeError(
-            "Your questions were prepared, but we could not confirm the saved interview checkpoint. Check your connection and try again."
+            "Your questions are ready, but we couldn't save your place. Check your connection and try again."
           );
         });
     }
@@ -489,7 +489,7 @@ const InterviewPage = () => {
     } catch {
       if (!lifetime.isCurrent()) return;
       setResumeError(
-        "The prepared assessment could not be started. Check your connection and saved session before trying again."
+        "We couldn't start your assessment. Check your connection and try again."
       );
     }
   };
@@ -510,7 +510,7 @@ const InterviewPage = () => {
     const version = stateVersionRef.current;
     if (!Number.isSafeInteger(id) || id <= 0 || !current || version === null) {
       setNavigationError(
-        "We could not confirm your saved checkpoint. Restore the interview before continuing."
+        "We need to reload this interview. Your answers are safe."
       );
       throw new Error("PRACTICE_CHECKPOINT_NOT_READY");
     }
@@ -722,7 +722,7 @@ const InterviewPage = () => {
             </h2>
             <p className="py-4 text-slate-700">
               To protect your answers, only one device or browser tab can edit a Mock Interview at a
-              time. Continuing here will immediately stop the other session from saving.
+              time. If you continue here, the other one will stop saving.
             </p>
             <div className="modal-action">
               <button
@@ -754,7 +754,7 @@ const InterviewPage = () => {
         >
           <p>
             {sessionLease.accessMessage ??
-              "We cannot safely save answers until this interview reconnects. Your current draft stays on this device."}
+              "You're offline. Your answer is safe on this device and will save when you reconnect."}
           </p>
           <button
             className="btn btn-sm mt-3"
@@ -763,7 +763,7 @@ const InterviewPage = () => {
               void sessionLease.retry();
             }}
           >
-            {sessionLease.accessMessage ? "Check enrollment again" : "Reconnect"}
+            {sessionLease.accessMessage ? "Try again" : "Reconnect"}
           </button>
         </div>
       )}
@@ -925,7 +925,7 @@ const InterviewPage = () => {
 
           {attempt.failed && (
             <div role="alert" className="my-4 text-center text-red-700">
-              We could not prepare this question for saving. Select Retry question before recording.
+              This question didn't load properly. Please try it again.
               <button
                 className="btn btn-outline ml-3"
                 disabled={attempt.pending || timerExpired}
@@ -1082,18 +1082,18 @@ const SuspendedInterviewPage = () => {
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-6">
         <h1 className="text-2xl font-bold text-[#1F285B]">
-          {invalid ? "Restore this interview from History" : "Checking your interview account"}
+          {invalid ? "Open this interview from Progress" : "Just a moment"}
         </h1>
         <p role="status">
           {invalid
-            ? "This link cannot safely identify a current sitting and its purpose. Use History to continue a saved interview or set up fresh practice."
-            : "Sign in to the account that owns this sitting before opening it."}
+            ? "This link isn't right. Continue from Progress or start a new interview."
+            : "Please sign in to the account you used for this interview."}
         </p>
         <Link
           className="inline-flex min-h-11 items-center text-[#344499] underline"
           href="/history"
         >
-          View history
+          Open Progress
         </Link>
       </div>
     );

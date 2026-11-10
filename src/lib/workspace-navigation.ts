@@ -7,6 +7,8 @@ export function workspaceSection(path: string): string {
       "/control-your-pace",
       "/warm-up-chat",
       "/think-fast",
+      "/mock-interviews",
+      "/practice",
     ].some((route) => path === route || path.startsWith(`${route}/`))
   )
     return "/coaching";

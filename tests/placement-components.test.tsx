@@ -196,13 +196,13 @@ describe("MyCourses on the profile page", () => {
     expect(screen.queryByText("Full Stack Development · Batch 2026")).toBeNull();
   });
 
-  it("tells someone placed by their program team that, instead of asking them to choose", () => {
+  it("tells someone placed by their teacher that, instead of asking them to choose", () => {
     f.me.data = { needs_placement: false, college: null, selected: [] };
     render(<MyCourses />);
-    expect(screen.getByText(/set by your program team/)).toBeVisible();
+    expect(screen.getByText(/set by your teacher/)).toBeVisible();
   });
 
-  it("lets a learner change a choice, keeping a batch the program team has since closed", () => {
+  it("lets a learner change a choice, keeping a batch the teacher has since closed", () => {
     f.me.data = PLACED;
     f.options.data = { items: [choice("da-2025", "8", "Batch 2025")], stale: false }; // fs-2026 closed
     render(<MyCourses />);
