@@ -9,7 +9,7 @@ import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AnswerTypeStep, QuestionReport } from "./_components";
-import { learningPlanStepContext } from "@/lib/learning-plan-context";
+import { drillSessionUrl, learningPlanStepContext } from "@/lib/learning-plan-context";
 
 interface Question {
   text: string;
@@ -60,9 +60,7 @@ const StructureYourAnswerInterviewPage = () => {
     method: "post",
   });
   const { mutateAsync: bindPlanSession } = apiClient.useMutation<unknown, { session_id: number }>({
-    url: planStep
-      ? `v2/learning-plans/me/${planStep.assignmentId}/steps/${planStep.stepId}/drill-session`
-      : "v2/learning-plans/me/invalid/steps/invalid/drill-session",
+    url: drillSessionUrl(planStep),
     method: "post",
   });
 

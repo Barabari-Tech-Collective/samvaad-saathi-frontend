@@ -3,12 +3,21 @@
 import Link from "next/link";
 import { useState } from "react";
 import { apiClient } from "@/lib/api-config";
+import { drillHref } from "@/lib/learning-plans";
 import { trackEvent } from "@/lib/posthog/tracking.utils";
+
+const NAMES = {
+  warm_up: "Warm-up chat",
+  think_fast: "Think fast",
+  pronunciation: "Pronunciation",
+  structure: "Structure your answer",
+  pace: "Control your pace",
+} as const;
 
 interface Assignment {
   id: number;
   course_id: string;
-  module: "warm_up" | "think_fast";
+  module: "warm_up" | "think_fast" | "pronunciation" | "structure" | "pace";
   reason: string;
   note: string | null;
   due_date: string | null;
@@ -57,7 +66,7 @@ export function CoachingAssignments({ accountKey = "current" }: { accountKey?: s
             {data.items.map((row) => (
               <li key={row.id} className="space-y-2 py-4">
                 <h3 className="font-semibold">
-                  {row.module === "warm_up" ? "Warm-up chat" : "Think fast"} · {row.status}
+                  {NAMES[row.module]} · {row.status}
                 </h3>
                 <p className="break-words">{row.reason}</p>
                 {row.note && (
@@ -71,7 +80,7 @@ export function CoachingAssignments({ accountKey = "current" }: { accountKey?: s
                 {row.status === "assigned" && (
                   <Link
                     className="inline-flex min-h-11 items-center rounded-xl bg-black px-4 text-sm font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
-                    href={`${row.module === "warm_up" ? "/warm-up-chat" : "/think-fast"}?assignment=${row.id}`}
+                    href={`${drillHref(row.module)}?${row.module === "warm_up" || row.module === "think_fast" ? "assignment" : "coachingAssignment"}=${row.id}`}
                     onClick={() =>
                       trackEvent("coaching_assignment_started", { module: row.module })
                     }

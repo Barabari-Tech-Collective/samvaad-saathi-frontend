@@ -17,7 +17,7 @@ import type {
   SubmitPacingSessionResponse,
 } from "@/lib/pacing-practice/types";
 import { useDrillRecorder } from "@/hooks/useDrillRecorder";
-import { learningPlanStepContext } from "@/lib/learning-plan-context";
+import { drillSessionUrl, learningPlanStepContext } from "@/lib/learning-plan-context";
 const PracticePage = () => {
   const router = useRouter();
   const { user } = useAuth();
@@ -73,9 +73,7 @@ const PracticePage = () => {
     keyToInvalidate: { queryKey: ["pacing-levels"] },
   });
   const { mutateAsync: bindPlanSession } = apiClient.useMutation<unknown, { session_id: number }>({
-    url: planStep
-      ? `v2/learning-plans/me/${planStep.assignmentId}/steps/${planStep.stepId}/drill-session`
-      : "v2/learning-plans/me/invalid/steps/invalid/drill-session",
+    url: drillSessionUrl(planStep),
     method: "post",
   });
 

@@ -10,7 +10,7 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { learningPlanStepContext } from "@/lib/learning-plan-context";
+import { drillSessionUrl, learningPlanStepContext } from "@/lib/learning-plan-context";
 
 import {
   readPronunciationSession,
@@ -51,9 +51,7 @@ const PronunciationPracticeStartPage = () => {
   });
   const { mutateAsync: bindPlanSession } = apiClient.useMutation<unknown, { session_id: number }>({
     url:
-      planStep && practiceData
-        ? `v2/learning-plans/me/${planStep.assignmentId}/steps/${planStep.stepId}/drill-session`
-        : "v2/learning-plans/me/invalid/steps/invalid/drill-session",
+      planStep && practiceData ? drillSessionUrl(planStep) : drillSessionUrl(null),
     method: "post",
   });
 
