@@ -55,16 +55,21 @@ for (const status of ["active", "paused", "terminated", "preparing", "expired", 
     expect(reports).toBe(0);
   });
 }
-test("verified time-limit receipt and missing feedback require an explicit preparation action at 320px", async ({
+test("verified time-limit receipt starts feedback by itself at 320px", async ({
   page,
 }) => {
   let posts = 0;
+  let release: () => void = () => {};
   await page.route("**/api/interviews/9/receipt", (r) => r.fulfill({ json: envelope() }));
-  await page.route("**/api/v2/summary-report**", (r) =>
-    r.request().method() === "POST"
-      ? (posts++, r.fulfill({ json: report }))
-      : r.fulfill({ status: 404, json: { detail: "Missing" } })
-  );
+  await page.route("**/api/v2/summary-report**", async (r) => {
+    if (r.request().method() !== "POST")
+      return r.fulfill({ status: 404, json: { detail: "Missing" } });
+    posts++;
+    await new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await r.fulfill({ json: report });
+  });
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto(url);
   await expect(
@@ -73,13 +78,12 @@ test("verified time-limit receipt and missing feedback require an explicit prepa
   await page.getByText("See what was saved").click();
   await expect(page.getByRole("heading", { name: "5 planned · 2 answers saved" })).toBeVisible();
   await expect(page.getByText("Time ended", { exact: false })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Get my feedback" })).toBeVisible();
-  expect(posts).toBe(0);
+  await expect.poll(() => posts).toBe(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: "test-results/build26-completed-320.png", fullPage: true });
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.screenshot({ path: "test-results/build26-completed-1280.png", fullPage: true });
-  await page.getByRole("button", { name: "Get my feedback" }).click();
+  release();
   await expect(page).toHaveURL(/report-summary\?interviewId=9/);
   expect(posts).toBe(1);
 });
@@ -162,7 +166,6 @@ test("uncertain generation checks for an accepted report before offering another
       : r.fulfill({ status: 404, json: { detail: "Missing" } });
   });
   await page.goto(url);
-  await page.getByRole("button", { name: "Get my feedback" }).click();
   await expect(page.getByText("taking longer than usual", { exact: false })).toBeVisible();
   await expect(page.getByRole("button", { name: "Get my feedback" })).toHaveCount(0);
   await page.getByRole("button", { name: "Check again" }).click();
@@ -185,7 +188,6 @@ test("late report preparation cannot redirect a different account", async ({ pag
     await r.fulfill({ json: report });
   });
   await page.goto(url);
-  await page.getByRole("button", { name: "Get my feedback" }).click();
   await expect.poll(() => posts).toBe(1);
   denied = true;
   await switchAccount(page);
@@ -222,7 +224,7 @@ test("changing the sitting ID rechecks completion instead of retaining the first
   await expect(page.getByRole("region", { name: "What was saved" })).toHaveCount(0);
 });
 
-test("double submission clicks send one preparation request", async ({ page }) => {
+test("opening the page sends one preparation request", async ({ page }) => {
   let posts = 0;
   let release: () => void = () => {};
   await page.route("**/api/interviews/9/receipt", (r) => r.fulfill({ json: envelope() }));
@@ -235,10 +237,6 @@ test("double submission clicks send one preparation request", async ({ page }) =
     await r.fulfill({ json: report });
   });
   await page.goto(url);
-  await page.getByRole("button", { name: "Get my feedback" }).evaluate((button) => {
-    (button as HTMLButtonElement).click();
-    (button as HTMLButtonElement).click();
-  });
   await expect.poll(() => posts).toBe(1);
   release();
   await expect(page).toHaveURL(/report-summary\?interviewId=9/);
@@ -262,7 +260,6 @@ test("rechecking completion during a pending preparation cannot redirect after a
     await r.fulfill({ json: report });
   });
   await page.goto(url);
-  await page.getByRole("button", { name: "Get my feedback" }).click();
   await expect.poll(() => posts).toBe(1);
   denied = true;
   await page.evaluate(() => window.dispatchEvent(new Event("completion-test-refresh")));

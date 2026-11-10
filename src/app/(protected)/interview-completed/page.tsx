@@ -135,17 +135,15 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
     options: { retry: false },
   });
 
-  // A mock interview is the learner's own rehearsal. There is no programme-team
-  // decision or release policy to wait for, so once its submission is confirmed we
-  // prepare feedback automatically. Assessments remain explicit and policy-controlled.
+  // Nobody decides whether an AI report goes out, so once the submission is confirmed we
+  // prepare feedback automatically, for mock interviews and assessments alike.
   // The ref guarantees one request per mounted completion view even under React
   // StrictMode, duplicate UI events, or a slow network response.
   useEffect(() => {
     const reportIsMissing = responseStatus(existing.error) === 404;
-    const isCompletedMock =
-      completion.data?.status === "completed" && completion.data.interviewMode === "practice";
+    const isCompleted = completion.data?.status === "completed";
     if (
-      !isCompletedMock ||
+      !isCompleted ||
       !reportIsMissing ||
       existing.isFetching ||
       generation !== "idle" ||
@@ -158,7 +156,7 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
     inFlight.current = true;
     setGeneration("pending");
     trackEvent("feedback_preparation_requested", {
-      source: "mock_completion_automatic",
+      source: "completion_automatic",
     });
     void post
       .mutateAsync({ interviewId: Number(interviewId) })
@@ -237,11 +235,9 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
     >
       {!existing.isSuccess && (
         <p>
-          {completion.data.interviewMode === "assessment"
-            ? "Your placement team will share your result when it is ready."
-            : minutes
-              ? `Feedback usually takes about ${minutes} ${minutes === 1 ? "minute" : "minutes"}. We'll let you know when it's ready.`
-              : "Feedback usually takes a few minutes. We'll let you know when it's ready."}
+          {minutes
+            ? `Feedback usually takes about ${minutes} ${minutes === 1 ? "minute" : "minutes"}. We'll let you know when it's ready.`
+            : "Feedback usually takes a few minutes. We'll let you know when it's ready."}
         </p>
       )}
       {receipt ? (
@@ -277,9 +273,7 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
                 : generation === "uncertain"
                   ? "Your feedback is taking longer than usual. Check again in a minute."
                   : missing
-                    ? completion.data.interviewMode === "practice"
-                      ? "We're preparing your feedback."
-                      : "Your feedback isn't ready yet."
+                    ? "We're preparing your feedback."
                     : "We couldn't check your feedback. Please try again."}
             </p>
             <div className="flex flex-wrap gap-3">

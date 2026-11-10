@@ -132,11 +132,15 @@ it("blocks a previously verified meeting link after account switch", async () =>
   expect(fireEvent.click(link)).toBe(false);
   expect(screen.queryByRole("link", { name: /Open Google Meet/ })).toBeNull();
 });
-it("blocks feedback preparation from an old page", () => {
+it("does not reuse an old page after the account changes", async () => {
+  f.post.mockReturnValue(new Promise(() => undefined));
   render(<InterviewCompleted />);
+  await act(async () => {});
+  expect(f.post).toHaveBeenCalledTimes(1);
   login("second");
-  fireEvent.click(screen.getByRole("button", { name: "Get my feedback" }));
-  expect(f.post).not.toHaveBeenCalled();
+  await act(async () => {});
+  expect(f.post).toHaveBeenCalledTimes(1);
+  expect(f.replace).not.toHaveBeenCalled();
 });
 it.each(["success", "failure"])(
   "ignores delayed feedback %s after account switch",
@@ -144,7 +148,7 @@ it.each(["success", "failure"])(
     const pending = deferred<unknown>();
     f.post.mockReturnValue(pending.promise);
     render(<InterviewCompleted />);
-    fireEvent.click(screen.getByRole("button", { name: "Get my feedback" }));
+    await act(async () => {});
     login("second");
     await act(async () => {
       if (outcome === "success") pending.resolve({});
@@ -157,13 +161,12 @@ it.each(["success", "failure"])(
 it("still opens feedback after same-account preparation", async () => {
   f.post.mockResolvedValue({});
   render(<InterviewCompleted />);
-  fireEvent.click(screen.getByRole("button", { name: "Get my feedback" }));
   await act(async () => {});
   expect(f.replace).toHaveBeenCalledWith("/report-summary?interviewId=1");
 });
 
-it("automatically prepares feedback after a completed Mock Interview", async () => {
-  interviewMode = "practice";
+it.each(["practice", "assessment"] as const)("automatically prepares feedback after a completed %s", async (mode) => {
+  interviewMode = mode;
   f.post.mockResolvedValue({});
   render(<InterviewCompleted />);
   await act(async () => {});
