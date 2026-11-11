@@ -28,7 +28,19 @@ export interface HumanInterviewAppointment {
   status: HumanInterviewStatus;
   canJoin: boolean;
   outcomeSource: string | null;
+  /** The host's result and written feedback, present only once the host has released them. */
+  result: HumanInterviewResult | null;
+  feedback: string | null;
 }
+
+const RESULTS = ["selected", "next_round", "on_hold", "not_selected"] as const;
+export type HumanInterviewResult = (typeof RESULTS)[number];
+export const RESULT_WORDS: Record<HumanInterviewResult, string> = {
+  selected: "Selected",
+  next_round: "You move to the next round",
+  on_hold: "On hold",
+  not_selected: "Not selected this time",
+};
 
 export interface HumanInterviewsPage {
   items: HumanInterviewAppointment[];
@@ -102,6 +114,12 @@ export function parseHumanInterviewsPage(value: unknown): HumanInterviewsPage | 
     const source = optionalText(row.outcome_source, 100);
     const platform = row.meeting_platform;
     const minutes = row.duration_minutes;
+    // An unknown result is shown as no result rather than hiding the whole list.
+    const result =
+      row.result_released === true && RESULTS.includes(row.result as HumanInterviewResult)
+        ? (row.result as HumanInterviewResult)
+        : null;
+    const feedback = row.result_released === true ? text(row.feedback, 4_000) : null;
     if (
       !Number.isSafeInteger(id) ||
       (id as number) <= 0 ||
@@ -144,6 +162,8 @@ export function parseHumanInterviewsPage(value: unknown): HumanInterviewsPage | 
       status: status as HumanInterviewStatus,
       canJoin: row.can_join && (status === "scheduled" || status === "rescheduled"),
       outcomeSource: source,
+      result,
+      feedback,
     });
   }
   return { items, total: page.total as number, notice };

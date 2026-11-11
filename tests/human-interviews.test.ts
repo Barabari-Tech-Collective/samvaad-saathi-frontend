@@ -63,3 +63,27 @@ it.each([
 ])("accepts only the supported verified meeting URL", (url, expected) => {
   expect(verifiedGoogleMeetUrl({ url })).toBe(expected);
 });
+
+it("shows the host's released result and feedback to the learner", () => {
+  const done = {
+    ...appointment,
+    status: "completed",
+    can_join: false,
+    outcome_source: "host_reported",
+    result: "on_hold",
+    feedback: "This is a test feedback trigger to check the feature",
+    result_released: true,
+  };
+  expect(parseHumanInterviewsPage({ items: [done], total: 1, notice: "" })?.items[0]).toMatchObject({
+    result: "on_hold",
+    feedback: "This is a test feedback trigger to check the feature",
+  });
+});
+
+it("keeps an unreleased result hidden", () => {
+  const row = { ...appointment, status: "completed", can_join: false, result: "selected", feedback: "Good answers overall.", result_released: false };
+  expect(parseHumanInterviewsPage({ items: [row], total: 1, notice: "" })?.items[0]).toMatchObject({
+    result: null,
+    feedback: null,
+  });
+});

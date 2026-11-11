@@ -3,6 +3,7 @@
 import { friendlyDateTime, statusWord } from "@/lib/dates";
 import { getAuthRevision } from "@/lib/auth-session";
 import {
+  RESULT_WORDS,
   parseHumanInterviewsPage,
   verifiedGoogleMeetUrl,
   type HumanInterviewAppointment,
@@ -96,11 +97,33 @@ function AppointmentCard({ row }: { row: HumanInterviewAppointment }) {
           </>
         )}
       </dl>
-      <p className="text-sm text-gray-600">
-        {row.outcomeSource
-          ? "Outcome reported by your host."
-          : "Opening the link doesn't mark you as present."}
-      </p>
+      {row.result || row.feedback ? (
+        <section
+          aria-label="Your result"
+          className="space-y-3 rounded-xl border border-[#DEE8FB] bg-[#F5F9FF] p-4"
+        >
+          {row.result && (
+            <p className="text-base">
+              <span className="font-semibold text-[#1F285B]">Result: </span>
+              {RESULT_WORDS[row.result]}
+            </p>
+          )}
+          {row.feedback && (
+            <div>
+              <h3 className="font-semibold text-[#1F285B]">Feedback from your interviewer</h3>
+              <p className="mt-1 whitespace-pre-wrap text-sm leading-6">{row.feedback}</p>
+            </div>
+          )}
+        </section>
+      ) : (
+        <p className="text-sm text-gray-600">
+          {row.status === "completed" && row.outcomeSource
+            ? "Your interviewer has not shared the result yet. You will get an email when they do."
+            : row.outcomeSource
+              ? "Outcome reported by your host."
+              : "Opening the link doesn't mark you as present."}
+        </p>
+      )}
       {row.canJoin ? (
         <button
           className={button}

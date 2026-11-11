@@ -80,3 +80,30 @@ test("student rejects an unexpected link even if the API returns it", async ({ p
   await expect(page.getByRole("alert")).toContainText("couldn't");
   await expect(page.getByRole("link", { name: "Open Google Meet in a new tab" })).toHaveCount(0);
 });
+test("finished interview shows the host's result and feedback", async ({ page }) => {
+  await page.route("**/api/v2/human-interviews/me**", (route) =>
+    route.fulfill({
+      json: {
+        items: [
+          {
+            ...appointment,
+            title: "Technical Round 1",
+            status: "completed",
+            can_join: false,
+            outcome_source: "host_reported",
+            result: "on_hold",
+            feedback: "This is a test feedback trigger to check the feature",
+            result_released: true,
+          },
+        ],
+        total: 1,
+        notice: "External human interview",
+      },
+    })
+  );
+  await page.goto("/?fixture=human-interviews");
+  const result = page.getByRole("region", { name: "Your result" });
+  await expect(result).toContainText("On hold");
+  await expect(result).toContainText("This is a test feedback trigger to check the feature");
+  await page.screenshot({ path: process.env.SHOT ?? "test-results/human-result.png", fullPage: true });
+});
