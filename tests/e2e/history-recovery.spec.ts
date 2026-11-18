@@ -42,7 +42,7 @@ test("history keeps all lifecycle states and explicit interview modes at 320px",
     })
   );
   await page.goto("/?fixture=history");
-  await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Continue mock interview" })).toHaveAttribute(
     "href",
     "/interview?interviewId=9&resumed=true&interviewMode=practice"
   );

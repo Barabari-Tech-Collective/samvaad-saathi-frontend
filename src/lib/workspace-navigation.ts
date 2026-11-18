@@ -21,7 +21,7 @@ export function workspaceSection(path: string): string {
     path.startsWith("/human-interviews/")
   )
     return "/assessments";
-  // `/interview-start` can prepare either a Mock Interview or a formal assessment.
+  // `/interview-start` can prepare either a mock interview or a formal assessment.
   // The route pathname alone cannot safely choose a parent, so leave it unselected.
   if (path === "/interview-start" || path.startsWith("/interview-start/")) return path;
   if (path === "/report-summary" || path.startsWith("/report-summary/")) return "/history";

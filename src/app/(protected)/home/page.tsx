@@ -79,7 +79,7 @@ export default function HomePage() {
             [
               "/mock-interviews",
               ChatBubbleLeftRightIcon,
-              "Mock Interviews",
+              "Mock interviews",
               "Rehearse a full interview",
             ],
             [

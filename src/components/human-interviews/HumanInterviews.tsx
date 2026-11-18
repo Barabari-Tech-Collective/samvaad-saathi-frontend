@@ -55,7 +55,7 @@ function AppointmentCard({ row }: { row: HumanInterviewAppointment }) {
     <li className="space-y-4 rounded-2xl border border-brand-line bg-white p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="studio-eyebrow">Human Interview</p>
+          <p className="studio-eyebrow">Human interview</p>
           <h2 className="min-w-0 break-words text-xl font-semibold text-brand-navy">
             {row.roundName || row.title}
           </h2>

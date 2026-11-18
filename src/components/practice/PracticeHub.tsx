@@ -62,7 +62,7 @@ const MODULES = [
 export function PracticeHubSkeleton({ area = "legacy" }: { area?: LearningArea }) {
   const label =
     area === "mock"
-      ? "Loading Mock Interviews"
+      ? "Loading mock interviews"
       : area === "coaching"
         ? "Loading Coaching"
         : "Loading your learning workspace";
@@ -113,11 +113,11 @@ function MockInterviewCard({
       : "/interview-start?mode=practice";
   return (
     <section className="studio-panel space-y-4" aria-labelledby="mock-interview-start-title">
-      <p className="studio-eyebrow">{t(resume ? "Saved Mock Interview" : "Mock Interviews")}</p>
+      <p className="studio-eyebrow">{t(resume ? "Saved mock interview" : "Mock interviews")}</p>
       <h2 id="mock-interview-start-title" className="text-xl font-semibold sm:text-2xl">
         {resume
           ? canResume
-            ? `Continue your ${resume.track} Mock Interview`
+            ? `Continue your ${resume.track} mock interview`
             : readiness.title
           : status === "error"
             ? "We couldn't load your interview"
@@ -160,11 +160,11 @@ function MockInterviewCard({
         >
           {resume
             ? canResume
-              ? t("Continue Mock Interview")
+              ? t("Continue mock interview")
               : "Open in Progress"
             : status === "error"
               ? "Open Progress"
-              : t("Start Mock Interview")}
+              : t("Start mock interview")}
         </Link>
       )}
       {resume && !canResume && (
@@ -234,7 +234,7 @@ export function PracticeHubView({
           {t("Short activities")}
         </Link>
         <Link href="/mock-interviews" aria-current={area === "mock" ? "page" : undefined}>
-          {t("Mock Interviews")}
+          {t("Mock interviews")}
         </Link>
       </nav>
       {status === "error" && (

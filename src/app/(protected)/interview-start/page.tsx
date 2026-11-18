@@ -116,7 +116,7 @@ export default function InterviewStartPage() {
   if (raw !== null && raw !== "practice" && raw !== "assessment")
     return (
       <EntryRecovery title="Check this interview purpose">
-        <p role="alert">Choose Mock Interviews or Assessments from the platform before starting.</p>
+        <p role="alert">Choose mock interviews or Assessments from the platform before starting.</p>
       </EntryRecovery>
     );
   if (loading || !user?.userId)
@@ -373,13 +373,13 @@ function InterviewSetup({
       selection.kind === "tech" && selectedTrack === FULL_STACK_ROLE && difficulty === "medium";
     if (resumeRequired && !useResume) {
       toast.error(
-        "Medium Full Stack Mock Interviews use your resume. Turn on resume personalisation or choose another level."
+        "Medium Full Stack mock interviews use your resume. Turn on resume personalisation or choose another level."
       );
       return false;
     }
     if (resumeRequired && !user?.authorizedUser?.hasResume) {
       toast.error(
-        "Save a resume from the Resume section before starting a Medium Full Stack Mock Interview, or choose another level."
+        "Save a resume from the Resume section before starting a Medium Full Stack mock interview, or choose another level."
       );
       return false;
     }
@@ -522,7 +522,7 @@ function InterviewSetup({
     return (
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-[#111827]">
         <PageHeading
-          title="Mock Interview"
+          title="Mock interview"
           description="A short rehearsal with common questions."
         />
         <section className="studio-panel space-y-4" aria-label="Your interview">
@@ -562,8 +562,8 @@ function InterviewSetup({
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-[#111827]">
       <PageHeading
         className="studio-setup-heading"
-        eyebrow={mode === "assessment" ? "Formal assessment" : "Mock Interview"}
-        title={mode === "assessment" ? "Assessment Interview" : "Mock Interview"}
+        eyebrow={mode === "assessment" ? "Formal assessment" : "Mock interview"}
+        title={mode === "assessment" ? "Assessment Interview" : "Mock interview"}
         description={
           mode === "assessment"
             ? "Your teacher set these questions. This one counts."
@@ -638,7 +638,7 @@ function InterviewSetup({
                 ).map(([category, profiles]) => (
                   <optgroup
                     key={category}
-                    label={`${mode === "practice" ? "Curated Mock Interviews · " : ""}${category.charAt(0).toUpperCase() + category.slice(1)}`}
+                    label={`${mode === "practice" ? "Curated mock interviews · " : ""}${category.charAt(0).toUpperCase() + category.slice(1)}`}
                   >
                     {profiles.map((profile) => (
                       <option
@@ -728,7 +728,7 @@ function InterviewSetup({
         <div className="mt-5 border-t border-brand-line pt-5">
           {selection?.kind === "tech" ? (
             <label className="block font-semibold">
-              Questions in this Mock Interview
+              Questions in this mock interview
               <input
                 type="number"
                 min={1}
@@ -752,7 +752,7 @@ function InterviewSetup({
           ) : null}
           {selection?.kind === "tech" && (
             <p className="mt-2 text-sm text-gray-600">
-              Choose 1–10 questions. You can save and return to your Mock Interview.
+              Choose 1–10 questions. You can save and return to your mock interview.
             </p>
           )}
         </div>

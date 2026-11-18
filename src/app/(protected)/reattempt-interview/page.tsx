@@ -10,7 +10,7 @@ export default function ReAttemptInterview() {
       <p className="text-sm font-semibold uppercase tracking-widest text-brand-blue">
         Keep practising
       </p>
-      <h1 className="text-3xl font-bold">Start a new Mock Interview</h1>
+      <h1 className="text-3xl font-bold">Start a new mock interview</h1>
       <p>
         A completed interview keeps its original questions, answers and result. Choose a new Mock
         Interview to keep improving. Formal assessments can only be joined through their published
@@ -24,7 +24,7 @@ export default function ReAttemptInterview() {
           className="inline-flex min-h-12 items-center rounded-xl bg-black px-5 py-3 font-semibold text-white"
           href="/interview-start?mode=practice"
         >
-          Set up a Mock Interview
+          Set up a mock interview
         </Link>
         <Link
           className="inline-flex min-h-12 items-center rounded-xl border border-brand-blue px-5 py-3 font-semibold"

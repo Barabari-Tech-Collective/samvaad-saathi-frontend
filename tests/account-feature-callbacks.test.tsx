@@ -85,7 +85,7 @@ it("blocks a meeting-access request from the old page before remount", () => {
   fireEvent.click(screen.getByRole("button", { name: "Check meeting access" }));
   expect(f.get).not.toHaveBeenCalled();
 });
-it("shows the scheduled Human Interview details before the student requests the meeting link", () => {
+it("shows the scheduled human interview details before the student requests the meeting link", () => {
   render(<HumanInterviews accountKey="first" />);
   expect(screen.getByRole("heading", { name: "Technical Round 1" })).toBeVisible();
   expect(screen.getByText("Software Developer")).toBeVisible();

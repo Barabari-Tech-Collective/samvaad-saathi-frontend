@@ -184,7 +184,7 @@ it.each([
   }
 });
 
-it("keeps assessment setup outside Mock Interviews while mock setup has a clear parent page", () => {
+it("keeps assessment setup outside mock interviews while mock setup has a clear parent page", () => {
   fixture.path = "/interview-start";
   render(
     <StudentShell>

@@ -18,11 +18,11 @@ export function MockAssignments({ accountKey }: { accountKey: string }) {
       aria-label="Mock interviews assigned by your teacher"
     >
       <h2 className="text-xl font-semibold text-brand-navy">
-        Mock interviews assigned by your teacher
+        mock interviews assigned by your teacher
       </h2>
       {query.isError || (query.data && !data) ? (
         <div role="alert">
-          <p>We couldn't load your Mock Interviews.</p>
+          <p>We couldn't load your mock interviews.</p>
           <button className="ws-button mt-2" onClick={() => void query.refetch()}>
             Try again
           </button>
@@ -37,7 +37,7 @@ export function MockAssignments({ accountKey }: { accountKey: string }) {
         <>
           <p className="text-sm text-gray-600">{data.notice}</p>
           {!data.items.length ? (
-            <p>No Mock Interviews assigned right now.</p>
+            <p>No mock interviews assigned right now.</p>
           ) : (
             <ul className="divide-y divide-brand-line">
               {data.items.map((item) => (
@@ -54,7 +54,7 @@ export function MockAssignments({ accountKey }: { accountKey: string }) {
                       className="ws-button"
                       href={`/interview-start?mode=practice&jobProfileId=${item.jobProfileId}&courseId=${encodeURIComponent(item.courseId)}`}
                     >
-                      Start assigned Mock Interview
+                      Start assigned mock interview
                     </Link>
                   )}
                   {item.status === "completed" && <p className="text-sm font-medium">Completed</p>}
@@ -66,7 +66,7 @@ export function MockAssignments({ accountKey }: { accountKey: string }) {
             </ul>
           )}
           {data.total > data.limit && (
-            <nav aria-label="Assigned Mock Interview pages" className="flex gap-4">
+            <nav aria-label="Assigned mock interview pages" className="flex gap-4">
               <button disabled={page === 1} onClick={() => setPage((v) => v - 1)}>
                 Previous
               </button>

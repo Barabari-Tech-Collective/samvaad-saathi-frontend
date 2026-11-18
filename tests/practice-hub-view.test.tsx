@@ -14,11 +14,11 @@ function view(
 ) {
   return <PracticeHubView hub={hub} status={status} name="Riya" onRefresh={vi.fn()} area={area} />;
 }
-describe("Mock Interview entry", () => {
+describe("Mock interview entry", () => {
   it("shows server-confirmed progress and a mock-only resume action", () => {
     render(view("ready"));
     expect(screen.getByText(/2 of 5 answers are saved/)).toBeVisible();
-    expect(screen.getByRole("link", { name: "Continue Mock Interview" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Continue mock interview" })).toHaveAttribute(
       "href",
       "/interview?interviewId=42&resumed=true&interviewMode=practice"
     );
@@ -29,7 +29,7 @@ describe("Mock Interview entry", () => {
       render(view(status));
       expect(screen.queryByText(/2 of 5 answers are saved/)).toBeNull();
       expect(screen.queryByRole("progressbar")).toBeNull();
-      expect(screen.queryByRole("link", { name: "Continue Mock Interview" })).toBeNull();
+      expect(screen.queryByRole("link", { name: "Continue mock interview" })).toBeNull();
       expect(screen.queryByRole("link", { name: /Warm-up chat/ })).toBeNull();
     }
   );
@@ -56,9 +56,9 @@ describe("Mock Interview entry", () => {
     const hub = practiceHub();
     hub.resume!.expiresAt = "2026-10-20T10:00:02Z";
     render(view("ready", hub));
-    expect(screen.getByRole("link", { name: "Continue Mock Interview" })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Continue mock interview" })).toBeVisible();
     act(() => vi.advanceTimersByTime(2000));
-    expect(screen.queryByRole("link", { name: "Continue Mock Interview" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Continue mock interview" })).toBeNull();
     expect(screen.getByText(/can no longer be continued/)).toBeVisible();
   });
 });
@@ -86,8 +86,8 @@ it.each([
   }
   const retry = vi.fn();
   render(<PracticeHubView hub={hub} status="ready" name="Riya" onRefresh={retry} area="mock" />);
-  expect(screen.queryByRole("link", { name: "Continue Mock Interview" })).toBeNull();
-  expect(screen.queryByRole("link", { name: "Start Mock Interview" })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Continue mock interview" })).toBeNull();
+  expect(screen.queryByRole("link", { name: "Start mock interview" })).toBeNull();
   expect(screen.queryByText(/2 of 5 answers are saved/)).toBeNull();
   expect(screen.getByRole("link", { name: "Open in Progress" })).toHaveAttribute(
     "href",
@@ -97,14 +97,14 @@ it.each([
   expect(retry).toHaveBeenCalledOnce();
 });
 
-it("keeps skills and assignments out of Mock Interviews while Coaching has no mock-start action", () => {
+it("keeps skills and assignments out of mock interviews while Coaching has no mock-start action", () => {
   const mockHub = practiceHub();
   mockHub.resume = null;
   render(view("ready", mockHub, "mock"));
   expect(screen.queryByRole("link", { name: "Warm-up chat" })).toBeNull();
-  expect(screen.queryByRole("link", { name: "Start Mock Interview" })).toBeInTheDocument();
+  expect(screen.queryByRole("link", { name: "Start mock interview" })).toBeInTheDocument();
   const coaching = render(view("ready", practiceHub(), "coaching"));
   expect(screen.getByRole("link", { name: /Warm-up chat/ })).toBeInTheDocument();
-  expect(screen.queryAllByRole("link", { name: "Start Mock Interview" })).toHaveLength(1);
+  expect(screen.queryAllByRole("link", { name: "Start mock interview" })).toHaveLength(1);
   coaching.unmount();
 });

@@ -9,7 +9,7 @@ export const journey: Record<string, string> = {
   "A short speaking exercise to help you hear your rhythm and choose where to pause.":
     "बोलने का छोटा अभ्यास, जिससे आप अपनी लय सुन सकें और तय कर सकें कि कहाँ रुकना है।",
   "AI Feedback": "AI फ़ीडबैक",
-  "AI Interview": "AI इंटरव्यू",
+  "AI interview": "AI इंटरव्यू",
   "AI Resume Analysis Report": "AI रेज़्यूमे रिपोर्ट",
   "AI recommended": "AI का सुझाव",
   "AI suggested": "AI का सुझाव",
@@ -69,7 +69,7 @@ export const journey: Record<string, string> = {
   "Check your course": "अपना कोर्स जाँचें",
   "Check your interview": "अपना इंटरव्यू जाँचें",
   "Check your latest résumé file": "अपनी नई रेज़्यूमे फ़ाइल जाँचें",
-  "Checking for an assigned AI Interview…": "आपको दिया गया AI इंटरव्यू देख रहे हैं…",
+  "Checking for an assigned AI interview…": "आपको दिया गया AI इंटरव्यू देख रहे हैं…",
   "Checking your account": "आपका अकाउंट देख रहे हैं",
   "Checking your account…": "आपका अकाउंट देख रहे हैं…",
   "Checking your appointments…": "आपके समय देख रहे हैं…",
@@ -77,9 +77,9 @@ export const journey: Record<string, string> = {
   "Checking your identity…": "आपकी पहचान देख रहे हैं…",
   "Checking your released outcomes…": "आपके नतीजे देख रहे हैं…",
   "Checking your review notices…": "आपकी सूचनाएँ देख रहे हैं…",
-  "Choose 1–10 questions. You can save and return to your Mock Interview.":
+  "Choose 1–10 questions. You can save and return to your mock interview.":
     "1 से 10 सवाल चुनें। आप सेव करके बाद में लौट सकते हैं।",
-  "Choose Mock Interviews or Assessments from the platform before starting.":
+  "Choose mock interviews or Assessments from the platform before starting.":
     "शुरू करने से पहले मॉक इंटरव्यू या परीक्षा चुनें।",
   "Choose a different résumé file": "दूसरी रेज़्यूमे फ़ाइल चुनें",
   "Choose a difficulty level": "कठिनाई चुनें",
@@ -211,7 +211,7 @@ export const journey: Record<string, string> = {
   Home: "होम",
   "How this practice works": "यह अभ्यास कैसे होता है",
   "How to read this report": "यह रिपोर्ट कैसे पढ़ें",
-  "Human Interview": "लाइव इंटरव्यू",
+  "Human interview": "लाइव इंटरव्यू",
   "I have read and understood this.": "मैंने यह पढ़ और समझ लिया है।",
   "Ideal speaking pace for interviews": "इंटरव्यू में बोलने की सही गति",
   "If you need extra time or other help in assessments, tell us here. Your request goes to the team that arranges this.":
@@ -254,7 +254,7 @@ export const journey: Record<string, string> = {
   "Listen, then speak": "पहले सुनें, फिर बोलें",
   "Listening...": "सुन रहे हैं...",
   "Listening…": "सुन रहे हैं…",
-  "Loading assigned Mock Interviews…": "दिए गए मॉक इंटरव्यू ला रहे हैं…",
+  "Loading assigned mock interviews…": "दिए गए मॉक इंटरव्यू ला रहे हैं…",
   "Loading question…": "सवाल ला रहे हैं…",
   "Loading recent interviews…": "हाल के इंटरव्यू ला रहे हैं…",
   "Loading report...": "रिपोर्ट ला रहे हैं...",
@@ -273,7 +273,7 @@ export const journey: Record<string, string> = {
   "Make yourself easier to follow": "अपनी बात आसान बनाइए",
   "Mandatory pauses": "ज़रूरी ठहराव",
   Medium: "मध्यम",
-  "Medium Full Stack Mock Interviews use your resume. Turn on resume personalisation or choose another level.":
+  "Medium Full Stack mock interviews use your resume. Turn on resume personalisation or choose another level.":
     "मध्यम फ़ुल स्टैक मॉक इंटरव्यू में आपका रेज़्यूमे इस्तेमाल होता है। रेज़्यूमे चालू करें या दूसरा स्तर चुनें।",
   "Meeting platform": "मीटिंग ऐप",
   "Messages for you": "आपके लिए संदेश",
@@ -298,7 +298,7 @@ export const journey: Record<string, string> = {
   "Next Sentence": "अगला वाक्य",
   "Next appointments": "आने वाले समय",
   "Next step": "अगला कदम",
-  "No Mock Interviews assigned right now.": "अभी कोई मॉक इंटरव्यू नहीं दिया गया है।",
+  "No mock interviews assigned right now.": "अभी कोई मॉक इंटरव्यू नहीं दिया गया है।",
   "No analysis data available for this question.": "इस सवाल की जाँच उपलब्ध नहीं है।",
   "No analysis report data available": "रिपोर्ट उपलब्ध नहीं है",
   "No audio was captured. Check microphone access and try recording again.":
@@ -424,7 +424,7 @@ export const journey: Record<string, string> = {
   Projects: "प्रोजेक्ट",
   Pronunciation: "उच्चारण",
   "Put your resume here": "अपना रेज़्यूमे यहाँ डालें",
-  "Questions in this Mock Interview": "इस मॉक इंटरव्यू के सवाल",
+  "Questions in this mock interview": "इस मॉक इंटरव्यू के सवाल",
   "Re-Analyze": "फिर जाँचें",
   "Read profile link guidelines": "लिंक के नियम पढ़ें",
   "Read the outcomes your placement team has released, along with feedback and your next step.":
@@ -480,7 +480,7 @@ export const journey: Record<string, string> = {
   Role: "नौकरी",
   "Saathi practice companion": "साथी अभ्यास सहायक",
   Save: "सेव करें",
-  "Save a resume from the Resume section before starting a Medium Full Stack Mock Interview, or choose another level.":
+  "Save a resume from the Resume section before starting a Medium Full Stack mock interview, or choose another level.":
     "मध्यम फ़ुल स्टैक मॉक इंटरव्यू से पहले रेज़्यूमे सेव करें, या दूसरा स्तर चुनें।",
   "Save this answer or discard the unsaved draft before leaving.":
     "जाने से पहले यह जवाब सेव करें या हटा दें।",
@@ -552,9 +552,9 @@ export const journey: Record<string, string> = {
   Start: "शुरू करें",
   "Start Practice": "अभ्यास शुरू करें",
   "Start Recording": "रिकॉर्डिंग शुरू करें",
-  "Start a Mock Interview": "मॉक इंटरव्यू शुरू करें",
-  "Start a new Mock Interview": "नया मॉक इंटरव्यू शुरू करें",
-  "Start assigned Mock Interview": "दिया गया मॉक इंटरव्यू शुरू करें",
+  "Start a mock interview": "मॉक इंटरव्यू शुरू करें",
+  "Start a new mock interview": "नया मॉक इंटरव्यू शुरू करें",
+  "Start assigned mock interview": "दिया गया मॉक इंटरव्यू शुरू करें",
   "Start practice": "अभ्यास शुरू करें",
   "Start practising": "अभ्यास शुरू करें",
   "Start this coaching activity": "यह अभ्यास शुरू करें",
@@ -586,7 +586,7 @@ export const journey: Record<string, string> = {
     "ये स्कोर नीचे के जवाबों से बने हैं। यह नौकरी का फ़ैसला नहीं है।",
   "Think fast": "तुरंत सोचें",
   "Think fast: 60 seconds": "तुरंत सोचें: 60 सेकंड",
-  "This Mock Interview is for rehearsal and feedback.":
+  "This mock interview is for rehearsal and feedback.":
     "यह मॉक इंटरव्यू अभ्यास और फ़ीडबैक के लिए है।",
   "This assignment was cancelled.": "यह काम रद्द कर दिया गया।",
   "This feedback isn't available": "यह फ़ीडबैक उपलब्ध नहीं है",
@@ -648,7 +648,7 @@ export const journey: Record<string, string> = {
   "Use your feedback to try a clearer, steadier answer.":
     "फ़ीडबैक से ज़्यादा साफ़ और स्थिर जवाब आज़माएँ।",
   "View Detailed Feedback": "पूरा फ़ीडबैक देखें",
-  "View Human Interviews": "लाइव इंटरव्यू देखें",
+  "View human interviews": "लाइव इंटरव्यू देखें",
   "View Report": "रिपोर्ट देखें",
   "View assessment reviews": "परीक्षा की समीक्षा देखें",
   "View interview history": "प्रगति देखें",
@@ -670,8 +670,8 @@ export const journey: Record<string, string> = {
   "We couldn't load the levels.": "स्तर नहीं खुले।",
   "We couldn't load this. Please try again.": "यह नहीं खुला। फिर कोशिश करें।",
   "We couldn't load this. You can still practise.": "यह नहीं खुला। आप फिर भी अभ्यास कर सकते हैं।",
-  "We couldn't load your AI Interview.": "आपका AI इंटरव्यू नहीं खुला।",
-  "We couldn't load your Mock Interviews.": "आपके मॉक इंटरव्यू नहीं खुले।",
+  "We couldn't load your AI interview.": "आपका AI इंटरव्यू नहीं खुला।",
+  "We couldn't load your mock interviews.": "आपके मॉक इंटरव्यू नहीं खुले।",
   "We couldn't load your feedback": "आपका फ़ीडबैक नहीं खुला",
   "We couldn't load your graduation details.": "आपके कोर्स की जानकारी नहीं खुली।",
   "We couldn't load your graduation details. Please try again.":
@@ -759,7 +759,7 @@ export const journey: Record<string, string> = {
   "Your next coaching activity": "आपका अगला अभ्यास",
   "Your next interview starts here.": "आपका अगला इंटरव्यू यहाँ से शुरू होता है।",
   "Your opportunity outcomes": "आपकी नौकरी के नतीजे",
-  "Your placement team may assign either an AI Interview or a Human Interview. These are separate from Mock Interviews.":
+  "Your placement team may assign either an AI interview or a human interview. These are separate from mock interviews.":
     "आपकी प्लेसमेंट टीम AI इंटरव्यू या लाइव इंटरव्यू दे सकती है। ये मॉक इंटरव्यू से अलग हैं।",
   "Your practice companion": "आपका अभ्यास साथी",
   "Your profile": "आपकी प्रोफ़ाइल",

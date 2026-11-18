@@ -74,7 +74,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
             {attemptMeta?.interviewMode === "assessment"
               ? "Assessment feedback"
               : attemptMeta?.interviewMode === "practice"
-                ? "Mock Interview feedback"
+                ? "Mock interview feedback"
                 : "Interview feedback"}
           </p>
           <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold">
@@ -119,7 +119,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
               className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-brand-blue px-4 font-bold text-brand-blue"
               href="/interview-start?mode=practice"
             >
-              Start a Mock Interview
+              Start a mock interview
             </Link>
           ) : (
             <Link

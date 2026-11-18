@@ -305,7 +305,7 @@ const InterviewPage = () => {
           if (!lifetime.isCurrent()) return;
           const status = (error as { response?: { status?: number } })?.response?.status;
           if (status === 410) {
-            setResumeError("This saved interview has expired. Start a new Mock Interview.");
+            setResumeError("This saved interview has expired. Start a new mock interview.");
             return;
           }
           setResumeError("We couldn't open this interview. Check your connection and try again.");
@@ -715,7 +715,7 @@ const InterviewPage = () => {
               This interview is open somewhere else
             </h2>
             <p className="py-4 text-slate-700">
-              To protect your answers, only one device or browser tab can edit a Mock Interview at a
+              To protect your answers, only one device or browser tab can edit a mock interview at a
               time. If you continue here, the other one will stop saving.
             </p>
             <div className="modal-action">
@@ -889,7 +889,7 @@ const InterviewPage = () => {
             <div className="min-w-0 rounded-2xl border border-[var(--border-subtle)] bg-white px-5 py-2 sm:px-8 sm:py-4">
               <p className="mt-4 text-sm font-medium text-[var(--brand-blue)]">
                 {interviewModeValue === "practice"
-                  ? "Mock Interview"
+                  ? "Mock interview"
                   : "Assessment · AI interviewer"}
               </p>
               <Question

@@ -25,22 +25,22 @@ beforeEach(() => {
   });
 });
 
-it("does not offer an AI Interview when none is assigned", () => {
+it("does not offer an AI interview when none is assigned", () => {
   render(<AssessmentsHub />);
 
   expect(screen.getByRole("heading", { name: "Assessments" })).toBeVisible();
-  expect(screen.getByRole("heading", { name: "AI Interview" })).toBeVisible();
-  expect(screen.getByText(/No AI Interview is assigned right now/i)).toBeVisible();
-  expect(screen.queryByRole("link", { name: /Open .*AI Interview/i })).not.toBeInTheDocument();
-  expect(screen.getByRole("heading", { name: "Human Interview" })).toBeVisible();
-  expect(screen.getByRole("link", { name: "View Human Interviews" })).toHaveAttribute(
+  expect(screen.getByRole("heading", { name: "AI interview" })).toBeVisible();
+  expect(screen.getByText(/No AI interview is assigned right now/i)).toBeVisible();
+  expect(screen.queryByRole("link", { name: /Open .*AI interview/i })).not.toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: "Human interview" })).toBeVisible();
+  expect(screen.getByRole("link", { name: "View human interviews" })).toHaveAttribute(
     "href",
     "/human-interviews"
   );
   expect(screen.getByText(/only when your placement team has made it available/i)).toBeVisible();
 });
 
-it("offers only the verified open AI Interview", () => {
+it("offers only the verified open AI interview", () => {
   mocks.useQuery.mockReturnValue({
     data: { items: [{ id: 7, job_name: "Backend Developer", phase: "open" }] },
     isError: false,

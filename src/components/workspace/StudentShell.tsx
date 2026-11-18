@@ -36,7 +36,7 @@ const titles: Record<string, string> = {
   profile: "Profile",
   assessments: "Assessments",
   "assessment-reviews": "Assessment reviews",
-  "human-interviews": "Human Interviews",
+  "human-interviews": "Human interviews",
   "opportunity-outcomes": "Opportunity outcomes",
   "interview-start": "Interview setup",
   interview: "Interview",

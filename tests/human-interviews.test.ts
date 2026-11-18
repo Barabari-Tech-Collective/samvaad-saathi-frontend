@@ -16,7 +16,7 @@ const appointment = {
   outcome_source: null,
 };
 
-it("accepts a bounded, coherent Human Interview appointment response", () => {
+it("accepts a bounded, coherent human interview appointment response", () => {
   expect(parseHumanInterviewsPage({ items: [appointment], total: 1, notice: "" })).toMatchObject({
     total: 1,
     items: [{ id: 42, canJoin: true, meetingPlatform: "Google Meet" }],
