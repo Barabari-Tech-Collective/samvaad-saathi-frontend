@@ -28,14 +28,14 @@ export function ProfileFieldRow({
     previous.current = isEditing;
   }, [isEditing]);
   return (
-    <fieldset className="min-w-0 space-y-2 rounded-2xl border border-[#DEE8FB] bg-white p-4">
-      <legend className="px-2 text-sm font-semibold text-[#1F285B]">{label}</legend>
+    <fieldset className="min-w-0 space-y-2 rounded-2xl border border-brand-line bg-white p-4">
+      <legend className="px-2 text-sm font-semibold text-brand-navy">{label}</legend>
       <div className="flex justify-end">
         <button
           ref={edit}
           aria-label={isEditing ? `Cancel editing ${label}` : `Edit ${label}`}
           onClick={isEditing ? onCancel : onEdit}
-          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-[#C0CFF2] text-[#344499]"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-[#C0CFF2] text-brand-blue"
           type="button"
         >
           {isEditing ? (

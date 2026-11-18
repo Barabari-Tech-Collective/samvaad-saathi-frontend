@@ -12,7 +12,7 @@ function ScoreDimension({ title, dimension }: { title: string; dimension: Dimens
             {dimension.score} of {dimension.maxScore} points
           </p>
         </div>
-        <p className="text-3xl font-bold text-[#1F285B]">{dimension.percentage}%</p>
+        <p className="text-3xl font-bold text-brand-navy">{dimension.percentage}%</p>
       </div>
       <div
         className="mt-4 h-2 overflow-hidden rounded-full bg-[#E6ECFB]"
@@ -23,7 +23,7 @@ function ScoreDimension({ title, dimension }: { title: string; dimension: Dimens
         aria-valuenow={dimension.percentage}
       >
         <div
-          className="h-full rounded-full bg-[#344499]"
+          className="h-full rounded-full bg-brand-blue"
           style={{ width: `${Math.max(0, Math.min(100, dimension.percentage))}%` }}
         />
       </div>
@@ -31,7 +31,7 @@ function ScoreDimension({ title, dimension }: { title: string; dimension: Dimens
         {Object.entries(dimension.criteria).map(([key, value]) => (
           <div key={key} className="rounded-full border border-[#D6E0FB] bg-white px-3 py-1.5">
             <dt className="inline text-sm capitalize text-gray-600">{key}: </dt>
-            <dd className="inline text-sm font-bold text-[#1F285B]">{value}</dd>
+            <dd className="inline text-sm font-bold text-brand-navy">{value}</dd>
           </div>
         ))}
       </dl>
@@ -48,7 +48,7 @@ export default function OverallScoreSummary({
       className="rounded-3xl border border-[#D6E0FB] bg-white p-5 sm:p-6"
       aria-labelledby="score-summary-title"
     >
-      <p className="text-sm font-bold uppercase tracking-[0.12em] text-[#344499]">
+      <p className="text-sm font-bold uppercase tracking-[0.12em] text-brand-blue">
         Evaluated answers only
       </p>
       <h2 id="score-summary-title" className="mt-2 text-2xl font-bold">

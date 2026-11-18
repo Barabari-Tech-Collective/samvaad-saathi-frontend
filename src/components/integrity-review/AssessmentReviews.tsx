@@ -11,7 +11,7 @@ import {
 import { apiClient } from "@/lib/api-config/src/instance";
 
 const button =
-  "inline-flex min-h-11 items-center justify-center rounded-xl border border-[#C0CFF2] px-4 py-2 font-medium text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:opacity-50";
+  "inline-flex min-h-11 items-center justify-center rounded-xl border border-[#C0CFF2] px-4 py-2 font-medium text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:opacity-50";
 function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () => void }) {
   const submit = apiClient.useMutation<unknown, Record<string, unknown>>({
     url: `v2/integrity/me/cases/${row.id}/actions`,
@@ -34,7 +34,7 @@ function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () =
   const options = [...(row.canExplain ? ["explain"] : []), ...(row.canAppeal ? ["appeal"] : [])];
   const selected = options.includes(action) ? action : options[0];
   return (
-    <article className="space-y-4 rounded-2xl border border-[#DEE8FB] bg-white p-5">
+    <article className="space-y-4 rounded-2xl border border-brand-line bg-white p-5">
       <h2 className="text-xl font-semibold">
         Assessment {row.interviewId} · Review {row.id}
       </h2>

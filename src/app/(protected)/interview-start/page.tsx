@@ -94,7 +94,7 @@ const LEVEL_EXAMPLES: Record<string, string> = {
 
 function EntryRecovery({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-[#DEE8FB] bg-white p-5 text-[#1F285B] sm:p-8">
+    <div className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-brand-line bg-white p-5 text-brand-navy sm:p-8">
       <h1 className="text-3xl font-bold">{title}</h1>
       {children}
       <div className="flex flex-wrap gap-4">
@@ -584,7 +584,7 @@ function InterviewSetup({
       </ol>
 
       {startError && (
-        <p role="alert" className="rounded-xl border border-[#DEE8FB] bg-white p-4">
+        <p role="alert" className="rounded-xl border border-brand-line bg-white p-4">
           {startError}
         </p>
       )}
@@ -667,7 +667,7 @@ function InterviewSetup({
                   <label
                     key={opt.key}
                     className={`flex min-h-20 items-start gap-3 rounded-2xl border p-4 ${
-                      difficulty === opt.key ? "border-[#344499] bg-[#F5F7FF]" : "border-gray-200"
+                      difficulty === opt.key ? "border-brand-blue bg-[#F5F7FF]" : "border-gray-200"
                     } ${available ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`}
                   >
                     <input
@@ -725,7 +725,7 @@ function InterviewSetup({
           </div>
         </div>
 
-        <div className="mt-5 border-t border-[#DEE8FB] pt-5">
+        <div className="mt-5 border-t border-brand-line pt-5">
           {selection?.kind === "tech" ? (
             <label className="block font-semibold">
               Questions in this Mock Interview

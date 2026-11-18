@@ -58,7 +58,7 @@ export default function AboutMyWork() {
       </p>
       {query.isError && <p role="alert">{t("We couldn't load this. Please try again.")}</p>}
       {items.length > 0 && (
-        <ul className="divide-y divide-[#DEE8FB]">
+        <ul className="divide-y divide-brand-line">
           {items.map((item) => (
             <li key={item.id} className="space-y-1 py-3">
               <p className="font-semibold">{item.title}</p>

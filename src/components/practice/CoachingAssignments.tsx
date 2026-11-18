@@ -45,7 +45,7 @@ export function CoachingAssignments({ accountKey = "current" }: { accountKey?: s
   if (!query.isError && (!data || !data.items.length) && page === 1) return null;
   return (
     <section aria-label={t("From your teacher")} className="studio-panel space-y-3">
-      <h3 className="text-lg font-semibold text-[#1F285B]">{t("From your teacher")}</h3>
+      <h3 className="text-lg font-semibold text-brand-navy">{t("From your teacher")}</h3>
       {query.isError ? (
         <div role="alert">
           <p>{t("We couldn't load this. You can still practise.")}</p>
@@ -59,7 +59,7 @@ export function CoachingAssignments({ accountKey = "current" }: { accountKey?: s
             <p className="text-sm text-gray-600">
               {t("Late is fine. This never affects your score.")}
             </p>
-            <ul className="divide-y divide-[#DEE8FB]">
+            <ul className="divide-y divide-brand-line">
               {data.items.map((row) => (
                 <li key={row.id} className="space-y-2 py-4">
                   <h4 className="font-semibold">

@@ -14,10 +14,10 @@ export function MockAssignments({ accountKey }: { accountKey: string }) {
   const data = query.isError || query.isFetching ? null : parseMockAssignments(query.data);
   return (
     <section
-      className="mb-7 space-y-4 rounded-2xl border border-[#DEE8FB] bg-white p-5 sm:p-6"
+      className="mb-7 space-y-4 rounded-2xl border border-brand-line bg-white p-5 sm:p-6"
       aria-label="Mock interviews assigned by your teacher"
     >
-      <h2 className="text-xl font-semibold text-[#1F285B]">
+      <h2 className="text-xl font-semibold text-brand-navy">
         Mock interviews assigned by your teacher
       </h2>
       {query.isError || (query.data && !data) ? (
@@ -39,7 +39,7 @@ export function MockAssignments({ accountKey }: { accountKey: string }) {
           {!data.items.length ? (
             <p>No Mock Interviews assigned right now.</p>
           ) : (
-            <ul className="divide-y divide-[#DEE8FB]">
+            <ul className="divide-y divide-brand-line">
               {data.items.map((item) => (
                 <li key={item.id} className="space-y-2 py-4">
                   <h3 className="font-semibold">

@@ -74,7 +74,7 @@ export function PracticeHubSkeleton({ area = "legacy" }: { area?: LearningArea }
     >
       <span className="sr-only">{label}</span>
       <div className="h-20 rounded-2xl bg-gray-100" />
-      <div className="h-64 rounded-xl bg-[#344499]/10" />
+      <div className="h-64 rounded-xl bg-brand-blue/10" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[0, 1, 2, 3, 4].map((item) => (
           <div key={item} className="h-40 rounded-2xl bg-gray-100" />

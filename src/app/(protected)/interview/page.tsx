@@ -1075,7 +1075,7 @@ const SuspendedInterviewPage = () => {
   if (loading || !user?.userId || invalid)
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-6">
-        <h1 className="text-2xl font-bold text-[#1F285B]">
+        <h1 className="text-2xl font-bold text-brand-navy">
           {invalid ? "Open this interview from Progress" : "Just a moment"}
         </h1>
         <p role="status">
@@ -1084,7 +1084,7 @@ const SuspendedInterviewPage = () => {
             : "Please sign in to the account you used for this interview."}
         </p>
         <Link
-          className="inline-flex min-h-11 items-center text-[#344499] underline"
+          className="inline-flex min-h-11 items-center text-brand-blue underline"
           href="/history"
         >
           Open Progress

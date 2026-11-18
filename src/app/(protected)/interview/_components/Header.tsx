@@ -108,7 +108,7 @@ const Header = ({
         <p className="studio-eyebrow">
           {mode === "practice" ? "Mock Interview room" : "Assessment room"}
         </p>
-        <h3 className="mt-1 break-words text-xl font-semibold text-[#1F285B] sm:text-2xl">
+        <h3 className="mt-1 break-words text-xl font-semibold text-brand-navy sm:text-2xl">
           {role || "Interview"}
         </h3>
       </div>

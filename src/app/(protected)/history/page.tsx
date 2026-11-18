@@ -80,7 +80,7 @@ function HistoryWorkspace({ account }: { account: string }) {
             type="button"
             aria-pressed={tab === filter.value}
             onClick={() => switchTab(filter.value)}
-            className={`min-h-11 rounded-xl border px-4 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] ${tab === filter.value ? "border-[#1F285B] bg-[#1F285B] text-white" : "border-[#DEE8FB] bg-white text-[#1F285B]"}`}
+            className={`min-h-11 rounded-xl border px-4 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue ${tab === filter.value ? "border-brand-navy bg-brand-navy text-white" : "border-brand-line bg-white text-brand-navy"}`}
           >
             {filter.title}
           </button>
@@ -107,7 +107,7 @@ function HistoryWorkspace({ account }: { account: string }) {
             onClick={() =>
               void (query.isFetchNextPageError ? query.fetchNextPage() : query.refetch())
             }
-            className="mt-3 min-h-11 rounded-xl border border-[#344499] px-4 font-semibold text-[#344499] disabled:opacity-50"
+            className="mt-3 min-h-11 rounded-xl border border-brand-blue px-4 font-semibold text-brand-blue disabled:opacity-50"
           >
             Try again
           </button>
@@ -120,8 +120,8 @@ function HistoryWorkspace({ account }: { account: string }) {
             {query.hasNextPage ? " · See older ones below" : ""}
           </p>
           {!visible.length && !query.isError && (
-            <section className="rounded-2xl border border-[#DEE8FB] bg-white p-6">
-              <h2 className="font-semibold text-[#1F285B]">
+            <section className="rounded-2xl border border-brand-line bg-white p-6">
+              <h2 className="font-semibold text-brand-navy">
                 No{" "}
                 {tab === "incomplete"
                   ? "saved practice"
@@ -143,9 +143,9 @@ function HistoryWorkspace({ account }: { account: string }) {
               return (
                 <article
                   key={item.interviewId}
-                  className="min-w-0 rounded-2xl border border-[#DEE8FB] bg-white p-5 sm:p-6"
+                  className="min-w-0 rounded-2xl border border-brand-line bg-white p-5 sm:p-6"
                 >
-                  <div className="mb-3 flex flex-wrap gap-2 text-sm font-semibold text-[#344499]">
+                  <div className="mb-3 flex flex-wrap gap-2 text-sm font-semibold text-brand-blue">
                     <span>
                       {item.interviewMode === "practice"
                         ? "Mock Interview"
@@ -156,7 +156,7 @@ function HistoryWorkspace({ account }: { account: string }) {
                     <span>· {statusWord(item.status)}</span>
                     <span>· {item.difficulty}</span>
                   </div>
-                  <h2 className="text-xl font-semibold text-[#1F285B]">{item.track}</h2>
+                  <h2 className="text-xl font-semibold text-brand-navy">{item.track}</h2>
                   <p className="mt-2 text-sm text-gray-600">
                     {new Intl.DateTimeFormat("en-IN", {
                       dateStyle: "medium",
@@ -166,7 +166,7 @@ function HistoryWorkspace({ account }: { account: string }) {
                   </p>
                   {tab === "completed" ? (
                     <>
-                      <dl className="mt-5 grid grid-cols-2 gap-3 rounded-xl bg-[#F5F9FF] p-4 text-sm">
+                      <dl className="mt-5 grid grid-cols-2 gap-3 rounded-xl bg-brand-canvas p-4 text-sm">
                         <div>
                           <dt className="text-gray-600">Knowledge</dt>
                           <dd className="mt-1 font-semibold">
@@ -210,7 +210,7 @@ function HistoryWorkspace({ account }: { account: string }) {
                       {tab === "closed" && (
                         <Link
                           href={`/report-summary?interviewId=${item.interviewId}`}
-                          className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-[#344499] px-5 py-3 font-semibold text-[#344499]"
+                          className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-brand-blue px-5 py-3 font-semibold text-brand-blue"
                         >
                           See your feedback
                         </Link>
@@ -236,7 +236,7 @@ function HistoryWorkspace({ account }: { account: string }) {
               type="button"
               disabled={query.isFetching}
               onClick={() => void query.fetchNextPage()}
-              className="min-h-11 rounded-xl border border-[#344499] bg-white px-5 py-3 font-semibold text-[#344499] disabled:opacity-50"
+              className="min-h-11 rounded-xl border border-brand-blue bg-white px-5 py-3 font-semibold text-brand-blue disabled:opacity-50"
             >
               {query.isFetchingNextPage ? "Loading…" : "Show older interviews"}
             </button>

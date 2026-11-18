@@ -6,8 +6,8 @@ import Link from "next/link";
 // and browser-cached questions is not a new attempt and cannot unlock assessment.
 export default function ReAttemptInterview() {
   return (
-    <div className="mx-auto w-full max-w-3xl space-y-5 rounded-3xl border border-[#DEE8FB] bg-white p-5 text-[#1F285B] sm:p-8">
-      <p className="text-sm font-semibold uppercase tracking-widest text-[#344499]">
+    <div className="mx-auto w-full max-w-3xl space-y-5 rounded-3xl border border-brand-line bg-white p-5 text-brand-navy sm:p-8">
+      <p className="text-sm font-semibold uppercase tracking-widest text-brand-blue">
         Keep practising
       </p>
       <h1 className="text-3xl font-bold">Start a new Mock Interview</h1>
@@ -27,7 +27,7 @@ export default function ReAttemptInterview() {
           Set up a Mock Interview
         </Link>
         <Link
-          className="inline-flex min-h-12 items-center rounded-xl border border-[#344499] px-5 py-3 font-semibold"
+          className="inline-flex min-h-12 items-center rounded-xl border border-brand-blue px-5 py-3 font-semibold"
           href="/history"
         >
           Open Progress

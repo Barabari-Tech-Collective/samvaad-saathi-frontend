@@ -19,7 +19,7 @@ export default function PerQuestionAnalysis({ questionAnalysis }: PerQuestionAna
   return (
     <section className="space-y-3" id="per-question-analysis" aria-labelledby="answer-review-title">
       <div>
-        <p className="text-sm font-bold uppercase tracking-[0.12em] text-[#344499]">
+        <p className="text-sm font-bold uppercase tracking-[0.12em] text-brand-blue">
           What you said
         </p>
         <h2 id="answer-review-title" className="mt-2 text-2xl font-bold">
@@ -34,13 +34,13 @@ export default function PerQuestionAnalysis({ questionAnalysis }: PerQuestionAna
         const status = question.evidence?.status;
         return (
           <details key={question.id} className="group rounded-2xl border border-[#D6E0FB] bg-white">
-            <summary className="flex min-h-16 cursor-pointer list-none items-start justify-between gap-4 p-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]">
+            <summary className="flex min-h-16 cursor-pointer list-none items-start justify-between gap-4 p-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-sm font-semibold text-gray-500">
                     Question {index + 1} of {question.totalQuestions}
                   </span>
-                  <span className="rounded-full bg-[#EEF2FF] px-2.5 py-1 text-sm font-semibold text-[#344499]">
+                  <span className="rounded-full bg-[#EEF2FF] px-2.5 py-1 text-sm font-semibold text-brand-blue">
                     {question.type}
                   </span>
                   {status && (
@@ -54,7 +54,7 @@ export default function PerQuestionAnalysis({ questionAnalysis }: PerQuestionAna
                 <p className="mt-3 font-semibold leading-6 text-[#111827]">{question.question}</p>
               </div>
               <span
-                className="mt-1 text-xl text-[#344499] transition group-open:rotate-45"
+                className="mt-1 text-xl text-brand-blue transition group-open:rotate-45"
                 aria-hidden="true"
               >
                 +

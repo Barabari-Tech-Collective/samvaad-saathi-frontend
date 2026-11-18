@@ -15,7 +15,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { apiClient } from "@/lib/api-config";
 
 const button =
-  "inline-flex min-h-11 items-center justify-center rounded-xl border border-[#C0CFF2] px-4 py-2 font-medium text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:opacity-50";
+  "inline-flex min-h-11 items-center justify-center rounded-xl border border-[#C0CFF2] px-4 py-2 font-medium text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:opacity-50";
 
 function appointmentTime(iso: string, timezone: string | null | undefined) {
   try {
@@ -52,47 +52,47 @@ function AppointmentCard({ row }: { row: HumanInterviewAppointment }) {
   const platform = row.meetingPlatform;
   const duration = appointmentDuration(row);
   return (
-    <li className="space-y-4 rounded-2xl border border-[#DEE8FB] bg-white p-5 sm:p-6">
+    <li className="space-y-4 rounded-2xl border border-brand-line bg-white p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="studio-eyebrow">Human Interview</p>
-          <h2 className="min-w-0 break-words text-xl font-semibold text-[#1F285B]">
+          <h2 className="min-w-0 break-words text-xl font-semibold text-brand-navy">
             {row.roundName || row.title}
           </h2>
         </div>
-        <span className="rounded-full bg-[#F5F9FF] px-3 py-1 text-sm">
+        <span className="rounded-full bg-brand-canvas px-3 py-1 text-sm">
           {statusWord(row.status)}
         </span>
       </div>
       <dl className="grid gap-x-6 gap-y-3 text-sm sm:grid-cols-[10rem_1fr]">
         {row.opportunityTitle && (
           <>
-            <dt className="font-semibold text-[#1F285B]">Opportunity</dt>
+            <dt className="font-semibold text-brand-navy">Opportunity</dt>
             <dd>{row.opportunityTitle}</dd>
           </>
         )}
-        <dt className="font-semibold text-[#1F285B]">Date and time</dt>
+        <dt className="font-semibold text-brand-navy">Date and time</dt>
         <dd>
           {appointmentTime(row.startsAt, row.timezone)}
           {row.timezone ? ` (${row.timezone})` : " (your device time)"}
         </dd>
         {duration && (
           <>
-            <dt className="font-semibold text-[#1F285B]">Duration</dt>
+            <dt className="font-semibold text-brand-navy">Duration</dt>
             <dd>{duration}</dd>
           </>
         )}
         {row.interviewerName && (
           <>
-            <dt className="font-semibold text-[#1F285B]">Interviewer</dt>
+            <dt className="font-semibold text-brand-navy">Interviewer</dt>
             <dd>{row.interviewerName}</dd>
           </>
         )}
-        <dt className="font-semibold text-[#1F285B]">Meeting platform</dt>
+        <dt className="font-semibold text-brand-navy">Meeting platform</dt>
         <dd>{platform}</dd>
         {row.instructions && (
           <>
-            <dt className="font-semibold text-[#1F285B]">Instructions</dt>
+            <dt className="font-semibold text-brand-navy">Instructions</dt>
             <dd className="whitespace-pre-wrap">{row.instructions}</dd>
           </>
         )}
@@ -100,17 +100,17 @@ function AppointmentCard({ row }: { row: HumanInterviewAppointment }) {
       {row.result || row.feedback ? (
         <section
           aria-label="Your result"
-          className="space-y-3 rounded-xl border border-[#DEE8FB] bg-[#F5F9FF] p-4"
+          className="space-y-3 rounded-xl border border-brand-line bg-brand-canvas p-4"
         >
           {row.result && (
             <p className="text-base">
-              <span className="font-semibold text-[#1F285B]">Result: </span>
+              <span className="font-semibold text-brand-navy">Result: </span>
               {RESULT_WORDS[row.result]}
             </p>
           )}
           {row.feedback && (
             <div>
-              <h3 className="font-semibold text-[#1F285B]">Feedback from your interviewer</h3>
+              <h3 className="font-semibold text-brand-navy">Feedback from your interviewer</h3>
               <p className="mt-1 whitespace-pre-wrap text-sm leading-6">{row.feedback}</p>
             </div>
           )}
@@ -255,7 +255,7 @@ export function HumanInterviews({ accountKey }: { accountKey: string }) {
           <p className="text-sm text-gray-600">{data.notice}</p>
           {!data.items.length && (
             <div className="studio-panel">
-              <h2 className="text-lg font-semibold text-[#1F285B]">No interviews yet</h2>
+              <h2 className="text-lg font-semibold text-brand-navy">No interviews yet</h2>
               <p className="mt-2 text-gray-600">
                 Your teacher will set a time for you. You can keep practising.
               </p>

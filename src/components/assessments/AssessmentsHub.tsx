@@ -58,7 +58,7 @@ function AssessmentCard({
         <Icon />
       </span>
       <div className="space-y-2">
-        <h2 className="text-2xl font-semibold text-[#1F285B]">{title}</h2>
+        <h2 className="text-2xl font-semibold text-brand-navy">{title}</h2>
         <p className="text-gray-700">{description}</p>
       </div>
       <div className="mt-auto">{children}</div>
@@ -91,7 +91,9 @@ export default function AssessmentsHub() {
         description="Your placement team may assign either an AI Interview or a Human Interview. These are separate from Mock Interviews."
       />
       <section className="studio-panel space-y-3" aria-label="Assessment information">
-        <h2 className="text-lg font-semibold text-[#1F285B]">Choose the round you were assigned</h2>
+        <h2 className="text-lg font-semibold text-brand-navy">
+          Choose the round you were assigned
+        </h2>
         <p className="text-gray-700">
           An assessment is shown only when your placement team has made it available. It has its own
           instructions, timing and result-release policy.

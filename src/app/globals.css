@@ -6,6 +6,17 @@
   themes: light --default;
 }
 
+/* Samvaad brand colours as Tailwind utilities (bg-brand-navy, text-brand-blue,
+   border-brand-line). The admin dashboard defines the same names, so both apps
+   share one vocabulary. Prefer these to inline hex classes such as text-[#1F285B]. */
+@theme inline {
+  --color-brand-navy: #1f285b;
+  --color-brand-blue: #344499;
+  --color-brand-line: #dee8fb;
+  --color-brand-canvas: #f5f9ff;
+  --color-brand-yellow: #ffcc33;
+}
+
 :root {
   --color-primary: #1f285b;
   --color-error: #d40303;

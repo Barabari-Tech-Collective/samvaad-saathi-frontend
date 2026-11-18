@@ -70,7 +70,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
     <div className="mx-auto w-full min-w-0 max-w-5xl space-y-7 [overflow-wrap:anywhere] pb-12 pt-4 text-[#111827] sm:pt-7">
       <header className="studio-report-header">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm font-bold uppercase tracking-[0.14em] text-[#FFCC33]">
+          <p className="text-sm font-bold uppercase tracking-[0.14em] text-brand-yellow">
             {attemptMeta?.interviewMode === "assessment"
               ? "Assessment feedback"
               : attemptMeta?.interviewMode === "practice"
@@ -116,14 +116,14 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
           </p>
           {attemptMeta?.interviewMode === "practice" ? (
             <Link
-              className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-[#344499] px-4 font-bold text-[#344499]"
+              className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-brand-blue px-4 font-bold text-brand-blue"
               href="/interview-start?mode=practice"
             >
               Start a Mock Interview
             </Link>
           ) : (
             <Link
-              className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-[#344499] px-4 font-bold text-[#344499]"
+              className="mt-5 inline-flex min-h-11 items-center rounded-xl border border-brand-blue px-4 font-bold text-brand-blue"
               href="/history"
             >
               Open Progress
@@ -140,7 +140,10 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
           aria-labelledby="next-practice-title"
         >
           <div className="flex items-start gap-3">
-            <CheckCircleIcon className="mt-0.5 size-7 shrink-0 text-[#344499]" aria-hidden="true" />
+            <CheckCircleIcon
+              className="mt-0.5 size-7 shrink-0 text-brand-blue"
+              aria-hidden="true"
+            />
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.12em] text-amber-900">
                 Your next coaching activity
@@ -160,7 +163,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
                     "report_summary_page"
                   )
                 }
-                className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#FFCC33] px-6 font-bold text-[#1F285B] transition hover:bg-[#FFB800] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
+                className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-brand-yellow px-6 font-bold text-brand-navy transition hover:bg-[#FFB800] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
               >
                 Start this coaching activity
                 <ArrowRightIcon className="size-5" aria-hidden="true" />
@@ -183,13 +186,13 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <Link
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#1F285B] px-5 font-bold text-[#1F285B]"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-brand-navy px-5 font-bold text-brand-navy"
           href="/history"
         >
           Open Progress
         </Link>
         <Link
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#D6E0FB] px-5 font-bold text-[#344499]"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#D6E0FB] px-5 font-bold text-brand-blue"
           href="/coaching"
         >
           Explore Coaching

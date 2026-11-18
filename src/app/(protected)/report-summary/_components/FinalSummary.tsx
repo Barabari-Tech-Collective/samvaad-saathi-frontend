@@ -6,7 +6,7 @@ export default function FinalSummary({ speechFluencyFeedback }: FinalSummaryProp
       className="rounded-3xl border border-[#D6E0FB] bg-white p-5 sm:p-6"
       aria-labelledby="communication-summary-title"
     >
-      <p className="text-sm font-bold uppercase tracking-[0.12em] text-[#344499]">
+      <p className="text-sm font-bold uppercase tracking-[0.12em] text-brand-blue">
         AI-supported interpretation
       </p>
       <h2 id="communication-summary-title" className="mt-2 text-2xl font-bold">

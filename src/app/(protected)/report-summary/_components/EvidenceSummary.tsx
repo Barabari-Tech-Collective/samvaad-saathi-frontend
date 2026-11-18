@@ -13,7 +13,7 @@ export default function EvidenceSummary({ evidence }: EvidenceSummaryProps) {
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[0.12em] text-[#344499]">
+          <p className="text-sm font-bold uppercase tracking-[0.12em] text-brand-blue">
             What we looked at
           </p>
           <h2 id="evidence-summary-title" className="mt-2 text-xl font-bold text-[#111827]">
@@ -21,7 +21,7 @@ export default function EvidenceSummary({ evidence }: EvidenceSummaryProps) {
           </h2>
           <p className="mt-2 max-w-2xl leading-6 text-gray-600">{evidence.statusMessage}</p>
         </div>
-        <p className="shrink-0 text-sm font-semibold text-[#1F285B]">
+        <p className="shrink-0 text-sm font-semibold text-brand-navy">
           {evidence.evaluatedAnswers} of {evidence.totalQuestions} answers evaluated
         </p>
       </div>
@@ -34,7 +34,7 @@ export default function EvidenceSummary({ evidence }: EvidenceSummaryProps) {
         aria-valuenow={evidence.coveragePercentage}
       >
         <div
-          className="h-full rounded-full bg-[#344499]"
+          className="h-full rounded-full bg-brand-blue"
           style={{ width: `${evidence.coveragePercentage}%` }}
         />
       </div>

@@ -102,7 +102,7 @@ function PlanCard({
 }) {
   const current = assignment.steps.find((step) => step.status === "current");
   return (
-    <li className="space-y-3 rounded-2xl border border-[#DEE8FB] p-4">
+    <li className="space-y-3 rounded-2xl border border-brand-line p-4">
       <div>
         <h3 className="text-lg font-semibold">{assignment.plan.title}</h3>
         <p>{assignment.plan.goal}</p>
@@ -170,7 +170,7 @@ export function LearningPlans({ accountKey }: { accountKey: string }) {
     return null;
   return (
     <section className="studio-panel space-y-4" aria-label="Learning Plans">
-      <h3 className="text-lg font-semibold text-[#1F285B]">Learning Plans</h3>
+      <h3 className="text-lg font-semibold text-brand-navy">Learning Plans</h3>
       <p className="text-sm text-gray-600">
         One step at a time. Your progress updates when you finish each step.
       </p>
