@@ -1,6 +1,11 @@
 import packageJson from "../../package.json";
 
-export const APP_VERSION = packageJson.version;
+const BUILD_COMMIT = process.env.NEXT_PUBLIC_BUILD_COMMIT ?? "";
+
+/** "1.19.0 (a1b2c3d)" when the build knows its commit, otherwise the package version. */
+export const APP_VERSION = BUILD_COMMIT
+  ? `${packageJson.version} (${BUILD_COMMIT})`
+  : packageJson.version;
 
 export const DEGREE_OPTIONS = [
   "BBA",

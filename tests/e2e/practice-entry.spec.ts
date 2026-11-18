@@ -32,11 +32,15 @@ for (const viewport of [
 }
 
 test("an expired saved session cannot remain the continue action", async ({ page }) => {
+  // A controlled clock: with real time, a 3.5-second expiry raced page load on busy CI workers.
+  const now = new Date("2026-11-18T10:00:00Z");
+  await page.clock.install({ time: now });
   const hub = practiceHub();
-  hub.resume!.expiresAt = new Date(Date.now() + 3500).toISOString();
+  hub.resume!.expiresAt = new Date(now.getTime() + 60_000).toISOString();
   await page.route("**/api/practice/hub", (route) => route.fulfill({ json: hub }));
   await page.goto("/?fixture=practice-hub");
   await page.getByRole("link", { name: "Continue Mock Interview" }).waitFor();
+  await page.clock.fastForward(61_000);
   await expect(page.getByText(/can no longer be continued/)).toBeVisible();
   await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveCount(0);
 });

@@ -37,6 +37,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/components/providers/auth-provider";
 import PracticePreflight from "@/components/practice/PracticePreflight";
+import { startRefusalMessage } from "@/lib/start-refusal";
 
 interface CreateInterviewRequest {
   clientContract: "fixed-round-v1";
@@ -336,9 +337,7 @@ function InterviewSetup({
       selection.kind === "hr" &&
       publishedQuestionCount(selectedProfile?.questionsPerInterview) === null
     ) {
-      setStartError(
-        "This job isn't ready yet. Choose another or ask your teacher."
-      );
+      setStartError("This job isn't ready yet. Choose another or ask your teacher.");
       return false;
     }
     if (selection.kind === "hr" && selectedProfile?.interviewMode !== mode) {
@@ -424,8 +423,7 @@ function InterviewSetup({
           ...(selection.kind === "tech" ? { questionCount: freeQuestionCount } : {}),
         });
         if (!current.current || getAuthRevision() !== ownerRevision) return;
-        if (!catalogueReady.current)
-          throw new Error("Please check Progress before trying again.");
+        if (!catalogueReady.current) throw new Error("Please check Progress before trying again.");
         const expected =
           selection.kind === "tech"
             ? freeQuestionCount
@@ -442,8 +440,7 @@ function InterviewSetup({
           useResume,
         });
         if (!current.current || getAuthRevision() !== ownerRevision) return;
-        if (!catalogueReady.current)
-          throw new Error("Please check Progress before trying again.");
+        if (!catalogueReady.current) throw new Error("Please check Progress before trying again.");
         const id = createdInterview(
           result,
           mode,
@@ -460,9 +457,7 @@ function InterviewSetup({
       const status = responseStatus(error);
       const rejected = status !== undefined && [400, 401, 403, 404, 410, 422, 429].includes(status);
       if (rejected) {
-        setStartError(
-          "That didn't work. Please check your choices and try again."
-        );
+        setStartError(startRefusalMessage(status));
         void catalogue.refetch();
       } else {
         setUncertain(true);
@@ -491,9 +486,7 @@ function InterviewSetup({
   if (catalogue.isError)
     return (
       <EntryRecovery title="We couldn't load the job list">
-        <p role="alert">
-          Please try again in a moment.
-        </p>
+        <p role="alert">Please try again in a moment.</p>
         <button
           type="button"
           className="min-h-11 rounded-xl bg-black px-5 py-3 font-semibold text-white"
@@ -528,9 +521,14 @@ function InterviewSetup({
   if (quickStart && mode === "practice" && !selection)
     return (
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-[#111827]">
-        <PageHeading title="Mock Interview" description="A short rehearsal with common questions." />
+        <PageHeading
+          title="Mock Interview"
+          description="A short rehearsal with common questions."
+        />
         <section className="studio-panel space-y-4" aria-label="Your interview">
-          <p className="text-lg font-semibold">General interview · Easy · 5 questions · about 15 minutes</p>
+          <p className="text-lg font-semibold">
+            General interview · Easy · 5 questions · about 15 minutes
+          </p>
           <button
             type="button"
             className="btn btn-neutral btn-block btn-lg"
@@ -539,13 +537,21 @@ function InterviewSetup({
               setSelection({ kind: "tech", track: GENERAL_PRACTICE_ROLE });
               setDifficulty("easy");
               setFreeQuestionCount(5);
-              trackEvent("practice_setup_started", { role_type: "tech", level: "easy", resume_enabled: useResume });
+              trackEvent("practice_setup_started", {
+                role_type: "tech",
+                level: "easy",
+                resume_enabled: useResume,
+              });
               setShowPreflight(true);
             }}
           >
             Continue to microphone check
           </button>
-          <button type="button" className="min-h-11 font-semibold underline" onClick={() => setQuickStart(false)}>
+          <button
+            type="button"
+            className="min-h-11 font-semibold underline"
+            onClick={() => setQuickStart(false)}
+          >
             Change
           </button>
         </section>
