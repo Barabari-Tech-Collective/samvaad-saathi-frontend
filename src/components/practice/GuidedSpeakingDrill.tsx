@@ -340,9 +340,7 @@ export default function GuidedSpeakingDrill({
     ) {
       return (
         <div role="alert" className="mx-auto max-w-3xl space-y-4 rounded-2xl border p-6">
-          <p>
-            This task can't be started right now. Ask your teacher if you need it.
-          </p>
+          <p>This task can't be started right now. Ask your teacher if you need it.</p>
           <Link className="ws-button" href="/coaching">
             Return to Practice
           </Link>

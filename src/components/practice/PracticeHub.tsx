@@ -172,9 +172,7 @@ function MockInterviewCard({
           Check again
         </button>
       )}
-      <p className="text-sm">
-        This is only practice and never counts.
-      </p>
+      <p className="text-sm">This is only practice and never counts.</p>
     </section>
   );
 }
@@ -224,7 +222,7 @@ export function PracticeHubView({
   return (
     <div className="mx-auto w-full min-w-0 max-w-6xl space-y-6 pb-8 [overflow-wrap:anywhere]">
       <PageHeading
-                title={t("Practice")}
+        title={t("Practice")}
         description={
           area === "mock"
             ? "Rehearse a full interview and get feedback."

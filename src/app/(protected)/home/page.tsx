@@ -44,12 +44,19 @@ export default function HomePage() {
   });
   const fresh = query.isError || query.isFetching ? undefined : query.data;
   const data = fresh && Array.isArray(fresh.items) ? fresh : undefined;
-  if (loading || !account) return <output aria-label="Loading" className="ws-next-loading"><span /><span /><span /></output>;
+  if (loading || !account)
+    return (
+      <output aria-label="Loading" className="ws-next-loading">
+        <span />
+        <span />
+        <span />
+      </output>
+    );
   const noticeCount = !notices.isError && !notices.isFetching ? (notices.data?.count ?? 0) : 0;
   return (
     <div className="ws-home">
       <PageHeading
-                title={`${t("Hi,")} ${firstName(user.authorizedUser.name)}.`}
+        title={`${t("Hi,")} ${firstName(user.authorizedUser.name)}.`}
         description={t("Here is what to do next.")}
       />
       {noticeCount > 0 && (
@@ -69,9 +76,24 @@ export default function HomePage() {
         <div className="ws-secondary-tasks">
           {[
             ["/coaching", ListBulletIcon, "Coaching", "Build one skill with short activities"],
-            ["/mock-interviews", ChatBubbleLeftRightIcon, "Mock Interviews", "Rehearse a full interview"],
-            ["/human-interviews", VideoCameraIcon, "Live interviews", "See your interview time and join"],
-            ["/opportunity-outcomes", ClipboardDocumentCheckIcon, "Job results", "See your results and next steps"],
+            [
+              "/mock-interviews",
+              ChatBubbleLeftRightIcon,
+              "Mock Interviews",
+              "Rehearse a full interview",
+            ],
+            [
+              "/human-interviews",
+              VideoCameraIcon,
+              "Live interviews",
+              "See your interview time and join",
+            ],
+            [
+              "/opportunity-outcomes",
+              ClipboardDocumentCheckIcon,
+              "Job results",
+              "See your results and next steps",
+            ],
             ["/ai-resume", DocumentTextIcon, "Your resume", "Make or fix your resume"],
           ].map(([href, Icon, title, detail]) => {
             const Glyph = Icon as typeof ListBulletIcon;
@@ -103,7 +125,11 @@ export default function HomePage() {
             </button>
           </div>
         ) : !data ? (
-          <output aria-label="Loading" className="ws-next-loading"><span /><span /><span /></output>
+          <output aria-label="Loading" className="ws-next-loading">
+            <span />
+            <span />
+            <span />
+          </output>
         ) : !data.items.length ? (
           <div className="ws-empty">
             <h3>{t("Your first round starts here")}</h3>

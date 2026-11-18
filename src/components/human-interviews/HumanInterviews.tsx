@@ -158,8 +158,8 @@ function AppointmentCard({ row }: { row: HumanInterviewAppointment }) {
       ) : (
         ["scheduled", "rescheduled"].includes(row.status) && (
           <p className="text-sm text-gray-600">
-            Joining opens {friendlyDateTime(row.joinOpensAt)} and closes at the scheduled
-            end. Refresh when it is time.
+            Joining opens {friendlyDateTime(row.joinOpensAt)} and closes at the scheduled end.
+            Refresh when it is time.
           </p>
         )
       )}
@@ -244,7 +244,8 @@ export function HumanInterviews({ accountKey }: { accountKey: string }) {
       {query.isError || invalidResponse ? (
         <div role="alert">
           <p>
-            We couldn't load your interviews. Check your connection and try again, or ask your teacher.
+            We couldn't load your interviews. Check your connection and try again, or ask your
+            teacher.
           </p>
         </div>
       ) : query.isLoading || !data ? (

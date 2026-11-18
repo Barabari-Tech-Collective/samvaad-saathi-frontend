@@ -5,8 +5,22 @@ import toast from "react-hot-toast";
 import { apiClient } from "@/lib/api-config";
 import { useLanguage } from "@/lib/i18n/language";
 
-type Item = { id: number; kind: "project" | "experience"; title: string; summary: string; status: string; version: number; confirmed_at: string | null };
-type Draft = { id?: number; version?: number; kind: "project" | "experience"; title: string; summary: string };
+type Item = {
+  id: number;
+  kind: "project" | "experience";
+  title: string;
+  summary: string;
+  status: string;
+  version: number;
+  confirmed_at: string | null;
+};
+type Draft = {
+  id?: number;
+  version?: number;
+  kind: "project" | "experience";
+  title: string;
+  summary: string;
+};
 const empty: Draft = { kind: "project", title: "", summary: "" };
 
 /** Projects and work the learner wants practice questions to draw on. */
@@ -39,7 +53,9 @@ export default function AboutMyWork() {
       <h2 id="work-title" className="text-lg font-semibold">
         {t("Your projects and work")}
       </h2>
-      <p className="text-sm text-gray-600">{t("Add these and your practice questions can be about your own work.")}</p>
+      <p className="text-sm text-gray-600">
+        {t("Add these and your practice questions can be about your own work.")}
+      </p>
       {query.isError && <p role="alert">{t("We couldn't load this. Please try again.")}</p>}
       {items.length > 0 && (
         <ul className="divide-y divide-[#DEE8FB]">
@@ -49,14 +65,50 @@ export default function AboutMyWork() {
               <p className="text-sm">{item.summary}</p>
               <div className="flex flex-wrap gap-2 pt-1">
                 {!item.confirmed_at && (
-                  <button type="button" className="ws-button ws-button-primary" disabled={busy} onClick={() => void run(() => apiClient.send("post", `v2/profile-context/me/${item.id}/confirm`, { expected_version: item.version }), "Saved. Your questions can use this now.")}>
+                  <button
+                    type="button"
+                    className="ws-button ws-button-primary"
+                    disabled={busy}
+                    onClick={() =>
+                      void run(
+                        () =>
+                          apiClient.send("post", `v2/profile-context/me/${item.id}/confirm`, {
+                            expected_version: item.version,
+                          }),
+                        "Saved. Your questions can use this now."
+                      )
+                    }
+                  >
                     {t("Use this in practice")}
                   </button>
                 )}
-                <button type="button" className="ws-button" disabled={busy} onClick={() => setDraft({ id: item.id, version: item.version, kind: item.kind, title: item.title, summary: item.summary })}>
+                <button
+                  type="button"
+                  className="ws-button"
+                  disabled={busy}
+                  onClick={() =>
+                    setDraft({
+                      id: item.id,
+                      version: item.version,
+                      kind: item.kind,
+                      title: item.title,
+                      summary: item.summary,
+                    })
+                  }
+                >
                   {t("Edit")}
                 </button>
-                <button type="button" className="ws-button" disabled={busy} onClick={() => void run(() => apiClient.send("delete", `v2/profile-context/me/${item.id}`), "Removed.")}>
+                <button
+                  type="button"
+                  className="ws-button"
+                  disabled={busy}
+                  onClick={() =>
+                    void run(
+                      () => apiClient.send("delete", `v2/profile-context/me/${item.id}`),
+                      "Removed."
+                    )
+                  }
+                >
                   {t("Remove")}
                 </button>
               </div>
@@ -69,7 +121,13 @@ export default function AboutMyWork() {
           {!draft.id && (
             <div className="flex gap-2" role="group" aria-label={t("Type")}>
               {(["project", "experience"] as const).map((k) => (
-                <button key={k} type="button" aria-pressed={draft.kind === k} className={draft.kind === k ? "ws-button ws-button-primary" : "ws-button"} onClick={() => setDraft({ ...draft, kind: k })}>
+                <button
+                  key={k}
+                  type="button"
+                  aria-pressed={draft.kind === k}
+                  className={draft.kind === k ? "ws-button ws-button-primary" : "ws-button"}
+                  onClick={() => setDraft({ ...draft, kind: k })}
+                >
                   {t(k === "project" ? "Project" : "Work experience")}
                 </button>
               ))}
@@ -78,11 +136,24 @@ export default function AboutMyWork() {
           <label htmlFor="work-name" className="block font-semibold">
             {t("Name")}
           </label>
-          <input id="work-name" className="input input-bordered w-full" maxLength={120} value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
+          <input
+            id="work-name"
+            className="input input-bordered w-full"
+            maxLength={120}
+            value={draft.title}
+            onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+          />
           <label htmlFor="work-summary" className="block font-semibold">
             {t("What did you do?")}
           </label>
-          <textarea id="work-summary" className="w-full rounded-xl border p-3" rows={3} maxLength={1500} value={draft.summary} onChange={(e) => setDraft({ ...draft, summary: e.target.value })} />
+          <textarea
+            id="work-summary"
+            className="w-full rounded-xl border p-3"
+            rows={3}
+            maxLength={1500}
+            value={draft.summary}
+            onChange={(e) => setDraft({ ...draft, summary: e.target.value })}
+          />
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -92,9 +163,17 @@ export default function AboutMyWork() {
                 void run(
                   () =>
                     draft.id
-                      ? apiClient.send("put", `v2/profile-context/me/${draft.id}`, { title: draft.title.trim(), summary: draft.summary.trim(), expected_version: draft.version })
-                      : apiClient.send("post", "v2/profile-context/me", { kind: draft.kind, title: draft.title.trim(), summary: draft.summary.trim() }),
-                  "Saved.",
+                      ? apiClient.send("put", `v2/profile-context/me/${draft.id}`, {
+                          title: draft.title.trim(),
+                          summary: draft.summary.trim(),
+                          expected_version: draft.version,
+                        })
+                      : apiClient.send("post", "v2/profile-context/me", {
+                          kind: draft.kind,
+                          title: draft.title.trim(),
+                          summary: draft.summary.trim(),
+                        }),
+                  "Saved."
                 )
               }
             >

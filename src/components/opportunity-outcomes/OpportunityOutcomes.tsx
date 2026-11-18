@@ -34,9 +34,7 @@ export function OpportunityOutcomes({ accountKey }: { accountKey: string }) {
       />
       {query.isError || invalidResponse ? (
         <div role="alert" className="studio-panel">
-          <p>
-            We couldn't load your results. Check your connection and try again.
-          </p>
+          <p>We couldn't load your results. Check your connection and try again.</p>
         </div>
       ) : query.isLoading || outcomes === null ? (
         <output>Checking your released outcomes…</output>

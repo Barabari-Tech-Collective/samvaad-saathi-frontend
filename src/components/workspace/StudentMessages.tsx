@@ -12,12 +12,15 @@ function parse(value: unknown): Message[] {
   if (!Array.isArray(items)) return [];
   return items.flatMap((item) => {
     const row = item as Record<string, unknown>;
-    if (typeof row?.id !== "number" || typeof row.title !== "string" || !row.title.trim()) return [];
+    if (typeof row?.id !== "number" || typeof row.title !== "string" || !row.title.trim())
+      return [];
     const href =
       typeof row.href === "string" && row.href.startsWith("/") && !row.href.startsWith("//")
         ? row.href
         : null;
-    return [{ id: row.id, title: row.title, body: typeof row.body === "string" ? row.body : null, href }];
+    return [
+      { id: row.id, title: row.title, body: typeof row.body === "string" ? row.body : null, href },
+    ];
   });
 }
 

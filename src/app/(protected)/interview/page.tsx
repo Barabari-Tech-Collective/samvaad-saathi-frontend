@@ -308,9 +308,7 @@ const InterviewPage = () => {
             setResumeError("This saved interview has expired. Start a new Mock Interview.");
             return;
           }
-          setResumeError(
-            "We couldn't open this interview. Check your connection and try again."
-          );
+          setResumeError("We couldn't open this interview. Check your connection and try again.");
         });
       return;
     }
@@ -488,9 +486,7 @@ const InterviewPage = () => {
       await activatePreparedInterview();
     } catch {
       if (!lifetime.isCurrent()) return;
-      setResumeError(
-        "We couldn't start your assessment. Check your connection and try again."
-      );
+      setResumeError("We couldn't start your assessment. Check your connection and try again.");
     }
   };
 
@@ -509,9 +505,7 @@ const InterviewPage = () => {
     const current = questions[currentQuestionIndex];
     const version = stateVersionRef.current;
     if (!Number.isSafeInteger(id) || id <= 0 || !current || version === null) {
-      setNavigationError(
-        "We need to reload this interview. Your answers are safe."
-      );
+      setNavigationError("We need to reload this interview. Your answers are safe.");
       throw new Error("PRACTICE_CHECKPOINT_NOT_READY");
     }
 

@@ -165,14 +165,17 @@ it("still opens feedback after same-account preparation", async () => {
   expect(f.replace).toHaveBeenCalledWith("/report-summary?interviewId=1");
 });
 
-it.each(["practice", "assessment"] as const)("automatically prepares feedback after a completed %s", async (mode) => {
-  interviewMode = mode;
-  f.post.mockResolvedValue({});
-  render(<InterviewCompleted />);
-  await act(async () => {});
-  expect(f.post).toHaveBeenCalledWith({ interviewId: 1 });
-  expect(f.replace).toHaveBeenCalledWith("/report-summary?interviewId=1");
-});
+it.each(["practice", "assessment"] as const)(
+  "automatically prepares feedback after a completed %s",
+  async (mode) => {
+    interviewMode = mode;
+    f.post.mockResolvedValue({});
+    render(<InterviewCompleted />);
+    await act(async () => {});
+    expect(f.post).toHaveBeenCalledWith({ interviewId: 1 });
+    expect(f.replace).toHaveBeenCalledWith("/report-summary?interviewId=1");
+  }
+);
 
 it("blocks a verified Meet link when its join window has since ended", async () => {
   f.get.mockResolvedValue({ url: "https://meet.google.com/abc-defg-hij" });

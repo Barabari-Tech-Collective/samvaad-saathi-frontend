@@ -35,17 +35,11 @@ test("role service failure is not an empty assessment catalogue and can recover"
     failed ? r.fulfill({ status: 503, json: {} }) : r.fulfill({ json: { items: [], total: 0 } })
   );
   await page.goto(url);
-  await expect(
-    page.getByRole("heading", { name: "We couldn't load the job list" })
-  ).toBeVisible();
-  await expect(
-    page.getByText("Nothing is ready yet", { exact: false })
-  ).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "We couldn't load the job list" })).toBeVisible();
+  await expect(page.getByText("Nothing is ready yet", { exact: false })).toHaveCount(0);
   failed = false;
   await page.getByRole("button", { name: "Try again" }).click();
-  await expect(
-    page.getByText("Nothing is ready yet", { exact: false })
-  ).toBeVisible();
+  await expect(page.getByText("Nothing is ready yet", { exact: false })).toBeVisible();
 });
 test("invalid purpose makes no catalogue or creation requests", async ({ page }) => {
   let reads = 0;
@@ -97,9 +91,7 @@ for (const data of [
     await page.route("**/api/v2/interviews/create", (r) => r.fulfill({ json: data }));
     await choose(page);
     await page.getByRole("button", { name: "Start assessment" }).click();
-    await expect(
-      page.getByRole("heading", { name: "Let's check your interview" })
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Let's check your interview" })).toBeVisible();
     await expect(page).toHaveURL(/fixture=start/);
     await expect(page.getByRole("button", { name: "Start assessment" })).toHaveCount(0);
   });
@@ -146,9 +138,7 @@ test("a role revoked during a rejected start is cleared before a retry", async (
   await page.getByRole("combobox").selectOption("hr::1::Role 1");
   await page.getByRole("button", { name: "Start assessment" }).click();
   await expect(page.getByRole("alert")).toContainText("That didn't work");
-  await expect(
-    page.getByText("Nothing is ready yet", { exact: false })
-  ).toBeVisible();
+  await expect(page.getByText("Nothing is ready yet", { exact: false })).toBeVisible();
   await expect(page.getByRole("combobox")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Start assessment" })).toBeDisabled();
 });
@@ -294,7 +284,5 @@ test("curated technical roles without level evidence cannot offer arbitrary diff
   await page.goto(url);
   await page.getByRole("combobox").selectOption("hr::1::Role 1");
   await expect(page.getByRole("button", { name: "Start assessment" })).toBeDisabled();
-  await expect(
-    page.getByText("This job isn't ready yet", { exact: false })
-  ).toBeVisible();
+  await expect(page.getByText("This job isn't ready yet", { exact: false })).toBeVisible();
 });

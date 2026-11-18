@@ -1,11 +1,6 @@
 "use client";
 import { trackBottomNavClick } from "@/lib/posthog/tracking.utils";
-import {
-  AcademicCapIcon,
-  HomeIcon,
-  ClockIcon,
-  Squares2X2Icon,
-} from "@heroicons/react/24/outline";
+import { AcademicCapIcon, HomeIcon, ClockIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
 import { workspaceSection } from "@/lib/workspace-navigation";
 import Link from "next/link";
 import { useLanguage } from "@/lib/i18n/language";

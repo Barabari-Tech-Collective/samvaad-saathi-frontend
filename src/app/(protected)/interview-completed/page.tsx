@@ -49,9 +49,7 @@ export default function InterviewCompleted() {
   if (!validInterviewId(interviewId))
     return (
       <CompletionCard title="Check this interview link">
-        <p role="alert">
-          This link isn't right. Find your interview in Progress.
-        </p>
+        <p role="alert">This link isn't right. Find your interview in Progress.</p>
       </CompletionCard>
     );
   if (loading || !user?.userId)

@@ -50,8 +50,7 @@ const PronunciationPracticeStartPage = () => {
     method: "post",
   });
   const { mutateAsync: bindPlanSession } = apiClient.useMutation<unknown, { session_id: number }>({
-    url:
-      planStep && practiceData ? drillSessionUrl(planStep) : drillSessionUrl(null),
+    url: planStep && practiceData ? drillSessionUrl(planStep) : drillSessionUrl(null),
     method: "post",
   });
 
@@ -115,9 +114,7 @@ const PronunciationPracticeStartPage = () => {
         if (mounted.current) setCurrentWordIndex(currentWordIndex + 1);
       } catch {
         if (mounted.current)
-          setCompletionError(
-            "This word didn't save. Please refresh and try again."
-          );
+          setCompletionError("This word didn't save. Please refresh and try again.");
       } finally {
         if (mounted.current) setCompleting(false);
       }

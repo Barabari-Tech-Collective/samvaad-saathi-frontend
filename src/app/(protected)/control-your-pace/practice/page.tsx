@@ -93,9 +93,7 @@ const PracticePage = () => {
     try {
       creationKey.current = pacingRequestKey(account, level);
     } catch {
-      setSubmitError(
-        "Your browser is blocking this practice. Try a normal (not private) window."
-      );
+      setSubmitError("Your browser is blocking this practice. Try a normal (not private) window.");
       return;
     }
     // Reuse only the pending request for this level across React effect replay.
@@ -229,9 +227,7 @@ const PracticePage = () => {
         /* Keep the recording and original key if reconciliation also fails. */
       }
       if (revision === sessionRevision.current)
-        setSubmitError(
-          "Your recording is safe in this tab. Keep this page open and try again."
-        );
+        setSubmitError("Your recording is safe in this tab. Keep this page open and try again.");
     } finally {
       if (revision === sessionRevision.current) {
         submitting.current = false;

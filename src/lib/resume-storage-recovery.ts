@@ -28,7 +28,8 @@ export function readResumeFingerprint(): string | null {
 }
 export function parseStorageStatus(value: unknown, hash: string): "registered" | "unconfirmed" {
   const receipt = value as { fileSha256?: unknown; status?: unknown; resumeId?: unknown } | null;
-  if (receipt?.fileSha256 !== hash) throw new Error("We couldn't check your file. Please try again.");
+  if (receipt?.fileSha256 !== hash)
+    throw new Error("We couldn't check your file. Please try again.");
   if (
     receipt.status === "registered" &&
     typeof receipt.resumeId === "number" &&
@@ -69,9 +70,7 @@ export async function prepareResumeUpload(file: File, revision: number): Promise
   });
   assertAuthRevision(revision);
   if (!globalThis.crypto?.subtle)
-    throw new Error(
-      "Your browser can't prepare this file. Please try another browser."
-    );
+    throw new Error("Your browser can't prepare this file. Please try another browser.");
   const digest = await crypto.subtle.digest("SHA-256", bytes);
   assertAuthRevision(revision);
   const hash = Array.from(new Uint8Array(digest), (byte) =>

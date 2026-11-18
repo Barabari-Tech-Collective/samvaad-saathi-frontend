@@ -28,7 +28,11 @@ export function MockAssignments({ accountKey }: { accountKey: string }) {
           </button>
         </div>
       ) : !data ? (
-        <output aria-label="Loading" className="ws-next-loading"><span /><span /><span /></output>
+        <output aria-label="Loading" className="ws-next-loading">
+          <span />
+          <span />
+          <span />
+        </output>
       ) : (
         <>
           <p className="text-sm text-gray-600">{data.notice}</p>
@@ -39,13 +43,12 @@ export function MockAssignments({ accountKey }: { accountKey: string }) {
               {data.items.map((item) => (
                 <li key={item.id} className="space-y-2 py-4">
                   <h3 className="font-semibold">
-                    {item.jobName}{item.status !== "assigned" && ` · ${statusWord(item.status)}`}
+                    {item.jobName}
+                    {item.status !== "assigned" && ` · ${statusWord(item.status)}`}
                   </h3>
                   <p>{item.reason}</p>
                   {item.note && <p className="text-sm text-gray-600">{item.note}</p>}
-                  {item.dueDate && (
-                    <p className="text-sm">{dueText(item.dueDate)}</p>
-                  )}
+                  {item.dueDate && <p className="text-sm">{dueText(item.dueDate)}</p>}
                   {item.status === "assigned" && (
                     <Link
                       className="ws-button"

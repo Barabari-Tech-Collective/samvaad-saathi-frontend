@@ -109,25 +109,25 @@ export default function StudentShell({ children }: { children: React.ReactNode }
           {destinations
             .filter((item) => !item.assigned || showAssessments)
             .map(({ href, label, icon: Icon }) => (
-            <li key={href}>
-              <Link
-                href={href}
-                aria-label={t(label)}
-                title={t(label)}
-                onClick={() => {
-                  if (mobile) menu.current?.close();
-                }}
-                aria-current={
-                  selectedSection === href || selectedSection.startsWith(`${href}/`)
-                    ? "page"
-                    : undefined
-                }
-              >
-                <Icon aria-hidden="true" />
-                <span className="student-nav-label">{t(label)}</span>
-              </Link>
-            </li>
-          ))}
+              <li key={href}>
+                <Link
+                  href={href}
+                  aria-label={t(label)}
+                  title={t(label)}
+                  onClick={() => {
+                    if (mobile) menu.current?.close();
+                  }}
+                  aria-current={
+                    selectedSection === href || selectedSection.startsWith(`${href}/`)
+                      ? "page"
+                      : undefined
+                  }
+                >
+                  <Icon aria-hidden="true" />
+                  <span className="student-nav-label">{t(label)}</span>
+                </Link>
+              </li>
+            ))}
         </ul>
       </nav>
     );

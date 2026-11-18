@@ -105,5 +105,8 @@ test("finished interview shows the host's result and feedback", async ({ page })
   const result = page.getByRole("region", { name: "Your result" });
   await expect(result).toContainText("On hold");
   await expect(result).toContainText("This is a test feedback trigger to check the feature");
-  await page.screenshot({ path: process.env.SHOT ?? "test-results/human-result.png", fullPage: true });
+  await page.screenshot({
+    path: process.env.SHOT ?? "test-results/human-result.png",
+    fullPage: true,
+  });
 });

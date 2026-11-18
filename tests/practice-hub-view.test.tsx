@@ -38,10 +38,7 @@ describe("Mock Interview entry", () => {
     render(<PracticeHubView status="error" hub={null} name="Riya" onRefresh={retry} area="mock" />);
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     expect(retry).toHaveBeenCalledOnce();
-    expect(screen.getByRole("link", { name: "Open Progress" })).toHaveAttribute(
-      "href",
-      "/history"
-    );
+    expect(screen.getByRole("link", { name: "Open Progress" })).toHaveAttribute("href", "/history");
     expect(screen.queryByText(/0 mocks/)).toBeNull();
   });
   it("handles question preparation without presenting 0 of 0 progress", () => {

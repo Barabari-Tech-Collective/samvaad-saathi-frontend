@@ -97,9 +97,9 @@ export default function AssessmentsHub() {
           instructions, timing and result-release policy.
         </p>
         <Link className="block min-h-11 font-semibold underline" href="/profile#extra-support">
-            Need extra time or other help? Ask here.
-          </Link>
-        </section>
+          Need extra time or other help? Ask here.
+        </Link>
+      </section>
       <section aria-label="Assessment round types" className="grid gap-5 md:grid-cols-2">
         <AssessmentCard
           title="AI Interview"

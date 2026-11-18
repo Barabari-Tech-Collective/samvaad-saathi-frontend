@@ -80,7 +80,9 @@ export function NextStep({ accountKey, trend = false }: { accountKey: string; tr
           </>
         ) : (
           <>
-            <h2 id="next-step-title" role="alert">{t("We couldn't load your next step")}</h2>
+            <h2 id="next-step-title" role="alert">
+              {t("We couldn't load your next step")}
+            </h2>
             <p>{t("Your progress is safe.")}</p>
             <button
               type="button"
