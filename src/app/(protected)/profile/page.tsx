@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/lib/i18n/language";
 import { assertAuthRevision, getAuthRevision } from "@/lib/auth-session";
 
 import {
@@ -58,6 +59,7 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 type EditableField = keyof ProfileFormData | "resume";
 
 export default function ProfilePage() {
+  const { t } = useLanguage();
   const ownerRevision = useRef(getAuthRevision()).current;
   const uploadOperation = useRef("");
   const { user, signOut } = useAuth();
@@ -375,29 +377,20 @@ export default function ProfilePage() {
         {/* Profile Information */}
         <div className="space-y-4 my-4">
           <div className="flex justify-between items-center">
-            <h3 className="card-title">Profile information</h3>
-            {editingField !== null && (
-              <button
-                onClick={() => handleFieldSave(editingField)}
-                className="btn btn-xs btn-success"
-                disabled={
-                  updateProfileMutation.isPending ||
-                  extractResumeMutation.isPending ||
-                  isUploadingResume
-                }
-              >
-                {updateProfileMutation.isPending ||
-                extractResumeMutation.isPending ||
-                isUploadingResume
-                  ? "Saving..."
-                  : "Update"}
-              </button>
-            )}
+            <h2 className="text-xl font-semibold text-brand-navy">{t("Profile information")}</h2>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-x-8 md:grid-cols-2">
             <ProfileFieldRow
-              label="Target Position"
+              label="Target position"
+              value={<>{user.authorizedUser.targetPosition || t("Not specified")}</>}
+              locked={editingField !== null && editingField !== "targetPosition"}
+              onSave={() => handleFieldSave("targetPosition")}
+              saving={
+                updateProfileMutation.isPending ||
+                extractResumeMutation.isPending ||
+                isUploadingResume
+              }
               isEditing={editingField === "targetPosition"}
               onEdit={() => startEditing("targetPosition")}
               onCancel={cancelEditing}
@@ -405,7 +398,7 @@ export default function ProfilePage() {
               errorId="profile-targetPosition-error"
             >
               <select
-                aria-label="Target Position"
+                aria-label="Target position"
                 aria-invalid={!!errors.targetPosition}
                 aria-describedby={
                   errors.targetPosition ? "profile-targetPosition-error" : undefined
@@ -431,7 +424,23 @@ export default function ProfilePage() {
             </ProfileFieldRow>
 
             <ProfileFieldRow
-              label="Years of Experience"
+              label="Years of experience"
+              value={
+                <>
+                  {user.authorizedUser.yearsExperience == null
+                    ? t("Not specified")
+                    : user.authorizedUser.yearsExperience === 0
+                      ? t("Fresher")
+                      : `${user.authorizedUser.yearsExperience} ${t(user.authorizedUser.yearsExperience === 1 ? "year" : "years")}`}
+                </>
+              }
+              locked={editingField !== null && editingField !== "yearsExperience"}
+              onSave={() => handleFieldSave("yearsExperience")}
+              saving={
+                updateProfileMutation.isPending ||
+                extractResumeMutation.isPending ||
+                isUploadingResume
+              }
               isEditing={editingField === "yearsExperience"}
               onEdit={() => startEditing("yearsExperience")}
               onCancel={cancelEditing}
@@ -439,7 +448,7 @@ export default function ProfilePage() {
               errorId="profile-yearsExperience-error"
             >
               <select
-                aria-label="Years of Experience"
+                aria-label="Years of experience"
                 aria-invalid={!!errors.yearsExperience}
                 aria-describedby={
                   errors.yearsExperience ? "profile-yearsExperience-error" : undefined
@@ -466,6 +475,14 @@ export default function ProfilePage() {
 
             <ProfileFieldRow
               label="Degree"
+              value={<>{user.authorizedUser.degree || t("Not specified")}</>}
+              locked={editingField !== null && editingField !== "degree"}
+              onSave={() => handleFieldSave("degree")}
+              saving={
+                updateProfileMutation.isPending ||
+                extractResumeMutation.isPending ||
+                isUploadingResume
+              }
               isEditing={editingField === "degree"}
               onEdit={() => startEditing("degree")}
               onCancel={cancelEditing}
@@ -496,6 +513,14 @@ export default function ProfilePage() {
 
             <ProfileFieldRow
               label="University"
+              value={<>{user.authorizedUser.university || t("Not specified")}</>}
+              locked={editingField !== null && editingField !== "university"}
+              onSave={() => handleFieldSave("university")}
+              saving={
+                updateProfileMutation.isPending ||
+                extractResumeMutation.isPending ||
+                isUploadingResume
+              }
               isEditing={editingField === "university"}
               onEdit={() => startEditing("university")}
               onCancel={cancelEditing}
@@ -542,7 +567,20 @@ export default function ProfilePage() {
             </ProfileFieldRow>
 
             <ProfileFieldRow
-              label="Onboarding Resume"
+              label="Onboarding resume"
+              value={
+                <>
+                  {user.authorizedUser.onboardingResumeFilename ||
+                    t(user.authorizedUser.hasResume ? "Resume uploaded" : "No resume uploaded")}
+                </>
+              }
+              locked={editingField !== null && editingField !== "resume"}
+              onSave={() => handleFieldSave("resume")}
+              saving={
+                updateProfileMutation.isPending ||
+                extractResumeMutation.isPending ||
+                isUploadingResume
+              }
               isEditing={editingField === "resume"}
               onEdit={() => startEditing("resume")}
               onCancel={cancelEditing}
@@ -645,26 +683,15 @@ export default function ProfilePage() {
               </>
             </ProfileFieldRow>
 
-            {/* ATS Resume — always shown; greyed out placeholder when user hasn't used ATS feature */}
-            <div className="form-control mt-4">
-              <label className="label flex justify-between items-center mb-2">
-                <span className="label-text">ATS Resume (Final)</span>
-              </label>
-              <div
-                className={`flex items-center gap-2 px-3 py-2 border rounded-lg w-full ${
-                  user.authorizedUser.atsResumeFilename ||
-                  (user.authorizedUser as any).ats_resume_filename
-                    ? "bg-base-100"
-                    : "bg-base-200"
-                }`}
-              >
-                <DocumentTextIcon className="size-5 text-gray-400" />
-                <span className="text-sm break-words flex-1 text-gray-600">
-                  {user.authorizedUser.atsResumeFilename ||
-                    (user.authorizedUser as any).ats_resume_filename ||
-                    "No ATS resume yet"}
-                </span>
-              </div>
+            {/* The ATS resume is made in the resume tool, so this row has no Edit. */}
+            <div className="min-w-0 border-t border-brand-line py-4">
+              <p className="text-sm font-semibold text-brand-muted">{t("ATS resume (final)")}</p>
+              <p className="mt-1 flex items-center gap-2 break-words text-base font-medium text-brand-navy">
+                <DocumentTextIcon className="size-5 shrink-0 text-brand-muted" aria-hidden="true" />
+                {user.authorizedUser.atsResumeFilename ||
+                  (user.authorizedUser as { ats_resume_filename?: string }).ats_resume_filename ||
+                  t("No ATS resume yet")}
+              </p>
             </div>
 
             <VoiceSelector />
@@ -672,12 +699,12 @@ export default function ProfilePage() {
         </div>
 
         {/* Actions */}
-        <div className="card-actions flex-col space-y-2 pb-6">
+        <div className="flex flex-col gap-2 pb-6">
           {/* "Help" used to open the YouTube home page. Support on WhatsApp is the real help. */}
           <button
             type="button"
             onClick={handleSupportClick}
-            className="btn btn-ghost w-full justify-center"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-brand-line font-semibold text-brand-navy hover:bg-brand-wash"
           >
             <ChatBubbleLeftRightIcon className="size-6" aria-hidden="true" />
             Get help on WhatsApp
@@ -686,14 +713,14 @@ export default function ProfilePage() {
           <button
             type="button"
             onClick={signOut}
-            className="btn btn-soft btn-error w-full justify-start"
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl font-semibold text-brand-danger hover:bg-brand-danger-wash"
           >
             <ArrowLeftStartOnRectangleIcon className="size-6" aria-hidden="true" />
             Log out
           </button>
         </div>
 
-        <p className="text-center text-sm text-gray-500">Samvaad Saathi v{APP_VERSION}</p>
+        <p className="text-center text-sm text-brand-muted">Samvaad Saathi v{APP_VERSION}</p>
       </section>
     </div>
   );
