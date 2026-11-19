@@ -10,10 +10,10 @@ import { parseSubmissionReceipt, type SubmissionReceiptData } from "@/lib/submis
 export function ReceiptSummary({ receipt }: { receipt: SubmissionReceiptData }) {
   return (
     <section
-      className="rounded-xl border border-[#DEE8FB] bg-white p-5 text-left"
+      className="rounded-xl border border-brand-line bg-white p-5 text-left"
       aria-label="What was saved"
     >
-      <h2 className="font-semibold text-[#1F285B]">
+      <h2 className="font-semibold text-brand-navy">
         {receipt.planned} planned · {receipt.answered} answers saved
       </h2>
       <p className="mt-2 text-sm leading-6 text-gray-600">

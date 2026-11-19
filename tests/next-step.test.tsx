@@ -28,7 +28,12 @@ const activity = {
 
 beforeEach(() => {
   state.today = {
-    action: { kind: "human_interview", title: "Join your interview", detail: "It is open now.", href: "/human-interviews" },
+    action: {
+      kind: "human_interview",
+      title: "Join your interview",
+      detail: "It is open now.",
+      href: "/human-interviews",
+    },
     activity,
     has_assessments: false,
   };
@@ -42,7 +47,14 @@ it("shows one action, chosen by the server", () => {
 
 it("says who asked and when it is due for teacher work", () => {
   state.today = {
-    action: { kind: "coaching_assignment", title: "Think fast", detail: "Your teacher asked for this.", href: "/coaching", from_teacher: true, due_date: "2026-11-14" },
+    action: {
+      kind: "coaching_assignment",
+      title: "Think fast",
+      detail: "Your teacher asked for this.",
+      href: "/coaching",
+      from_teacher: true,
+      due_date: "2026-11-14",
+    },
     activity,
     has_assessments: false,
   };

@@ -65,7 +65,10 @@ it("saves both answers once and goes straight to a first practice", async () => 
   answer();
   fireEvent.click(screen.getByRole("button", { name: "Start practising" }));
   await waitFor(() => expect(fixture.save).toHaveBeenCalledOnce());
-  expect(fixture.save).toHaveBeenCalledWith({ university: college, target_position: ROLE_OPTIONS[0] });
+  expect(fixture.save).toHaveBeenCalledWith({
+    university: college,
+    target_position: ROLE_OPTIONS[0],
+  });
   await waitFor(() => expect(fixture.push).toHaveBeenCalledWith("/warm-up-chat"));
 });
 
@@ -82,7 +85,10 @@ it("takes a typed college when it isn't in the list", async () => {
   });
   fireEvent.click(screen.getByRole("button", { name: "Start practising" }));
   await waitFor(() =>
-    expect(fixture.save).toHaveBeenCalledWith({ university: "Govt College Bhopal", target_position: ROLE_OPTIONS[0] })
+    expect(fixture.save).toHaveBeenCalledWith({
+      university: "Govt College Bhopal",
+      target_position: ROLE_OPTIONS[0],
+    })
   );
 });
 
@@ -91,7 +97,11 @@ it("stays on the screen when saving fails, so nothing typed is lost", async () =
   render(<Onboarding />);
   answer();
   fireEvent.click(screen.getByRole("button", { name: "Start practising" }));
-  await waitFor(() => expect(screen.getByRole("button", { name: "Start practising" })).toBeEnabled());
+  await waitFor(() =>
+    expect(screen.getByRole("button", { name: "Start practising" })).toBeEnabled()
+  );
   expect(fixture.push).not.toHaveBeenCalled();
-  expect(screen.getByRole("combobox", { name: "Which college are you from?" })).toHaveValue(college);
+  expect(screen.getByRole("combobox", { name: "Which college are you from?" })).toHaveValue(
+    college
+  );
 });

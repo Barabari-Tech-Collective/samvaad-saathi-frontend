@@ -58,7 +58,7 @@ function AssessmentCard({
         <Icon />
       </span>
       <div className="space-y-2">
-        <h2 className="text-2xl font-semibold text-[#1F285B]">{title}</h2>
+        <h2 className="text-2xl font-semibold text-brand-navy">{title}</h2>
         <p className="text-gray-700">{description}</p>
       </div>
       <div className="mt-auto">{children}</div>
@@ -88,29 +88,31 @@ export default function AssessmentsHub() {
       <PageHeading
         eyebrow="Formal assessments"
         title="Assessments"
-        description="Your placement team may assign either an AI Interview or a Human Interview. These are separate from Mock Interviews."
+        description="Your placement team may assign either an AI interview or a human interview. These are separate from mock interviews."
       />
       <section className="studio-panel space-y-3" aria-label="Assessment information">
-        <h2 className="text-lg font-semibold text-[#1F285B]">Choose the round you were assigned</h2>
+        <h2 className="text-lg font-semibold text-brand-navy">
+          Choose the round you were assigned
+        </h2>
         <p className="text-gray-700">
           An assessment is shown only when your placement team has made it available. It has its own
           instructions, timing and result-release policy.
         </p>
         <Link className="block min-h-11 font-semibold underline" href="/profile#extra-support">
-            Need extra time or other help? Ask here.
-          </Link>
-        </section>
+          Need extra time or other help? Ask here.
+        </Link>
+      </section>
       <section aria-label="Assessment round types" className="grid gap-5 md:grid-cols-2">
         <AssessmentCard
-          title="AI Interview"
+          title="AI interview"
           description="Complete an assigned assessment in Samvaad Saathi. Your placement team sets the role, instructions and rules."
           icon={ClipboardDocumentCheckIcon}
         >
           {aiInterviews === undefined ? (
-            <output>Checking for an assigned AI Interview…</output>
+            <output>Checking for an assigned AI interview…</output>
           ) : assignments.isError || invalidAssignmentResponse ? (
             <div className="space-y-2" role="alert">
-              <p>We couldn't load your AI Interview.</p>
+              <p>We couldn't load your AI interview.</p>
               <button className="ws-button" onClick={() => void assignments.refetch()}>
                 Try again
               </button>
@@ -126,18 +128,18 @@ export default function AssessmentsHub() {
             </p>
           ) : (
             <p className="text-sm text-gray-600">
-              No AI Interview is assigned right now. Your placement team will add it here when it is
+              No AI interview is assigned right now. Your placement team will add it here when it is
               ready.
             </p>
           )}
         </AssessmentCard>
         <AssessmentCard
-          title="Human Interview"
+          title="Human interview"
           description="See your interview time, how to prepare, and the link to join."
           icon={VideoCameraIcon}
         >
           <Link className="ws-button ws-button-primary" href="/human-interviews">
-            View Human Interviews <ArrowRightIcon aria-hidden="true" />
+            View human interviews <ArrowRightIcon aria-hidden="true" />
           </Link>
         </AssessmentCard>
       </section>

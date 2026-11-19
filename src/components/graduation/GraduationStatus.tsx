@@ -49,9 +49,7 @@ export default function GraduationStatus() {
       ) : !items ? (
         <p role="alert">We couldn't load your graduation details. Please try again.</p>
       ) : !items.length ? (
-        <p>
-          Nothing yet. Tell your course team when you finish the course and join a job.
-        </p>
+        <p>Nothing yet. Tell your course team when you finish the course and join a job.</p>
       ) : (
         <ul className="space-y-3">
           {items.map((row) => (

@@ -100,7 +100,7 @@ export default function HygieneAndTemplatePage() {
       const formDataToSend = new FormData();
       formDataToSend.append("file", uploadedFile);
 
-      toast.loading("Saving resume to profile...", { id: `saving-resume-${ownerRevision}` });
+      toast.loading("Saving resume to profile…", { id: `saving-resume-${ownerRevision}` });
       await accountJson(
         `${process.env.NEXT_PUBLIC_API_BASE_URL}/${ENDPOINTS.RESUME.SAVE_FINAL}`,
         ownerRevision,
@@ -114,7 +114,7 @@ export default function HygieneAndTemplatePage() {
       assertAuthRevision(ownerRevision);
 
       toast.success(
-        "Resume safely stored in your Profile! To use this ATS resume for your AI interviews, go to your Profile page and click 'Replace with ATS Resume'.",
+        "Resume saved to your profile. To use it for AI interviews, open Profile and select 'Replace with ATS resume'.",
         { duration: 8000 }
       );
     } catch (error) {

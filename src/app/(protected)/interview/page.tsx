@@ -305,12 +305,10 @@ const InterviewPage = () => {
           if (!lifetime.isCurrent()) return;
           const status = (error as { response?: { status?: number } })?.response?.status;
           if (status === 410) {
-            setResumeError("This saved interview has expired. Start a new Mock Interview.");
+            setResumeError("This saved interview has expired. Start a new mock interview.");
             return;
           }
-          setResumeError(
-            "We couldn't open this interview. Check your connection and try again."
-          );
+          setResumeError("We couldn't open this interview. Check your connection and try again.");
         });
       return;
     }
@@ -488,9 +486,7 @@ const InterviewPage = () => {
       await activatePreparedInterview();
     } catch {
       if (!lifetime.isCurrent()) return;
-      setResumeError(
-        "We couldn't start your assessment. Check your connection and try again."
-      );
+      setResumeError("We couldn't start your assessment. Check your connection and try again.");
     }
   };
 
@@ -509,9 +505,7 @@ const InterviewPage = () => {
     const current = questions[currentQuestionIndex];
     const version = stateVersionRef.current;
     if (!Number.isSafeInteger(id) || id <= 0 || !current || version === null) {
-      setNavigationError(
-        "We need to reload this interview. Your answers are safe."
-      );
+      setNavigationError("We need to reload this interview. Your answers are safe.");
       throw new Error("PRACTICE_CHECKPOINT_NOT_READY");
     }
 
@@ -721,7 +715,7 @@ const InterviewPage = () => {
               This interview is open somewhere else
             </h2>
             <p className="py-4 text-slate-700">
-              To protect your answers, only one device or browser tab can edit a Mock Interview at a
+              To protect your answers, only one device or browser tab can edit a mock interview at a
               time. If you continue here, the other one will stop saving.
             </p>
             <div className="modal-action">
@@ -895,7 +889,7 @@ const InterviewPage = () => {
             <div className="min-w-0 rounded-2xl border border-[var(--border-subtle)] bg-white px-5 py-2 sm:px-8 sm:py-4">
               <p className="mt-4 text-sm font-medium text-[var(--brand-blue)]">
                 {interviewModeValue === "practice"
-                  ? "Mock Interview"
+                  ? "Mock interview"
                   : "Assessment · AI interviewer"}
               </p>
               <Question
@@ -1081,7 +1075,7 @@ const SuspendedInterviewPage = () => {
   if (loading || !user?.userId || invalid)
     return (
       <div className="mx-auto max-w-2xl space-y-4 p-6">
-        <h1 className="text-2xl font-bold text-[#1F285B]">
+        <h1 className="text-2xl font-bold text-brand-navy">
           {invalid ? "Open this interview from Progress" : "Just a moment"}
         </h1>
         <p role="status">
@@ -1090,7 +1084,7 @@ const SuspendedInterviewPage = () => {
             : "Please sign in to the account you used for this interview."}
         </p>
         <Link
-          className="inline-flex min-h-11 items-center text-[#344499] underline"
+          className="inline-flex min-h-11 items-center text-brand-blue underline"
           href="/history"
         >
           Open Progress

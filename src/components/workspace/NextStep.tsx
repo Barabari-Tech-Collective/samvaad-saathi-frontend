@@ -57,9 +57,12 @@ export function NextStep({ accountKey, trend = false }: { accountKey: string; tr
     <section className="ws-next" aria-labelledby="next-step-title">
       <StudentMessages accountKey={accountKey} />
       <div className="ws-next-card">
-        <p className="studio-eyebrow">
-          {t(today?.action.from_teacher ? "From your teacher" : "Do this next")}
-        </p>
+        {/* No "Do this next" over an error: there is nothing to do yet but retry. */}
+        {(query.isLoading || today) && (
+          <p className="studio-eyebrow">
+            {t(today?.action.from_teacher ? "From your teacher" : "Do this next")}
+          </p>
+        )}
         {query.isLoading ? (
           <div className="ws-next-loading" aria-hidden="true">
             <span />
@@ -80,7 +83,9 @@ export function NextStep({ accountKey, trend = false }: { accountKey: string; tr
           </>
         ) : (
           <>
-            <h2 id="next-step-title" role="alert">{t("We couldn't load your next step")}</h2>
+            <h2 id="next-step-title" role="alert">
+              {t("We couldn't load your next step")}
+            </h2>
             <p>{t("Your progress is safe.")}</p>
             <button
               type="button"

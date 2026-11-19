@@ -29,7 +29,12 @@ export default function FirstSetup({
         <label htmlFor="first-role" className="block font-bold">
           What job are you preparing for?
         </label>
-        <select id="first-role" className="select select-bordered w-full" value={role} onChange={(e) => setRole(e.target.value)}>
+        <select
+          id="first-role"
+          className="select select-bordered w-full"
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+        >
           <option value="" disabled>
             Choose a job
           </option>
@@ -45,7 +50,12 @@ export default function FirstSetup({
         <label htmlFor="first-college" className="block font-bold">
           Which college are you from?
         </label>
-        <select id="first-college" className="select select-bordered w-full" value={college} onChange={(e) => setCollege(e.target.value)}>
+        <select
+          id="first-college"
+          className="select select-bordered w-full"
+          value={college}
+          onChange={(e) => setCollege(e.target.value)}
+        >
           <option value="" disabled>
             Choose your college
           </option>
@@ -56,10 +66,20 @@ export default function FirstSetup({
           ))}
         </select>
         {college === "Others" && (
-          <input aria-label="College name" className="input input-bordered w-full" value={other} placeholder="Your college" onChange={(e) => setOther(e.target.value)} />
+          <input
+            aria-label="College name"
+            className="input input-bordered w-full"
+            value={other}
+            placeholder="Your college"
+            onChange={(e) => setOther(e.target.value)}
+          />
         )}
       </div>
-      <button type="submit" className="btn btn-neutral btn-block btn-lg" disabled={!role || !university || saving}>
+      <button
+        type="submit"
+        className="btn btn-neutral btn-block btn-lg"
+        disabled={!role || !university || saving}
+      >
         {saving ? "Saving…" : "Start practising"}
       </button>
     </form>

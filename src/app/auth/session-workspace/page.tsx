@@ -59,9 +59,7 @@ export default function SessionWorkspace() {
           if (callbackError) throw new Error("Sign-in failed");
           if (params.get("flow") === "handoff") await client.current.complete(ticket || "");
         } catch {
-          setError(
-            "We couldn't sign you in. Please start again."
-          );
+          setError("We couldn't sign you in. Please start again.");
           setBusy(false);
           throw new Error("Initialization failed");
         }

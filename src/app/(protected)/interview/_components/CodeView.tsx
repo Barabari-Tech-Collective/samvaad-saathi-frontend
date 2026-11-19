@@ -45,8 +45,8 @@ const CodeView: React.FC<CodeViewProps> = ({ supplement, isLoading = false }) =>
   if (isLoading) {
     return (
       <div className="w-full flex justify-center my-4 animate-pulse">
-        <div className="card w-full min-w-0 bg-[#1e1e1e] shadow-xl rounded-lg overflow-hidden border border-gray-800 h-48">
-          <div className="flex justify-between items-center px-4 py-2 bg-[#252526] border-b border-gray-800">
+        <div className="card w-full min-w-0 bg-brand-editor shadow-xl rounded-lg overflow-hidden border border-gray-800 h-48">
+          <div className="flex justify-between items-center px-4 py-2 bg-brand-editor border-b border-gray-800">
             <div className="h-4 w-24 bg-gray-700 rounded"></div>
           </div>
           <div className="p-4 space-y-2">
@@ -68,9 +68,9 @@ const CodeView: React.FC<CodeViewProps> = ({ supplement, isLoading = false }) =>
     <>
       <div className="w-full flex justify-center my-4">
         {/* Card Container */}
-        <div className="card w-full min-w-0 bg-[#1e1e1e] shadow-xl rounded-lg overflow-hidden border border-gray-800">
+        <div className="card w-full min-w-0 bg-brand-editor shadow-xl rounded-lg overflow-hidden border border-gray-800">
           {/* Header */}
-          <div className="flex justify-between items-center px-4 py-2 bg-[#252526] border-b border-gray-800">
+          <div className="flex justify-between items-center px-4 py-2 bg-brand-editor border-b border-gray-800">
             <div className="flex items-center gap-2">
               {isDiagram ? (
                 <ChartBarIcon className="w-4 h-4 text-blue-400" />
@@ -106,7 +106,7 @@ const CodeView: React.FC<CodeViewProps> = ({ supplement, isLoading = false }) =>
               </pre>
             )}
             {/* Gradient overlay */}
-            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#1e1e1e] to-transparent pointer-events-none flex items-end justify-center pb-2">
+            <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-brand-editor to-transparent pointer-events-none flex items-end justify-center pb-2">
               <span className="text-sm text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
                 Click to expand
               </span>
@@ -117,9 +117,9 @@ const CodeView: React.FC<CodeViewProps> = ({ supplement, isLoading = false }) =>
 
       {/* Modal */}
       <dialog ref={modalRef} className="modal">
-        <div className="modal-box w-11/12 max-w-5xl bg-[#1e1e1e] p-0 text-left rounded-lg border border-gray-700">
+        <div className="modal-box w-11/12 max-w-5xl bg-brand-editor p-0 text-left rounded-lg border border-gray-700">
           {/* Modal Header */}
-          <div className="flex justify-between items-center px-4 py-3 bg-[#252526] border-b border-gray-800 sticky top-0 z-10">
+          <div className="flex justify-between items-center px-4 py-3 bg-brand-editor border-b border-gray-800 sticky top-0 z-10">
             <div className="flex items-center gap-2">
               {isDiagram ? (
                 <ChartBarIcon className="w-5 h-5 text-blue-400" />

@@ -43,11 +43,11 @@ test("Profile editing focuses the field and returns focus on cancel", async ({ p
     route.fulfill({ json: acceptanceData(new URL(route.request().url()).pathname) ?? {} })
   );
   await page.goto("/profile?fixture=student-shell&view=profile");
-  await page.getByRole("button", { name: "Edit Target Position", exact: true }).click();
-  await expect(page.getByRole("combobox", { name: "Target Position", exact: true })).toBeFocused();
-  await page.getByRole("button", { name: "Cancel editing Target Position", exact: true }).click();
+  await page.getByRole("button", { name: "Edit Target position", exact: true }).click();
+  await expect(page.getByRole("combobox", { name: "Target position", exact: true })).toBeFocused();
+  await page.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(
-    page.getByRole("button", { name: "Edit Target Position", exact: true })
+    page.getByRole("button", { name: "Edit Target position", exact: true })
   ).toBeFocused();
 });
 

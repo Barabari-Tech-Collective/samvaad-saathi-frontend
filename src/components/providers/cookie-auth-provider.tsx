@@ -69,9 +69,7 @@ export function CookieAuthProvider({ children }: { children: React.ReactNode }) 
           new URLSearchParams(url.hash.slice(1)).has("error"))
       ) {
         window.history.replaceState({}, "", "/auth/signup?flow=rejected");
-        throw new Error(
-          "We couldn't sign you in. Ask your teacher if this keeps happening."
-        );
+        throw new Error("We couldn't sign you in. Ask your teacher if this keeps happening.");
       }
       if (
         ["token", "refresh_token", "accessToken", "refreshToken"].some((key) =>
@@ -213,9 +211,7 @@ export function CookieAuthProvider({ children }: { children: React.ReactNode }) 
   if ((query.isError && !lastConfirmedUser) || logoutError)
     return (
       <main className="studio-page">
-        <h1>
-          {logoutError ? "We couldn't sign you out" : "We couldn't check your account"}
-        </h1>
+        <h1>{logoutError ? "We couldn't sign you out" : "We couldn't check your account"}</h1>
         <p role="alert">Please try again. Your account data is hidden until this is resolved.</p>
         <button
           className="ws-button"

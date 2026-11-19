@@ -42,7 +42,7 @@ test("history keeps all lifecycle states and explicit interview modes at 320px",
     })
   );
   await page.goto("/?fixture=history");
-  await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Continue mock interview" })).toHaveAttribute(
     "href",
     "/interview?interviewId=9&resumed=true&interviewMode=practice"
   );
@@ -200,7 +200,9 @@ test("invalid report IDs do not send report or receipt requests", async ({ page 
     return route.fulfill({ status: 500 });
   });
   await page.goto("/?fixture=report&interviewId=1e3");
-  await expect(page.getByRole("heading", { name: "Choose your feedback in Progress" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Choose your feedback in Progress" })
+  ).toBeVisible();
   expect(requests).toBe(0);
 });
 
@@ -250,9 +252,7 @@ test("report denial after an account switch removes the previous account's cache
   await page.evaluate(() =>
     window.dispatchEvent(new CustomEvent("practice-test-account", { detail: "2" }))
   );
-  await expect(
-    page.getByRole("heading", { name: "We couldn't open your feedback" })
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "We couldn't open your feedback" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Communication report" })).toHaveCount(0);
 });
 
@@ -266,9 +266,7 @@ test("an incomplete report response uses recovery instead of crashing or inventi
     route.fulfill({ json: { interviewMode: "practice", receipt: null } })
   );
   await page.goto("/?fixture=report&interviewId=42");
-  await expect(
-    page.getByRole("heading", { name: "We couldn't open your feedback" })
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "We couldn't open your feedback" })).toBeVisible();
   await expect(page.getByRole("progressbar")).toHaveCount(0);
 });
 

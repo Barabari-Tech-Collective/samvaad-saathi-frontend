@@ -58,7 +58,7 @@ function CheckRow({ title, detail, status, action }: CheckRowProps) {
           type="button"
           onClick={action.onClick}
           disabled={action.disabled}
-          className="min-h-11 shrink-0 rounded-xl border border-[#344499] px-4 text-sm font-bold text-[#344499] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:cursor-wait disabled:opacity-60"
+          className="min-h-11 shrink-0 rounded-xl border border-brand-blue px-4 text-sm font-bold text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-wait disabled:opacity-60"
         >
           {action.label}
         </button>
@@ -214,11 +214,11 @@ export default function PracticePreflight({
   const ready = network === "passed" && storage === "passed" && voiceReady && playback === "passed";
 
   return (
-    <div className="mx-auto w-full max-w-3xl pb-8 text-[#111827]">
+    <div className="mx-auto w-full max-w-3xl pb-8 text-brand-ink">
       <button
         type="button"
         onClick={onBack}
-        className="mb-5 inline-flex min-h-11 items-center gap-2 rounded-lg font-semibold text-[#344499] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
+        className="mb-5 inline-flex min-h-11 items-center gap-2 rounded-lg font-semibold text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
       >
         <ArrowLeftIcon className="size-5" aria-hidden="true" /> {t("Change setup")}
       </button>
@@ -231,7 +231,7 @@ export default function PracticePreflight({
         )}
       />
 
-      <section className="mt-6 rounded-2xl bg-[#F5F7FF] p-5" aria-label="Interview preview">
+      <section className="mt-6 rounded-2xl bg-brand-canvas p-5" aria-label="Interview preview">
         <dl className="grid gap-4 sm:grid-cols-3">
           <div>
             <dt className="text-sm text-gray-600">Role</dt>
@@ -285,7 +285,7 @@ export default function PracticePreflight({
           <div
             ref={microphoneHelp}
             role="alert"
-            className="rounded-2xl border border-[#F5B971] bg-[#FFF6E8] p-4 text-sm leading-6"
+            className="rounded-2xl border border-brand-orange-line bg-brand-paper p-4 text-sm leading-6"
           >
             <p className="font-semibold">{t("How to turn the microphone on")}</p>
             <ol className="mt-2 list-decimal space-y-1 pl-5">
@@ -316,10 +316,10 @@ export default function PracticePreflight({
         />
       </section>
 
-      <section className="mt-6 rounded-2xl bg-[#FFE4BF] p-5">
+      <section className="mt-6 rounded-2xl bg-brand-yellow-wash p-5">
         <h2 className="font-bold">{t("Before you begin")}</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-gray-800">
-          <li>{t("This Mock Interview is for rehearsal. It is not an assessment.")}</li>
+          <li>{t("This mock interview is for rehearsal. It is not an assessment.")}</li>
           <li>{t("Nothing bad happens if you refresh, get a call or change pages.")}</li>
           <li>{t("You can stop and come back. Saved answers stay on your account.")}</li>
           <li>Your voice is saved safely so we can give you feedback. It is deleted later.</li>
@@ -340,9 +340,9 @@ export default function PracticePreflight({
             onStart();
           }}
           disabled={!ready || isStarting}
-          className="min-h-12 w-full rounded-xl bg-[#FFCC33] px-6 text-base font-bold text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500"
+          className="min-h-12 w-full rounded-xl bg-brand-yellow px-6 text-base font-bold text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500"
         >
-          {isStarting ? "Creating your interview…" : t("Start Mock Interview")}
+          {isStarting ? "Creating your interview…" : t("Start mock interview")}
         </button>
         {!ready && (
           <p className="mt-3 text-center text-sm text-gray-600">

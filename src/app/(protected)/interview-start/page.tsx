@@ -37,6 +37,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuth } from "@/components/providers/auth-provider";
 import PracticePreflight from "@/components/practice/PracticePreflight";
+import { startRefusalMessage } from "@/lib/start-refusal";
 
 interface CreateInterviewRequest {
   clientContract: "fixed-round-v1";
@@ -93,7 +94,7 @@ const LEVEL_EXAMPLES: Record<string, string> = {
 
 function EntryRecovery({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-[#DEE8FB] bg-white p-5 text-[#1F285B] sm:p-8">
+    <div className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-brand-line bg-white p-5 text-brand-navy sm:p-8">
       <h1 className="text-3xl font-bold">{title}</h1>
       {children}
       <div className="flex flex-wrap gap-4">
@@ -115,7 +116,7 @@ export default function InterviewStartPage() {
   if (raw !== null && raw !== "practice" && raw !== "assessment")
     return (
       <EntryRecovery title="Check this interview purpose">
-        <p role="alert">Choose Mock Interviews or Assessments from the platform before starting.</p>
+        <p role="alert">Choose mock interviews or Assessments from the platform before starting.</p>
       </EntryRecovery>
     );
   if (loading || !user?.userId)
@@ -336,9 +337,7 @@ function InterviewSetup({
       selection.kind === "hr" &&
       publishedQuestionCount(selectedProfile?.questionsPerInterview) === null
     ) {
-      setStartError(
-        "This job isn't ready yet. Choose another or ask your teacher."
-      );
+      setStartError("This job isn't ready yet. Choose another or ask your teacher.");
       return false;
     }
     if (selection.kind === "hr" && selectedProfile?.interviewMode !== mode) {
@@ -374,13 +373,13 @@ function InterviewSetup({
       selection.kind === "tech" && selectedTrack === FULL_STACK_ROLE && difficulty === "medium";
     if (resumeRequired && !useResume) {
       toast.error(
-        "Medium Full Stack Mock Interviews use your resume. Turn on resume personalisation or choose another level."
+        "Medium Full Stack mock interviews use your resume. Turn on resume personalisation or choose another level."
       );
       return false;
     }
     if (resumeRequired && !user?.authorizedUser?.hasResume) {
       toast.error(
-        "Save a resume from the Resume section before starting a Medium Full Stack Mock Interview, or choose another level."
+        "Save a resume from the Resume section before starting a Medium Full Stack mock interview, or choose another level."
       );
       return false;
     }
@@ -424,8 +423,7 @@ function InterviewSetup({
           ...(selection.kind === "tech" ? { questionCount: freeQuestionCount } : {}),
         });
         if (!current.current || getAuthRevision() !== ownerRevision) return;
-        if (!catalogueReady.current)
-          throw new Error("Please check Progress before trying again.");
+        if (!catalogueReady.current) throw new Error("Please check Progress before trying again.");
         const expected =
           selection.kind === "tech"
             ? freeQuestionCount
@@ -442,8 +440,7 @@ function InterviewSetup({
           useResume,
         });
         if (!current.current || getAuthRevision() !== ownerRevision) return;
-        if (!catalogueReady.current)
-          throw new Error("Please check Progress before trying again.");
+        if (!catalogueReady.current) throw new Error("Please check Progress before trying again.");
         const id = createdInterview(
           result,
           mode,
@@ -460,9 +457,7 @@ function InterviewSetup({
       const status = responseStatus(error);
       const rejected = status !== undefined && [400, 401, 403, 404, 410, 422, 429].includes(status);
       if (rejected) {
-        setStartError(
-          "That didn't work. Please check your choices and try again."
-        );
+        setStartError(startRefusalMessage(status));
         void catalogue.refetch();
       } else {
         setUncertain(true);
@@ -491,9 +486,7 @@ function InterviewSetup({
   if (catalogue.isError)
     return (
       <EntryRecovery title="We couldn't load the job list">
-        <p role="alert">
-          Please try again in a moment.
-        </p>
+        <p role="alert">Please try again in a moment.</p>
         <button
           type="button"
           className="min-h-11 rounded-xl bg-black px-5 py-3 font-semibold text-white"
@@ -527,10 +520,15 @@ function InterviewSetup({
   // Most people want the sensible default. Choices stay one tap away under "Change".
   if (quickStart && mode === "practice" && !selection)
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-[#111827]">
-        <PageHeading title="Mock Interview" description="A short rehearsal with common questions." />
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-brand-ink">
+        <PageHeading
+          title="Mock interview"
+          description="A short rehearsal with common questions."
+        />
         <section className="studio-panel space-y-4" aria-label="Your interview">
-          <p className="text-lg font-semibold">General interview · Easy · 5 questions · about 15 minutes</p>
+          <p className="text-lg font-semibold">
+            General interview · Easy · 5 questions · about 15 minutes
+          </p>
           <button
             type="button"
             className="btn btn-neutral btn-block btn-lg"
@@ -539,13 +537,21 @@ function InterviewSetup({
               setSelection({ kind: "tech", track: GENERAL_PRACTICE_ROLE });
               setDifficulty("easy");
               setFreeQuestionCount(5);
-              trackEvent("practice_setup_started", { role_type: "tech", level: "easy", resume_enabled: useResume });
+              trackEvent("practice_setup_started", {
+                role_type: "tech",
+                level: "easy",
+                resume_enabled: useResume,
+              });
               setShowPreflight(true);
             }}
           >
             Continue to microphone check
           </button>
-          <button type="button" className="min-h-11 font-semibold underline" onClick={() => setQuickStart(false)}>
+          <button
+            type="button"
+            className="min-h-11 font-semibold underline"
+            onClick={() => setQuickStart(false)}
+          >
             Change
           </button>
         </section>
@@ -553,11 +559,11 @@ function InterviewSetup({
     );
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-[#111827]">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-brand-ink">
       <PageHeading
         className="studio-setup-heading"
-        eyebrow={mode === "assessment" ? "Formal assessment" : "Mock Interview"}
-        title={mode === "assessment" ? "Assessment Interview" : "Mock Interview"}
+        eyebrow={mode === "assessment" ? "Formal assessment" : "Mock interview"}
+        title={mode === "assessment" ? "Assessment Interview" : "Mock interview"}
         description={
           mode === "assessment"
             ? "Your teacher set these questions. This one counts."
@@ -578,7 +584,7 @@ function InterviewSetup({
       </ol>
 
       {startError && (
-        <p role="alert" className="rounded-xl border border-[#DEE8FB] bg-white p-4">
+        <p role="alert" className="rounded-xl border border-brand-line bg-white p-4">
           {startError}
         </p>
       )}
@@ -632,7 +638,7 @@ function InterviewSetup({
                 ).map(([category, profiles]) => (
                   <optgroup
                     key={category}
-                    label={`${mode === "practice" ? "Curated Mock Interviews · " : ""}${category.charAt(0).toUpperCase() + category.slice(1)}`}
+                    label={`${mode === "practice" ? "Curated mock interviews · " : ""}${category.charAt(0).toUpperCase() + category.slice(1)}`}
                   >
                     {profiles.map((profile) => (
                       <option
@@ -661,7 +667,9 @@ function InterviewSetup({
                   <label
                     key={opt.key}
                     className={`flex min-h-20 items-start gap-3 rounded-2xl border p-4 ${
-                      difficulty === opt.key ? "border-[#344499] bg-[#F5F7FF]" : "border-gray-200"
+                      difficulty === opt.key
+                        ? "border-brand-blue bg-brand-canvas"
+                        : "border-gray-200"
                     } ${available ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`}
                   >
                     <input
@@ -719,10 +727,10 @@ function InterviewSetup({
           </div>
         </div>
 
-        <div className="mt-5 border-t border-[#DEE8FB] pt-5">
+        <div className="mt-5 border-t border-brand-line pt-5">
           {selection?.kind === "tech" ? (
             <label className="block font-semibold">
-              Questions in this Mock Interview
+              Questions in this mock interview
               <input
                 type="number"
                 min={1}
@@ -734,7 +742,7 @@ function InterviewSetup({
                     event.target.value === "" ? Number.NaN : Number(event.target.value)
                   )
                 }
-                className="mt-2 block min-h-12 w-full rounded-lg border border-[#9CA3AF] px-3 text-base sm:max-w-xs"
+                className="mt-2 block min-h-12 w-full rounded-lg border border-brand-gray-light px-3 text-base sm:max-w-xs"
               />
             </label>
           ) : selectedProfile ? (
@@ -746,7 +754,7 @@ function InterviewSetup({
           ) : null}
           {selection?.kind === "tech" && (
             <p className="mt-2 text-sm text-gray-600">
-              Choose 1–10 questions. You can save and return to your Mock Interview.
+              Choose 1–10 questions. You can save and return to your mock interview.
             </p>
           )}
         </div>

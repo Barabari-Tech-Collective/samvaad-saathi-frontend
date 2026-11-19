@@ -107,9 +107,7 @@ export default function ResumeStorageRecovery() {
         } catch {
           if (current()) {
             setRecoverable(null);
-            setOperationMessage(
-              "We couldn't check that. Please try again."
-            );
+            setOperationMessage("We couldn't check that. Please try again.");
           }
         }
       }
@@ -140,14 +138,9 @@ export default function ResumeStorageRecovery() {
       if (!current()) return;
       acceptResumeRecovery(hash, recoverable, receipt, owner);
       setRecoverable(null);
-      setOperationMessage(
-        "You can try again now. Choose the same file and upload it."
-      );
+      setOperationMessage("You can try again now. Choose the same file and upload it.");
     } catch {
-      if (current())
-        setOperationMessage(
-          "That didn't work. Please try again."
-        );
+      if (current()) setOperationMessage("That didn't work. Please try again.");
     } finally {
       if (current()) {
         inFlight.current = false;
@@ -179,14 +172,10 @@ export default function ResumeStorageRecovery() {
       setStatus("registered");
       setDelivery(null);
       setRepairFile(null);
-      setRepairMessage(
-        "Your file is saved. Your profile didn't change."
-      );
+      setRepairMessage("Your file is saved. Your profile didn't change.");
     } catch {
       if (current())
-        setRepairMessage(
-          "We're not sure your file saved. Choose the same file and try again."
-        );
+        setRepairMessage("We're not sure your file saved. Choose the same file and try again.");
     } finally {
       if (current()) {
         inFlight.current = false;

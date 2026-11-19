@@ -49,15 +49,15 @@ for (const status of ["active", "paused", "terminated", "preparing", "expired", 
       return r.fulfill({ json: report });
     });
     await page.goto(url);
-    await expect(page.getByRole("heading", { name: "We're still saving your interview" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "We're still saving your interview" })
+    ).toBeVisible();
     await expect(page.getByRole("button", { name: "Get my feedback" })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: /You passed/ })).toHaveCount(0);
     expect(reports).toBe(0);
   });
 }
-test("verified time-limit receipt starts feedback by itself at 320px", async ({
-  page,
-}) => {
+test("verified time-limit receipt starts feedback by itself at 320px", async ({ page }) => {
   let posts = 0;
   let release: () => void = () => {};
   await page.route("**/api/interviews/9/receipt", (r) => r.fulfill({ json: envelope() }));
@@ -72,9 +72,7 @@ test("verified time-limit receipt starts feedback by itself at 320px", async ({
   });
   await page.setViewportSize({ width: 320, height: 740 });
   await page.goto(url);
-  await expect(
-    page.getByRole("heading", { name: "Your assessment is submitted" })
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Your assessment is submitted" })).toBeVisible();
   await page.getByText("See what was saved").click();
   await expect(page.getByRole("heading", { name: "5 planned · 2 answers saved" })).toBeVisible();
   await expect(page.getByText("Time ended", { exact: false })).toBeVisible();
@@ -99,9 +97,7 @@ test("saved feedback opens without regenerating it; completed legacy session has
     return r.fulfill({ json: report });
   });
   await page.goto(url);
-  await expect(
-    page.getByText("Well done", { exact: false })
-  ).toBeVisible();
+  await expect(page.getByText("Well done", { exact: false })).toBeVisible();
   await expect(page.getByRole("link", { name: "See your feedback" })).toHaveAttribute(
     "href",
     "/report-summary?interviewId=9"
@@ -213,14 +209,14 @@ test("changing the sitting ID rechecks completion instead of retaining the first
   await page.route("**/api/interviews/10/receipt", (r) => r.fulfill({ json: envelope("active") }));
   await page.route("**/api/v2/summary-report**", (r) => r.fulfill({ json: report }));
   await page.goto(url);
-  await expect(
-    page.getByRole("heading", { name: "Your assessment is submitted" })
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Your assessment is submitted" })).toBeVisible();
   await page.evaluate(() => {
     window.history.pushState({}, "", "/?fixture=completed&interviewId=10");
     window.dispatchEvent(new Event("popstate"));
   });
-  await expect(page.getByRole("heading", { name: "We're still saving your interview" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "We're still saving your interview" })
+  ).toBeVisible();
   await expect(page.getByRole("region", { name: "What was saved" })).toHaveCount(0);
 });
 
