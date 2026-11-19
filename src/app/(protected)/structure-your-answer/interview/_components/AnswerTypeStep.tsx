@@ -230,7 +230,7 @@ const AnswerTypeStep = ({
       if (revision === generation.current) {
         captureBusy.current = false;
         setCapturePending(false);
-        setCaptureError("Could not record. Allow microphone access and try again.");
+        setCaptureError("We couldn't record. Allow microphone access and try again.");
       }
     }
   };
@@ -304,7 +304,7 @@ const AnswerTypeStep = ({
           // The backend already returns a specific reason (e.g. "answer too
           // short to evaluate") - show that instead of a generic message so
           // the student knows what to actually do differently.
-          let errorMessage = "Failed to submit. Please try again.";
+          let errorMessage = "We couldn't send your answer. Please try again.";
           if (axios.isAxiosError(error) && typeof error.response?.data?.detail === "string") {
             errorMessage = error.response.data.detail;
           }

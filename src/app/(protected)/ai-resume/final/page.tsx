@@ -122,7 +122,7 @@ function ResumeTemplateFullViewContent() {
       toast.success("Resume downloaded successfully!");
     } catch (error) {
       if (error instanceof SessionChangedError || getAuthRevision() !== ownerRevision) return;
-      setDocumentError("Could not download your resume. Please try again.");
+      setDocumentError("We couldn't download your resume. Please try again.");
       toast.error("Failed to download resume.");
     } finally {
       downloadInFlight.current = false;
@@ -157,7 +157,7 @@ function ResumeTemplateFullViewContent() {
     } catch (error) {
       if (error instanceof SessionChangedError || getAuthRevision() !== ownerRevision) return;
       setDocumentError(
-        "Could not save your resume. Your draft is still here. Check your connection and try again."
+        "We couldn't save your resume. Your draft is still here. Check your connection and try again."
       );
       toast.error("Could not save resume to profile.");
     } finally {

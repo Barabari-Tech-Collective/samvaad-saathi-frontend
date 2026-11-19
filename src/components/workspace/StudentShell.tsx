@@ -206,7 +206,9 @@ export default function StudentShell({ children }: { children: React.ReactNode }
         {!immersive && <PageNavigation pathname={pathname} />}
         {immersive || isHome ? children : <div className="studio-page-frame">{children}</div>}
       </main>
-      {!immersive && <BottomNav onMoreClick={openMenu} menuOpen={menuOpen} />}
+      {!immersive && (
+        <BottomNav onMoreClick={openMenu} menuOpen={menuOpen} showAssessments={showAssessments} />
+      )}
     </div>
   );
 }

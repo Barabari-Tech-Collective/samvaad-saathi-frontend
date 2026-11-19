@@ -95,7 +95,7 @@ it("releases the stream if recorder construction fails", async () => {
   await act(async () => result.current.start());
   expect(stopTrack).toHaveBeenCalled();
   expect(result.current.status).toBe("idle");
-  expect(result.current.error).toContain("Could not record");
+  expect(result.current.error).toContain("We couldn't record");
 });
 it("rejects late grants after a level change", async () => {
   let resolve!: (stream: MediaStream) => void;

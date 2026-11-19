@@ -393,6 +393,16 @@ h6 {
   font-weight: 500;
   border-radius: 10px;
 }
+/* Five items (Assessments assigned) need a tab-bar size so labels never touch at 360px. */
+.student-bottom-nav:has(> :nth-child(5)) :is(a, button) {
+  font-size: 0.6875rem;
+}
+.student-bottom-nav :is(a, button) span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .student-bottom-nav :is(a, button) svg {
   width: 21px;
   height: 21px;

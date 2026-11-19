@@ -173,9 +173,10 @@ it.each([
   expect(within(nav).getByRole("link", { name: label })).toHaveAttribute("aria-current", "page");
   const bottom = screen.getByRole("navigation", { name: "Bottom Navigation" });
   if (path === "/human-interviews") {
-    expect(within(bottom).getByRole("button", { name: "More features" })).toHaveAttribute(
-      "data-active",
-      "true"
+    // Human interviews belong to Assessments, which now has its own bar item.
+    expect(within(bottom).getByRole("link", { name: "Go to assessments" })).toHaveAttribute(
+      "aria-current",
+      "page"
     );
   } else {
     expect(

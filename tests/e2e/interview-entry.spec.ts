@@ -118,7 +118,7 @@ test("422 rejection rechecks the catalogue and allows corrected setup", async ({
   });
   await choose(page);
   await page.getByRole("button", { name: "Start assessment" }).click();
-  await expect(page.getByRole("alert")).toContainText("That didn't work");
+  await expect(page.getByRole("alert")).toContainText("Some of your choices are no longer valid");
   await page.getByRole("button", { name: "Start assessment" }).click();
   await expect(page).toHaveURL(/interview\?interviewId=9/);
   expect(posts).toBe(2);
@@ -137,7 +137,7 @@ test("a role revoked during a rejected start is cleared before a retry", async (
   await page.goto(url);
   await page.getByRole("combobox").selectOption("hr::1::Role 1");
   await page.getByRole("button", { name: "Start assessment" }).click();
-  await expect(page.getByRole("alert")).toContainText("That didn't work");
+  await expect(page.getByRole("alert")).toContainText("Some of your choices are no longer valid");
   await expect(page.getByText("Nothing is ready yet", { exact: false })).toBeVisible();
   await expect(page.getByRole("combobox")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Start assessment" })).toBeDisabled();

@@ -28,17 +28,12 @@ import {
 import {
   trackProfileEditButtonClick,
   trackProfileFieldValueChanged,
-  trackProfileHelpButtonClick,
   trackProfileSupportButtonClick,
   trackProfileUpdateButtonClick,
 } from "@/lib/posthog/tracking.utils";
 import { getInitials } from "@/lib/utils";
 import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
-import {
-  ArrowLeftStartOnRectangleIcon,
-  DocumentTextIcon,
-  QuestionMarkCircleIcon,
-} from "@heroicons/react/24/solid";
+import { ArrowLeftStartOnRectangleIcon, DocumentTextIcon } from "@heroicons/react/24/solid";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { accountJson } from "@/lib/account-request";
@@ -335,17 +330,12 @@ export default function ProfilePage() {
     }
   };
 
-  const handleHelpClick = () => {
-    trackProfileHelpButtonClick();
-    window.open("https://www.youtube.com", "_blank");
-  };
-
   const handleSupportClick = () => {
     trackProfileSupportButtonClick();
     const phoneNumber = "+918639322365";
     const message = "Hi, I need support with Samvaad Saathi app.";
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, "_blank");
+    window.open(whatsappUrl, "_blank", "noopener");
   };
 
   if (!user) return <ProfileSkeleton />;
@@ -358,11 +348,8 @@ export default function ProfilePage() {
         description="Your details and the interview voice."
       />
       <ResumeStorageRecovery />
-      <MyCourses />
-      <GraduationStatus />
-      <AboutMyWork />
-      <ExtraSupport />
-      <section className="studio-profile-card">
+      {/* Who you are comes first; courses and support details follow it. */}
+      <section className="studio-profile-card" aria-label="Your details">
         <div className="studio-profile-identity">
           <div className="studio-profile-avatar" aria-hidden="true">
             {userInitials}
@@ -376,16 +363,19 @@ export default function ProfilePage() {
         </div>
 
         <div className="flex justify-between items-center font-semibold gap-8 text-primary">
-          <span>Interviews attempted:</span>
+          <span>Interviews attempted</span>
           <span>{user.authorizedUser.totalAttempts ?? "Not available"}</span>
         </div>
-
-        <div className="divider" />
-
+      </section>
+      <MyCourses />
+      <GraduationStatus />
+      <AboutMyWork />
+      <ExtraSupport />
+      <section className="studio-profile-card">
         {/* Profile Information */}
         <div className="space-y-4 my-4">
           <div className="flex justify-between items-center">
-            <h3 className="card-title">Profile Information</h3>
+            <h3 className="card-title">Profile information</h3>
             {editingField !== null && (
               <button
                 onClick={() => handleFieldSave(editingField)}
@@ -639,7 +629,7 @@ export default function ProfilePage() {
                             {setActiveResumeMutation.isPending ? (
                               <span className="loading loading-spinner loading-xs" />
                             ) : (
-                              "Replace with ATS Resume"
+                              "Replace with ATS resume"
                             )}
                           </button>
                           {atsError && (
@@ -683,20 +673,23 @@ export default function ProfilePage() {
 
         {/* Actions */}
         <div className="card-actions flex-col space-y-2 pb-6">
-          <div className="flex items-center gap-10 justify-between w-full">
-            <button onClick={handleHelpClick} className="btn btn-ghost justify-center flex-1">
-              <QuestionMarkCircleIcon className="size-6" />
-              Help
-            </button>
-            <button onClick={handleSupportClick} className="btn btn-ghost justify-center flex-1">
-              <ChatBubbleLeftRightIcon className="size-6" />
-              Support
-            </button>
-          </div>
+          {/* "Help" used to open the YouTube home page. Support on WhatsApp is the real help. */}
+          <button
+            type="button"
+            onClick={handleSupportClick}
+            className="btn btn-ghost w-full justify-center"
+          >
+            <ChatBubbleLeftRightIcon className="size-6" aria-hidden="true" />
+            Get help on WhatsApp
+          </button>
 
-          <button onClick={signOut} className="btn btn-soft btn-error w-full justify-start">
-            <ArrowLeftStartOnRectangleIcon className="size-6" />
-            Log Out
+          <button
+            type="button"
+            onClick={signOut}
+            className="btn btn-soft btn-error w-full justify-start"
+          >
+            <ArrowLeftStartOnRectangleIcon className="size-6" aria-hidden="true" />
+            Log out
           </button>
         </div>
 

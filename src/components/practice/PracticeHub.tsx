@@ -249,7 +249,9 @@ export function PracticeHubView({
       {showMock && <MockInterviewCard hub={verified} status={status} onRefresh={onRefresh} />}
       {showCoaching && (
         <>
-          <h2 className="text-xl font-semibold">{t("More practice")}</h2>
+          {/* "More" only makes sense below the mock interview card; on the coaching
+              page these activities are the page itself. */}
+          {showMock && <h2 className="text-xl font-semibold">{t("More practice")}</h2>}
           {children}
           <CoachingFocus hub={verified} />
           <section aria-labelledby="skill-builders-title">
@@ -272,8 +274,8 @@ export function PracticeHubView({
                   >
                     <Icon aria-hidden="true" />
                     <div>
-                      <h3>{module.title}</h3>
-                      <p>{module.description}</p>
+                      <h3>{t(module.title)}</h3>
+                      <p>{t(module.description)}</p>
                     </div>
                     <ChevronRightIcon aria-hidden="true" />
                   </Link>

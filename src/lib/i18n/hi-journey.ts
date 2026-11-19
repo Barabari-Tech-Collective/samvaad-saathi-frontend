@@ -228,7 +228,7 @@ export const journey: Record<string, string> = {
   "Interview submission": "इंटरव्यू जमा करना",
   "Interview time": "इंटरव्यू का समय",
   Interviewer: "इंटरव्यू लेने वाले",
-  "Interviews attempted:": "दिए गए इंटरव्यू:",
+  "Interviews attempted": "दिए गए इंटरव्यू",
   Introduction: "परिचय",
   "Just a moment": "बस एक पल",
   "Just a moment…": "बस एक पल…",
@@ -266,7 +266,7 @@ export const journey: Record<string, string> = {
   "Loading your progress…": "आपकी प्रगति ला रहे हैं…",
   "Loading…": "ला रहे हैं…",
   Location: "जगह",
-  "Log Out": "लॉग आउट",
+  "Log out": "लॉग आउट",
   "Looking for your feedback…": "आपका फ़ीडबैक ढूँढ रहे हैं…",
   "Make them count.": "इन्हें असरदार बनाइए।",
   "Make your resume better for the job you want.": "मनचाही नौकरी के लिए रेज़्यूमे बेहतर बनाइए।",
@@ -415,7 +415,8 @@ export const journey: Record<string, string> = {
   "Previous appointments": "पिछले समय",
   "Professional Summary": "पेशेवर सारांश",
   Profile: "प्रोफ़ाइल",
-  "Profile Information": "प्रोफ़ाइल की जानकारी",
+  "Profile information": "प्रोफ़ाइल की जानकारी",
+  "Get help on WhatsApp": "WhatsApp पर मदद लें",
   "Profile link guidelines": "लिंक के नियम",
   "Profile links": "प्रोफ़ाइल लिंक",
   Progress: "प्रगति",
@@ -826,4 +827,130 @@ export const journey: Record<string, string> = {
   "Job results": "नौकरी के नतीजे",
   "See your interview time and join": "अपना समय देखें और जुड़ें",
   "See your results and next steps": "अपने नतीजे और अगला कदम देखें",
+  // Messages: errors, toasts and refusals. tests/i18n-coverage.test.ts keeps these complete.
+  "File cannot be empty. Please upload a valid resume.":
+    "फ़ाइल खाली है। कृपया सही रिज़्यूमे अपलोड करें।",
+  "We couldn't check your resume. Please try again.":
+    "हम आपका रिज़्यूमे जाँच नहीं पाए। कृपया फिर से कोशिश करें।",
+  "Preparing your resume PDF…": "आपके रिज़्यूमे की PDF तैयार हो रही है…",
+  "Saving resume to profile…": "रिज़्यूमे प्रोफ़ाइल में सेव हो रहा है…",
+  "Resume saved to your profile. To use it for AI interviews, open Profile and select 'Replace with ATS resume'.":
+    "रिज़्यूमे आपकी प्रोफ़ाइल में सेव हो गया। AI इंटरव्यू में इसे इस्तेमाल करने के लिए प्रोफ़ाइल खोलें और 'ATS रिज़्यूमे से बदलें' चुनें।",
+  "Replace with ATS resume": "ATS रिज़्यूमे से बदलें",
+  "Your resume is well-optimized for this role and experience level.":
+    "आपका रिज़्यूमे इस रोल और अनुभव के स्तर के लिए अच्छा है।",
+  "Your resume matches well but has room for optimization.":
+    "आपका रिज़्यूमे अच्छा मेल खाता है, पर इसे और बेहतर किया जा सकता है।",
+  "Your resume could use some improvements to better match this role.":
+    "इस रोल से बेहतर मेल के लिए रिज़्यूमे में कुछ सुधार करें।",
+  "Consider updating your resume to better align with the target position.":
+    "इस नौकरी से मेल खाने के लिए अपना रिज़्यूमे अपडेट करें।",
+  "We couldn't start your practice. Please try again.":
+    "हम आपका अभ्यास शुरू नहीं कर पाए। कृपया फिर से कोशिश करें।",
+  "We couldn't send your answer. Please try again.":
+    "हम आपका जवाब भेज नहीं पाए। कृपया फिर से कोशिश करें।",
+  "We couldn't sign you in. Please start again.":
+    "हम आपको साइन इन नहीं कर पाए। कृपया फिर से शुरू करें।",
+  "You may have signed in somewhere else. Please try again.":
+    "शायद आपने कहीं और साइन इन किया है। कृपया फिर से कोशिश करें।",
+  "Please sign in again.": "कृपया फिर से साइन इन करें।",
+  "We couldn't sign you out. Please try again.":
+    "हम आपको साइन आउट नहीं कर पाए। कृपया फिर से कोशिश करें।",
+  "We couldn't open the meeting link. Please try again or ask your teacher.":
+    "हम मीटिंग का लिंक नहीं खोल पाए। फिर से कोशिश करें या अपने टीचर से पूछें।",
+  "Meeting access has changed or the join window ended. Refresh appointments before trying again.":
+    "मीटिंग की अनुमति बदल गई है या जुड़ने का समय खत्म हो गया है। फिर से कोशिश करने से पहले अपॉइंटमेंट रिफ़्रेश करें।",
+  "Enter 10–2,000 characters before submitting your explanation.":
+    "अपनी बात भेजने से पहले 10 से 2,000 अक्षर लिखें।",
+  "Please update your browser and try again.":
+    "कृपया अपना ब्राउज़र अपडेट करें और फिर से कोशिश करें।",
+  "That didn't save. Your text is still here, so please try again.":
+    "यह सेव नहीं हुआ। आपका लिखा हुआ यहीं है, कृपया फिर से कोशिश करें।",
+  "Write at least 20 characters before saving your reflection.":
+    "अपना विचार सेव करने से पहले कम से कम 20 अक्षर लिखें।",
+  "Your reflection was not saved. Check the plan is still active, then try again.":
+    "आपका विचार सेव नहीं हुआ। देखें कि प्लान अभी चालू है, फिर कोशिश करें।",
+  "No audio was captured. Check your microphone and record again.":
+    "कोई आवाज़ रिकॉर्ड नहीं हुई। अपना माइक्रोफ़ोन देखें और फिर से रिकॉर्ड करें।",
+  "Recording stopped unexpectedly. Check your microphone and try again.":
+    "रिकॉर्डिंग अचानक रुक गई। अपना माइक्रोफ़ोन देखें और फिर से कोशिश करें।",
+  "We couldn't record. Allow microphone access and check that another app is not using it.":
+    "हम रिकॉर्ड नहीं कर पाए। माइक्रोफ़ोन की अनुमति दें और देखें कि कोई दूसरा ऐप उसे इस्तेमाल तो नहीं कर रहा।",
+  "We couldn't record. Allow microphone access and try again.":
+    "हम रिकॉर्ड नहीं कर पाए। माइक्रोफ़ोन की अनुमति दें और फिर से कोशिश करें।",
+  "Recording stopped unexpectedly. Please record your answer again.":
+    "रिकॉर्डिंग अचानक रुक गई। कृपया अपना जवाब फिर से रिकॉर्ड करें।",
+  "Your previous answer is saved on this device. Select Retry save to continue.":
+    "आपका पिछला जवाब इस डिवाइस पर सेव है। आगे बढ़ने के लिए 'फिर से सेव करें' चुनें।",
+  "Your microphone is blocked. Allow it in your browser settings, then try again.":
+    "आपका माइक्रोफ़ोन बंद है। ब्राउज़र की सेटिंग में इसकी अनुमति दें, फिर कोशिश करें।",
+  "Microphone is on.": "माइक्रोफ़ोन चालू है।",
+  "Something went wrong. Please try again.": "कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।",
+  "You're no longer in this course. Your answers are safe. Ask your teacher for help.":
+    "आप अब इस कोर्स में नहीं हैं। आपके जवाब सुरक्षित हैं। मदद के लिए अपने टीचर से पूछें।",
+  "Your sign-in has expired. Please sign in again, then start the interview.":
+    "आपका साइन इन खत्म हो गया है। फिर से साइन इन करें, फिर इंटरव्यू शुरू करें।",
+  "This interview isn't open to you yet. Ask your teacher if you expected to see it.":
+    "यह इंटरव्यू अभी आपके लिए खुला नहीं है। अगर आपको यह दिखना चाहिए था तो अपने टीचर से पूछें।",
+  "This interview is no longer available. Please pick another one from the list.":
+    "यह इंटरव्यू अब उपलब्ध नहीं है। कृपया सूची से कोई दूसरा चुनें।",
+  "You've started a lot of interviews in the last hour. Please wait a while before starting another.":
+    "आपने पिछले एक घंटे में कई इंटरव्यू शुरू किए हैं। अगला शुरू करने से पहले थोड़ा रुकें।",
+  "Some of your choices are no longer valid. Please check them and try again.":
+    "आपके कुछ चुनाव अब मान्य नहीं हैं। कृपया उन्हें देखें और फिर से कोशिश करें।",
+  "assessment review needs your attention.": "असेसमेंट रिव्यू पर आपका ध्यान चाहिए।",
+  "assessment reviews need your attention.": "असेसमेंट रिव्यू पर आपका ध्यान चाहिए।",
+  "We couldn't download your resume. Please try again.":
+    "हम आपका रिज़्यूमे डाउनलोड नहीं कर पाए। कृपया फिर से कोशिश करें।",
+  "We couldn't save your resume. Your draft is still here. Check your connection and try again.":
+    "हम आपका रिज़्यूमे सेव नहीं कर पाए। आपका ड्राफ़्ट यहीं है। अपना इंटरनेट देखें और फिर से कोशिश करें।",
+  "Your browser is blocking this practice. Try a normal (not private) window.":
+    "आपका ब्राउज़र इस अभ्यास को रोक रहा है। सामान्य (प्राइवेट नहीं) विंडो में खोलें।",
+  "Your recording is safe in this tab. Keep this page open and try again.":
+    "आपकी रिकॉर्डिंग इस टैब में सुरक्षित है। यह पेज खुला रखें और फिर से कोशिश करें।",
+  "We couldn't submit your interview. Your saved answers are safe. Select Submit to try again.":
+    "हम आपका इंटरव्यू जमा नहीं कर पाए। आपके सेव जवाब सुरक्षित हैं। फिर से कोशिश करने के लिए 'जमा करें' चुनें।",
+  "We could not pause this interview. Your saved answers are safe. Check your connection and try again.":
+    "हम यह इंटरव्यू रोक नहीं पाए। आपके सेव जवाब सुरक्षित हैं। अपना इंटरनेट देखें और फिर से कोशिश करें।",
+  "We could not move to the next question. Your saved answer is safe. Select Next to try again.":
+    "हम अगले सवाल पर नहीं जा पाए। आपका सेव जवाब सुरक्षित है। फिर से कोशिश करने के लिए 'अगला' चुनें।",
+  "We could not start the prepared interview. Reconnect and try again; your questions remain saved.":
+    "हम तैयार इंटरव्यू शुरू नहीं कर पाए। फिर से जुड़ें और कोशिश करें; आपके सवाल सेव हैं।",
+  "This interview has ended.": "यह इंटरव्यू खत्म हो गया है।",
+  "This saved interview has expired. Start a new mock interview.":
+    "यह सेव इंटरव्यू अब मान्य नहीं है। नया मॉक इंटरव्यू शुरू करें।",
+  "We couldn't open this interview. Check your connection and try again.":
+    "हम यह इंटरव्यू नहीं खोल पाए। अपना इंटरनेट देखें और फिर से कोशिश करें।",
+  "Something went wrong with this interview. Open it from Progress.":
+    "इस इंटरव्यू में कुछ गड़बड़ हुई। इसे प्रगति से खोलें।",
+  "Your questions are ready, but we couldn't save your place. Check your connection and try again.":
+    "आपके सवाल तैयार हैं, पर हम आपकी जगह सेव नहीं कर पाए। अपना इंटरनेट देखें और फिर से कोशिश करें।",
+  "We couldn't start your assessment. Check your connection and try again.":
+    "हम आपका असेसमेंट शुरू नहीं कर पाए। अपना इंटरनेट देखें और फिर से कोशिश करें।",
+  "We need to reload this interview. Your answers are safe.":
+    "इस इंटरव्यू को फिर से लोड करना होगा। आपके जवाब सुरक्षित हैं।",
+  "This interview moved in another tab. We restored the latest saved question; no answer was lost.":
+    "यह इंटरव्यू किसी दूसरे टैब में आगे बढ़ा। हमने आखिरी सेव सवाल वापस ला दिया है; कोई जवाब नहीं खोया।",
+  "Your answer is saved. The follow-up is still being prepared. Wait a moment or choose Continue without follow-up.":
+    "आपका जवाब सेव है। अगला सवाल अभी तैयार हो रहा है। थोड़ा रुकें या 'बिना अगले सवाल के आगे बढ़ें' चुनें।",
+  "This job isn't ready yet. Choose another or ask your teacher.":
+    "यह नौकरी अभी तैयार नहीं है। कोई दूसरी चुनें या अपने टीचर से पूछें।",
+  "We're not sure your interview started. Check Progress before starting another.":
+    "पता नहीं कि आपका इंटरव्यू शुरू हुआ या नहीं। दूसरा शुरू करने से पहले प्रगति देखें।",
+  "This word didn't save. Please refresh and try again.":
+    "यह शब्द सेव नहीं हुआ। कृपया पेज रिफ़्रेश करें और फिर से कोशिश करें।",
+  "Recording stopped unexpectedly. Check your microphone and record again.":
+    "रिकॉर्डिंग अचानक रुक गई। अपना माइक्रोफ़ोन देखें और फिर से रिकॉर्ड करें।",
+  "Your practice is saved. We couldn't update your plan yet, so please try again.":
+    "आपका अभ्यास सेव है। हम अभी आपका प्लान अपडेट नहीं कर पाए, कृपया फिर से कोशिश करें।",
+  "This assignment link is invalid. Return to Practice and open your follow-up again.":
+    "यह असाइनमेंट लिंक सही नहीं है। अभ्यास पर वापस जाएँ और अपना फ़ॉलो-अप फिर से खोलें।",
+  "Voice recording is not available in this browser. Open this page in the latest Chrome or Edge on a device with a microphone.":
+    "इस ब्राउज़र में आवाज़ रिकॉर्ड नहीं हो सकती। माइक्रोफ़ोन वाले डिवाइस पर नए Chrome या Edge में यह पेज खोलें।",
+  "We could not use your microphone. Allow microphone access in browser settings, then try again.":
+    "हम आपका माइक्रोफ़ोन इस्तेमाल नहीं कर पाए। ब्राउज़र की सेटिंग में माइक्रोफ़ोन की अनुमति दें, फिर कोशिश करें।",
+  "We couldn't mark this as done. Please try again, or check it in Practice.":
+    "हम इसे पूरा नहीं दिखा पाए। फिर से कोशिश करें, या अभ्यास में देखें।",
+  "We could not confirm that plan started. Try again; the same request will not create a duplicate plan.":
+    "हम पक्का नहीं कर पाए कि प्लान शुरू हुआ। फिर से कोशिश करें; इससे दूसरा प्लान नहीं बनेगा।",
 };

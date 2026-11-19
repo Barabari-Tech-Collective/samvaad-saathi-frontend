@@ -62,11 +62,15 @@ export default function HomePage() {
       {noticeCount > 0 && (
         <aside className="ws-notice">
           <p>
-            {noticeCount} assessment {noticeCount === 1 ? "review needs" : "reviews need"} your
-            attention.
+            {noticeCount}{" "}
+            {t(
+              noticeCount === 1
+                ? "assessment review needs your attention."
+                : "assessment reviews need your attention."
+            )}
           </p>
           <Link className="ws-button" href="/assessment-reviews">
-            View reviews <ArrowRightIcon aria-hidden="true" />
+            {t("View reviews")} <ArrowRightIcon aria-hidden="true" />
           </Link>
         </aside>
       )}
@@ -119,9 +123,9 @@ export default function HomePage() {
         </div>
         {query.isError || (query.isSuccess && !query.isFetching && !data) ? (
           <div role="alert" className="ws-empty">
-            <p>We couldn't load your recent interviews. Your work is safe.</p>
-            <button className="ws-button mt-4" onClick={() => void query.refetch()}>
-              Try again
+            <p>{t("We couldn't load your recent interviews. Your work is safe.")}</p>
+            <button type="button" className="ws-button mt-4" onClick={() => void query.refetch()}>
+              {t("Try again")}
             </button>
           </div>
         ) : !data ? (
@@ -133,7 +137,7 @@ export default function HomePage() {
         ) : !data.items.length ? (
           <div className="ws-empty">
             <h3>{t("Your first round starts here")}</h3>
-            <p>Your interviews and feedback will appear here.</p>
+            <p>{t("Your interviews and feedback will appear here.")}</p>
           </div>
         ) : (
           <ul className="ws-history-list">

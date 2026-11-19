@@ -4,7 +4,7 @@ export function startRefusalMessage(status: number): string {
     case 401:
       return "Your sign-in has expired. Please sign in again, then start the interview.";
     case 403:
-      return "This interview isn't open to you yet. Ask your facilitator if you expected to see it.";
+      return "This interview isn't open to you yet. Ask your teacher if you expected to see it.";
     case 404:
     case 410:
       return "This interview is no longer available. Please pick another one from the list.";
