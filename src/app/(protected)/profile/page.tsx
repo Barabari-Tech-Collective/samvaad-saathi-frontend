@@ -13,6 +13,7 @@ import GraduationStatus from "@/components/graduation/GraduationStatus";
 import MyCourses from "@/components/placement/MyCourses";
 import AboutMyWork from "@/components/profile/AboutMyWork";
 import ExtraSupport from "@/components/profile/ExtraSupport";
+import WhatsAppUpdates from "@/components/profile/WhatsAppUpdates";
 import PageHeading from "@/components/studio/PageHeading";
 import { useAuth } from "@/components/providers/auth-provider";
 import { createApiClient, ENDPOINTS, extractApiErrorMessage } from "@/lib/api-config";
@@ -361,6 +362,7 @@ export default function ProfilePage() {
       <MyCourses />
       <GraduationStatus />
       <AboutMyWork />
+      <WhatsAppUpdates />
       <ExtraSupport />
       <section className="studio-profile-card">
         <div className="studio-profile-identity">
