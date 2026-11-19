@@ -15,7 +15,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { apiClient } from "@/lib/api-config";
 
 const button =
-  "inline-flex min-h-11 items-center justify-center rounded-xl border border-[#C0CFF2] px-4 py-2 font-medium text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:opacity-50";
+  "inline-flex min-h-11 items-center justify-center rounded-xl border border-brand-line-strong px-4 py-2 font-medium text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:opacity-50";
 
 function appointmentTime(iso: string, timezone: string | null | undefined) {
   try {

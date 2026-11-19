@@ -2,7 +2,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { journey } from "./hi-journey";
 import { hi as firstScreens } from "./hi";
-import { PageTranslator, tidy } from "./page-translator";
+import { lookup, PageTranslator, tidy } from "./page-translator";
 
 const hi = new Map(
   Object.entries({ ...journey, ...firstScreens }).map(([en, text]) => [tidy(en), text])
@@ -49,7 +49,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
   const t = useCallback(
-    (text: string) => (language === "hi" ? (hi.get(tidy(text)) ?? text) : text),
+    (text: string) => (language === "hi" ? (lookup(hi, text) ?? text) : text),
     [language]
   );
   const value = useMemo(() => ({ language, setLanguage, t }), [language, setLanguage, t]);

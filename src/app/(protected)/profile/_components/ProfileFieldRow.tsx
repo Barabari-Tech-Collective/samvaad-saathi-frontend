@@ -27,27 +27,35 @@ export function ProfileFieldRow({
     else if (previous.current) edit.current?.focus();
     previous.current = isEditing;
   }, [isEditing]);
+  // A plain row in the profile card, like every other card in the app: the label,
+  // the value or its form, and a text Edit/Cancel action on the same line.
   return (
-    <fieldset className="min-w-0 space-y-2 rounded-2xl border border-brand-line bg-white p-4">
-      <legend className="px-2 text-sm font-semibold text-brand-navy">{label}</legend>
-      <div className="flex justify-end">
+    <fieldset className="min-w-0 border-t border-brand-line py-4 first-of-type:border-t-0">
+      <legend className="sr-only">{label}</legend>
+      <div className="flex items-center justify-between gap-3">
+        <p aria-hidden="true" className="text-sm font-semibold text-brand-navy">
+          {label}
+        </p>
         <button
           ref={edit}
           aria-label={isEditing ? `Cancel editing ${label}` : `Edit ${label}`}
           onClick={isEditing ? onCancel : onEdit}
-          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-[#C0CFF2] text-brand-blue"
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-brand-blue hover:bg-brand-blue-wash focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
           type="button"
         >
           {isEditing ? (
-            <XMarkIcon className="size-5" aria-hidden="true" />
+            <XMarkIcon className="size-4" aria-hidden="true" />
           ) : (
-            <PencilIcon className="size-5" aria-hidden="true" />
+            <PencilIcon className="size-4" aria-hidden="true" />
           )}
+          <span>{isEditing ? "Cancel" : "Edit"}</span>
         </button>
       </div>
-      <div ref={content}>{children}</div>
+      <div ref={content} className="mt-2">
+        {children}
+      </div>
       {error && (
-        <p id={errorId} role="alert" className="text-sm text-[#9F1239]">
+        <p id={errorId} role="alert" className="mt-2 text-sm text-brand-rose">
           {error}
         </p>
       )}

@@ -1103,6 +1103,14 @@
     color: var(--studio-muted);
   }
 }
+/* At 320-400px the three labels do not fit on one line: the other steps keep their
+   number only (screen readers still read the label). */
+@media (max-width: 400px) {
+  .studio-setup-steps li:not([aria-current="step"]) {
+    font-size: 0;
+    gap: 0;
+  }
+}
 
 .ws-messages {
   display: flex;

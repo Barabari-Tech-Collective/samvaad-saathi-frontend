@@ -520,7 +520,7 @@ function InterviewSetup({
   // Most people want the sensible default. Choices stay one tap away under "Change".
   if (quickStart && mode === "practice" && !selection)
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-[#111827]">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-brand-ink">
         <PageHeading
           title="Mock interview"
           description="A short rehearsal with common questions."
@@ -559,7 +559,7 @@ function InterviewSetup({
     );
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-[#111827]">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8 text-brand-ink">
       <PageHeading
         className="studio-setup-heading"
         eyebrow={mode === "assessment" ? "Formal assessment" : "Mock interview"}
@@ -667,7 +667,9 @@ function InterviewSetup({
                   <label
                     key={opt.key}
                     className={`flex min-h-20 items-start gap-3 rounded-2xl border p-4 ${
-                      difficulty === opt.key ? "border-brand-blue bg-[#F5F7FF]" : "border-gray-200"
+                      difficulty === opt.key
+                        ? "border-brand-blue bg-brand-canvas"
+                        : "border-gray-200"
                     } ${available ? "cursor-pointer" : "cursor-not-allowed opacity-50"}`}
                   >
                     <input
@@ -740,7 +742,7 @@ function InterviewSetup({
                     event.target.value === "" ? Number.NaN : Number(event.target.value)
                   )
                 }
-                className="mt-2 block min-h-12 w-full rounded-lg border border-[#9CA3AF] px-3 text-base sm:max-w-xs"
+                className="mt-2 block min-h-12 w-full rounded-lg border border-brand-gray-light px-3 text-base sm:max-w-xs"
               />
             </label>
           ) : selectedProfile ? (

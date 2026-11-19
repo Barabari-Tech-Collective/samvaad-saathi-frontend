@@ -62,7 +62,7 @@ function HistoryWorkspace({ account }: { account: string }) {
     router.push(`/history?${params}`, { scroll: false });
   };
   return (
-    <div className="mx-auto w-full min-w-0 max-w-6xl space-y-6 pb-10 text-[#111827] [overflow-wrap:anywhere]">
+    <div className="mx-auto w-full min-w-0 max-w-6xl space-y-6 pb-10 text-brand-ink [overflow-wrap:anywhere]">
       <PageHeading
         eyebrow="Your interviews"
         title="Progress"

@@ -953,4 +953,19 @@ export const journey: Record<string, string> = {
     "हम इसे पूरा नहीं दिखा पाए। फिर से कोशिश करें, या अभ्यास में देखें।",
   "We could not confirm that plan started. Try again; the same request will not create a duplicate plan.":
     "हम पक्का नहीं कर पाए कि प्लान शुरू हुआ। फिर से कोशिश करें; इससे दूसरा प्लान नहीं बनेगा।",
+  // Text with numbers in it: {n} stands for each number, in order (see lookup in page-translator).
+  easy: "आसान",
+  medium: "मध्यम",
+  hard: "कठिन",
+  expert: "एक्सपर्ट",
+  "{n} minutes": "{n} मिनट",
+  "about {n} minutes": "लगभग {n} मिनट",
+  "{n} questions": "{n} सवाल",
+  "{n} questions · about {n} minutes": "{n} सवाल · लगभग {n} मिनट",
+  "{n} words per pause": "हर ठहराव में {n} शब्द",
+  "{n} seconds to think": "सोचने के लिए {n} सेकंड",
+  "{n} of {n} answers are saved. Your questions will stay in the same order.":
+    "{n} में से {n} जवाब सेव हैं। आपके सवाल इसी क्रम में रहेंगे।",
+  "Question {n} of {n}": "सवाल {n} / {n}",
+  "{n}%": "{n}%",
 };

@@ -214,7 +214,7 @@ export default function PracticePreflight({
   const ready = network === "passed" && storage === "passed" && voiceReady && playback === "passed";
 
   return (
-    <div className="mx-auto w-full max-w-3xl pb-8 text-[#111827]">
+    <div className="mx-auto w-full max-w-3xl pb-8 text-brand-ink">
       <button
         type="button"
         onClick={onBack}
@@ -231,7 +231,7 @@ export default function PracticePreflight({
         )}
       />
 
-      <section className="mt-6 rounded-2xl bg-[#F5F7FF] p-5" aria-label="Interview preview">
+      <section className="mt-6 rounded-2xl bg-brand-canvas p-5" aria-label="Interview preview">
         <dl className="grid gap-4 sm:grid-cols-3">
           <div>
             <dt className="text-sm text-gray-600">Role</dt>
@@ -285,7 +285,7 @@ export default function PracticePreflight({
           <div
             ref={microphoneHelp}
             role="alert"
-            className="rounded-2xl border border-[#F5B971] bg-[#FFF6E8] p-4 text-sm leading-6"
+            className="rounded-2xl border border-brand-orange-line bg-brand-paper p-4 text-sm leading-6"
           >
             <p className="font-semibold">{t("How to turn the microphone on")}</p>
             <ol className="mt-2 list-decimal space-y-1 pl-5">
@@ -316,7 +316,7 @@ export default function PracticePreflight({
         />
       </section>
 
-      <section className="mt-6 rounded-2xl bg-[#FFE4BF] p-5">
+      <section className="mt-6 rounded-2xl bg-brand-yellow-wash p-5">
         <h2 className="font-bold">{t("Before you begin")}</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-gray-800">
           <li>{t("This mock interview is for rehearsal. It is not an assessment.")}</li>

@@ -11,7 +11,7 @@ import {
 import { apiClient } from "@/lib/api-config/src/instance";
 
 const button =
-  "inline-flex min-h-11 items-center justify-center rounded-xl border border-[#C0CFF2] px-4 py-2 font-medium text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:opacity-50";
+  "inline-flex min-h-11 items-center justify-center rounded-xl border border-brand-line-strong px-4 py-2 font-medium text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:opacity-50";
 function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () => void }) {
   const submit = apiClient.useMutation<unknown, Record<string, unknown>>({
     url: `v2/integrity/me/cases/${row.id}/actions`,
@@ -50,7 +50,7 @@ function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () =
         {row.history.map((event, index) => (
           <li
             key={`${event.kind}:${event.at}:${index}`}
-            className="border-l-2 border-[#C0CFF2] pl-4"
+            className="border-l-2 border-brand-line-strong pl-4"
           >
             <p className="font-medium">
               {event.kind.replaceAll("_", " ")}

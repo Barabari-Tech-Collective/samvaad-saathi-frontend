@@ -190,14 +190,21 @@ const QuestionReport = ({
           <div className="relative w-16 h-16 flex-shrink-0">
             <svg className="transform -rotate-90" width="64" height="64" viewBox="0 0 64 64">
               {/* Background circle */}
-              <circle cx="32" cy="32" r="28" fill="none" stroke="#e5e7eb" strokeWidth="4" />
+              <circle
+                cx="32"
+                cy="32"
+                r="28"
+                fill="none"
+                stroke="var(--color-brand-neutral-line)"
+                strokeWidth="4"
+              />
               {/* Progress circle */}
               <circle
                 cx="32"
                 cy="32"
                 r="28"
                 fill="none"
-                stroke="#22c55e"
+                stroke="var(--color-brand-success-bright)"
                 strokeWidth="4"
                 strokeDasharray={`${2 * Math.PI * 28}`}
                 strokeDashoffset={`${

@@ -67,7 +67,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
   const status = data.reportStatus ?? "ready";
 
   return (
-    <div className="mx-auto w-full min-w-0 max-w-5xl space-y-7 [overflow-wrap:anywhere] pb-12 pt-4 text-[#111827] sm:pt-7">
+    <div className="mx-auto w-full min-w-0 max-w-5xl space-y-7 [overflow-wrap:anywhere] pb-12 pt-4 text-brand-ink sm:pt-7">
       <header className="studio-report-header">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm font-bold uppercase tracking-[0.14em] text-brand-yellow">
@@ -95,7 +95,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
 
       {data.uncertaintyNotice && (
         <section
-          className="rounded-2xl border border-[#F3D29A] bg-[#FFF5E8] p-5"
+          className="rounded-2xl border border-brand-warning-line bg-brand-paper p-5"
           aria-label="How to read this report"
         >
           <h2 className="font-bold text-amber-950">How to read this report</h2>
@@ -109,7 +109,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
           speechAndStructure={data.scoreSummary.speechAndStructure}
         />
       ) : (
-        <section className="rounded-3xl border border-[#D6E0FB] bg-white p-6" role="status">
+        <section className="rounded-3xl border border-brand-indigo-wash bg-white p-6" role="status">
           <h2 className="text-xl font-bold">No overall score yet</h2>
           <p className="mt-2 max-w-2xl leading-6 text-gray-600">
             We couldn't work out an overall score. Unclear speech never lowers your score.
@@ -136,7 +136,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
 
       {recommendation && (
         <section
-          className="rounded-3xl bg-[#FFE4BF] p-6 sm:p-8"
+          className="rounded-3xl bg-brand-yellow-wash p-6 sm:p-8"
           aria-labelledby="next-practice-title"
         >
           <div className="flex items-start gap-3">
@@ -163,7 +163,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
                     "report_summary_page"
                   )
                 }
-                className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-brand-yellow px-6 font-bold text-brand-navy transition hover:bg-[#FFB800] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+                className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-xl bg-brand-yellow px-6 font-bold text-brand-navy transition hover:bg-brand-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
               >
                 Start this coaching activity
                 <ArrowRightIcon className="size-5" aria-hidden="true" />
@@ -178,7 +178,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
       )}
 
       {data.finalTip && (
-        <section className="rounded-2xl bg-[#F9FAFB] p-5">
+        <section className="rounded-2xl bg-brand-neutral-canvas p-5">
           <h2 className="font-bold">{data.finalTip.title}</h2>
           <p className="mt-1 leading-6 text-gray-600">{data.finalTip.description}</p>
         </section>
@@ -192,7 +192,7 @@ function ReportContent({ account, interviewId }: { account: string; interviewId:
           Open Progress
         </Link>
         <Link
-          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#D6E0FB] px-5 font-bold text-brand-blue"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl border border-brand-indigo-wash px-5 font-bold text-brand-blue"
           href="/coaching"
         >
           Explore Coaching

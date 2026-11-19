@@ -8,7 +8,7 @@ interface EvidenceSummaryProps {
 export default function EvidenceSummary({ evidence }: EvidenceSummaryProps) {
   return (
     <section
-      className="rounded-3xl border border-[#D6E0FB] bg-white p-5 sm:p-6"
+      className="rounded-3xl border border-brand-indigo-wash bg-white p-5 sm:p-6"
       aria-labelledby="evidence-summary-title"
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -16,7 +16,7 @@ export default function EvidenceSummary({ evidence }: EvidenceSummaryProps) {
           <p className="text-sm font-bold uppercase tracking-[0.12em] text-brand-blue">
             What we looked at
           </p>
-          <h2 id="evidence-summary-title" className="mt-2 text-xl font-bold text-[#111827]">
+          <h2 id="evidence-summary-title" className="mt-2 text-xl font-bold text-brand-ink">
             {confidenceCopy(evidence.confidence)}
           </h2>
           <p className="mt-2 max-w-2xl leading-6 text-gray-600">{evidence.statusMessage}</p>
@@ -26,7 +26,7 @@ export default function EvidenceSummary({ evidence }: EvidenceSummaryProps) {
         </p>
       </div>
       <div
-        className="mt-5 h-2 overflow-hidden rounded-full bg-[#EEF2FF]"
+        className="mt-5 h-2 overflow-hidden rounded-full bg-brand-blue-wash"
         role="progressbar"
         aria-label="Answers we could assess"
         aria-valuemin={0}
@@ -39,15 +39,15 @@ export default function EvidenceSummary({ evidence }: EvidenceSummaryProps) {
         />
       </div>
       <dl className="mt-5 grid grid-cols-3 gap-3 text-center">
-        <div className="rounded-2xl bg-[#F9FAFB] p-3">
+        <div className="rounded-2xl bg-brand-neutral-canvas p-3">
           <dt className="text-sm text-gray-500">Saved</dt>
           <dd className="mt-1 text-lg font-bold">{evidence.savedAnswers}</dd>
         </div>
-        <div className="rounded-2xl bg-[#F9FAFB] p-3">
+        <div className="rounded-2xl bg-brand-neutral-canvas p-3">
           <dt className="text-sm text-gray-500">Clear enough</dt>
           <dd className="mt-1 text-lg font-bold">{evidence.usableAnswers}</dd>
         </div>
-        <div className="rounded-2xl bg-[#F9FAFB] p-3">
+        <div className="rounded-2xl bg-brand-neutral-canvas p-3">
           <dt className="text-sm text-gray-500">Evaluated</dt>
           <dd className="mt-1 text-lg font-bold">{evidence.evaluatedAnswers}</dd>
         </div>

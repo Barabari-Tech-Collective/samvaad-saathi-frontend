@@ -3,7 +3,7 @@ import type { FinalSummaryProps } from "./types";
 export default function FinalSummary({ speechFluencyFeedback }: FinalSummaryProps) {
   return (
     <section
-      className="rounded-3xl border border-[#D6E0FB] bg-white p-5 sm:p-6"
+      className="rounded-3xl border border-brand-indigo-wash bg-white p-5 sm:p-6"
       aria-labelledby="communication-summary-title"
     >
       <p className="text-sm font-bold uppercase tracking-[0.12em] text-brand-blue">
@@ -25,7 +25,7 @@ export default function FinalSummary({ speechFluencyFeedback }: FinalSummaryProp
           </div>
         )}
         {speechFluencyFeedback.areasOfImprovement && (
-          <div className="rounded-2xl bg-[#FFF5E8] p-5">
+          <div className="rounded-2xl bg-brand-paper p-5">
             <h3 className="font-bold text-amber-950">What to try next</h3>
             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-amber-950">
               {speechFluencyFeedback.areasOfImprovement}

@@ -4,10 +4,10 @@ type Dimension = OverallScoreSummaryProps["speechAndStructure"];
 
 function ScoreDimension({ title, dimension }: { title: string; dimension: Dimension }) {
   return (
-    <section className="rounded-2xl bg-[#F9FAFB] p-5" aria-label={title}>
+    <section className="rounded-2xl bg-brand-neutral-canvas p-5" aria-label={title}>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h3 className="font-bold text-[#111827]">{title}</h3>
+          <h3 className="font-bold text-brand-ink">{title}</h3>
           <p className="mt-1 text-sm text-gray-600">
             {dimension.score} of {dimension.maxScore} points
           </p>
@@ -15,7 +15,7 @@ function ScoreDimension({ title, dimension }: { title: string; dimension: Dimens
         <p className="text-3xl font-bold text-brand-navy">{dimension.percentage}%</p>
       </div>
       <div
-        className="mt-4 h-2 overflow-hidden rounded-full bg-[#E6ECFB]"
+        className="mt-4 h-2 overflow-hidden rounded-full bg-brand-blue-wash"
         role="progressbar"
         aria-label={`${title} score`}
         aria-valuemin={0}
@@ -29,7 +29,10 @@ function ScoreDimension({ title, dimension }: { title: string; dimension: Dimens
       </div>
       <dl className="mt-4 flex flex-wrap gap-2">
         {Object.entries(dimension.criteria).map(([key, value]) => (
-          <div key={key} className="rounded-full border border-[#D6E0FB] bg-white px-3 py-1.5">
+          <div
+            key={key}
+            className="rounded-full border border-brand-indigo-wash bg-white px-3 py-1.5"
+          >
             <dt className="inline text-sm capitalize text-gray-600">{key}: </dt>
             <dd className="inline text-sm font-bold text-brand-navy">{value}</dd>
           </div>
@@ -45,7 +48,7 @@ export default function OverallScoreSummary({
 }: OverallScoreSummaryProps) {
   return (
     <section
-      className="rounded-3xl border border-[#D6E0FB] bg-white p-5 sm:p-6"
+      className="rounded-3xl border border-brand-indigo-wash bg-white p-5 sm:p-6"
       aria-labelledby="score-summary-title"
     >
       <p className="text-sm font-bold uppercase tracking-[0.12em] text-brand-blue">

@@ -33,15 +33,15 @@ export default function CompletedInterviewCard({ item }: CompletedInterviewCardP
             rings={[
               {
                 value: item.knowledgePercentage ?? 0,
-                color: "#3b82f6",
+                color: "var(--color-brand-info)",
                 ariaLabel: "Technical Knowledge progress",
-                trackColor: "#e5e5e5",
+                trackColor: "var(--color-brand-neutral-line)",
               },
               {
                 value: item.speechFluencyPercentage ?? 0,
-                color: "#6b7280",
+                color: "var(--color-brand-gray)",
                 ariaLabel: "Speech Fluency progress",
-                trackColor: "#bedbff",
+                trackColor: "var(--color-brand-line-strong)",
               },
             ]}
             centerRender={(rings) => (
@@ -62,7 +62,7 @@ export default function CompletedInterviewCard({ item }: CompletedInterviewCardP
               <div className="flex items-center gap-2">
                 <div className="p-2">
                   <svg width="8" height="8" viewBox="0 0 8 8">
-                    <circle cx="4" cy="4" r="4" fill="#3b82f6" />
+                    <circle cx="4" cy="4" r="4" fill="var(--color-brand-info)" />
                   </svg>
                 </div>
                 <span className="text-sm text-gray-700">Technical Knowledge</span>
@@ -70,7 +70,7 @@ export default function CompletedInterviewCard({ item }: CompletedInterviewCardP
               <div className="flex items-center gap-2">
                 <div className="p-2">
                   <svg width="8" height="8" viewBox="0 0 8 8">
-                    <circle cx="4" cy="4" r="4" fill="#6b7280" />
+                    <circle cx="4" cy="4" r="4" fill="var(--color-brand-gray)" />
                   </svg>
                 </div>
                 <span className="text-sm text-gray-700">Speech Fluency</span>

@@ -375,7 +375,7 @@ export default function GuidedSpeakingDrill({
 
   if (state === "complete") {
     return (
-      <div className="mx-auto max-w-3xl py-4 text-[#111827]">
+      <div className="mx-auto max-w-3xl py-4 text-brand-ink">
         <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-7 text-center sm:p-10">
           <CheckCircleIcon className="mx-auto size-14 text-emerald-600" aria-hidden="true" />
           <h1 className="mt-4 text-3xl font-bold">
@@ -408,7 +408,7 @@ export default function GuidedSpeakingDrill({
   }
 
   return (
-    <div className="mx-auto max-w-4xl pb-8 text-[#111827]">
+    <div className="mx-auto max-w-4xl pb-8 text-brand-ink">
       <PageHeading eyebrow={eyebrow} title={title} description={description} />
 
       <section className="studio-panel">
@@ -420,7 +420,7 @@ export default function GuidedSpeakingDrill({
                 key={item.key}
                 className={`min-h-28 cursor-pointer rounded-2xl border p-4 transition has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand-blue ${
                   levelKey === item.key
-                    ? "border-brand-blue bg-[#F5F7FF] ring-2 ring-brand-blue/15"
+                    ? "border-brand-blue bg-brand-canvas ring-2 ring-brand-blue/15"
                     : "border-gray-200 hover:border-brand-blue"
                 }`}
               >
@@ -442,7 +442,7 @@ export default function GuidedSpeakingDrill({
           </div>
         </fieldset>
 
-        <div className="mt-7 rounded-2xl bg-[#F5F7FF] p-5 sm:p-6">
+        <div className="mt-7 rounded-2xl bg-brand-canvas p-5 sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.12em] text-brand-blue">
@@ -455,7 +455,7 @@ export default function GuidedSpeakingDrill({
               onClick={chooseAnotherPrompt}
               disabled={state !== "ready"}
               aria-label="Choose another prompt"
-              className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-[#D6E0FB] bg-white px-3 text-sm font-semibold text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-brand-indigo-wash bg-white px-3 text-sm font-semibold text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-not-allowed disabled:opacity-50"
             >
               <ArrowPathIcon className="size-5" aria-hidden="true" />
               <span className="hidden sm:inline">Another prompt</span>

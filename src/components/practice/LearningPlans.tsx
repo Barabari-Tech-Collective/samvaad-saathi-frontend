@@ -114,7 +114,7 @@ function PlanCard({
       {assignment.reason && <p className="text-sm text-gray-600">{assignment.reason}</p>}
       {assignment.dueDate && <p className="text-sm">{dueText(assignment.dueDate)}</p>}
       {assignment.status === "active" && current ? (
-        <section className="rounded-xl bg-[#F5F7FF] p-3">
+        <section className="rounded-xl bg-brand-canvas p-3">
           <p className="font-medium">Current step: {current.title}</p>
           {current.instructions && <p className="mt-1 text-sm">{current.instructions}</p>}
           <div className="mt-3">
