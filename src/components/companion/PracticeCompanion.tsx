@@ -65,10 +65,15 @@ export default function PracticeCompanion({
             aria-hidden="true"
             focusable="false"
           >
-            <rect x="10" y="20" width="80" height="72" rx="28" fill="#344499" />
-            <path d="M36 21V14a14 14 0 0 1 28 0v7" fill="none" stroke="#FFCC33" strokeWidth="8" />
-            <rect x="21" y="34" width="58" height="43" rx="20" fill="#F5F9FF" />
-            <g className="saathi-eyes" fill="#1F285B">
+            <rect x="10" y="20" width="80" height="72" rx="28" fill="var(--color-brand-blue)" />
+            <path
+              d="M36 21V14a14 14 0 0 1 28 0v7"
+              fill="none"
+              stroke="var(--color-brand-yellow)"
+              strokeWidth="8"
+            />
+            <rect x="21" y="34" width="58" height="43" rx="20" fill="var(--color-brand-canvas)" />
+            <g className="saathi-eyes" fill="var(--color-brand-navy)">
               <ellipse cx="38" cy="51" rx="5" ry="7" />
               <ellipse cx="62" cy="51" rx="5" ry="7" />
             </g>
@@ -80,23 +85,23 @@ export default function PracticeCompanion({
                 width="14"
                 height="9"
                 rx="4"
-                fill="#344499"
+                fill="var(--color-brand-blue)"
               />
             ) : (
               <path
                 d="M43 64q7 6 14 0"
                 fill="none"
-                stroke="#344499"
+                stroke="var(--color-brand-blue)"
                 strokeWidth="3"
                 strokeLinecap="round"
               />
             )}
-            <circle cx="82" cy="26" r="7" fill="#FFCC33" />
+            <circle cx="82" cy="26" r="7" fill="var(--color-brand-yellow)" />
           </svg>
           <div className="min-w-0">
             <p className="font-heading text-lg font-semibold text-[var(--brand-navy)]">
               Saathi{" "}
-              <span className="ml-1 rounded-full bg-[#FFE4BF] px-2 py-1 text-sm font-medium">
+              <span className="ml-1 rounded-full bg-brand-yellow-wash px-2 py-1 text-sm font-medium">
                 AI
               </span>
             </p>

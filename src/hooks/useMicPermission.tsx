@@ -70,7 +70,9 @@ export const useMicPermission = (): MicPermissionState & MicPermissionActions =>
       } else if (result.state === "denied") {
         setHasPermission(false);
         setShowModal(false);
-        toast.error("Microphone access denied. Please enable it in your browser settings.");
+        toast.error(
+          "Your microphone is blocked. Allow it in your browser settings, then try again."
+        );
       } else {
         // Prompt state - permission not yet requested
         setHasPermission(false);
@@ -94,7 +96,7 @@ export const useMicPermission = (): MicPermissionState & MicPermissionActions =>
       setHasPermission(true);
       setShowModal(false);
 
-      toast.success("Microphone access granted!");
+      toast.success("Microphone is on.");
       return true;
     } catch {
       setHasPermission(false);

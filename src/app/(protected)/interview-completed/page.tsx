@@ -18,19 +18,19 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const action =
-  "inline-flex min-h-12 items-center justify-center rounded-xl bg-black px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]";
+  "inline-flex min-h-12 items-center justify-center rounded-xl bg-black px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue";
 
 function CompletionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mx-auto w-full min-w-0 max-w-2xl py-6 [overflow-wrap:anywhere] sm:py-10">
       <section className="studio-panel space-y-5">
         <p className="studio-eyebrow">Interview submission</p>
-        <h1 className="text-3xl font-bold tracking-tight text-[#1F285B]">{title}</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-brand-navy">{title}</h1>
         {children}
         <div className="flex flex-wrap gap-3">
           <Link
             href="/history"
-            className="inline-flex min-h-11 items-center rounded-xl border border-[#344499] px-5 py-3 font-semibold text-[#344499]"
+            className="inline-flex min-h-11 items-center rounded-xl border border-brand-blue px-5 py-3 font-semibold text-brand-blue"
           >
             Open Progress
           </Link>
@@ -49,9 +49,7 @@ export default function InterviewCompleted() {
   if (!validInterviewId(interviewId))
     return (
       <CompletionCard title="Check this interview link">
-        <p role="alert">
-          This link isn't right. Find your interview in Progress.
-        </p>
+        <p role="alert">This link isn't right. Find your interview in Progress.</p>
       </CompletionCard>
     );
   if (loading || !user?.userId)
@@ -251,7 +249,7 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
           Your feedback may still be on its way. Give it a minute before trying again.
         </p>
       )}
-      <div className="space-y-3 rounded-2xl bg-[#F5F9FF] p-5" aria-live="polite">
+      <div className="space-y-3 rounded-2xl bg-brand-canvas p-5" aria-live="polite">
         {generation === "pending" ? (
           <p role="status">
             We&apos;re preparing your feedback. You can leave this page and it will keep going.

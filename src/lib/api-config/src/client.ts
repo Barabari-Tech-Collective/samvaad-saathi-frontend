@@ -444,7 +444,11 @@ export const createApiClient = (
     return response.data;
   };
   /** One-off write for buttons on list rows, where the URL depends on the row. */
-  const send = async <TData = unknown>(method: "post" | "put" | "patch" | "delete", url: string, data?: unknown): Promise<TData> => {
+  const send = async <TData = unknown>(
+    method: "post" | "put" | "patch" | "delete",
+    url: string,
+    data?: unknown
+  ): Promise<TData> => {
     const expected = revision();
     assertOwner(expected);
     const token = session ? null : getTokenFromCookies();

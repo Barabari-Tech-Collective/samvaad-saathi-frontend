@@ -108,9 +108,7 @@ it("v2 denial without a request code remains a clear access state", async () => 
   mocks.cookies = { token: "old", refresh_token: "old-refresh" };
   window.history.replaceState({}, "", "/auth/signup#error=access_denied");
   const view = render(<SignupPage />);
-  await waitFor(() =>
-    expect(view.getByRole("status")).toHaveTextContent("ask your teacher")
-  );
+  await waitFor(() => expect(view.getByRole("status")).toHaveTextContent("ask your teacher"));
   expect(mocks.replace).not.toHaveBeenCalled();
 });
 

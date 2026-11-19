@@ -50,8 +50,7 @@ const PronunciationPracticeStartPage = () => {
     method: "post",
   });
   const { mutateAsync: bindPlanSession } = apiClient.useMutation<unknown, { session_id: number }>({
-    url:
-      planStep && practiceData ? drillSessionUrl(planStep) : drillSessionUrl(null),
+    url: planStep && practiceData ? drillSessionUrl(planStep) : drillSessionUrl(null),
     method: "post",
   });
 
@@ -115,9 +114,7 @@ const PronunciationPracticeStartPage = () => {
         if (mounted.current) setCurrentWordIndex(currentWordIndex + 1);
       } catch {
         if (mounted.current)
-          setCompletionError(
-            "This word didn't save. Please refresh and try again."
-          );
+          setCompletionError("This word didn't save. Please refresh and try again.");
       } finally {
         if (mounted.current) setCompleting(false);
       }
@@ -281,9 +278,9 @@ const PronunciationPracticeStartPage = () => {
                 disabled={isFetchingAudio}
               >
                 {isFetchingAudio ? (
-                  <ArrowPathIcon className="h-6 w-6 text-[#1f285b] animate-spin" />
+                  <ArrowPathIcon className="h-6 w-6 text-brand-navy animate-spin" />
                 ) : (
-                  <SpeakerWaveIcon className="h-6 w-6 text-[#1f285b]" />
+                  <SpeakerWaveIcon className="h-6 w-6 text-brand-navy" />
                 )}
               </button>
             </div>
@@ -317,7 +314,7 @@ const PronunciationPracticeStartPage = () => {
           <button
             onClick={() => void handleNext()}
             disabled={completing}
-            className="btn bg-[#1f285b] hover:bg-[#1f285b]/90 text-white px-6 py-3 rounded-xl flex items-center gap-2"
+            className="btn bg-brand-navy hover:bg-brand-navy/90 text-white px-6 py-3 rounded-xl flex items-center gap-2"
           >
             <span>
               {currentWordIndex === practiceData.words.length - 1

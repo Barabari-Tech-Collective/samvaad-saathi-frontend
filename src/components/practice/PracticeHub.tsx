@@ -62,7 +62,7 @@ const MODULES = [
 export function PracticeHubSkeleton({ area = "legacy" }: { area?: LearningArea }) {
   const label =
     area === "mock"
-      ? "Loading Mock Interviews"
+      ? "Loading mock interviews"
       : area === "coaching"
         ? "Loading Coaching"
         : "Loading your learning workspace";
@@ -74,7 +74,7 @@ export function PracticeHubSkeleton({ area = "legacy" }: { area?: LearningArea }
     >
       <span className="sr-only">{label}</span>
       <div className="h-20 rounded-2xl bg-gray-100" />
-      <div className="h-64 rounded-xl bg-[#344499]/10" />
+      <div className="h-64 rounded-xl bg-brand-blue/10" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[0, 1, 2, 3, 4].map((item) => (
           <div key={item} className="h-40 rounded-2xl bg-gray-100" />
@@ -113,11 +113,11 @@ function MockInterviewCard({
       : "/interview-start?mode=practice";
   return (
     <section className="studio-panel space-y-4" aria-labelledby="mock-interview-start-title">
-      <p className="studio-eyebrow">{t(resume ? "Saved Mock Interview" : "Mock Interviews")}</p>
+      <p className="studio-eyebrow">{t(resume ? "Saved mock interview" : "Mock interviews")}</p>
       <h2 id="mock-interview-start-title" className="text-xl font-semibold sm:text-2xl">
         {resume
           ? canResume
-            ? `Continue your ${resume.track} Mock Interview`
+            ? `Continue your ${resume.track} mock interview`
             : readiness.title
           : status === "error"
             ? "We couldn't load your interview"
@@ -160,11 +160,11 @@ function MockInterviewCard({
         >
           {resume
             ? canResume
-              ? t("Continue Mock Interview")
+              ? t("Continue mock interview")
               : "Open in Progress"
             : status === "error"
               ? "Open Progress"
-              : t("Start Mock Interview")}
+              : t("Start mock interview")}
         </Link>
       )}
       {resume && !canResume && (
@@ -172,9 +172,7 @@ function MockInterviewCard({
           Check again
         </button>
       )}
-      <p className="text-sm">
-        This is only practice and never counts.
-      </p>
+      <p className="text-sm">This is only practice and never counts.</p>
     </section>
   );
 }
@@ -224,7 +222,7 @@ export function PracticeHubView({
   return (
     <div className="mx-auto w-full min-w-0 max-w-6xl space-y-6 pb-8 [overflow-wrap:anywhere]">
       <PageHeading
-                title={t("Practice")}
+        title={t("Practice")}
         description={
           area === "mock"
             ? "Rehearse a full interview and get feedback."
@@ -236,7 +234,7 @@ export function PracticeHubView({
           {t("Short activities")}
         </Link>
         <Link href="/mock-interviews" aria-current={area === "mock" ? "page" : undefined}>
-          {t("Mock Interviews")}
+          {t("Mock interviews")}
         </Link>
       </nav>
       {status === "error" && (
@@ -251,7 +249,9 @@ export function PracticeHubView({
       {showMock && <MockInterviewCard hub={verified} status={status} onRefresh={onRefresh} />}
       {showCoaching && (
         <>
-          <h2 className="text-xl font-semibold">{t("More practice")}</h2>
+          {/* "More" only makes sense below the mock interview card; on the coaching
+              page these activities are the page itself. */}
+          {showMock && <h2 className="text-xl font-semibold">{t("More practice")}</h2>}
           {children}
           <CoachingFocus hub={verified} />
           <section aria-labelledby="skill-builders-title">
@@ -274,8 +274,8 @@ export function PracticeHubView({
                   >
                     <Icon aria-hidden="true" />
                     <div>
-                      <h3>{module.title}</h3>
-                      <p>{module.description}</p>
+                      <h3>{t(module.title)}</h3>
+                      <p>{t(module.description)}</p>
                     </div>
                     <ChevronRightIcon aria-hidden="true" />
                   </Link>

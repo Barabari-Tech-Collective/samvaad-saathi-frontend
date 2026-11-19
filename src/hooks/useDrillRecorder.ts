@@ -92,7 +92,7 @@ export function useDrillRecorder(resetKey: string | number) {
       dispose();
       setStatus("idle");
       setError(
-        "Could not record. Allow microphone access and check that another app is not using it."
+        "We couldn't record. Allow microphone access and check that another app is not using it."
       );
     }
   }, [dispose]);

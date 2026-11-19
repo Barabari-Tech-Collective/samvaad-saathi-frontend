@@ -106,9 +106,9 @@ const Header = ({
     <header className="studio-room-header">
       <div className="min-w-0 flex-1">
         <p className="studio-eyebrow">
-          {mode === "practice" ? "Mock Interview room" : "Assessment room"}
+          {mode === "practice" ? "Mock interview room" : "Assessment room"}
         </p>
-        <h3 className="mt-1 break-words text-xl font-semibold text-[#1F285B] sm:text-2xl">
+        <h3 className="mt-1 break-words text-xl font-semibold text-brand-navy sm:text-2xl">
           {role || "Interview"}
         </h3>
       </div>
@@ -120,7 +120,7 @@ const Header = ({
       )}
       <p className="studio-room-clock" aria-label="Interview time">
         {deadlineAt === null
-          ? `${mode === "assessment" ? "Assessment" : "Mock Interview"} · no time limit`
+          ? `${mode === "assessment" ? "Assessment" : "Mock interview"} · no time limit`
           : formatTime(timeLeft)}
       </p>
     </header>

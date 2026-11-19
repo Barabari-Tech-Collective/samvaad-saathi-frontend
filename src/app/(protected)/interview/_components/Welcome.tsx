@@ -21,7 +21,7 @@ const Welcome = ({
   const isPractice = mode === "practice";
   return (
     <div className="studio-welcome">
-      <p className="studio-eyebrow">{isPractice ? "Mock Interview" : "Formal assessment"}</p>
+      <p className="studio-eyebrow">{isPractice ? "Mock interview" : "Formal assessment"}</p>
       <h1 className="mt-3">Ready for your {role} interview?</h1>
       <div className="studio-welcome-meta">
         {plannedQuestionCount !== null && <span>{plannedQuestionCount} questions</span>}
@@ -37,7 +37,7 @@ const Welcome = ({
         <ul className="space-y-2 text-gray-800 font-medium text-md leading-relaxed list-disc pl-5 marker:text-gray-800">
           {isPractice ? (
             <>
-              <li>This Mock Interview is for rehearsal and feedback.</li>
+              <li>This mock interview is for rehearsal and feedback.</li>
               <li>
                 Answer by voice. If your microphone is unavailable, check its permissions before
                 starting.
@@ -67,7 +67,7 @@ const Welcome = ({
             {isPreparing
               ? "Preparing interview…"
               : isPractice
-                ? "Begin Mock Interview"
+                ? "Begin mock interview"
                 : "Begin assessment"}
           </button>
         </div>

@@ -36,7 +36,7 @@ const titles: Record<string, string> = {
   profile: "Profile",
   assessments: "Assessments",
   "assessment-reviews": "Assessment reviews",
-  "human-interviews": "Human Interviews",
+  "human-interviews": "Human interviews",
   "opportunity-outcomes": "Opportunity outcomes",
   "interview-start": "Interview setup",
   interview: "Interview",
@@ -109,25 +109,25 @@ export default function StudentShell({ children }: { children: React.ReactNode }
           {destinations
             .filter((item) => !item.assigned || showAssessments)
             .map(({ href, label, icon: Icon }) => (
-            <li key={href}>
-              <Link
-                href={href}
-                aria-label={t(label)}
-                title={t(label)}
-                onClick={() => {
-                  if (mobile) menu.current?.close();
-                }}
-                aria-current={
-                  selectedSection === href || selectedSection.startsWith(`${href}/`)
-                    ? "page"
-                    : undefined
-                }
-              >
-                <Icon aria-hidden="true" />
-                <span className="student-nav-label">{t(label)}</span>
-              </Link>
-            </li>
-          ))}
+              <li key={href}>
+                <Link
+                  href={href}
+                  aria-label={t(label)}
+                  title={t(label)}
+                  onClick={() => {
+                    if (mobile) menu.current?.close();
+                  }}
+                  aria-current={
+                    selectedSection === href || selectedSection.startsWith(`${href}/`)
+                      ? "page"
+                      : undefined
+                  }
+                >
+                  <Icon aria-hidden="true" />
+                  <span className="student-nav-label">{t(label)}</span>
+                </Link>
+              </li>
+            ))}
         </ul>
       </nav>
     );
@@ -206,7 +206,9 @@ export default function StudentShell({ children }: { children: React.ReactNode }
         {!immersive && <PageNavigation pathname={pathname} />}
         {immersive || isHome ? children : <div className="studio-page-frame">{children}</div>}
       </main>
-      {!immersive && <BottomNav onMoreClick={openMenu} menuOpen={menuOpen} />}
+      {!immersive && (
+        <BottomNav onMoreClick={openMenu} menuOpen={menuOpen} showAssessments={showAssessments} />
+      )}
     </div>
   );
 }

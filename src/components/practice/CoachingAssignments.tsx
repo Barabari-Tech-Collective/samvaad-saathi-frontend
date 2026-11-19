@@ -45,7 +45,7 @@ export function CoachingAssignments({ accountKey = "current" }: { accountKey?: s
   if (!query.isError && (!data || !data.items.length) && page === 1) return null;
   return (
     <section aria-label={t("From your teacher")} className="studio-panel space-y-3">
-      <h3 className="text-lg font-semibold text-[#1F285B]">{t("From your teacher")}</h3>
+      <h3 className="text-lg font-semibold text-brand-navy">{t("From your teacher")}</h3>
       {query.isError ? (
         <div role="alert">
           <p>{t("We couldn't load this. You can still practise.")}</p>
@@ -56,8 +56,10 @@ export function CoachingAssignments({ accountKey = "current" }: { accountKey?: s
       ) : (
         data && (
           <>
-            <p className="text-sm text-gray-600">{t("Late is fine. This never affects your score.")}</p>
-            <ul className="divide-y divide-[#DEE8FB]">
+            <p className="text-sm text-gray-600">
+              {t("Late is fine. This never affects your score.")}
+            </p>
+            <ul className="divide-y divide-brand-line">
               {data.items.map((row) => (
                 <li key={row.id} className="space-y-2 py-4">
                   <h4 className="font-semibold">
@@ -66,14 +68,18 @@ export function CoachingAssignments({ accountKey = "current" }: { accountKey?: s
                   </h4>
                   <p className="break-words">{row.reason}</p>
                   {row.note && (
-                    <p className="whitespace-pre-wrap break-words text-sm text-gray-600">{row.note}</p>
+                    <p className="whitespace-pre-wrap break-words text-sm text-gray-600">
+                      {row.note}
+                    </p>
                   )}
                   {row.due_date && <p className="text-sm">{dueText(row.due_date)}</p>}
                   {row.status === "assigned" && (
                     <Link
                       className="ws-button ws-button-primary"
                       href={`${drillHref(row.module)}?${row.module === "warm_up" || row.module === "think_fast" ? "assignment" : "coachingAssignment"}=${row.id}`}
-                      onClick={() => trackEvent("coaching_assignment_started", { module: row.module })}
+                      onClick={() =>
+                        trackEvent("coaching_assignment_started", { module: row.module })
+                      }
                     >
                       {t("Start")}
                     </Link>
@@ -83,10 +89,18 @@ export function CoachingAssignments({ accountKey = "current" }: { accountKey?: s
             </ul>
             {(page > 1 || data.total > 10) && (
               <nav aria-label={t("More tasks")} className="flex flex-wrap items-center gap-4">
-                <button className="min-h-11 disabled:opacity-40" disabled={page === 1} onClick={() => setPage((v) => v - 1)}>
+                <button
+                  className="min-h-11 disabled:opacity-40"
+                  disabled={page === 1}
+                  onClick={() => setPage((v) => v - 1)}
+                >
                   {t("Previous")}
                 </button>
-                <button className="min-h-11 disabled:opacity-40" disabled={page * 10 >= data.total} onClick={() => setPage((v) => v + 1)}>
+                <button
+                  className="min-h-11 disabled:opacity-40"
+                  disabled={page * 10 >= data.total}
+                  onClick={() => setPage((v) => v + 1)}
+                >
                   {t("Next")}
                 </button>
               </nav>

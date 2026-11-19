@@ -122,7 +122,7 @@ function ResumeTemplateFullViewContent() {
       toast.success("Resume downloaded successfully!");
     } catch (error) {
       if (error instanceof SessionChangedError || getAuthRevision() !== ownerRevision) return;
-      setDocumentError("Could not download your resume. Please try again.");
+      setDocumentError("We couldn't download your resume. Please try again.");
       toast.error("Failed to download resume.");
     } finally {
       downloadInFlight.current = false;
@@ -157,7 +157,7 @@ function ResumeTemplateFullViewContent() {
     } catch (error) {
       if (error instanceof SessionChangedError || getAuthRevision() !== ownerRevision) return;
       setDocumentError(
-        "Could not save your resume. Your draft is still here. Check your connection and try again."
+        "We couldn't save your resume. Your draft is still here. Check your connection and try again."
       );
       toast.error("Could not save resume to profile.");
     } finally {
@@ -258,15 +258,17 @@ function ResumeTemplateFullViewContent() {
               {/* Actual Resume Content Mockup */}
               <div
                 id="resume-preview-content"
-                className="flex flex-col text-sm leading-relaxed text-[#1e293b] font-sans px-2 bg-white"
+                className="flex flex-col text-sm leading-relaxed text-brand-ink font-sans px-2 bg-white"
               >
                 {/* Header */}
                 <div className="text-center pb-3">
-                  <h2 className="text-2xl font-bold text-[#0f172a] tracking-wide uppercase">
+                  <h2 className="text-2xl font-bold text-brand-ink tracking-wide uppercase">
                     {header.fullName || header.name}
                   </h2>
-                  {header.title && <p className="text-sm text-[#334155] mt-1">{header.title}</p>}
-                  <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-[#64748b] mt-2 text-sm">
+                  {header.title && (
+                    <p className="text-sm text-brand-ink-soft mt-1">{header.title}</p>
+                  )}
+                  <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-brand-gray mt-2 text-sm">
                     {header.email && (
                       <span className="flex items-center gap-1">✉ {header.email}</span>
                     )}
@@ -288,31 +290,35 @@ function ResumeTemplateFullViewContent() {
                 {/* Objective */}
                 {summary && (
                   <div className="mb-3">
-                    <h3 className="font-bold text-sm tracking-wider text-[#0f172a] uppercase border-b border-[#cbd5e1] pb-1 mb-2">
+                    <h3 className="font-bold text-sm tracking-wider text-brand-ink uppercase border-b border-brand-slate-line pb-1 mb-2">
                       Career Objective
                     </h3>
-                    <p className="text-[#334155] leading-relaxed text-sm text-left">{summary}</p>
+                    <p className="text-brand-ink-soft leading-relaxed text-sm text-left">
+                      {summary}
+                    </p>
                   </div>
                 )}
 
                 {/* Experience */}
                 {experience.length > 0 && (
                   <div className="mb-3">
-                    <h3 className="font-bold text-sm tracking-wider text-[#0f172a] uppercase border-b border-[#cbd5e1] pb-1 mb-2">
+                    <h3 className="font-bold text-sm tracking-wider text-brand-ink uppercase border-b border-brand-slate-line pb-1 mb-2">
                       Work Experience
                     </h3>
                     <div className="space-y-3">
                       {experience.map((exp, idx) => (
                         <div key={idx}>
-                          <div className="flex justify-between font-bold text-[#0f172a] text-sm">
+                          <div className="flex justify-between font-bold text-brand-ink text-sm">
                             <span>{exp.role || exp.title}</span>
-                            <span className="font-normal text-[#475569]">{exp.duration}</span>
+                            <span className="font-normal text-brand-slate">{exp.duration}</span>
                           </div>
                           {exp.company && (
-                            <div className="text-[#334155] italic text-sm mb-1">{exp.company}</div>
+                            <div className="text-brand-ink-soft italic text-sm mb-1">
+                              {exp.company}
+                            </div>
                           )}
                           {(exp.highlights || exp.bullets || []).length > 0 && (
-                            <ul className="list-disc text-[#334155] text-sm ml-4 space-y-1 text-left">
+                            <ul className="list-disc text-brand-ink-soft text-sm ml-4 space-y-1 text-left">
                               {(exp.highlights || exp.bullets || []).map(
                                 (bullet: string, bIdx: number) => (
                                   <li key={bIdx} className="pl-1">
@@ -368,27 +374,31 @@ function ResumeTemplateFullViewContent() {
                 {/* Skills */}
                 {skills.length > 0 && (
                   <div className="mb-3">
-                    <h3 className="font-bold text-sm tracking-wider text-[#0f172a] uppercase border-b border-[#cbd5e1] pb-1 mb-2">
+                    <h3 className="font-bold text-sm tracking-wider text-brand-ink uppercase border-b border-brand-slate-line pb-1 mb-2">
                       Skills
                     </h3>
-                    <p className="text-[#334155] text-sm leading-relaxed">{skills.join(" • ")}</p>
+                    <p className="text-brand-ink-soft text-sm leading-relaxed">
+                      {skills.join(" • ")}
+                    </p>
                   </div>
                 )}
 
                 {/* Education */}
                 {education.length > 0 && (
                   <div className="mb-2">
-                    <h3 className="font-bold text-sm tracking-wider text-[#0f172a] uppercase border-b border-[#cbd5e1] pb-1 mb-2">
+                    <h3 className="font-bold text-sm tracking-wider text-brand-ink uppercase border-b border-brand-slate-line pb-1 mb-2">
                       Education
                     </h3>
                     <div className="space-y-2">
                       {education.map((edu, idx) => (
                         <div key={idx} className="flex justify-between items-start">
                           <div>
-                            <div className="font-bold text-[#0f172a] text-sm">{edu.degree}</div>
-                            <div className="text-[#475569] text-sm">{edu.year || edu.duration}</div>
+                            <div className="font-bold text-brand-ink text-sm">{edu.degree}</div>
+                            <div className="text-brand-slate text-sm">
+                              {edu.year || edu.duration}
+                            </div>
                           </div>
-                          <span className="font-normal text-[#475569] text-sm text-right">
+                          <span className="font-normal text-brand-slate text-sm text-right">
                             {edu.institution}
                           </span>
                         </div>

@@ -8,8 +8,7 @@ export function publishedQuestionCount(value: unknown): number | null {
 }
 
 export function createdInterview(value: unknown, mode: InterviewMode, expected: number) {
-  if (!value || typeof value !== "object")
-    throw new Error("We couldn't start your interview.");
+  if (!value || typeof value !== "object") throw new Error("We couldn't start your interview.");
   const row = value as Record<string, unknown>;
   const id =
     typeof row.interviewId === "number" || typeof row.interviewId === "string"
@@ -21,8 +20,6 @@ export function createdInterview(value: unknown, mode: InterviewMode, expected: 
     row.plannedQuestionCount !== expected ||
     publishedQuestionCount(expected) === null
   )
-    throw new Error(
-      "We couldn't start your interview. Check Progress before starting another."
-    );
+    throw new Error("We couldn't start your interview. Check Progress before starting another.");
   return id;
 }

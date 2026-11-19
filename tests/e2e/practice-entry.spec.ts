@@ -18,7 +18,7 @@ for (const viewport of [
     hub.resume!.track = "VeryLongUnbrokenTrackName".repeat(12);
     await page.route("**/api/practice/hub", (route) => route.fulfill({ json: hub }));
     await page.goto("/?fixture=practice-hub");
-    await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveAttribute(
+    await expect(page.getByRole("link", { name: "Continue mock interview" })).toHaveAttribute(
       "href",
       "/interview?interviewId=42&resumed=true&interviewMode=practice"
     );
@@ -26,19 +26,23 @@ for (const viewport of [
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
       true
     );
-    await page.getByRole("link", { name: "Continue Mock Interview" }).focus();
-    await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toBeFocused();
+    await page.getByRole("link", { name: "Continue mock interview" }).focus();
+    await expect(page.getByRole("link", { name: "Continue mock interview" })).toBeFocused();
   });
 }
 
 test("an expired saved session cannot remain the continue action", async ({ page }) => {
+  // A controlled clock: with real time, a 3.5-second expiry raced page load on busy CI workers.
+  const now = new Date("2026-11-18T10:00:00Z");
+  await page.clock.install({ time: now });
   const hub = practiceHub();
-  hub.resume!.expiresAt = new Date(Date.now() + 3500).toISOString();
+  hub.resume!.expiresAt = new Date(now.getTime() + 60_000).toISOString();
   await page.route("**/api/practice/hub", (route) => route.fulfill({ json: hub }));
   await page.goto("/?fixture=practice-hub");
-  await page.getByRole("link", { name: "Continue Mock Interview" }).waitFor();
+  await page.getByRole("link", { name: "Continue mock interview" }).waitFor();
+  await page.clock.fastForward(61_000);
   await expect(page.getByText(/can no longer be continued/)).toBeVisible();
-  await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Continue mock interview" })).toHaveCount(0);
 });
 
 for (const readiness of [
@@ -63,7 +67,7 @@ for (const readiness of [
       "href",
       "/history"
     );
-    await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Continue mock interview" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Begin mock interview" })).toHaveCount(0);
     await expect(page.getByText(/2 of 5 answers are saved/)).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Check again" })).toBeVisible();
@@ -84,7 +88,7 @@ test("restoring course readiness re-enables the original saved session", async (
   await expect(page.getByRole("heading", { name: "Check your course" })).toBeVisible();
   restored = true;
   await page.getByRole("button", { name: "Check again" }).click();
-  await expect(page.getByRole("link", { name: "Continue Mock Interview" })).toHaveAttribute(
+  await expect(page.getByRole("link", { name: "Continue mock interview" })).toHaveAttribute(
     "href",
     "/interview?interviewId=42&resumed=true&interviewMode=practice"
   );

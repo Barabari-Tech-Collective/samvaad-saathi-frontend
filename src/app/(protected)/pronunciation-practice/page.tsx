@@ -84,7 +84,7 @@ const PronunciationPracticeContent = () => {
   >({
     url: ENDPOINTS_V2.CREATE_PRONUNCIATION_PRACTICE,
     method: "post",
-    errorMessage: "Could not start practice. Please try again.",
+    errorMessage: "We couldn't start your practice. Please try again.",
   });
 
   const handleDifficultyChange = (level: string) => {

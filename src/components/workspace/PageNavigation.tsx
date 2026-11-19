@@ -9,7 +9,7 @@ function parentDestination(path: string) {
     return { href: "/coaching", label: "Coaching" };
   }
   if (section === "/mock-interviews" && path !== "/mock-interviews") {
-    return { href: "/mock-interviews", label: "Mock Interviews" };
+    return { href: "/mock-interviews", label: "Mock interviews" };
   }
   if (section === "/assessments" && path !== "/assessments") {
     return { href: "/assessments", label: "Assessments" };

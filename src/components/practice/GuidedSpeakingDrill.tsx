@@ -340,9 +340,7 @@ export default function GuidedSpeakingDrill({
     ) {
       return (
         <div role="alert" className="mx-auto max-w-3xl space-y-4 rounded-2xl border p-6">
-          <p>
-            This task can't be started right now. Ask your teacher if you need it.
-          </p>
+          <p>This task can't be started right now. Ask your teacher if you need it.</p>
           <Link className="ws-button" href="/coaching">
             Return to Practice
           </Link>
@@ -355,7 +353,7 @@ export default function GuidedSpeakingDrill({
     return (
       <div
         role="alert"
-        className="mx-auto max-w-3xl space-y-4 rounded-2xl border border-[#DEE8FB] bg-white p-6"
+        className="mx-auto max-w-3xl space-y-4 rounded-2xl border border-brand-line bg-white p-6"
       >
         <p>{assignmentError}</p>
         {assignmentId && (
@@ -377,7 +375,7 @@ export default function GuidedSpeakingDrill({
 
   if (state === "complete") {
     return (
-      <div className="mx-auto max-w-3xl py-4 text-[#111827]">
+      <div className="mx-auto max-w-3xl py-4 text-brand-ink">
         <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-7 text-center sm:p-10">
           <CheckCircleIcon className="mx-auto size-14 text-emerald-600" aria-hidden="true" />
           <h1 className="mt-4 text-3xl font-bold">
@@ -392,14 +390,14 @@ export default function GuidedSpeakingDrill({
               <button
                 type="button"
                 onClick={resetEvidence}
-                className="min-h-12 rounded-xl bg-[#FFCC33] px-6 font-bold text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
+                className="min-h-12 rounded-xl bg-brand-yellow px-6 font-bold text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
               >
                 Practise again
               </button>
             )}
             <Link
               href="/coaching"
-              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-[#1F285B] px-6 font-bold text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
+              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-brand-navy px-6 font-bold text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
             >
               Back to Coaching
             </Link>
@@ -410,7 +408,7 @@ export default function GuidedSpeakingDrill({
   }
 
   return (
-    <div className="mx-auto max-w-4xl pb-8 text-[#111827]">
+    <div className="mx-auto max-w-4xl pb-8 text-brand-ink">
       <PageHeading eyebrow={eyebrow} title={title} description={description} />
 
       <section className="studio-panel">
@@ -420,10 +418,10 @@ export default function GuidedSpeakingDrill({
             {levels.map((item) => (
               <label
                 key={item.key}
-                className={`min-h-28 cursor-pointer rounded-2xl border p-4 transition has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[#344499] ${
+                className={`min-h-28 cursor-pointer rounded-2xl border p-4 transition has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand-blue ${
                   levelKey === item.key
-                    ? "border-[#344499] bg-[#F5F7FF] ring-2 ring-[#344499]/15"
-                    : "border-gray-200 hover:border-[#344499]"
+                    ? "border-brand-blue bg-brand-canvas ring-2 ring-brand-blue/15"
+                    : "border-gray-200 hover:border-brand-blue"
                 }`}
               >
                 <input
@@ -444,10 +442,10 @@ export default function GuidedSpeakingDrill({
           </div>
         </fieldset>
 
-        <div className="mt-7 rounded-2xl bg-[#F5F7FF] p-5 sm:p-6">
+        <div className="mt-7 rounded-2xl bg-brand-canvas p-5 sm:p-6">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-bold uppercase tracking-[0.12em] text-[#344499]">
+              <p className="text-sm font-bold uppercase tracking-[0.12em] text-brand-blue">
                 Your prompt
               </p>
               <h2 className="mt-3 text-xl font-bold leading-8">{prompt}</h2>
@@ -457,7 +455,7 @@ export default function GuidedSpeakingDrill({
               onClick={chooseAnotherPrompt}
               disabled={state !== "ready"}
               aria-label="Choose another prompt"
-              className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-[#D6E0FB] bg-white px-3 text-sm font-semibold text-[#344499] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-xl border border-brand-indigo-wash bg-white px-3 text-sm font-semibold text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-not-allowed disabled:opacity-50"
             >
               <ArrowPathIcon className="size-5" aria-hidden="true" />
               <span className="hidden sm:inline">Another prompt</span>
@@ -482,7 +480,7 @@ export default function GuidedSpeakingDrill({
             <button
               type="button"
               onClick={() => void begin()}
-              className="mt-5 min-h-12 w-full rounded-xl bg-[#FFCC33] px-6 font-bold text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500 sm:w-auto"
+              className="mt-5 min-h-12 w-full rounded-xl bg-brand-yellow px-6 font-bold text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500 sm:w-auto"
             >
               Start practice
             </button>
@@ -491,10 +489,10 @@ export default function GuidedSpeakingDrill({
 
         {(state === "preparing" || state === "answering") && (
           <div
-            className="mt-7 rounded-2xl border border-[#344499] p-6 text-center"
+            className="mt-7 rounded-2xl border border-brand-blue p-6 text-center"
             aria-live="polite"
           >
-            <p className="font-semibold text-[#344499]">{timerLabel}</p>
+            <p className="font-semibold text-brand-blue">{timerLabel}</p>
             <p className="mt-2 text-5xl font-bold tabular-nums">{formatTime(secondsLeft)}</p>
             {state === "answering" && (
               <p className="mt-3 inline-flex items-center gap-2 text-sm text-red-700">
@@ -505,7 +503,7 @@ export default function GuidedSpeakingDrill({
               <button
                 type="button"
                 onClick={finishAnswer}
-                className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-xl bg-[#1F285B] px-6 font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
+                className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-xl bg-brand-navy px-6 font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
               >
                 <PauseCircleIcon className="size-6" aria-hidden="true" />
                 Finish answer
@@ -535,7 +533,7 @@ export default function GuidedSpeakingDrill({
                 {level.checklist.map((item) => (
                   <label
                     key={item}
-                    className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[#344499]"
+                    className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand-blue"
                   >
                     <input
                       type="checkbox"
@@ -559,14 +557,14 @@ export default function GuidedSpeakingDrill({
                 type="button"
                 onClick={() => void complete()}
                 disabled={!hasEvidence || isSavingCompletion}
-                className="min-h-12 rounded-xl bg-[#FFCC33] px-6 font-bold text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500"
+                className="min-h-12 rounded-xl bg-brand-yellow px-6 font-bold text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500"
               >
                 {isSavingCompletion ? "Saving practice…" : "Complete this practice"}
               </button>
               <button
                 type="button"
                 onClick={resetEvidence}
-                className="min-h-12 rounded-xl border border-[#1F285B] px-6 font-bold text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
+                className="min-h-12 rounded-xl border border-brand-navy px-6 font-bold text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
               >
                 Try again
               </button>

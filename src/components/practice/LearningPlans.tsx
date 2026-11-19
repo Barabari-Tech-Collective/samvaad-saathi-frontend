@@ -102,7 +102,7 @@ function PlanCard({
 }) {
   const current = assignment.steps.find((step) => step.status === "current");
   return (
-    <li className="space-y-3 rounded-2xl border border-[#DEE8FB] p-4">
+    <li className="space-y-3 rounded-2xl border border-brand-line p-4">
       <div>
         <h3 className="text-lg font-semibold">{assignment.plan.title}</h3>
         <p>{assignment.plan.goal}</p>
@@ -112,11 +112,9 @@ function PlanCard({
         {assignment.source === "assigned" ? "Assigned by your teacher" : "Started by you"}
       </p>
       {assignment.reason && <p className="text-sm text-gray-600">{assignment.reason}</p>}
-      {assignment.dueDate && (
-        <p className="text-sm">{dueText(assignment.dueDate)}</p>
-      )}
+      {assignment.dueDate && <p className="text-sm">{dueText(assignment.dueDate)}</p>}
       {assignment.status === "active" && current ? (
-        <section className="rounded-xl bg-[#F5F7FF] p-3">
+        <section className="rounded-xl bg-brand-canvas p-3">
           <p className="font-medium">Current step: {current.title}</p>
           {current.instructions && <p className="mt-1 text-sm">{current.instructions}</p>}
           <div className="mt-3">
@@ -172,8 +170,10 @@ export function LearningPlans({ accountKey }: { accountKey: string }) {
     return null;
   return (
     <section className="studio-panel space-y-4" aria-label="Learning Plans">
-      <h3 className="text-lg font-semibold text-[#1F285B]">Learning Plans</h3>
-      <p className="text-sm text-gray-600">One step at a time. Your progress updates when you finish each step.</p>
+      <h3 className="text-lg font-semibold text-brand-navy">Learning Plans</h3>
+      <p className="text-sm text-gray-600">
+        One step at a time. Your progress updates when you finish each step.
+      </p>
       {assigned.isError || (assigned.data && !plans) ? (
         <div role="alert">
           <p>We couldn&apos;t load your plans. Your progress is safe.</p>
@@ -194,7 +194,11 @@ export function LearningPlans({ accountKey }: { accountKey: string }) {
         {available.isError || (available.data && !choices) ? (
           <p>We couldn&apos;t load more plans.</p>
         ) : !choices ? (
-          <output aria-label="Loading" className="ws-next-loading"><span /><span /><span /></output>
+          <output aria-label="Loading" className="ws-next-loading">
+            <span />
+            <span />
+            <span />
+          </output>
         ) : !choices.items.length ? (
           <p className="text-sm text-gray-600">No other plans right now.</p>
         ) : (
@@ -210,9 +214,7 @@ export function LearningPlans({ accountKey }: { accountKey: string }) {
                     const mapKey = `${plan.plan.id}:${plan.courseId}`;
                     const requestKey = keys.current.get(mapKey) ?? newKey();
                     if (!requestKey)
-                      return setStartError(
-                        "Please update your browser and try again."
-                      );
+                      return setStartError("Please update your browser and try again.");
                     keys.current.set(mapKey, requestKey);
                     setStartError("");
                     try {

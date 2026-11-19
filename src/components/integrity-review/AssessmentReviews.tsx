@@ -11,7 +11,7 @@ import {
 import { apiClient } from "@/lib/api-config/src/instance";
 
 const button =
-  "inline-flex min-h-11 items-center justify-center rounded-xl border border-[#C0CFF2] px-4 py-2 font-medium text-[#1F285B] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499] disabled:opacity-50";
+  "inline-flex min-h-11 items-center justify-center rounded-xl border border-brand-line-strong px-4 py-2 font-medium text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:opacity-50";
 function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () => void }) {
   const submit = apiClient.useMutation<unknown, Record<string, unknown>>({
     url: `v2/integrity/me/cases/${row.id}/actions`,
@@ -34,7 +34,7 @@ function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () =
   const options = [...(row.canExplain ? ["explain"] : []), ...(row.canAppeal ? ["appeal"] : [])];
   const selected = options.includes(action) ? action : options[0];
   return (
-    <article className="space-y-4 rounded-2xl border border-[#DEE8FB] bg-white p-5">
+    <article className="space-y-4 rounded-2xl border border-brand-line bg-white p-5">
       <h2 className="text-xl font-semibold">
         Assessment {row.interviewId} · Review {row.id}
       </h2>
@@ -43,15 +43,14 @@ function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () =
       </p>
       {row.appealDeadline && (
         <p>
-          Appeal deadline: {friendlyDateTime(row.appealDeadline)}. The
-          server checks this deadline.
+          Appeal deadline: {friendlyDateTime(row.appealDeadline)}. The server checks this deadline.
         </p>
       )}
       <ol aria-label={`Evidence and decisions for review ${row.id}`} className="space-y-4">
         {row.history.map((event, index) => (
           <li
             key={`${event.kind}:${event.at}:${index}`}
-            className="border-l-2 border-[#C0CFF2] pl-4"
+            className="border-l-2 border-brand-line-strong pl-4"
           >
             <p className="font-medium">
               {event.kind.replaceAll("_", " ")}
@@ -59,8 +58,7 @@ function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () =
             </p>
             <p className="whitespace-pre-wrap break-words">{event.reason}</p>
             <p className="text-sm text-gray-600">
-              {(event.source ?? "System").replaceAll("_", " ")} ·{" "}
-              {friendlyDateTime(event.at)}
+              {(event.source ?? "System").replaceAll("_", " ")} · {friendlyDateTime(event.at)}
             </p>
             {event.signals && (
               <details>
@@ -103,9 +101,7 @@ function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () =
               if (typeof globalThis.crypto?.randomUUID !== "function") {
                 lock.current = false;
                 setBusy(false);
-                setError(
-                  "Please update your browser and try again."
-                );
+                setError("Please update your browser and try again.");
                 return;
               }
               retry.current = { body, key: globalThis.crypto.randomUUID() };
@@ -122,9 +118,7 @@ function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () =
               }
             } catch {
               if (alive.current && getAuthRevision() === ownerRevision)
-                setError(
-                  "That didn't save. Your text is still here, so please try again."
-                );
+                setError("That didn't save. Your text is still here, so please try again.");
             } finally {
               lock.current = false;
               if (alive.current && getAuthRevision() === ownerRevision) setBusy(false);
@@ -171,11 +165,7 @@ function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () =
           </button>
         </form>
       )}
-      {row.state === "appealed" && (
-        <p>
-          A different reviewer will look at your appeal.
-        </p>
-      )}
+      {row.state === "appealed" && <p>A different reviewer will look at your appeal.</p>}
       {error && <p role="alert">{error}</p>}
     </article>
   );
@@ -213,9 +203,7 @@ export function AssessmentReviews({ accountKey }: { accountKey: string }) {
         not change your score by itself.
       </p>
       {query.isError || invalidResponse ? (
-        <p role="alert">
-          We couldn't load your reviews. Please reload the page.
-        </p>
+        <p role="alert">We couldn't load your reviews. Please reload the page.</p>
       ) : query.isLoading || !data ? (
         <output>Checking your review notices…</output>
       ) : (

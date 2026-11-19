@@ -162,7 +162,7 @@ const LevelsPage = () => {
         <div className="mt-auto pb-4">
           <Link
             href={`/control-your-pace/level-intro?level=${lastUnlockedLevel.level}${planQuery}`}
-            className="btn btn-neutral btn-block btn-lg bg-[#0F172A] text-white rounded-xl"
+            className="btn btn-neutral btn-block btn-lg bg-brand-ink text-white rounded-xl"
           >
             Start level {lastUnlockedLevel.level} Practice
           </Link>

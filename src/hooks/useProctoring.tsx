@@ -217,7 +217,7 @@ export function ProctoringPreflightModal({
   return (
     <dialog
       ref={dialog}
-      className="m-auto w-[calc(100%_-_2rem)] max-w-lg rounded-2xl border border-[#DEE8FB] bg-white p-5 text-[#1F285B] backdrop:bg-[#1F285B]/40 sm:p-7"
+      className="m-auto w-[calc(100%_-_2rem)] max-w-lg rounded-2xl border border-brand-line bg-white p-5 text-brand-navy backdrop:bg-brand-navy/40 sm:p-7"
       aria-labelledby="assessment-ready-title"
       aria-describedby="assessment-ready-policy"
       onKeyDown={(event) => {
@@ -262,7 +262,7 @@ export function ProctoringPreflightModal({
         <div className="flex flex-wrap gap-3">
           <button
             type="button"
-            className="min-h-11 rounded-xl border border-[#344499] px-5 py-3 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="min-h-11 rounded-xl border border-brand-blue px-5 py-3 font-semibold focus-visible:outline-2 focus-visible:outline-offset-2"
             onClick={onCancel}
           >
             Not yet
@@ -296,7 +296,7 @@ export function AssessmentInterruptionNotice({
     <section
       role="status"
       aria-label="Assessment interruption"
-      className="my-3 rounded-xl border border-[#DEE8FB] bg-[#F5F9FF] p-4 text-sm text-[#1F285B]"
+      className="my-3 rounded-xl border border-brand-line bg-brand-canvas p-4 text-sm text-brand-navy"
     >
       <h2 className="font-semibold">
         {reason === "fullscreen_exit" ? "Fullscreen closed" : "Welcome back"}

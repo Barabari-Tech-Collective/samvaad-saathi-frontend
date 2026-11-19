@@ -35,17 +35,11 @@ test("role service failure is not an empty assessment catalogue and can recover"
     failed ? r.fulfill({ status: 503, json: {} }) : r.fulfill({ json: { items: [], total: 0 } })
   );
   await page.goto(url);
-  await expect(
-    page.getByRole("heading", { name: "We couldn't load the job list" })
-  ).toBeVisible();
-  await expect(
-    page.getByText("Nothing is ready yet", { exact: false })
-  ).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "We couldn't load the job list" })).toBeVisible();
+  await expect(page.getByText("Nothing is ready yet", { exact: false })).toHaveCount(0);
   failed = false;
   await page.getByRole("button", { name: "Try again" }).click();
-  await expect(
-    page.getByText("Nothing is ready yet", { exact: false })
-  ).toBeVisible();
+  await expect(page.getByText("Nothing is ready yet", { exact: false })).toBeVisible();
 });
 test("invalid purpose makes no catalogue or creation requests", async ({ page }) => {
   let reads = 0;
@@ -97,9 +91,7 @@ for (const data of [
     await page.route("**/api/v2/interviews/create", (r) => r.fulfill({ json: data }));
     await choose(page);
     await page.getByRole("button", { name: "Start assessment" }).click();
-    await expect(
-      page.getByRole("heading", { name: "Let's check your interview" })
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Let's check your interview" })).toBeVisible();
     await expect(page).toHaveURL(/fixture=start/);
     await expect(page.getByRole("button", { name: "Start assessment" })).toHaveCount(0);
   });
@@ -126,7 +118,7 @@ test("422 rejection rechecks the catalogue and allows corrected setup", async ({
   });
   await choose(page);
   await page.getByRole("button", { name: "Start assessment" }).click();
-  await expect(page.getByRole("alert")).toContainText("That didn't work");
+  await expect(page.getByRole("alert")).toContainText("Some of your choices are no longer valid");
   await page.getByRole("button", { name: "Start assessment" }).click();
   await expect(page).toHaveURL(/interview\?interviewId=9/);
   expect(posts).toBe(2);
@@ -145,10 +137,8 @@ test("a role revoked during a rejected start is cleared before a retry", async (
   await page.goto(url);
   await page.getByRole("combobox").selectOption("hr::1::Role 1");
   await page.getByRole("button", { name: "Start assessment" }).click();
-  await expect(page.getByRole("alert")).toContainText("That didn't work");
-  await expect(
-    page.getByText("Nothing is ready yet", { exact: false })
-  ).toBeVisible();
+  await expect(page.getByRole("alert")).toContainText("Some of your choices are no longer valid");
+  await expect(page.getByText("Nothing is ready yet", { exact: false })).toBeVisible();
   await expect(page.getByRole("combobox")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Start assessment" })).toBeDisabled();
 });
@@ -215,8 +205,8 @@ test("legacy reattempt links do not read questions or reopen a completed assessm
     return r.fulfill({ json: {} });
   });
   await page.goto("/?fixture=reattempt&interviewId=9&role=Assessment&attemptsCount=99");
-  await expect(page.getByRole("heading", { name: "Start a new Mock Interview" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Set up a Mock Interview" })).toHaveAttribute(
+  await expect(page.getByRole("heading", { name: "Start a new mock interview" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Set up a mock interview" })).toHaveAttribute(
     "href",
     "/interview-start?mode=practice"
   );
@@ -272,13 +262,13 @@ test("free practice preserves selected N through device checks and creation", as
   await page.goto("/?fixture=start&mode=practice");
   await page.getByRole("button", { name: "Change" }).click();
   await page.getByLabel("Which job are you practising for?").selectOption("General interview");
-  await page.getByLabel("Questions in this Mock Interview").fill("7");
+  await page.getByLabel("Questions in this mock interview").fill("7");
   await page.getByRole("button", { name: "Continue to microphone check" }).click();
   await expect(page.getByText("7 questions · about 21 min")).toBeVisible();
   expect(body).toBeUndefined();
   await page.getByRole("button", { name: "Check microphone" }).click();
   await page.getByRole("button", { name: "Play test sound" }).click();
-  await page.getByRole("button", { name: "Start Mock Interview" }).click();
+  await page.getByRole("button", { name: "Start mock interview" }).click();
   await expect(page).toHaveURL(/interview\?interviewId=12.*interviewMode=practice/);
   expect(body).toMatchObject({
     questionCount: 7,
@@ -294,7 +284,5 @@ test("curated technical roles without level evidence cannot offer arbitrary diff
   await page.goto(url);
   await page.getByRole("combobox").selectOption("hr::1::Role 1");
   await expect(page.getByRole("button", { name: "Start assessment" })).toBeDisabled();
-  await expect(
-    page.getByText("This job isn't ready yet", { exact: false })
-  ).toBeVisible();
+  await expect(page.getByText("This job isn't ready yet", { exact: false })).toBeVisible();
 });

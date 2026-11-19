@@ -19,7 +19,7 @@ export default function PerQuestionAnalysis({ questionAnalysis }: PerQuestionAna
   return (
     <section className="space-y-3" id="per-question-analysis" aria-labelledby="answer-review-title">
       <div>
-        <p className="text-sm font-bold uppercase tracking-[0.12em] text-[#344499]">
+        <p className="text-sm font-bold uppercase tracking-[0.12em] text-brand-blue">
           What you said
         </p>
         <h2 id="answer-review-title" className="mt-2 text-2xl font-bold">
@@ -33,14 +33,17 @@ export default function PerQuestionAnalysis({ questionAnalysis }: PerQuestionAna
       {questionAnalysis.map((question, index) => {
         const status = question.evidence?.status;
         return (
-          <details key={question.id} className="group rounded-2xl border border-[#D6E0FB] bg-white">
-            <summary className="flex min-h-16 cursor-pointer list-none items-start justify-between gap-4 p-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]">
+          <details
+            key={question.id}
+            className="group rounded-2xl border border-brand-indigo-wash bg-white"
+          >
+            <summary className="flex min-h-16 cursor-pointer list-none items-start justify-between gap-4 p-5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-sm font-semibold text-gray-500">
                     Question {index + 1} of {question.totalQuestions}
                   </span>
-                  <span className="rounded-full bg-[#EEF2FF] px-2.5 py-1 text-sm font-semibold text-[#344499]">
+                  <span className="rounded-full bg-brand-blue-wash px-2.5 py-1 text-sm font-semibold text-brand-blue">
                     {question.type}
                   </span>
                   {status && (
@@ -51,19 +54,19 @@ export default function PerQuestionAnalysis({ questionAnalysis }: PerQuestionAna
                     </span>
                   )}
                 </div>
-                <p className="mt-3 font-semibold leading-6 text-[#111827]">{question.question}</p>
+                <p className="mt-3 font-semibold leading-6 text-brand-ink">{question.question}</p>
               </div>
               <span
-                className="mt-1 text-xl text-[#344499] transition group-open:rotate-45"
+                className="mt-1 text-xl text-brand-blue transition group-open:rotate-45"
                 aria-hidden="true"
               >
                 +
               </span>
             </summary>
 
-            <div className="space-y-5 border-t border-[#EEF2FF] px-5 py-5">
+            <div className="space-y-5 border-t border-brand-blue-wash px-5 py-5">
               {question.evidence?.observation && (
-                <div className="rounded-2xl bg-[#F9FAFB] p-4">
+                <div className="rounded-2xl bg-brand-neutral-canvas p-4">
                   <h3 className="font-semibold">What we observed</h3>
                   <p className="mt-1 text-sm leading-6 text-gray-600">
                     {question.evidence.observation}
@@ -91,7 +94,7 @@ export default function PerQuestionAnalysis({ questionAnalysis }: PerQuestionAna
                     </div>
                   )}
                   {question.feedback.areasOfImprovement && (
-                    <div className="rounded-2xl bg-[#FFF5E8] p-4">
+                    <div className="rounded-2xl bg-brand-paper p-4">
                       <h3 className="font-semibold text-amber-950">One way to improve</h3>
                       <p className="mt-2 text-sm leading-6 text-amber-950">
                         {question.feedback.areasOfImprovement}

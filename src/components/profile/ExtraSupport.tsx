@@ -27,13 +27,21 @@ export default function ExtraSupport() {
   });
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
-  const create = apiClient.useMutation<unknown, { request_key: string; description: string }>({ url: "v2/accommodations/me", method: "post", showToastError: false });
+  const create = apiClient.useMutation<unknown, { request_key: string; description: string }>({
+    url: "v2/accommodations/me",
+    method: "post",
+    showToastError: false,
+  });
   const [busy, setBusy] = useState(0);
   const act = async (item: Item, kind: "confirm" | "withdraw") => {
     setBusy(item.id);
     try {
-      await apiClient.send("post", `v2/accommodations/me/${item.id}/${kind}`, { expected_version: item.version });
-      toast.success(t(kind === "confirm" ? "Thanks. This is now active." : "Your request is withdrawn."));
+      await apiClient.send("post", `v2/accommodations/me/${item.id}/${kind}`, {
+        expected_version: item.version,
+      });
+      toast.success(
+        t(kind === "confirm" ? "Thanks. This is now active." : "Your request is withdrawn.")
+      );
       await query.refetch();
     } catch {
       toast.error(t("That didn't save. Please try again."));
@@ -43,31 +51,66 @@ export default function ExtraSupport() {
   };
   const items = query.data?.items ?? [];
   return (
-    <section id="extra-support" className="studio-profile-card space-y-3 scroll-mt-20" aria-labelledby="support-title">
+    <section
+      id="extra-support"
+      className="studio-profile-card space-y-3 scroll-mt-20"
+      aria-labelledby="support-title"
+    >
       <h2 id="support-title" className="text-lg font-semibold">
         {t("Extra time and support")}
       </h2>
-      <p className="text-sm text-gray-600">{t("If you need extra time or other help in assessments, tell us here. Your request goes to the team that arranges this.")}</p>
+      <p className="text-sm text-gray-600">
+        {t(
+          "If you need extra time or other help in assessments, tell us here. Your request goes to the team that arranges this."
+        )}
+      </p>
       {query.isError && <p role="alert">{t("We couldn't load this. Please try again.")}</p>}
       {items.length > 0 && (
-        <ul className="divide-y divide-[#DEE8FB]">
+        <ul className="divide-y divide-brand-line">
           {items.map((item) => (
             <li key={item.id} className="space-y-2 py-3">
               <p className="font-semibold">
-                {t(item.status === "requested" ? "Waiting for a decision" : item.status === "approved" ? "Approved" : item.status === "declined" ? "Not approved" : statusWord(item.status))}
-                <span className="font-normal text-gray-600"> · {friendlyDate(item.created_at)}</span>
+                {t(
+                  item.status === "requested"
+                    ? "Waiting for a decision"
+                    : item.status === "approved"
+                      ? "Approved"
+                      : item.status === "declined"
+                        ? "Not approved"
+                        : statusWord(item.status)
+                )}
+                <span className="font-normal text-gray-600">
+                  {" "}
+                  · {friendlyDate(item.created_at)}
+                </span>
               </p>
               <p className="text-sm">{item.description}</p>
-              {item.conditions.length > 0 && <p className="text-sm font-semibold">{item.conditions.map((c) => c.label).join(", ")}</p>}
-              {item.decision_reason && <p className="text-sm text-gray-600">{item.decision_reason}</p>}
+              {item.conditions.length > 0 && (
+                <p className="text-sm font-semibold">
+                  {item.conditions.map((c) => c.label).join(", ")}
+                </p>
+              )}
+              {item.decision_reason && (
+                <p className="text-sm text-gray-600">{item.decision_reason}</p>
+              )}
               <div className="flex flex-wrap gap-2">
                 {item.status === "approved" && !item.confirmed && (
-                  <button type="button" className="ws-button ws-button-primary" disabled={busy === item.id} onClick={() => void act(item, "confirm")}>
+                  <button
+                    type="button"
+                    className="ws-button ws-button-primary"
+                    disabled={busy === item.id}
+                    onClick={() => void act(item, "confirm")}
+                  >
                     {t("Yes, use this")}
                   </button>
                 )}
                 {(item.status === "requested" || item.status === "approved") && (
-                  <button type="button" className="ws-button" disabled={busy === item.id} onClick={() => void act(item, "withdraw")}>
+                  <button
+                    type="button"
+                    className="ws-button"
+                    disabled={busy === item.id}
+                    onClick={() => void act(item, "withdraw")}
+                  >
                     {t("Withdraw")}
                   </button>
                 )}
@@ -81,7 +124,14 @@ export default function ExtraSupport() {
           <label htmlFor="support-text" className="block font-semibold">
             {t("What would help you?")}
           </label>
-          <textarea id="support-text" className="w-full rounded-xl border p-3" rows={3} maxLength={2000} value={text} onChange={(e) => setText(e.target.value)} />
+          <textarea
+            id="support-text"
+            className="w-full rounded-xl border p-3"
+            rows={3}
+            maxLength={2000}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -89,7 +139,10 @@ export default function ExtraSupport() {
               disabled={text.trim().length < 10 || create.isPending}
               onClick={async () => {
                 try {
-                  await create.mutateAsync({ request_key: crypto.randomUUID(), description: text.trim() });
+                  await create.mutateAsync({
+                    request_key: crypto.randomUUID(),
+                    description: text.trim(),
+                  });
                   toast.success(t("Your request is sent."));
                   setText("");
                   setOpen(false);

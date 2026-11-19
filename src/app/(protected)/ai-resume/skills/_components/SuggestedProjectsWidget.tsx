@@ -16,7 +16,7 @@ export function SuggestedProjectsWidget() {
         <span className="text-sm font-semibold text-slate-400">AI recommended</span>
       </div>
 
-      <div className="p-5 rounded-3xl bg-[#f2f6ff] border border-primary/10">
+      <div className="p-5 rounded-3xl bg-brand-wash border border-primary/10">
         <div className="flex items-start gap-4">
           <div className="w-10 h-10 shrink-0 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
             <LightBulbIcon className="size-5 text-white" />

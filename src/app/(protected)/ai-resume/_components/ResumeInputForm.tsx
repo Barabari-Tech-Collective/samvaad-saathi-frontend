@@ -125,7 +125,7 @@ export function ResumeInputForm({
       onNext();
     } catch (error) {
       if (getAuthRevision() !== ownerRevision) return;
-      let errorMessage = "Failed to analyze resume. Please try again.";
+      let errorMessage = "We couldn't check your resume. Please try again.";
       if (axios.isAxiosError(error) && error.response?.data?.detail) {
         errorMessage = error.response.data.detail;
       } else if (error instanceof Error) {

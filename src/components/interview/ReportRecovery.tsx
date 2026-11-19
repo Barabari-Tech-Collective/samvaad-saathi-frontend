@@ -17,11 +17,11 @@ export default function ReportRecovery({
       className="mx-auto w-full min-w-0 max-w-2xl py-8 [overflow-wrap:anywhere]"
       role={kind === "checking" ? "status" : "alert"}
     >
-      <section className="rounded-3xl border border-[#DEE8FB] bg-white p-6 sm:p-8">
-        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#344499]">
+      <section className="rounded-3xl border border-brand-line bg-white p-6 sm:p-8">
+        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-brand-blue">
           Interview feedback
         </p>
-        <h1 className="mt-3 text-2xl font-semibold text-[#1F285B]">{copy.title}</h1>
+        <h1 className="mt-3 text-2xl font-semibold text-brand-navy">{copy.title}</h1>
         <p className="mt-3 leading-7 text-gray-600">{copy.body}</p>
         {interviewId && (
           <div className="mt-5">
@@ -33,14 +33,14 @@ export default function ReportRecovery({
             <button
               type="button"
               onClick={onRetry}
-              className="min-h-11 rounded-xl bg-black px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#344499]"
+              className="min-h-11 rounded-xl bg-black px-5 py-3 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
             >
               Try again
             </button>
           )}
           <Link
             href="/history?tab=completed"
-            className="inline-flex min-h-11 items-center rounded-xl border border-[#344499] px-5 py-3 font-semibold text-[#344499]"
+            className="inline-flex min-h-11 items-center rounded-xl border border-brand-blue px-5 py-3 font-semibold text-brand-blue"
           >
             Back to Progress
           </Link>

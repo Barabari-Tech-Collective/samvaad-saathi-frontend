@@ -35,15 +35,12 @@ export function parseSubmissionReceipt(
       row.presented !==
         (row.answered as number) + (row.skipped as number) + (row.unresolved as number))
   )
-    throw new Error(
-      "We couldn't load these details."
-    );
+    throw new Error("We couldn't load these details.");
   return value as SubmissionReceiptData;
 }
 
 export function parseCompletionEnvelope(value: unknown, interviewId: string) {
-  if (!value || typeof value !== "object")
-    throw new Error("We couldn't check your interview.");
+  if (!value || typeof value !== "object") throw new Error("We couldn't check your interview.");
   const row = value as Record<string, unknown>;
   if (
     typeof row.status !== "string" ||
