@@ -118,11 +118,21 @@ function AppointmentCard({ row }: { row: HumanInterviewAppointment }) {
       ) : (
         <p className="text-sm text-gray-600">
           {row.status === "completed" && row.outcomeSource
-            ? "Your interviewer has not shared the result yet. You will get an email when they do."
+            ? "Your interviewer is finishing your scorecard, and a reviewer checks it before you see it. You will get an email when your result and feedback are ready."
             : row.outcomeSource
               ? "Outcome reported by your host."
               : "Opening the link doesn't mark you as present."}
         </p>
+      )}
+      {["scheduled", "rescheduled"].includes(row.status) && (
+        <div className="rounded-xl bg-brand-blue-wash p-4 text-sm leading-6 text-brand-navy">
+          <p className="font-semibold">What to expect</p>
+          <p className="mt-1">
+            Your interviewer will ask you a set of questions about the role and rate each answer.
+            Answer in your own words and explain your thinking. Afterwards you get a result and
+            written feedback on what went well and what to practise.
+          </p>
+        </div>
       )}
       {row.canJoin ? (
         <button
