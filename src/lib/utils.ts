@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const formatDate = (dateString: string) => {
-  return dayjs(dateString).format("DD MMM , YYYY");
+  return dayjs(dateString).format("DD MMM YYYY");
 };
 
 // Generate initials from first and last name
