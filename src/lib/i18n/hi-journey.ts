@@ -977,14 +977,21 @@ export const journey: Record<string, string> = {
   "No ATS resume yet": "अभी कोई ATS रिज़्यूमे नहीं",
   "Saving…": "सेव हो रहा है…",
   "WhatsApp updates": "WhatsApp अपडेट",
-  "We send your interview times, results and next steps on WhatsApp. Replying STOP on WhatsApp does the same as turning this off.": "हम आपके इंटरव्यू का समय, नतीजे और अगले कदम WhatsApp पर भेजते हैं। WhatsApp पर STOP लिखकर भेजना इसे बंद करने जैसा ही है।",
+  "We send your interview times, results and next steps on WhatsApp. Replying STOP on WhatsApp does the same as turning this off.":
+    "हम आपके इंटरव्यू का समय, नतीजे और अगले कदम WhatsApp पर भेजते हैं। WhatsApp पर STOP लिखकर भेजना इसे बंद करने जैसा ही है।",
   "Your WhatsApp setting could not be loaded right now.": "आपकी WhatsApp सेटिंग अभी नहीं खुल पाई।",
   "Loading your WhatsApp setting…": "आपकी WhatsApp सेटिंग खुल रही है…",
   "Get WhatsApp updates": "WhatsApp अपडेट पाएँ",
   "WhatsApp updates are on.": "WhatsApp अपडेट चालू हैं।",
-  "WhatsApp updates are off. You can turn them back on here any time.": "WhatsApp अपडेट बंद हैं। आप इन्हें यहाँ कभी भी फिर चालू कर सकते हैं।",
-  "Your WhatsApp setting was not changed. Please try again.": "आपकी WhatsApp सेटिंग नहीं बदली। फिर कोशिश करें।",
-  "On": "चालू",
-  "Off": "बंद",
+  "WhatsApp updates are off. You can turn them back on here any time.":
+    "WhatsApp अपडेट बंद हैं। आप इन्हें यहाँ कभी भी फिर चालू कर सकते हैं।",
+  "Your WhatsApp setting was not changed. Please try again.":
+    "आपकी WhatsApp सेटिंग नहीं बदली। फिर कोशिश करें।",
+  On: "चालू",
+  Off: "बंद",
   "Try again": "फिर कोशिश करें",
+  "Your interviewer is finishing your scorecard, and a reviewer checks it before you see it. You will get an email when your result and feedback are ready.":
+    "आपके इंटरव्यूअर आपका स्कोरकार्ड पूरा कर रहे हैं, और आपको दिखाने से पहले कोई समीक्षक इसे जाँचता है। नतीजा और फ़ीडबैक तैयार होने पर आपको ईमेल मिलेगा।",
+  "Your interviewer will ask you a set of questions about the role and rate each answer. Answer in your own words and explain your thinking. Afterwards you get a result and written feedback on what went well and what to practise.":
+    "आपके इंटरव्यूअर इस रोल के बारे में कुछ सवाल पूछेंगे और हर जवाब को अंक देंगे। अपने शब्दों में जवाब दें और अपनी सोच समझाएँ। इसके बाद आपको नतीजा और लिखित फ़ीडबैक मिलेगा कि क्या अच्छा रहा और किसका अभ्यास करना है।",
 };
