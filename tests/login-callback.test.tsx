@@ -93,7 +93,7 @@ it("failed handoff preserves old cookies and shows a restart error", async () =>
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false }));
   window.history.replaceState({}, "", "/auth/signup?flow=handoff#handoff=" + "a".repeat(43));
   const view = render(<SignupPage />);
-  await waitFor(() => expect(view.getByRole("alert")).toHaveTextContent("Please start again"));
+  await waitFor(() => expect(view.getByRole("alert")).toHaveTextContent("Start again"));
   expect(mocks.setCookie).not.toHaveBeenCalled();
   expect(mocks.replace).not.toHaveBeenCalled();
 });
@@ -108,7 +108,7 @@ it("v2 denial without a request code remains a clear access state", async () => 
   mocks.cookies = { token: "old", refresh_token: "old-refresh" };
   window.history.replaceState({}, "", "/auth/signup#error=access_denied");
   const view = render(<SignupPage />);
-  await waitFor(() => expect(view.getByRole("status")).toHaveTextContent("ask your teacher"));
+  await waitFor(() => expect(view.getByRole("status")).toHaveTextContent(/ask your teacher/i));
   expect(mocks.replace).not.toHaveBeenCalled();
 });
 

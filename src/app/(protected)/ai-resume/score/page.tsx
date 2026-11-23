@@ -16,7 +16,7 @@ export default function ATSDashboardPage() {
         <div className="space-y-1">
           <h1 className="text-2xl font-bold text-slate-900">ATS Score</h1>
           <p className="text-slate-600 text-sm">
-            Analyzed for {formData?.targetRole || "Target Role"} -{" "}
+            Analysed for {formData?.targetRole || "Target Role"} -{" "}
             {formData?.experienceLevel || "Level"}
           </p>
         </div>

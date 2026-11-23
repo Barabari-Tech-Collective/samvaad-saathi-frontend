@@ -42,7 +42,7 @@ export default function AboutMyWork() {
       setDraft(null);
       await query.refetch();
     } catch {
-      toast.error(t("That didn't save. Please try again."));
+      toast.error(t("That didn't save. Try again."));
     } finally {
       setBusy(false);
     }
@@ -56,7 +56,7 @@ export default function AboutMyWork() {
       <p className="text-sm text-gray-600">
         {t("Add these and your practice questions can be about your own work.")}
       </p>
-      {query.isError && <p role="alert">{t("We couldn't load this. Please try again.")}</p>}
+      {query.isError && <p role="alert">{t("We couldn't load this. Try again.")}</p>}
       {items.length > 0 && (
         <ul className="divide-y divide-brand-line">
           {items.map((item) => (

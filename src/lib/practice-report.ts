@@ -83,12 +83,12 @@ export function reportRecoveryCopy(
     case "malformed":
       return {
         title: "We couldn't open your feedback",
-        body: "Part of your feedback didn't load. Please try again.",
+        body: "Part of your feedback didn't load. Try again.",
       };
     default:
       return {
         title: "We couldn't load your feedback",
-        body: "Please check your connection and try again.",
+        body: "Check your connection and try again.",
       };
   }
 }

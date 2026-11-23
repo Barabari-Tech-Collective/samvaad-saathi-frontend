@@ -181,7 +181,7 @@ export const MicPermissionModal = ({
         <div className="flex items-center gap-3 mb-4">
           <MicrophoneIcon className="w-6 h-6 text-primary" />
           <h3 id={titleId} className="font-bold text-lg">
-            Microphone Access Required
+            Microphone access needed
           </h3>
         </div>
 

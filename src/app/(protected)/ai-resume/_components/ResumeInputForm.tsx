@@ -116,7 +116,7 @@ export function ResumeInputForm({
         setAnalysisId(analysisResult.analysisId);
       }
 
-      toast.success("Resume analyzed successfully!");
+      toast.success("Resume analysed successfully!");
 
       // Invalidate the auth cache so the system knows we have a resume now
       queryClient.invalidateQueries({ queryKey: [ENDPOINTS.AUTH.ABOUT_ME] });
@@ -125,7 +125,7 @@ export function ResumeInputForm({
       onNext();
     } catch (error) {
       if (getAuthRevision() !== ownerRevision) return;
-      let errorMessage = "We couldn't check your resume. Please try again.";
+      let errorMessage = "We couldn't check your resume. Try again.";
       if (axios.isAxiosError(error) && error.response?.data?.detail) {
         errorMessage = error.response.data.detail;
       } else if (error instanceof Error) {
@@ -182,7 +182,7 @@ export function ResumeInputForm({
       <div className="space-y-2">
         <label className="text-sm font-medium text-slate-700">Target job description</label>
         <textarea
-          placeholder="Paste target job description here..."
+          placeholder="Paste target job description hereâ¦"
           {...register("jobDescription")}
           rows={4}
           className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all resize-none"
@@ -221,7 +221,7 @@ export function ResumeInputForm({
         disabled={!isValid || isSubmitting}
         className="mt-4 w-full py-4 bg-primary hover:opacity-90 disabled:opacity-50 disabled:bg-primary text-white rounded-2xl font-medium transition-all shadow-sm active:scale-[0.98]"
       >
-        {isSubmitting ? "Analyzing..." : "Check my resume"}
+        {isSubmitting ? "Analyzingâ¦" : "Check my resume"}
       </button>
     </form>
   );

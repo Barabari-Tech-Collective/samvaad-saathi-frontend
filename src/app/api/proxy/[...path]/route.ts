@@ -164,7 +164,7 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
       responseHeaders.set("Referrer-Policy", "no-referrer");
     return new Response(upstream.body, { status: upstream.status, headers: responseHeaders });
   } catch {
-    return jsonError(502, "We couldn't reach Samvaad. Please try again.");
+    return jsonError(502, "We couldn't reach Samvaad. Try again.");
   }
 }
 

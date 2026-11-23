@@ -15,7 +15,7 @@ export const journey: Record<string, string> = {
   "AI suggested": "AI का सुझाव",
   "ATS Compatibility Score": "ATS स्कोर",
   "ATS Friendly": "ATS के अनुकूल",
-  "ATS Optimized": "ATS के लिए तैयार",
+  "ATS optimised": "ATS के लिए तैयार",
   "ATS resume (final)": "ATS रेज़्यूमे (अंतिम)",
   "ATS Resume Template": "ATS रेज़्यूमे टेम्पलेट",
   "ATS Score": "ATS स्कोर",
@@ -35,7 +35,7 @@ export const journey: Record<string, string> = {
   "Allow microphone access in your browser. This will time out if no permission is given.":
     "ब्राउज़र में माइक्रोफ़ोन की अनुमति दें। अनुमति न मिलने पर समय समाप्त हो जाएगा।",
   "Analysis report downloaded successfully!": "रिपोर्ट डाउनलोड हो गई!",
-  "Analyzing your practice...": "आपके अभ्यास को देख रहे हैं...",
+  "Analysing your practiceâ¦": "आपके अभ्यास को देख रहे हैं...",
   "Another prompt": "दूसरा विषय",
   "Answer recorded": "जवाब रिकॉर्ड हो गया",
   "Answer saved. Continue when you're ready.": "जवाब सेव हो गया। तैयार हों तो आगे बढ़ें।",
@@ -104,7 +104,7 @@ export const journey: Record<string, string> = {
   Close: "बंद करें",
   "Close navigation": "मेन्यू बंद करें",
   "Close profile link guidelines": "लिंक के नियम बंद करें",
-  "Closed & other": "बंद और अन्य",
+  "Closed or not finished": "बंद या अधूरे",
   Coaching: "अभ्यास",
   "Coaching scores": "अभ्यास के स्कोर",
   "College name": "कॉलेज का नाम",
@@ -125,7 +125,7 @@ export const journey: Record<string, string> = {
   "Continue on this device": "इसी डिवाइस पर जारी रखें",
   "Continue to microphone check": "माइक्रोफ़ोन जाँच पर चलें",
   "Continue to sign in": "साइन इन पर चलें",
-  "Could not load resume. Please try again.": "रेज़्यूमे नहीं खुला। फिर कोशिश करें।",
+  "Could not load resume. Try again.": "रेज़्यूमे नहीं खुला। फिर कोशिश करें।",
   "Could not save resume to profile.": "रेज़्यूमे प्रोफ़ाइल में सेव नहीं हुआ।",
   "Couldn't load the audio. Tap the speaker icon to try again.":
     "आवाज़ नहीं चली। फिर कोशिश के लिए स्पीकर दबाएँ।",
@@ -163,7 +163,7 @@ export const journey: Record<string, string> = {
   "Extra time and support": "अतिरिक्त समय और मदद",
   "Failed to download report": "रिपोर्ट डाउनलोड नहीं हुई",
   "Failed to download resume.": "रेज़्यूमे डाउनलोड नहीं हुआ।",
-  "Failed to load report. Please try again.": "रिपोर्ट नहीं खुली। फिर कोशिश करें।",
+  "Failed to load report. Try again.": "रिपोर्ट नहीं खुली। फिर कोशिश करें।",
   "Failed to re-analyze resume.": "रेज़्यूमे दोबारा नहीं जाँचा जा सका।",
   "Failed to save changes.": "बदलाव सेव नहीं हुए।",
   "Failed to save resume to profile.": "रेज़्यूमे प्रोफ़ाइल में सेव नहीं हुआ।",
@@ -192,7 +192,7 @@ export const journey: Record<string, string> = {
   "Full Name": "पूरा नाम",
   "General interview · Easy · 5 questions · about 15 minutes":
     "सामान्य इंटरव्यू · आसान · 5 सवाल · लगभग 15 मिनट",
-  "Generating your resume from template...": "टेम्पलेट से आपका रेज़्यूमे बन रहा है...",
+  "Generating your resume from templateâ¦": "टेम्पलेट से आपका रेज़्यूमे बन रहा है...",
   "Getting your feedback…": "आपका फ़ीडबैक ला रहे हैं…",
   "Getting your interview ready": "आपका इंटरव्यू तैयार हो रहा है",
   "Give your answer a clear shape.": "अपने जवाब को साफ़ रूप दीजिए।",
@@ -257,9 +257,9 @@ export const journey: Record<string, string> = {
   "Loading assigned mock interviews…": "दिए गए मॉक इंटरव्यू ला रहे हैं…",
   "Loading question…": "सवाल ला रहे हैं…",
   "Loading recent interviews…": "हाल के इंटरव्यू ला रहे हैं…",
-  "Loading report...": "रिपोर्ट ला रहे हैं...",
-  "Loading resume template view...": "टेम्पलेट खोल रहे हैं...",
-  "Loading template details...": "टेम्पलेट की जानकारी ला रहे हैं...",
+  "Loading reportâ¦": "रिपोर्ट ला रहे हैं...",
+  "Loading resume template viewâ¦": "टेम्पलेट खोल रहे हैं...",
+  "Loading template detailsâ¦": "टेम्पलेट की जानकारी ला रहे हैं...",
   "Loading the courses you can choose…": "कोर्स ला रहे हैं…",
   "Loading your courses…": "आपके कोर्स ला रहे हैं…",
   "Loading your interviews…": "आपके इंटरव्यू ला रहे हैं…",
@@ -281,7 +281,7 @@ export const journey: Record<string, string> = {
   "Microphone on. Recording your answer.": "माइक्रोफ़ोन चालू है। जवाब रिकॉर्ड हो रहा है।",
   "Microphone warm-up (unscored):": "माइक्रोफ़ोन जाँच (बिना स्कोर):",
   "Mid Level": "मध्यम अनुभव",
-  "Minimize um, uh, like, you know": "'अं', 'मतलब', 'वो' कम बोलें",
+  "Cut down on um, uh, like, you know": "'अं', 'मतलब', 'वो' कम बोलें",
   "Missing / Suggested Skills:": "कम या सुझाए गए कौशल:",
   "Missing skills": "कम कौशल",
   "Mock interviews assigned by your teacher": "टीचर के दिए मॉक इंटरव्यू",
@@ -324,7 +324,7 @@ export const journey: Record<string, string> = {
   "No recommendations details available.": "सुझाव उपलब्ध नहीं हैं।",
   "No released outcomes yet": "अभी कोई नतीजा नहीं आया",
   "No resume file found to save.": "सेव करने के लिए रेज़्यूमे फ़ाइल नहीं मिली।",
-  "No resume file found. Please upload again.": "रेज़्यूमे फ़ाइल नहीं मिली। फिर अपलोड करें।",
+  "No resume file found. Upload again.": "रेज़्यूमे फ़ाइल नहीं मिली। फिर अपलोड करें।",
   "No score was inferred": "कोई स्कोर नहीं निकाला गया",
   "No sections found for this question.": "इस सवाल के हिस्से नहीं मिले।",
   "No test reviews.": "कोई समीक्षा नहीं है।",
@@ -360,16 +360,16 @@ export const journey: Record<string, string> = {
   "Open profile": "प्रोफ़ाइल खोलें",
   "Opening your studio…": "आपकी जगह खुल रही है…",
   Opportunity: "अवसर",
-  "Optimized for": "इसके लिए तैयार",
+  "Optimised for": "इसके लिए तैयार",
   "Original résumé file": "मूल रेज़्यूमे फ़ाइल",
   "Overall Experience": "कुल अनुभव",
   "Overall Progress": "कुल प्रगति",
   "Overall Readiness": "कुल तैयारी",
   "Overall pacing readiness": "बोलने की गति की तैयारी",
   "Page navigation": "पेज मेन्यू",
-  "Part of your feedback didn't load. Please try again.":
+  "Part of your feedback didn't load. Try again.":
     "फ़ीडबैक का कुछ हिस्सा नहीं खुला। फिर कोशिश करें।",
-  "Paste target job description here...": "नौकरी का विवरण यहाँ चिपकाएँ...",
+  "Paste target job description hereâ¦": "नौकरी का विवरण यहाँ चिपकाएँ...",
   "Pause Distribution": "ठहराव",
   "Pause. Say less 'um'.": "रुकिए। 'अं' कम बोलिए।",
   Phone: "फ़ोन",
@@ -378,14 +378,14 @@ export const journey: Record<string, string> = {
   "Placement updates": "प्लेसमेंट की ख़बरें",
   "Plan your answers": "अपने जवाब की योजना बनाएँ",
   "Plans you can start": "जो योजनाएँ शुरू कर सकते हैं",
-  "Please ask your teacher for access to Samvaad.": "संवाद की पहुँच के लिए अपने टीचर से पूछें।",
-  "Please check your connection and try again.": "इंटरनेट जाँचकर फिर कोशिश करें।",
-  "Please read the message before continuing.": "आगे बढ़ने से पहले संदेश पढ़ें।",
-  "Please try again in a moment.": "थोड़ी देर में फिर कोशिश करें।",
-  "Please try again later or ask your teacher.": "बाद में फिर कोशिश करें या अपने टीचर से पूछें।",
-  "Please try again. Your account data is hidden until this is resolved.":
+  "Ask your teacher for access to Samvaad.": "संवाद की पहुँच के लिए अपने टीचर से पूछें।",
+  "Check your connection and try again.": "इंटरनेट जाँचकर फिर कोशिश करें।",
+  "Read the message before continuing.": "आगे बढ़ने से पहले संदेश पढ़ें।",
+  "Try again in a moment.": "थोड़ी देर में फिर कोशिश करें।",
+  "Try again later or ask your teacher.": "बाद में फिर कोशिश करें या अपने टीचर से पूछें।",
+  "Try again. Your account data is hidden until this is resolved.":
     "फिर कोशिश करें। ठीक होने तक आपकी जानकारी नहीं दिखेगी।",
-  "Please wait while your interviewer introduces themselves...":
+  "Wait while your interviewer introduces themselvesâ¦":
     "इंटरव्यू लेने वाले अपना परिचय दे रहे हैं, कृपया रुकें...",
   Polish: "सुधारें",
   "Polish your resume": "रेज़्यूमे सुधारें",
@@ -450,13 +450,13 @@ export const journey: Record<string, string> = {
   "Restart sign-in": "साइन इन फिर शुरू करें",
   "Restore file only": "सिर्फ़ फ़ाइल वापस लाएँ",
   Resume: "रेज़्यूमे",
-  "Resume analyzed successfully!": "रेज़्यूमे जाँच लिया गया!",
+  "Resume analysed successfully!": "रेज़्यूमे जाँच लिया गया!",
   "Resume data saved. The original file may take longer to appear in Profile.":
     "रेज़्यूमे की जानकारी सेव हो गई। मूल फ़ाइल प्रोफ़ाइल में दिखने में समय लग सकता है।",
   "Resume downloaded successfully!": "रेज़्यूमे डाउनलोड हो गया!",
   "Resume has not been generated yet.": "रेज़्यूमे अभी नहीं बना है।",
   "Resume polish": "रेज़्यूमे सुधार",
-  "Resume re-analyzed successfully!": "रेज़्यूमे फिर जाँच लिया गया!",
+  "Resume re-analysed successfully!": "रेज़्यूमे फिर जाँच लिया गया!",
   "Resume review": "रेज़्यूमे की जाँच",
   "Resume review stages": "रेज़्यूमे जाँच के चरण",
   "Resume saved to your profile. You can choose it for interviews from Profile.":
@@ -506,7 +506,7 @@ export const journey: Record<string, string> = {
   "Select a role published for this interview purpose.": "इस इंटरव्यू के लिए उपलब्ध नौकरी चुनें।",
   "Send request": "अनुरोध भेजें",
   "Senior Level": "वरिष्ठ स्तर",
-  "Session request failed. Please try again.": "कुछ गड़बड़ हुई। फिर कोशिश करें।",
+  "Session request failed. Try again.": "कुछ गड़बड़ हुई। फिर कोशिश करें।",
   "Short pauses every 8-12 words": "हर 8–12 शब्दों पर छोटा ठहराव",
   "Sign in": "साइन इन करें",
   "Sign in before choosing an interview.": "इंटरव्यू चुनने से पहले साइन इन करें।",
@@ -567,7 +567,7 @@ export const journey: Record<string, string> = {
   "Strong Skills:": "मज़बूत कौशल:",
   "Strong skills": "मज़बूत कौशल",
   "Student workspace": "आपकी जगह",
-  "Submitting...": "जमा हो रहा है...",
+  "Submittingâ¦": "जमा हो रहा है...",
   "Suggested project": "सुझाया गया प्रोजेक्ट",
   Support: "मदद",
   "Talk to your interviewer": "इंटरव्यू लेने वाले से बात करें",
@@ -577,8 +577,8 @@ export const journey: Record<string, string> = {
   "Target role": "लक्ष्य नौकरी",
   "Technical Knowledge": "तकनीकी जानकारी",
   "Template & export": "टेम्पलेट और डाउनलोड",
-  "That did not save. Please try again.": "यह सेव नहीं हुआ। फिर कोशिश करें।",
-  "That didn't save. Please try again.": "यह सेव नहीं हुआ। फिर कोशिश करें।",
+  "That did not save. Try again.": "यह सेव नहीं हुआ। फिर कोशिश करें।",
+  "That didn't save. Try again.": "यह सेव नहीं हुआ। फिर कोशिश करें।",
   "The list of courses could not be loaded right now. Your choice was not changed.":
     "कोर्स की सूची अभी नहीं खुली। आपकी पसंद नहीं बदली।",
   "There's nothing here yet. Check back later or try a different view.":
@@ -600,17 +600,17 @@ export const journey: Record<string, string> = {
   "This is only practice and never counts.": "यह सिर्फ़ अभ्यास है, इसकी गिनती नहीं होती।",
   "This is what we heard you say. Tips appear when we could hear enough.":
     "हमने आपको यह कहते सुना। पर्याप्त सुनाई देने पर सुझाव दिखेंगे।",
-  "This job isn't ready yet. Please choose another.": "यह नौकरी अभी तैयार नहीं है। दूसरी चुनें।",
+  "This job isn't ready yet. Choose another.": "यह नौकरी अभी तैयार नहीं है। दूसरी चुनें।",
   "This link isn't right. Find your interview in Progress.":
     "यह लिंक सही नहीं है। प्रगति में अपना इंटरव्यू ढूँढें।",
   "This link isn't right. Open Progress and choose your interview.":
     "यह लिंक सही नहीं है। प्रगति खोलकर अपना इंटरव्यू चुनें।",
-  "This page lists all interviews you have put on hold.": "यहाँ आपके रोके गए सभी इंटरव्यू हैं।",
+  "Interviews you paused. Pick one up where you left off.":
+    "आपके रोके गए इंटरव्यू। जहाँ छोड़ा था, वहीं से शुरू करें।",
   "This page needs the analysis from your current upload. If you refreshed or opened a saved link, upload your resume again to see a fresh review.":
     "इस पेज को आपके अभी के अपलोड की जाँच चाहिए। पेज ताज़ा किया है तो रेज़्यूमे फिर अपलोड करें।",
-  "This question didn't load properly. Please try it again.":
-    "यह सवाल ठीक से नहीं खुला। फिर कोशिश करें।",
-  "This role is not configured for a formal assessment. Please select an assessment role.":
+  "This question didn't load properly. Try it again.": "यह सवाल ठीक से नहीं खुला। फिर कोशिश करें।",
+  "This role is not configured for a formal assessment. Select an assessment role.":
     "यह नौकरी परीक्षा के लिए तैयार नहीं है। दूसरी चुनें।",
   "This task can't be started right now. Ask your teacher if you need it.":
     "यह काम अभी शुरू नहीं हो सकता। ज़रूरत हो तो अपने टीचर से पूछें।",
@@ -620,7 +620,7 @@ export const journey: Record<string, string> = {
   "Time is up. We will save your current answer before submitting. Keep this page open.":
     "समय पूरा हुआ। जमा करने से पहले आपका जवाब सेव होगा। यह पेज खुला रखें।",
   "Top recommendations": "मुख्य सुझाव",
-  "Total Average Score": "कुल औसत स्कोर",
+  "Your scores": "आपके स्कोर",
   "Try Again": "फिर कोशिश करें",
   "Try loading history again": "प्रगति फिर लाएँ",
   "Try loading report again": "रिपोर्ट फिर लाएँ",
@@ -661,7 +661,7 @@ export const journey: Record<string, string> = {
   "We couldn't load more plans.": "और योजनाएँ नहीं खुलीं।",
   "We couldn't load your plans. Your progress is safe.":
     "आपकी योजनाएँ नहीं खुलीं। आपकी प्रगति सुरक्षित है।",
-  "We couldn't analyze this answer right now.": "अभी इस जवाब की जाँच नहीं हो सकी।",
+  "We couldn't analyse this answer right now.": "अभी इस जवाब की जाँच नहीं हो सकी।",
   "We couldn't check your interview": "आपका इंटरव्यू नहीं जाँचा जा सका",
   "We couldn't confirm your course. Your answers are safe. Ask your teacher for help.":
     "आपका कोर्स पक्का नहीं हो सका। आपके जवाब सुरक्षित हैं। अपने टीचर से मदद लें।",
@@ -669,13 +669,13 @@ export const journey: Record<string, string> = {
     "यह फ़ीडबैक नहीं मिला। प्रगति देखें या बाद में कोशिश करें।",
   "We couldn't load the job list": "नौकरियों की सूची नहीं खुली",
   "We couldn't load the levels.": "स्तर नहीं खुले।",
-  "We couldn't load this. Please try again.": "यह नहीं खुला। फिर कोशिश करें।",
+  "We couldn't load this. Try again.": "यह नहीं खुला। फिर कोशिश करें।",
   "We couldn't load this. You can still practise.": "यह नहीं खुला। आप फिर भी अभ्यास कर सकते हैं।",
   "We couldn't load your AI interview.": "आपका AI इंटरव्यू नहीं खुला।",
   "We couldn't load your mock interviews.": "आपके मॉक इंटरव्यू नहीं खुले।",
   "We couldn't load your feedback": "आपका फ़ीडबैक नहीं खुला",
   "We couldn't load your graduation details.": "आपके कोर्स की जानकारी नहीं खुली।",
-  "We couldn't load your graduation details. Please try again.":
+  "We couldn't load your graduation details. Try again.":
     "आपके कोर्स की जानकारी नहीं खुली। फिर कोशिश करें।",
   "We couldn't load your interviews. Check your connection and try again, or ask your teacher.":
     "आपके इंटरव्यू नहीं खुले। इंटरनेट जाँचकर फिर कोशिश करें या अपने टीचर से पूछें।",
@@ -689,11 +689,11 @@ export const journey: Record<string, string> = {
     "हाल के इंटरव्यू नहीं खुले। आपका काम सुरक्षित है।",
   "We couldn't load your results. Check your connection and try again.":
     "आपके नतीजे नहीं खुले। इंटरनेट जाँचकर फिर कोशिश करें।",
-  "We couldn't load your reviews. Please reload the page.": "समीक्षाएँ नहीं खुलीं। पेज ताज़ा करें।",
+  "We couldn't load your reviews. Reload the page.": "समीक्षाएँ नहीं खुलीं। पेज ताज़ा करें।",
   "We couldn't open this feedback. Check you are on the right account, or ask your teacher.":
     "यह फ़ीडबैक नहीं खुला। सही अकाउंट देखें या अपने टीचर से पूछें।",
   "We couldn't open your feedback": "आपका फ़ीडबैक नहीं खुला",
-  "We couldn't save that. Please try again.": "यह सेव नहीं हुआ। फिर कोशिश करें।",
+  "We couldn't save that. Try again.": "यह सेव नहीं हुआ। फिर कोशिश करें।",
   "We couldn't work out an overall score. Unclear speech never lowers your score.":
     "कुल स्कोर नहीं निकल सका। अस्पष्ट आवाज़ से आपका स्कोर कम नहीं होता।",
   "We need to check your course": "आपका कोर्स जाँचना होगा",
@@ -771,7 +771,7 @@ export const journey: Record<string, string> = {
   "Your recording needs attention. Check the message below.":
     "आपकी रिकॉर्डिंग देखनी होगी। नीचे का संदेश पढ़ें।",
   "Your reflection": "आपके विचार",
-  "Your request could not be sent. Please try again.": "आपका अनुरोध नहीं गया। फिर कोशिश करें।",
+  "Your request could not be sent. Try again.": "आपका अनुरोध नहीं गया। फिर कोशिश करें।",
   "Your request is sent.": "आपका अनुरोध भेज दिया गया।",
   "Your saved answers stay attached to the same questions.":
     "आपके सेव जवाब उन्हीं सवालों के साथ रहेंगे।",
@@ -802,7 +802,7 @@ export const journey: Record<string, string> = {
   "Short activities": "छोटे अभ्यास",
   "Open Progress": "प्रगति खोलें",
   "Back to Progress": "प्रगति पर लौटें",
-  "Your interviews are safe. Please try again.": "आपके इंटरव्यू सुरक्षित हैं। फिर कोशिश करें।",
+  "Your interviews are safe. Try again.": "आपके इंटरव्यू सुरक्षित हैं। फिर कोशिश करें।",
   "Your teacher asked for this.": "आपके टीचर ने यह कहा है।",
   "Start with a two-minute warm-up": "दो मिनट के वॉर्म-अप से शुरू करें",
   "Start warm-up": "वॉर्म-अप शुरू करें",
@@ -828,16 +828,15 @@ export const journey: Record<string, string> = {
   "See your interview time and join": "अपना समय देखें और जुड़ें",
   "See your results and next steps": "अपने नतीजे और अगला कदम देखें",
   // Messages: errors, toasts and refusals. tests/i18n-coverage.test.ts keeps these complete.
-  "File cannot be empty. Please upload a valid resume.":
-    "फ़ाइल खाली है। कृपया सही रिज़्यूमे अपलोड करें।",
-  "We couldn't check your resume. Please try again.":
+  "File cannot be empty. Upload a valid resume.": "फ़ाइल खाली है। कृपया सही रिज़्यूमे अपलोड करें।",
+  "We couldn't check your resume. Try again.":
     "हम आपका रिज़्यूमे जाँच नहीं पाए। कृपया फिर से कोशिश करें।",
   "Preparing your resume PDF…": "आपके रिज़्यूमे की PDF तैयार हो रही है…",
   "Saving resume to profile…": "रिज़्यूमे प्रोफ़ाइल में सेव हो रहा है…",
   "Resume saved to your profile. To use it for AI interviews, open Profile and select 'Replace with ATS resume'.":
     "रिज़्यूमे आपकी प्रोफ़ाइल में सेव हो गया। AI इंटरव्यू में इसे इस्तेमाल करने के लिए प्रोफ़ाइल खोलें और 'ATS रिज़्यूमे से बदलें' चुनें।",
   "Replace with ATS resume": "ATS रिज़्यूमे से बदलें",
-  "Your resume is well-optimized for this role and experience level.":
+  "Your resume is well-optimised for this role and experience level.":
     "आपका रिज़्यूमे इस रोल और अनुभव के स्तर के लिए अच्छा है।",
   "Your resume matches well but has room for optimization.":
     "आपका रिज़्यूमे अच्छा मेल खाता है, पर इसे और बेहतर किया जा सकता है।",
@@ -845,25 +844,21 @@ export const journey: Record<string, string> = {
     "इस रोल से बेहतर मेल के लिए रिज़्यूमे में कुछ सुधार करें।",
   "Consider updating your resume to better align with the target position.":
     "इस नौकरी से मेल खाने के लिए अपना रिज़्यूमे अपडेट करें।",
-  "We couldn't start your practice. Please try again.":
+  "We couldn't start your practice. Try again.":
     "हम आपका अभ्यास शुरू नहीं कर पाए। कृपया फिर से कोशिश करें।",
-  "We couldn't send your answer. Please try again.":
-    "हम आपका जवाब भेज नहीं पाए। कृपया फिर से कोशिश करें।",
-  "We couldn't sign you in. Please start again.":
-    "हम आपको साइन इन नहीं कर पाए। कृपया फिर से शुरू करें।",
-  "You may have signed in somewhere else. Please try again.":
+  "We couldn't send your answer. Try again.": "हम आपका जवाब भेज नहीं पाए। कृपया फिर से कोशिश करें।",
+  "We couldn't sign you in. Start again.": "हम आपको साइन इन नहीं कर पाए। कृपया फिर से शुरू करें।",
+  "You may have signed in somewhere else. Try again.":
     "शायद आपने कहीं और साइन इन किया है। कृपया फिर से कोशिश करें।",
-  "Please sign in again.": "कृपया फिर से साइन इन करें।",
-  "We couldn't sign you out. Please try again.":
-    "हम आपको साइन आउट नहीं कर पाए। कृपया फिर से कोशिश करें।",
-  "We couldn't open the meeting link. Please try again or ask your teacher.":
+  "Sign in again.": "कृपया फिर से साइन इन करें।",
+  "We couldn't sign you out. Try again.": "हम आपको साइन आउट नहीं कर पाए। कृपया फिर से कोशिश करें।",
+  "We couldn't open the meeting link. Try again or ask your teacher.":
     "हम मीटिंग का लिंक नहीं खोल पाए। फिर से कोशिश करें या अपने टीचर से पूछें।",
   "Meeting access has changed or the join window ended. Refresh appointments before trying again.":
     "मीटिंग की अनुमति बदल गई है या जुड़ने का समय खत्म हो गया है। फिर से कोशिश करने से पहले अपॉइंटमेंट रिफ़्रेश करें।",
   "Enter 10–2,000 characters before submitting your explanation.":
     "अपनी बात भेजने से पहले 10 से 2,000 अक्षर लिखें।",
-  "Please update your browser and try again.":
-    "कृपया अपना ब्राउज़र अपडेट करें और फिर से कोशिश करें।",
+  "Update your browser and try again.": "कृपया अपना ब्राउज़र अपडेट करें और फिर से कोशिश करें।",
   "That didn't save. Your text is still here, so please try again.":
     "यह सेव नहीं हुआ। आपका लिखा हुआ यहीं है, कृपया फिर से कोशिश करें।",
   "Write at least 20 characters before saving your reflection.":
@@ -878,29 +873,29 @@ export const journey: Record<string, string> = {
     "हम रिकॉर्ड नहीं कर पाए। माइक्रोफ़ोन की अनुमति दें और देखें कि कोई दूसरा ऐप उसे इस्तेमाल तो नहीं कर रहा।",
   "We couldn't record. Allow microphone access and try again.":
     "हम रिकॉर्ड नहीं कर पाए। माइक्रोफ़ोन की अनुमति दें और फिर से कोशिश करें।",
-  "Recording stopped unexpectedly. Please record your answer again.":
+  "Recording stopped unexpectedly. Record your answer again.":
     "रिकॉर्डिंग अचानक रुक गई। कृपया अपना जवाब फिर से रिकॉर्ड करें।",
   "Your previous answer is saved on this device. Select Retry save to continue.":
     "आपका पिछला जवाब इस डिवाइस पर सेव है। आगे बढ़ने के लिए 'फिर से सेव करें' चुनें।",
   "Your microphone is blocked. Allow it in your browser settings, then try again.":
     "आपका माइक्रोफ़ोन बंद है। ब्राउज़र की सेटिंग में इसकी अनुमति दें, फिर कोशिश करें।",
   "Microphone is on.": "माइक्रोफ़ोन चालू है।",
-  "Something went wrong. Please try again.": "कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।",
+  "Something went wrong. Try again.": "कुछ गड़बड़ हो गई। कृपया फिर से कोशिश करें।",
   "You're no longer in this course. Your answers are safe. Ask your teacher for help.":
     "आप अब इस कोर्स में नहीं हैं। आपके जवाब सुरक्षित हैं। मदद के लिए अपने टीचर से पूछें।",
-  "Your sign-in has expired. Please sign in again, then start the interview.":
+  "Your sign-in has expired. Sign in again, then start the interview.":
     "आपका साइन इन खत्म हो गया है। फिर से साइन इन करें, फिर इंटरव्यू शुरू करें।",
   "This interview isn't open to you yet. Ask your teacher if you expected to see it.":
     "यह इंटरव्यू अभी आपके लिए खुला नहीं है। अगर आपको यह दिखना चाहिए था तो अपने टीचर से पूछें।",
-  "This interview is no longer available. Please pick another one from the list.":
+  "This interview is no longer available. Pick another one from the list.":
     "यह इंटरव्यू अब उपलब्ध नहीं है। कृपया सूची से कोई दूसरा चुनें।",
-  "You've started a lot of interviews in the last hour. Please wait a while before starting another.":
+  "You've started a lot of interviews in the last hour. Wait a while before starting another.":
     "आपने पिछले एक घंटे में कई इंटरव्यू शुरू किए हैं। अगला शुरू करने से पहले थोड़ा रुकें।",
-  "Some of your choices are no longer valid. Please check them and try again.":
+  "Some of your choices are no longer valid. Check them and try again.":
     "आपके कुछ चुनाव अब मान्य नहीं हैं। कृपया उन्हें देखें और फिर से कोशिश करें।",
   "assessment review needs your attention.": "असेसमेंट रिव्यू पर आपका ध्यान चाहिए।",
   "assessment reviews need your attention.": "असेसमेंट रिव्यू पर आपका ध्यान चाहिए।",
-  "We couldn't download your resume. Please try again.":
+  "We couldn't download your resume. Try again.":
     "हम आपका रिज़्यूमे डाउनलोड नहीं कर पाए। कृपया फिर से कोशिश करें।",
   "We couldn't save your resume. Your draft is still here. Check your connection and try again.":
     "हम आपका रिज़्यूमे सेव नहीं कर पाए। आपका ड्राफ़्ट यहीं है। अपना इंटरनेट देखें और फिर से कोशिश करें।",
@@ -937,7 +932,7 @@ export const journey: Record<string, string> = {
     "यह नौकरी अभी तैयार नहीं है। कोई दूसरी चुनें या अपने टीचर से पूछें।",
   "We're not sure your interview started. Check Progress before starting another.":
     "पता नहीं कि आपका इंटरव्यू शुरू हुआ या नहीं। दूसरा शुरू करने से पहले प्रगति देखें।",
-  "This word didn't save. Please refresh and try again.":
+  "This word didn't save. Refresh and try again.":
     "यह शब्द सेव नहीं हुआ। कृपया पेज रिफ़्रेश करें और फिर से कोशिश करें।",
   "Recording stopped unexpectedly. Check your microphone and record again.":
     "रिकॉर्डिंग अचानक रुक गई। अपना माइक्रोफ़ोन देखें और फिर से रिकॉर्ड करें।",
@@ -949,7 +944,7 @@ export const journey: Record<string, string> = {
     "इस ब्राउज़र में आवाज़ रिकॉर्ड नहीं हो सकती। माइक्रोफ़ोन वाले डिवाइस पर नए Chrome या Edge में यह पेज खोलें।",
   "We could not use your microphone. Allow microphone access in browser settings, then try again.":
     "हम आपका माइक्रोफ़ोन इस्तेमाल नहीं कर पाए। ब्राउज़र की सेटिंग में माइक्रोफ़ोन की अनुमति दें, फिर कोशिश करें।",
-  "We couldn't mark this as done. Please try again, or check it in Practice.":
+  "We couldn't mark this as done. Try again, or check it in Practice.":
     "हम इसे पूरा नहीं दिखा पाए। फिर से कोशिश करें, या अभ्यास में देखें।",
   "We could not confirm that plan started. Try again; the same request will not create a duplicate plan.":
     "हम पक्का नहीं कर पाए कि प्लान शुरू हुआ। फिर से कोशिश करें; इससे दूसरा प्लान नहीं बनेगा।",
@@ -985,7 +980,7 @@ export const journey: Record<string, string> = {
   "WhatsApp updates are on.": "WhatsApp अपडेट चालू हैं।",
   "WhatsApp updates are off. You can turn them back on here any time.":
     "WhatsApp अपडेट बंद हैं। आप इन्हें यहाँ कभी भी फिर चालू कर सकते हैं।",
-  "Your WhatsApp setting was not changed. Please try again.":
+  "Your WhatsApp setting was not changed. Try again.":
     "आपकी WhatsApp सेटिंग नहीं बदली। फिर कोशिश करें।",
   On: "चालू",
   Off: "बंद",

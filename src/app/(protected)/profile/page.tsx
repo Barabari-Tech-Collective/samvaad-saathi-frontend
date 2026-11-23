@@ -103,7 +103,7 @@ export default function ProfilePage() {
     } catch (error) {
       if (getAuthRevision() !== ownerRevision) return;
       console.error("View resume error:", error);
-      toast.error("Could not load resume. Please try again.");
+      toast.error("Could not load resume. Try again.");
     } finally {
       setIsDownloadingResume(false);
     }
@@ -206,7 +206,7 @@ export default function ProfilePage() {
       if (!resumeFile) {
         setErrors((prev) => ({
           ...prev,
-          resume: "Please select a resume file (.pdf) before saving.",
+          resume: "Select a resume file (.pdf) before saving.",
         }));
         return;
       }
@@ -255,7 +255,7 @@ export default function ProfilePage() {
           ...prev,
           resume: extractApiErrorMessage(
             error,
-            "Failed to parse resume. Please ensure the file is an unencrypted, valid PDF."
+            "Failed to parse resume. Ensure the file is an unencrypted, valid PDF."
           ),
         }));
       } finally {
@@ -287,7 +287,7 @@ export default function ProfilePage() {
       console.error(`Field update failed for ${field}:`, error);
       setErrors((prev) => ({
         ...prev,
-        [field]: extractApiErrorMessage(error, `Failed to update ${field}. Please try again.`),
+        [field]: extractApiErrorMessage(error, `Failed to update ${field}. Try again.`),
       }));
     }
   };
@@ -305,7 +305,7 @@ export default function ProfilePage() {
     if (!isPdfExt || !isPdfMime) {
       setErrors((prev) => ({
         ...prev,
-        resume: `Invalid file format (${file.name}). Only .pdf files are allowed. Please rename or select a valid PDF file.`,
+        resume: `Invalid file format (${file.name}). Only .pdf files are allowed. Rename or select a valid PDF file.`,
       }));
       e.target.value = "";
       setResumeFile(null);
@@ -315,7 +315,7 @@ export default function ProfilePage() {
     if (file.size > MAX_PROFILE_RESUME_SIZE_MB * 1024 * 1024) {
       setErrors((prev) => ({
         ...prev,
-        resume: `File size exceeds ${MAX_PROFILE_RESUME_SIZE_MB}MB limit (selected: ${(file.size / (1024 * 1024)).toFixed(1)}MB). Please upload a smaller PDF.`,
+        resume: `File size exceeds ${MAX_PROFILE_RESUME_SIZE_MB}MB limit (selected: ${(file.size / (1024 * 1024)).toFixed(1)}MB). Upload a smaller PDF.`,
       }));
       e.target.value = "";
       setResumeFile(null);

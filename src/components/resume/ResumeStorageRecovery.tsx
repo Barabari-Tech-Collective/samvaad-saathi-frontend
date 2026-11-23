@@ -85,7 +85,7 @@ export default function ResumeStorageRecovery() {
             !["started", "completed", "failed"].includes(operation.state) ||
             typeof operation.dataSaved !== "boolean"
           )
-            throw new Error("Something went wrong. Please try again.");
+            throw new Error("Something went wrong. Try again.");
           if (current()) {
             setRepairKey(operation.state === "completed" && operation.dataSaved ? key : null);
             setRecoverable(
@@ -98,16 +98,16 @@ export default function ResumeStorageRecovery() {
               operation.state === "completed"
                 ? operation.dataSaved
                   ? "Your resume is saved."
-                  : "We're not sure your resume saved. Please ask your teacher before trying again."
+                  : "We're not sure your resume saved. Ask your teacher before trying again."
                 : operation.state === "failed"
-                  ? "We couldn't read your resume. Please ask your teacher before trying again."
+                  ? "We couldn't read your resume. Ask your teacher before trying again."
                   : "We're still reading your resume. Check back in a moment."
             );
           }
         } catch {
           if (current()) {
             setRecoverable(null);
-            setOperationMessage("We couldn't check that. Please try again.");
+            setOperationMessage("We couldn't check that. Try again.");
           }
         }
       }
@@ -140,7 +140,7 @@ export default function ResumeStorageRecovery() {
       setRecoverable(null);
       setOperationMessage("You can try again now. Choose the same file and upload it.");
     } catch {
-      if (current()) setOperationMessage("That didn't work. Please try again.");
+      if (current()) setOperationMessage("That didn't work. Try again.");
     } finally {
       if (current()) {
         inFlight.current = false;
@@ -206,7 +206,7 @@ export default function ResumeStorageRecovery() {
                   : status === "unconfirmed"
                     ? "We couldn't find this file. Check again later, or ask your teacher."
                     : status === "error"
-                      ? "We couldn't check your file. Please try again."
+                      ? "We couldn't check your file. Try again."
                       : "Not checked yet."}
       </p>
       {operationMessage && (

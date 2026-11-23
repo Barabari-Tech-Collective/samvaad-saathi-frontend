@@ -55,7 +55,7 @@ interface UseMutationApiProps<TData, TParams> {
 
 export const extractApiErrorMessage = (
   error: unknown,
-  fallback = "Something went wrong. Please try again."
+  fallback = "Something went wrong. Try again."
 ): string => {
   const axiosError = error as AxiosError<APIError>;
   const errorData = axiosError?.response?.data;
@@ -221,7 +221,7 @@ export const createApiClient = (
         if (shouldToast) {
           const messageToShow = extractApiErrorMessage(
             error,
-            errorMessage || "Something went wrong. Please try again."
+            errorMessage || "Something went wrong. Try again."
           );
           toast.error(messageToShow);
         }
@@ -259,10 +259,7 @@ export const createApiClient = (
                 return;
               if (showToastError ?? Boolean(errorMessage))
                 toast.error(
-                  extractApiErrorMessage(
-                    error,
-                    errorMessage || "Something went wrong. Please try again."
-                  )
+                  extractApiErrorMessage(error, errorMessage || "Something went wrong. Try again.")
                 );
               await options?.onError?.(...args);
             },

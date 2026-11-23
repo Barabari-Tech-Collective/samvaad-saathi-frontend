@@ -23,7 +23,7 @@ export default function Onboarding() {
   const updateProfileMutation = usersApiClient.useMutation({
     url: ENDPOINTS.USERS.PROFILE,
     method: "put",
-    errorMessage: "We couldn't save that. Please try again.",
+    errorMessage: "We couldn't save that. Try again.",
     options: {
       onSuccess: async () => {
         const revision = getAuthRevision();
@@ -41,7 +41,7 @@ export default function Onboarding() {
     try {
       await updateProfileMutation.mutateAsync(data);
     } catch {
-      toast.error("We couldn't save that. Please try again.");
+      toast.error("We couldn't save that. Try again.");
     } finally {
       setSaving(false);
     }

@@ -3,7 +3,7 @@ import { loginDestination } from "@/lib/login-destination";
 export class SessionClientError extends Error {
   constructor(
     public readonly status: number,
-    message = "Session request failed. Please try again."
+    message = "Session request failed. Try again."
   ) {
     super(message);
     this.name = "SessionClientError";
@@ -147,7 +147,7 @@ export class ServerSessionClient {
     } catch (error) {
       if (signal?.aborted) throw new SessionClientError(499, "Request cancelled.");
       if (error instanceof SessionClientError) throw error;
-      throw new SessionClientError(503, "Session service unavailable. Please try again.");
+      throw new SessionClientError(503, "Session service unavailable. Try again.");
     } finally {
       clearTimeout(timer);
       signal?.removeEventListener("abort", abort);

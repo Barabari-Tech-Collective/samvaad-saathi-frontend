@@ -153,7 +153,7 @@ export default function HygieneAndTemplatePage() {
 
   const handleReAnalyze = async () => {
     if (!uploadedFile) {
-      toast.error("No resume file found. Please upload again.");
+      toast.error("No resume file found. Upload again.");
       router.push("/ai-resume");
       return;
     }
@@ -179,7 +179,7 @@ export default function HygieneAndTemplatePage() {
       if (result.analysisId) {
         setAnalysisId(result.analysisId);
       }
-      toast.success("Resume re-analyzed successfully!");
+      toast.success("Resume re-analysed successfully!");
     } catch (error) {
       if (getAuthRevision() !== ownerRevision) return;
       const errorMessage = error instanceof Error ? error.message : "Failed to re-analyze resume.";
@@ -278,8 +278,8 @@ export default function HygieneAndTemplatePage() {
                         1. 💼 LinkedIn Profile
                       </p>
                       <p className="text-sm text-slate-700 mb-3">
-                        Please provide your direct LinkedIn profile link to showcase your
-                        professional experience.
+                        Provide your direct LinkedIn profile link to showcase your professional
+                        experience.
                       </p>
                       <div className="text-sm space-y-3 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
                         <div>
@@ -549,13 +549,13 @@ export default function HygieneAndTemplatePage() {
               <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white/20 w-fit rounded-full">
                 <DocumentTextIcon className="size-3 text-white" />
                 <span className="text-white text-sm font-medium uppercase tracking-wider">
-                  ATS Optimized
+                  ATS optimised
                 </span>
               </div>
               <div>
                 <h3 className="text-white font-bold leading-tight">
                   {templatesLoading
-                    ? "Loading templates..."
+                    ? "Loading templatesâ¦"
                     : firstTemplate
                       ? firstTemplate.name
                       : "ATS-friendly resume template"}
@@ -604,7 +604,7 @@ export default function HygieneAndTemplatePage() {
             className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition-colors"
           >
             <ArrowPathIcon className="size-4" />
-            Re-Analyze
+            Analyse again
           </button>
           <button
             onClick={handleDownloadReport}

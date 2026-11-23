@@ -24,7 +24,7 @@ const client = createApiClient(APIService.INTERVIEWS);
 const filters: { value: HistoryGroup; title: string }[] = [
   { value: "incomplete", title: "Your interviews" },
   { value: "completed", title: "Completed" },
-  { value: "closed", title: "Closed & other" },
+  { value: "closed", title: "Closed or not finished" },
 ];
 
 function HistoryWorkspace({ account }: { account: string }) {
@@ -98,8 +98,8 @@ function HistoryWorkspace({ account }: { account: string }) {
           </h2>
           <p className="mt-2 text-sm">
             {denied
-              ? "Please check you are signed in, then try again."
-              : "Your interviews are safe. Please try again."}
+              ? "Check you are signed in, then try again."
+              : "Your interviews are safe. Try again."}
           </p>
           <button
             type="button"
@@ -174,7 +174,7 @@ function HistoryWorkspace({ account }: { account: string }) {
                           </dd>
                         </div>
                         <div>
-                          <dt className="text-gray-600">Speech &amp; structure</dt>
+                          <dt className="text-gray-600">Speech and structure</dt>
                           <dd className="mt-1 font-semibold">
                             {historyScore(item.speechFluencyPercentage)}
                           </dd>

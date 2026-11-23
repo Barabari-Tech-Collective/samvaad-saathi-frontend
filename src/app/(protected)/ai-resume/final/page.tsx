@@ -122,7 +122,7 @@ function ResumeTemplateFullViewContent() {
       toast.success("Resume downloaded successfully!");
     } catch (error) {
       if (error instanceof SessionChangedError || getAuthRevision() !== ownerRevision) return;
-      setDocumentError("We couldn't download your resume. Please try again.");
+      setDocumentError("We couldn't download your resume. Try again.");
       toast.error("Failed to download resume.");
     } finally {
       downloadInFlight.current = false;
@@ -173,9 +173,7 @@ function ResumeTemplateFullViewContent() {
     return (
       <div className="w-full flex flex-col items-center justify-center py-20 gap-4">
         <span className="loading loading-spinner loading-lg text-primary"></span>
-        <p className="text-slate-600 font-medium text-sm">
-          Generating your resume from template...
-        </p>
+        <p className="text-slate-600 font-medium text-sm">Generating your resume from templateâ¦</p>
       </div>
     );
   }
@@ -417,7 +415,7 @@ function ResumeTemplateFullViewContent() {
                 className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded-xl font-medium transition-colors shadow-sm"
               >
                 <BookmarkSquareIcon className="size-4" strokeWidth={3} />
-                {isSavingResume ? "Saving..." : "Save Resume"}
+                {isSavingResume ? "Savingâ¦" : "Save Resume"}
               </button>
               <button
                 onClick={handleDownload}
@@ -425,7 +423,7 @@ function ResumeTemplateFullViewContent() {
                 className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-slate-100 hover:bg-slate-200 disabled:opacity-50 text-slate-700 rounded-xl font-medium transition-colors"
               >
                 <ArrowDownTrayIcon className="size-4" />
-                {isDownloading ? "Downloading..." : "Download PDF"}
+                {isDownloading ? "Downloadingâ¦" : "Download PDF"}
               </button>
               <button
                 onClick={() => setIsEditing(true)}
@@ -449,7 +447,7 @@ export default function ResumeTemplateFullViewPage() {
       fallback={
         <div className="w-full flex flex-col items-center justify-center py-20 gap-4">
           <span className="loading loading-spinner loading-lg text-primary"></span>
-          <p className="text-slate-600 font-medium text-sm">Loading resume template view...</p>
+          <p className="text-slate-600 font-medium text-sm">Loading resume template viewâ¦</p>
         </div>
       }
     >

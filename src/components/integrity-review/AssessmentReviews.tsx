@@ -101,7 +101,7 @@ function ReviewCard({ row, refresh }: { row: AssessmentReviewCase; refresh: () =
               if (typeof globalThis.crypto?.randomUUID !== "function") {
                 lock.current = false;
                 setBusy(false);
-                setError("Please update your browser and try again.");
+                setError("Update your browser and try again.");
                 return;
               }
               retry.current = { body, key: globalThis.crypto.randomUUID() };
@@ -203,7 +203,7 @@ export function AssessmentReviews({ accountKey }: { accountKey: string }) {
         not change your score by itself.
       </p>
       {query.isError || invalidResponse ? (
-        <p role="alert">We couldn't load your reviews. Please reload the page.</p>
+        <p role="alert">We couldn't load your reviews. Reload the page.</p>
       ) : query.isLoading || !data ? (
         <output>Checking your review notices…</output>
       ) : (

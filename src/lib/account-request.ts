@@ -35,7 +35,7 @@ export async function accountJson<T>(
   try {
     const response = await fetch(url, { ...init, headers });
     assertAuthRevision(ownerRevision);
-    if (!response.ok) throw new Error("The request could not be completed. Please try again.");
+    if (!response.ok) throw new Error("The request could not be completed. Try again.");
     const data: T = await response.json();
     assertAuthRevision(ownerRevision);
     return data;

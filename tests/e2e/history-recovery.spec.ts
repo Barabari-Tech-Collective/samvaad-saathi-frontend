@@ -57,7 +57,7 @@ test("history keeps all lifecycle states and explicit interview modes at 320px",
     "href",
     "/report-summary?interviewId=7"
   );
-  await page.getByRole("button", { name: "Closed & other" }).click();
+  await page.getByRole("button", { name: "Closed or not finished" }).click();
   await expect(page.getByRole("heading", { name: "Round 6" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

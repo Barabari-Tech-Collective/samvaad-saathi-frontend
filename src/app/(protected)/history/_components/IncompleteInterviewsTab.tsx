@@ -14,7 +14,7 @@ export default function IncompleteInterviewsTab({
   return (
     <div>
       <p className="text-sm text-black/60 mb-3">
-        This page lists all interviews you have put on hold.
+        Interviews you paused. Pick one up where you left off.
       </p>
 
       {incomplete.length === 0 ? (

@@ -199,7 +199,7 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
         <p role="alert">
           {code === 401 || code === 403 || code === 404
             ? "This interview isn't on this account. Check that you are signed in to the right one."
-            : "Your answers are safe. Please try again in a moment."}
+            : "Your answers are safe. Try again in a moment."}
         </p>
         <button type="button" className={action} onClick={() => void completion.refetch()}>
           Try again
@@ -272,7 +272,7 @@ function VerifiedCompletion({ account, interviewId }: { account: string; intervi
                   ? "Your feedback is taking longer than usual. Check again in a minute."
                   : missing
                     ? "We're preparing your feedback."
-                    : "We couldn't check your feedback. Please try again."}
+                    : "We couldn't check your feedback. Try again."}
             </p>
             <div className="flex flex-wrap gap-3">
               <button

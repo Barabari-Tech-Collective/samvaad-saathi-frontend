@@ -47,7 +47,7 @@ export default function GraduationStatus() {
       ) : query.isLoading || !data ? (
         <p role="status">Loading your progress…</p>
       ) : !items ? (
-        <p role="alert">We couldn't load your graduation details. Please try again.</p>
+        <p role="alert">We couldn't load your graduation details. Try again.</p>
       ) : !items.length ? (
         <p>Nothing yet. Tell your course team when you finish the course and join a job.</p>
       ) : (

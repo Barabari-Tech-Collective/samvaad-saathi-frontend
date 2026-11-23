@@ -200,7 +200,7 @@ const StructureYourAnswerInterviewPage = () => {
           <div className="bg-white rounded-xl p-8">
             <div className="text-gray-800 text-xl font-medium text-center">
               {isLoading
-                ? "Generating your practice questions..."
+                ? "Generating your practice questionsâ¦"
                 : "Hi ! Lets start your practice 👋"}
             </div>
           </div>

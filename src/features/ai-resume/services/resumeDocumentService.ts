@@ -28,7 +28,7 @@ export async function getResumePdf(
   assertAuthRevision(ownerRevision);
   const blob = response.data;
   if (!(blob instanceof Blob) || !blob.size || blob.type.split(";")[0] !== "application/pdf") {
-    throw new Error("The server did not return a PDF. Please try again.");
+    throw new Error("The server did not return a PDF. Try again.");
   }
   pdfOwners.set(blob, ownerRevision);
   return blob;
@@ -63,5 +63,5 @@ export async function saveResumePdfToProfile(
     }
   );
   assertAuthRevision(ownerRevision);
-  if (!response.ok) throw new Error("Could not save the resume to your profile. Please try again.");
+  if (!response.ok) throw new Error("Could not save the resume to your profile. Try again.");
 }

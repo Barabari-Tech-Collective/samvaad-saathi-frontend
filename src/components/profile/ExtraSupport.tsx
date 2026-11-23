@@ -44,7 +44,7 @@ export default function ExtraSupport() {
       );
       await query.refetch();
     } catch {
-      toast.error(t("That didn't save. Please try again."));
+      toast.error(t("That didn't save. Try again."));
     } finally {
       setBusy(0);
     }
@@ -64,7 +64,7 @@ export default function ExtraSupport() {
           "If you need extra time or other help in assessments, tell us here. Your request goes to the team that arranges this."
         )}
       </p>
-      {query.isError && <p role="alert">{t("We couldn't load this. Please try again.")}</p>}
+      {query.isError && <p role="alert">{t("We couldn't load this. Try again.")}</p>}
       {items.length > 0 && (
         <ul className="divide-y divide-brand-line">
           {items.map((item) => (
@@ -148,7 +148,7 @@ export default function ExtraSupport() {
                   setOpen(false);
                   await query.refetch();
                 } catch {
-                  toast.error(t("That didn't save. Please try again."));
+                  toast.error(t("That didn't save. Try again."));
                 }
               }}
             >

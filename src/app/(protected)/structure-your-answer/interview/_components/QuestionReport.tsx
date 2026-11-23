@@ -126,7 +126,7 @@ const QuestionReport = ({
           <div className="studio-panel">
             <div className="bg-white rounded-xl p-8">
               <div className="text-gray-800 text-xl font-medium text-center">
-                Analyzing your practice...
+                Analysing your practiceâ¦
               </div>
             </div>
           </div>
@@ -139,7 +139,7 @@ const QuestionReport = ({
     const detail =
       axios.isAxiosError(analysisError) && typeof analysisError.response?.data?.detail === "string"
         ? analysisError.response.data.detail
-        : "We couldn't analyze this answer right now.";
+        : "We couldn't analyse this answer right now.";
     return (
       <div className="flex flex-col px-6 py-8">
         <div className="my-8 flex items-start gap-2">

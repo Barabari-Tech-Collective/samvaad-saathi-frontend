@@ -808,7 +808,7 @@ const InterviewPage = () => {
           </div>
           <h2 className="text-3xl font-bold text-center mb-4 text-slate-800">Introduction</h2>
           <p className="text-xl text-center text-slate-600 max-w-2xl mx-auto">
-            Please wait while your interviewer introduces themselves...
+            Wait while your interviewer introduces themselvesâ¦
           </p>
           <IntroductionSpeaker
             onFinished={() => {
@@ -919,7 +919,7 @@ const InterviewPage = () => {
 
           {attempt.failed && (
             <div role="alert" className="my-4 text-center text-red-700">
-              This question didn't load properly. Please try it again.
+              This question didn't load properly. Try it again.
               <button
                 className="btn btn-outline ml-3"
                 disabled={attempt.pending || timerExpired}
@@ -1081,7 +1081,7 @@ const SuspendedInterviewPage = () => {
         <p role="status">
           {invalid
             ? "This link isn't right. Continue from Progress or start a new interview."
-            : "Please sign in to the account you used for this interview."}
+            : "Sign in to the account you used for this interview."}
         </p>
         <Link
           className="inline-flex min-h-11 items-center text-brand-blue underline"

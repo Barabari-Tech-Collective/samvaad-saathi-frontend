@@ -34,7 +34,7 @@ export function companionActivity({
   if (blocked)
     return {
       state: "waiting",
-      text: "Please read the message before continuing.",
+      text: "Read the message before continuing.",
     };
   if (working) return { state: "thinking", text: "Your answer is saved. Preparing feedback." };
   if (saved || answer === "saved")
