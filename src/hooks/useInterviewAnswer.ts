@@ -97,7 +97,7 @@ export function useInterviewAnswer({
             ? `${courseAccessMessage(error)} This recording has not been saved to your account. Keep this page open so you can retry after access is restored.`
             : recordingRef.current?.size
               ? "Your answer has not been saved. Keep this page open and select Retry save."
-              : "No audio was captured. Please record your answer again."
+              : "No audio was captured. Record your answer again."
         );
         transition(recordingRef.current?.size ? "failed" : "idle");
       }
@@ -127,7 +127,7 @@ export function useInterviewAnswer({
         if (recordingRef.current?.size) {
           void saveRecording().then(resolve);
         } else {
-          setError("Recording stopped unexpectedly. Please record your answer again.");
+          setError("Recording stopped unexpectedly. Record your answer again.");
           transition("idle");
           resolve(false);
         }

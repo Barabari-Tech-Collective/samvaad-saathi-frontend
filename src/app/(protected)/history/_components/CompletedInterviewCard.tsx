@@ -34,13 +34,13 @@ export default function CompletedInterviewCard({ item }: CompletedInterviewCardP
               {
                 value: item.knowledgePercentage ?? 0,
                 color: "var(--color-brand-info)",
-                ariaLabel: "Technical Knowledge progress",
+                ariaLabel: "Knowledge and relevance progress",
                 trackColor: "var(--color-brand-neutral-line)",
               },
               {
                 value: item.speechFluencyPercentage ?? 0,
                 color: "var(--color-brand-gray)",
-                ariaLabel: "Speech Fluency progress",
+                ariaLabel: "Speech and structure progress",
                 trackColor: "var(--color-brand-line-strong)",
               },
             ]}
@@ -56,8 +56,8 @@ export default function CompletedInterviewCard({ item }: CompletedInterviewCardP
             )}
           />
           <div className="flex-1">
-            <p className="text-sm text-gray-600 mb-2">Total Average Score</p>
-            <p className="text-sm text-gray-600 mb-3">Total no. of attempts - 1</p>
+            <p className="text-sm text-gray-600 mb-2">Your scores</p>
+            <p className="text-sm text-gray-600 mb-3">Attempts: {item.attemptsCount ?? 1}</p>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <div className="p-2">
@@ -65,7 +65,7 @@ export default function CompletedInterviewCard({ item }: CompletedInterviewCardP
                     <circle cx="4" cy="4" r="4" fill="var(--color-brand-info)" />
                   </svg>
                 </div>
-                <span className="text-sm text-gray-700">Technical Knowledge</span>
+                <span className="text-sm text-gray-700">Knowledge and relevance</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="p-2">
@@ -73,7 +73,7 @@ export default function CompletedInterviewCard({ item }: CompletedInterviewCardP
                     <circle cx="4" cy="4" r="4" fill="var(--color-brand-gray)" />
                   </svg>
                 </div>
-                <span className="text-sm text-gray-700">Speech Fluency</span>
+                <span className="text-sm text-gray-700">Speech and structure</span>
               </div>
             </div>
           </div>

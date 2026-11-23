@@ -154,9 +154,7 @@ function AppointmentCard({ row }: { row: HumanInterviewAppointment }) {
               setUrl(link);
             } catch {
               if (alive.current && getAuthRevision() === ownerRevision)
-                setError(
-                  "We couldn't open the meeting link. Please try again or ask your teacher."
-                );
+                setError("We couldn't open the meeting link. Try again or ask your teacher.");
             } finally {
               joinLock.current = false;
               if (alive.current && getAuthRevision() === ownerRevision) setBusy(false);

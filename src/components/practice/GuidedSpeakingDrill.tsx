@@ -292,9 +292,7 @@ export default function GuidedSpeakingDrill({
       if (planStep) await bindPlanReceipt.mutateAsync({ completion_id: receipt.completionId });
     } catch {
       if (assignmentId || planStep) {
-        setAssignmentError(
-          "We couldn't mark this as done. Please try again, or check it in Practice."
-        );
+        setAssignmentError("We couldn't mark this as done. Try again, or check it in Practice.");
         return;
       }
       const pending = readPendingCompletions();

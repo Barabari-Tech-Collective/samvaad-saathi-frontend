@@ -39,7 +39,7 @@ export function parseHistoryPage(value: unknown, cursor: number | null): History
     page.items.length > page.limit ||
     !(page.nextCursor === null || id(page.nextCursor))
   )
-    throw new Error("We couldn't load everything. Please try again.");
+    throw new Error("We couldn't load everything. Try again.");
   if (
     page.items.some(
       (item) =>
@@ -53,7 +53,7 @@ export function parseHistoryPage(value: unknown, cursor: number | null): History
         !(item.interviewMode == null || ["practice", "assessment"].includes(item.interviewMode))
     )
   )
-    throw new Error("We couldn't load this. Please try again.");
+    throw new Error("We couldn't load this. Try again.");
   if (
     page.nextCursor !== null &&
     (!page.items.length ||

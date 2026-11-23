@@ -55,7 +55,7 @@ export default function PrivacyNoticeGate() {
         </label>
         {accept.isError && (
           <p role="alert" className="mt-2 text-sm text-error">
-            That did not save. Please try again.
+            That did not save. Try again.
           </p>
         )}
         <div className="modal-action">

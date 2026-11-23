@@ -21,7 +21,7 @@ it("opens a named native modal and handles Escape cancellation", () => {
   const { rerender } = render(
     <MicPermissionModal isOpen onClose={close} onRequestPermission={vi.fn()} />
   );
-  const dialog = screen.getByRole("dialog", { name: "Microphone Access Required" });
+  const dialog = screen.getByRole("dialog", { name: "Microphone access needed" });
   expect(dialog).toHaveAccessibleDescription(/record your interview answers/);
   fireEvent(dialog, new Event("cancel", { bubbles: true }));
   expect(close).toHaveBeenCalledOnce();

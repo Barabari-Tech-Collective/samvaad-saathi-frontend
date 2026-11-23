@@ -84,7 +84,7 @@ const PronunciationPracticeContent = () => {
   >({
     url: ENDPOINTS_V2.CREATE_PRONUNCIATION_PRACTICE,
     method: "post",
-    errorMessage: "We couldn't start your practice. Please try again.",
+    errorMessage: "We couldn't start your practice. Try again.",
   });
 
   const handleDifficultyChange = (level: string) => {
@@ -188,7 +188,7 @@ const PronunciationPracticeContent = () => {
             disabled={isSubmitDisabled}
             className="btn btn-neutral btn-block btn-lg"
           >
-            {busy ? "Starting..." : pendingSession.current ? "Continue practice" : "Start practice"}
+            {busy ? "Startingâ¦" : pendingSession.current ? "Continue practice" : "Start practice"}
           </button>
         </div>
       </div>

@@ -357,7 +357,7 @@ function InterviewSetup({
       (selection.kind !== "hr" || selectedProfile?.interviewMode !== "assessment")
     ) {
       toast.error(
-        "This role is not configured for a formal assessment. Please select an assessment role."
+        "This role is not configured for a formal assessment. Select an assessment role."
       );
       return false;
     }
@@ -423,7 +423,7 @@ function InterviewSetup({
           ...(selection.kind === "tech" ? { questionCount: freeQuestionCount } : {}),
         });
         if (!current.current || getAuthRevision() !== ownerRevision) return;
-        if (!catalogueReady.current) throw new Error("Please check Progress before trying again.");
+        if (!catalogueReady.current) throw new Error("Check Progress before trying again.");
         const expected =
           selection.kind === "tech"
             ? freeQuestionCount
@@ -440,7 +440,7 @@ function InterviewSetup({
           useResume,
         });
         if (!current.current || getAuthRevision() !== ownerRevision) return;
-        if (!catalogueReady.current) throw new Error("Please check Progress before trying again.");
+        if (!catalogueReady.current) throw new Error("Check Progress before trying again.");
         const id = createdInterview(
           result,
           mode,
@@ -486,7 +486,7 @@ function InterviewSetup({
   if (catalogue.isError)
     return (
       <EntryRecovery title="We couldn't load the job list">
-        <p role="alert">Please try again in a moment.</p>
+        <p role="alert">Try again in a moment.</p>
         <button
           type="button"
           className="min-h-11 rounded-xl bg-black px-5 py-3 font-semibold text-white"
@@ -613,7 +613,7 @@ function InterviewSetup({
               disabled={isLoadingProfiles}
             >
               <option value="" disabled>
-                {isLoadingProfiles ? "Loading roles..." : "Select a role"}
+                {isLoadingProfiles ? "Loading rolesâ¦" : "Select a role"}
               </option>
               {mode === "practice" && (
                 <option value={GENERAL_PRACTICE_ROLE}>Not sure: General interview</option>
@@ -700,7 +700,7 @@ function InterviewSetup({
 
             {offered?.length === 0 && (
               <p className="text-sm text-gray-600 font-noto">
-                This job isn't ready yet. Please choose another.
+                This job isn't ready yet. Choose another.
               </p>
             )}
           </div>

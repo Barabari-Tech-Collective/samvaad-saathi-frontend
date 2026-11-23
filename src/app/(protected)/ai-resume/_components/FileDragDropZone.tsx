@@ -23,7 +23,7 @@ export function FileDragDropZone({
   const validateFile = (selectedFile: File): boolean => {
     setError(null);
     if (selectedFile.size === 0) {
-      setError("File cannot be empty. Please upload a valid resume.");
+      setError("File cannot be empty. Upload a valid resume.");
       return false;
     }
 

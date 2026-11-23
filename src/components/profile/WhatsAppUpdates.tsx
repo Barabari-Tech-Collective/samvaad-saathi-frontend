@@ -54,7 +54,7 @@ export default function WhatsAppUpdates() {
         )
       );
     } catch {
-      toast.error(t("Your WhatsApp setting was not changed. Please try again."));
+      toast.error(t("Your WhatsApp setting was not changed. Try again."));
     } finally {
       setSaving(false);
     }

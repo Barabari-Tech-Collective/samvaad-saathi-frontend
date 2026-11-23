@@ -23,7 +23,7 @@ function TemplatePreviewContent() {
     return (
       <div className="w-full flex flex-col items-center justify-center py-20 gap-4">
         <span className="loading loading-spinner loading-lg text-primary"></span>
-        <p className="text-slate-600 font-medium text-sm">Loading template details...</p>
+        <p className="text-slate-600 font-medium text-sm">Loading template detailsâ¦</p>
       </div>
     );
   }
@@ -108,7 +108,7 @@ function TemplatePreviewContent() {
           <div className="flex items-center gap-2 bg-slate-50 rounded-xl p-3">
             <AcademicCapIcon className="size-4 text-primary" />
             <span className="text-sm font-medium text-slate-700 leading-tight">
-              Optimized for
+              Optimised for
               <br />
               Freshers
             </span>
@@ -138,7 +138,7 @@ export default function ResumeTemplatePreviewPage() {
         fallback={
           <div className="w-full flex flex-col items-center justify-center py-20 gap-4">
             <span className="loading loading-spinner loading-lg text-primary"></span>
-            <p className="text-slate-600 font-medium text-sm">Loading template details...</p>
+            <p className="text-slate-600 font-medium text-sm">Loading template detailsâ¦</p>
           </div>
         }
       >

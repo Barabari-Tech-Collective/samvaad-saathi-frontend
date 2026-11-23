@@ -104,7 +104,7 @@ const LevelIntroPage = () => {
             <div className="bg-gray-100  rounded-2xl p-4 flex justify-between items-center border border-gray-50">
               <div>
                 <h3 className="font-bold text-black text-sm">Filler Words</h3>
-                <p className="text-sm text-gray-500">Minimize um, uh, like, you know</p>
+                <p className="text-sm text-gray-500">Cut down on um, uh, like, you know</p>
               </div>
               <span className="text-purple-600 font-bold text-base">{"< 3 per min"}</span>
             </div>

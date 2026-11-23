@@ -213,8 +213,7 @@ export function LearningPlans({ accountKey }: { accountKey: string }) {
                   onClick={async () => {
                     const mapKey = `${plan.plan.id}:${plan.courseId}`;
                     const requestKey = keys.current.get(mapKey) ?? newKey();
-                    if (!requestKey)
-                      return setStartError("Please update your browser and try again.");
+                    if (!requestKey) return setStartError("Update your browser and try again.");
                     keys.current.set(mapKey, requestKey);
                     setStartError("");
                     try {

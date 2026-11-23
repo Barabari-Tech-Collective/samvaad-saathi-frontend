@@ -120,7 +120,7 @@ const ReportPage = () => {
     return (
       <div className="flex flex-col min-h-full bg-base-200/30 items-center justify-center p-6">
         <span className="loading loading-spinner loading-lg text-primary" />
-        <p className="text-base text-gray-600 mt-4">Loading report...</p>
+        <p className="text-base text-gray-600 mt-4">Loading reportâ¦</p>
       </div>
     );
   }
@@ -128,7 +128,7 @@ const ReportPage = () => {
   if (error || !data) {
     return (
       <div className="flex flex-col min-h-full bg-base-200/30 items-center justify-center p-6">
-        <p className="text-gray-600">Failed to load report. Please try again.</p>
+        <p className="text-gray-600">Failed to load report. Try again.</p>
         <Link href="/control-your-pace/levels" className="btn btn-neutral btn-sm mt-4">
           Back to Levels
         </Link>

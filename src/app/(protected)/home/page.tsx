@@ -147,7 +147,9 @@ export default function HomePage() {
                 <div className="ws-history-title">
                   <h3>{row.track}</h3>
                   <p>
-                    {friendlyDate(row.createdAt)} · {row.difficulty} · {statusWord(row.status)}
+                    {friendlyDate(row.createdAt)} ·{" "}
+                    {row.difficulty.charAt(0).toUpperCase() + row.difficulty.slice(1)} ·{" "}
+                    {statusWord(row.status)}
                   </p>
                 </div>
                 <Link

@@ -304,7 +304,7 @@ const AnswerTypeStep = ({
           // The backend already returns a specific reason (e.g. "answer too
           // short to evaluate") - show that instead of a generic message so
           // the student knows what to actually do differently.
-          let errorMessage = "We couldn't send your answer. Please try again.";
+          let errorMessage = "We couldn't send your answer. Try again.";
           if (axios.isAxiosError(error) && typeof error.response?.data?.detail === "string") {
             errorMessage = error.response.data.detail;
           }
@@ -402,7 +402,7 @@ const AnswerTypeStep = ({
               disabled={isUploading || capturePending}
               className="btn btn-neutral"
             >
-              {isUploading ? "Submitting..." : "Done"}
+              {isUploading ? "Submittingâ¦" : "Done"}
             </button>
           </div>
         </>
@@ -430,7 +430,7 @@ const AnswerTypeStep = ({
               disabled={isUploading || capturePending}
               className="btn btn-primary text-white"
             >
-              {isUploading ? "Uploading Answer..." : "Analyse Answer"}
+              {isUploading ? "Uploading Answerâ¦" : "Analyse Answer"}
             </button>
           )}
 
@@ -443,7 +443,7 @@ const AnswerTypeStep = ({
               {isUploading ? (
                 <>
                   <span className="animate-spin size-5 border-2 border-current border-t-transparent rounded-full shrink-0" />
-                  Submitting...
+                  Submittingâ¦
                 </>
               ) : (
                 <>

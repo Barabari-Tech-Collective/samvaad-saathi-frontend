@@ -141,7 +141,7 @@ export default function RootLayout({
       "Voice-based interview simulation",
       "Real-time feedback and analysis",
       "Interview history tracking",
-      "Personalized interview questions",
+      "Personalised interview questions",
       "Resume analysis and optimization",
     ],
     browserRequirements: "Requires JavaScript. Requires HTML5.",

@@ -127,6 +127,6 @@ describe("session workspace", () => {
     render(<Page />);
     await screen.findByText("Asha");
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("sign in again");
+    expect(await screen.findByRole("alert")).toHaveTextContent(/sign in again/i);
   });
 });

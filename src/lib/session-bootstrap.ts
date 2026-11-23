@@ -16,7 +16,7 @@ export function studentProfile(profile: SessionProfile): UserProfile {
     user.yearsExperience === undefined ||
     user.hasResume === undefined
   ) {
-    throw new SessionClientError(502, "Your profile could not be loaded. Please try again.");
+    throw new SessionClientError(502, "Your profile could not be loaded. Try again.");
   }
   return {
     userId: String(profile.userId),

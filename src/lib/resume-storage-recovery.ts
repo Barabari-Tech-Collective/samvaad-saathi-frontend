@@ -28,8 +28,7 @@ export function readResumeFingerprint(): string | null {
 }
 export function parseStorageStatus(value: unknown, hash: string): "registered" | "unconfirmed" {
   const receipt = value as { fileSha256?: unknown; status?: unknown; resumeId?: unknown } | null;
-  if (receipt?.fileSha256 !== hash)
-    throw new Error("We couldn't check your file. Please try again.");
+  if (receipt?.fileSha256 !== hash) throw new Error("We couldn't check your file. Try again.");
   if (
     receipt.status === "registered" &&
     typeof receipt.resumeId === "number" &&
@@ -38,7 +37,7 @@ export function parseStorageStatus(value: unknown, hash: string): "registered" |
   )
     return "registered";
   if (receipt.status === "unconfirmed" && receipt.resumeId == null) return "unconfirmed";
-  throw new Error("We couldn't check your file. Please try again.");
+  throw new Error("We couldn't check your file. Try again.");
 }
 
 export type ResumeDeliveryStatus = "pending" | "failed" | "expired" | null;
@@ -50,7 +49,7 @@ export function parseDeliveryStatus(value: unknown, hash: string): ResumeDeliver
   // Missing fields remain compatible with older API versions.
   if (delivery == null) return null;
   if (delivery === "pending" || delivery === "failed" || delivery === "expired") return delivery;
-  throw new Error("We couldn't check your file. Please try again.");
+  throw new Error("We couldn't check your file. Try again.");
 }
 
 /** Remember the exact bytes before dispatch, even if the HTTP response is later lost. */
@@ -62,15 +61,14 @@ export async function prepareResumeUpload(file: File, revision: number): Promise
       reader.result instanceof ArrayBuffer
         ? resolve(reader.result)
         : reject(new Error("Could not read your resume file."));
-    reader.onerror = () =>
-      reject(new Error("Could not read your resume file. Please select it again."));
+    reader.onerror = () => reject(new Error("Could not read your resume file. Select it again."));
     reader.onabort = () =>
-      reject(new Error("Resume preparation was interrupted. Please select the file again."));
+      reject(new Error("Resume preparation was interrupted. Select the file again."));
     reader.readAsArrayBuffer(file);
   });
   assertAuthRevision(revision);
   if (!globalThis.crypto?.subtle)
-    throw new Error("Your browser can't prepare this file. Please try another browser.");
+    throw new Error("Your browser can't prepare this file. Try another browser.");
   const digest = await crypto.subtle.digest("SHA-256", bytes);
   assertAuthRevision(revision);
   const hash = Array.from(new Uint8Array(digest), (byte) =>
@@ -130,7 +128,7 @@ export function acceptResumeRecovery(
     !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(receipt.operationKey) ||
     receipt.operationKey === previous
   )
-    throw new Error("We couldn't restore your file. Please try again.");
+    throw new Error("We couldn't restore your file. Try again.");
   try {
     sessionStorage.setItem(
       OPERATION_KEY,

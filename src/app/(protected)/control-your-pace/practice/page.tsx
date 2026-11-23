@@ -56,7 +56,7 @@ const PracticePage = () => {
   >({
     url: ENDPOINTS.PACING.SESSION_CREATE,
     method: "post",
-    errorMessage: "We couldn't start your practice. Please try again.",
+    errorMessage: "We couldn't start your practice. Try again.",
   });
 
   const { mutateAsync: submitAudio, isPending: isSubmitting } = apiClient.useMutation<
@@ -354,7 +354,7 @@ const PracticePage = () => {
                 disabled={preparingReport || isSubmitting}
                 className="btn btn-primary btn-lg rounded-full bg-blue-600 hover:bg-blue-700 border-none text-white font-bold flex-1"
               >
-                {preparingReport || isSubmitting ? "Submitting..." : "View Report"}
+                {preparingReport || isSubmitting ? "Submittingâ¦" : "View Report"}
               </button>
             </div>
           </div>

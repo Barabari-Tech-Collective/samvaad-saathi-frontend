@@ -33,8 +33,8 @@ export default function SessionWorkspace() {
       if (revision.current === expected)
         setError(
           cause instanceof SessionClientError && cause.status === 409
-            ? "Your sign-in changed. Please try again."
-            : "We couldn't load your account. Please try again."
+            ? "Your sign-in changed. Try again."
+            : "We couldn't load your account. Try again."
         );
     } finally {
       if (revision.current === expected) setBusy(false);
@@ -59,7 +59,7 @@ export default function SessionWorkspace() {
           if (callbackError) throw new Error("Sign-in failed");
           if (params.get("flow") === "handoff") await client.current.complete(ticket || "");
         } catch {
-          setError("We couldn't sign you in. Please start again.");
+          setError("We couldn't sign you in. Start again.");
           setBusy(false);
           throw new Error("Initialization failed");
         }
@@ -75,7 +75,7 @@ export default function SessionWorkspace() {
       client.current?.invalidate();
       setProfile(null);
       setBusy(false);
-      setError("You may have signed in somewhere else. Please try again.");
+      setError("You may have signed in somewhere else. Try again.");
     };
     let channel: BroadcastChannel | undefined;
     try {
@@ -101,7 +101,7 @@ export default function SessionWorkspace() {
       await client.current!.refresh();
       await load();
     } catch {
-      setError("Please sign in again.");
+      setError("Sign in again.");
       setBusy(false);
     }
   };
@@ -121,7 +121,7 @@ export default function SessionWorkspace() {
         /* Other tabs recheck on focus. */
       }
     } catch {
-      setError("We couldn't sign you out. Please try again.");
+      setError("We couldn't sign you out. Try again.");
     } finally {
       setBusy(false);
     }

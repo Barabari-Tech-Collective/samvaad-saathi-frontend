@@ -82,9 +82,7 @@ describe("WhatsAppUpdates", () => {
     render(<WhatsAppUpdates />);
     fireEvent.click(screen.getByRole("switch", { name: "Get WhatsApp updates" }));
     await waitFor(() =>
-      expect(toast.error).toHaveBeenCalledWith(
-        "Your WhatsApp setting was not changed. Please try again."
-      )
+      expect(toast.error).toHaveBeenCalledWith("Your WhatsApp setting was not changed. Try again.")
     );
     expect(state.setQueryData).not.toHaveBeenCalled();
   });

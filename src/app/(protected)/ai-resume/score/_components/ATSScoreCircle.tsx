@@ -17,7 +17,7 @@ export function ATSScoreCircle() {
 
   // Determine status description based on score
   const getStatusDescription = (score: number) => {
-    if (score >= 80) return "Your resume is well-optimized for this role and experience level.";
+    if (score >= 80) return "Your resume is well-optimised for this role and experience level.";
     if (score >= 60) return "Your resume matches well but has room for optimization.";
     if (score >= 40) return "Your resume could use some improvements to better match this role.";
     return "Consider updating your resume to better align with the target position.";
