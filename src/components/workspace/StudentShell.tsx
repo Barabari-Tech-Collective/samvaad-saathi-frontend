@@ -18,7 +18,6 @@ import TopNav from "@/components/TopNav";
 import BottomNav from "@/components/BottomNav";
 import PageNavigation from "./PageNavigation";
 import { parseToday, useToday } from "./NextStep";
-import { useLanguage } from "@/lib/i18n/language";
 
 const destinations = [
   { href: "/home", label: "Home", icon: HomeIcon },
@@ -50,7 +49,6 @@ const titles: Record<string, string> = {
 };
 export default function StudentShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { t } = useLanguage();
   const { user } = useAuth();
   const selectedSection = workspaceSection(pathname);
   const today = useToday(String(user?.userId ?? "signed-out"));
@@ -112,8 +110,8 @@ export default function StudentShell({ children }: { children: React.ReactNode }
               <li key={href}>
                 <Link
                   href={href}
-                  aria-label={t(label)}
-                  title={t(label)}
+                  aria-label={label}
+                  title={label}
                   onClick={() => {
                     if (mobile) menu.current?.close();
                   }}
@@ -124,7 +122,7 @@ export default function StudentShell({ children }: { children: React.ReactNode }
                   }
                 >
                   <Icon aria-hidden="true" />
-                  <span className="student-nav-label">{t(label)}</span>
+                  <span className="student-nav-label">{label}</span>
                 </Link>
               </li>
             ))}
@@ -188,7 +186,7 @@ export default function StudentShell({ children }: { children: React.ReactNode }
             }}
           >
             <div className="student-menu-heading">
-              <h2 id="student-menu-title">{t("Your workspace")}</h2>
+              <h2 id="student-menu-title">{"Your workspace"}</h2>
               <button
                 type="button"
                 className="ws-icon-button"

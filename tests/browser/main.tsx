@@ -15,7 +15,6 @@ import { AssessmentFixture } from "./assessment-fixture";
 import "./workspace.css";
 import React, { useState } from "react";
 import { createRoot } from "react-dom/client";
-import { LanguageProvider } from "@/lib/i18n/language";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CookiesProvider } from "react-cookie";
 import { CoachingAssignments } from "@/components/practice/CoachingAssignments";
@@ -67,74 +66,72 @@ window.addEventListener("practice-test-refresh", () => {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={client}>
     <CookiesProvider>
-      <LanguageProvider>
-        {location.search.includes("fixture=student-shell") ? (
-          <StudentShell>
-            {location.search.includes("view=profile") ? <ProfilePage /> : <HomePage />}
-          </StudentShell>
-        ) : location.search.includes("fixture=human-interviews") ? (
-          <main className="p-4">
-            <HumanInterviewsPage />
-          </main>
-        ) : location.search.includes("fixture=companion") ? (
-          <CompanionFixture />
-        ) : location.search.includes("fixture=active") ? (
-          <ActivePage />
-        ) : location.search.includes("fixture=assessment") ? (
-          <AssessmentFixture />
-        ) : location.search.includes("fixture=start") ? (
-          <main className="p-4">
-            <StartPage />
-          </main>
-        ) : location.search.includes("fixture=reattempt") ? (
-          <main className="p-4">
-            <ReattemptPage />
-          </main>
-        ) : location.search.includes("fixture=completed") ? (
-          <main className="p-4">
-            <CompletedPage />
-          </main>
-        ) : location.search.includes("fixture=history") ? (
-          <main className="p-4 sm:p-6">
-            <HistoryPage />
-          </main>
-        ) : location.search.includes("fixture=integrity") ? (
-          <main className="p-4">
-            <ReviewsPage />
-          </main>
-        ) : location.search.includes("fixture=report") ? (
-          <main>
-            <ReportPage />
-          </main>
-        ) : location.search.includes("fixture=practice-hub") ? (
-          <main className="p-4 sm:p-6">
-            <PracticePage />
-          </main>
-        ) : location.search.includes("fixture=assignments") ? (
-          <CoachingAssignments />
-        ) : location.search.includes("fixture=drill") ? (
-          <GuidedSpeakingDrill
-            module="warm_up"
-            storageKey="test-drill"
-            eyebrow="Practice"
-            title="Speaking follow-up"
-            description="Practise your introduction"
-            levels={[
-              {
-                key: "beginner",
-                label: "Beginner",
-                example: "Introduce yourself",
-                durationSeconds: 60,
-                thinkSeconds: 0,
-                prompts: ["Tell me about yourself"],
-                checklist: ["I explained my goal"],
-              },
-            ]}
-          />
-        ) : (
-          <Fixture />
-        )}
-      </LanguageProvider>
+      {location.search.includes("fixture=student-shell") ? (
+        <StudentShell>
+          {location.search.includes("view=profile") ? <ProfilePage /> : <HomePage />}
+        </StudentShell>
+      ) : location.search.includes("fixture=human-interviews") ? (
+        <main className="p-4">
+          <HumanInterviewsPage />
+        </main>
+      ) : location.search.includes("fixture=companion") ? (
+        <CompanionFixture />
+      ) : location.search.includes("fixture=active") ? (
+        <ActivePage />
+      ) : location.search.includes("fixture=assessment") ? (
+        <AssessmentFixture />
+      ) : location.search.includes("fixture=start") ? (
+        <main className="p-4">
+          <StartPage />
+        </main>
+      ) : location.search.includes("fixture=reattempt") ? (
+        <main className="p-4">
+          <ReattemptPage />
+        </main>
+      ) : location.search.includes("fixture=completed") ? (
+        <main className="p-4">
+          <CompletedPage />
+        </main>
+      ) : location.search.includes("fixture=history") ? (
+        <main className="p-4 sm:p-6">
+          <HistoryPage />
+        </main>
+      ) : location.search.includes("fixture=integrity") ? (
+        <main className="p-4">
+          <ReviewsPage />
+        </main>
+      ) : location.search.includes("fixture=report") ? (
+        <main>
+          <ReportPage />
+        </main>
+      ) : location.search.includes("fixture=practice-hub") ? (
+        <main className="p-4 sm:p-6">
+          <PracticePage />
+        </main>
+      ) : location.search.includes("fixture=assignments") ? (
+        <CoachingAssignments />
+      ) : location.search.includes("fixture=drill") ? (
+        <GuidedSpeakingDrill
+          module="warm_up"
+          storageKey="test-drill"
+          eyebrow="Practice"
+          title="Speaking follow-up"
+          description="Practise your introduction"
+          levels={[
+            {
+              key: "beginner",
+              label: "Beginner",
+              example: "Introduce yourself",
+              durationSeconds: 60,
+              thinkSeconds: 0,
+              prompts: ["Tell me about yourself"],
+              checklist: ["I explained my goal"],
+            },
+          ]}
+        />
+      ) : (
+        <Fixture />
+      )}
     </CookiesProvider>
   </QueryClientProvider>
 );

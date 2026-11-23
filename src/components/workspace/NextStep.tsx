@@ -6,7 +6,6 @@ import { apiClient } from "@/lib/api-config";
 import { StudentMessages } from "@/components/workspace/StudentMessages";
 import { ActivityTrend } from "@/components/workspace/ActivityTrend";
 import { dueText } from "@/lib/dates";
-import { useLanguage } from "@/lib/i18n/language";
 import type { PracticeHubActivity } from "@/lib/practice-hub";
 
 export type NextAction = {
@@ -50,7 +49,6 @@ export const useToday = (accountKey: string) =>
 
 /** The one thing to do now. Every other option on the page is secondary to this. */
 export function NextStep({ accountKey, trend = false }: { accountKey: string; trend?: boolean }) {
-  const { t } = useLanguage();
   const query = useToday(accountKey);
   const today = query.isError ? null : parseToday(query.data);
   return (
@@ -60,7 +58,7 @@ export function NextStep({ accountKey, trend = false }: { accountKey: string; tr
         {/* No "Do this next" over an error: there is nothing to do yet but retry. */}
         {(query.isLoading || today) && (
           <p className="studio-eyebrow">
-            {t(today?.action.from_teacher ? "From your teacher" : "Do this next")}
+            {today?.action.from_teacher ? "From your teacher" : "Do this next"}
           </p>
         )}
         {query.isLoading ? (
@@ -71,28 +69,28 @@ export function NextStep({ accountKey, trend = false }: { accountKey: string; tr
           </div>
         ) : today ? (
           <>
-            <h2 id="next-step-title">{t(today.action.title)}</h2>
-            <p>{t(today.action.detail)}</p>
+            <h2 id="next-step-title">{today.action.title}</h2>
+            <p>{today.action.detail}</p>
             {today.action.due_date && (
               <p className="ws-next-due">{dueText(today.action.due_date)}</p>
             )}
             <Link className="ws-button ws-button-primary" href={today.action.href}>
-              {t(today.action.cta ?? "Start")}
+              {today.action.cta ?? "Start"}
               <ArrowRightIcon aria-hidden="true" />
             </Link>
           </>
         ) : (
           <>
             <h2 id="next-step-title" role="alert">
-              {t("We couldn't load your next step")}
+              {"We couldn't load your next step"}
             </h2>
-            <p>{t("Your progress is safe.")}</p>
+            <p>{"Your progress is safe."}</p>
             <button
               type="button"
               className="ws-button ws-button-primary"
               onClick={() => void query.refetch()}
             >
-              {t("Try again")}
+              {"Try again"}
             </button>
           </>
         )}

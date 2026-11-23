@@ -1,5 +1,4 @@
 "use client";
-import LanguageToggle from "@/lib/i18n/LanguageToggle";
 import ProductNavigation from "@/components/workspace/ProductNavigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -31,7 +30,6 @@ export default function TopNav({
         <Image src="/barabari_logo.png" alt="" width={30} height={30} unoptimized priority />
         <span>Samvaad Saathi</span>
       </Link>
-      <LanguageToggle />
       <span className="student-products-slot">
         <ProductNavigation />
       </span>

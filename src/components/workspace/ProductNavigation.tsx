@@ -1,6 +1,5 @@
 "use client";
 import { usePathname } from "next/navigation";
-import { useLanguage } from "@/lib/i18n/language";
 
 export function centralHome(): string | null {
   try {
@@ -23,7 +22,6 @@ export function centralHome(): string | null {
 }
 export default function ProductNavigation() {
   const pathname = usePathname();
-  const { t } = useLanguage();
   const home = centralHome();
   if (!home) return null;
   const guarded = ![
@@ -48,7 +46,7 @@ export default function ProductNavigation() {
   // One plain link to the Barabari products page: nothing to open, close or choose between.
   return (
     <a className="ws-button" href={home} onClick={confirm}>
-      {t("All products")}
+      {"All products"}
     </a>
   );
 }

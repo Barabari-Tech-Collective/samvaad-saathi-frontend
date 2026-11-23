@@ -7,7 +7,6 @@ import {
   practiceReadinessMessage,
   type PracticeHubResponse,
 } from "@/lib/practice-hub";
-import { useLanguage } from "@/lib/i18n/language";
 import { trackButtonClick } from "@/lib/posthog/tracking.utils";
 import {
   BoltIcon,
@@ -93,7 +92,6 @@ function MockInterviewCard({
   status: "loading" | "refreshing" | "ready" | "error";
   onRefresh: () => void;
 }) {
-  const { t } = useLanguage();
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
@@ -113,7 +111,7 @@ function MockInterviewCard({
       : "/interview-start?mode=practice";
   return (
     <section className="studio-panel space-y-4" aria-labelledby="mock-interview-start-title">
-      <p className="studio-eyebrow">{t(resume ? "Saved mock interview" : "Mock interviews")}</p>
+      <p className="studio-eyebrow">{resume ? "Saved mock interview" : "Mock interviews"}</p>
       <h2 id="mock-interview-start-title" className="text-xl font-semibold sm:text-2xl">
         {resume
           ? canResume
@@ -121,7 +119,7 @@ function MockInterviewCard({
             : readiness.title
           : status === "error"
             ? "We couldn't load your interview"
-            : t("Rehearse your next interview")}
+            : "Rehearse your next interview"}
       </h2>
       <p>
         {resume
@@ -160,11 +158,11 @@ function MockInterviewCard({
         >
           {resume
             ? canResume
-              ? t("Continue mock interview")
+              ? "Continue mock interview"
               : "Open in Progress"
             : status === "error"
               ? "Open Progress"
-              : t("Start mock interview")}
+              : "Start mock interview"}
         </Link>
       )}
       {resume && !canResume && (
@@ -178,16 +176,15 @@ function MockInterviewCard({
 }
 
 function CoachingFocus({ hub }: { hub: PracticeHubResponse | null }) {
-  const { t } = useLanguage();
   if (!hub || hub.focus) return null;
   const left = hub.focusEvidenceRequired - hub.focusEvidenceAnswerCount;
   if (left <= 0) return null;
   return (
-    <section className="ws-focus-note" aria-label={t("Your suggestion")}>
+    <section className="ws-focus-note" aria-label={"Your suggestion"}>
       <p>
         {left === 1
-          ? t("One more answer and we can suggest what to practise")
-          : `${left} ${t("more answers and we can suggest what to practise")}`}
+          ? "One more answer and we can suggest what to practise"
+          : `${left} ${"more answers and we can suggest what to practise"}`}
       </p>
       <progress
         className="w-full"
@@ -215,33 +212,32 @@ export function PracticeHubView({
   area?: LearningArea;
   top?: React.ReactNode;
 }) {
-  const { t } = useLanguage();
   const verified = status === "ready" ? hub : null;
   const showMock = area !== "coaching";
   const showCoaching = area !== "mock";
   return (
     <div className="mx-auto w-full min-w-0 max-w-6xl space-y-6 pb-8 [overflow-wrap:anywhere]">
       <PageHeading
-        title={t("Practice")}
+        title={"Practice"}
         description={
           area === "mock"
             ? "Rehearse a full interview and get feedback."
             : "Short activities that build one skill at a time."
         }
       />
-      <nav aria-label={t("Practice sections")} className="ws-tabs">
+      <nav aria-label={"Practice sections"} className="ws-tabs">
         <Link href="/coaching" aria-current={area !== "mock" ? "page" : undefined}>
-          {t("Short activities")}
+          {"Short activities"}
         </Link>
         <Link href="/mock-interviews" aria-current={area === "mock" ? "page" : undefined}>
-          {t("Mock interviews")}
+          {"Mock interviews"}
         </Link>
       </nav>
       {status === "error" && (
         <div role="status" className="studio-panel space-y-3">
-          <p>{t("We couldn't load your practice. Your work is safe.")}</p>
+          <p>{"We couldn't load your practice. Your work is safe."}</p>
           <button type="button" className="ws-button" onClick={onRefresh}>
-            {t("Try again")}
+            {"Try again"}
           </button>
         </div>
       )}
@@ -251,13 +247,13 @@ export function PracticeHubView({
         <>
           {/* "More" only makes sense below the mock interview card; on the coaching
               page these activities are the page itself. */}
-          {showMock && <h2 className="text-xl font-semibold">{t("More practice")}</h2>}
+          {showMock && <h2 className="text-xl font-semibold">{"More practice"}</h2>}
           {children}
           <CoachingFocus hub={verified} />
           <section aria-labelledby="skill-builders-title">
             <div className="mb-4 space-y-1">
               <h3 id="skill-builders-title" className="text-lg font-semibold">
-                {t("Choose a short activity")}
+                {"Choose a short activity"}
               </h3>
             </div>
             <div className="ws-skill-grid">
@@ -274,8 +270,8 @@ export function PracticeHubView({
                   >
                     <Icon aria-hidden="true" />
                     <div>
-                      <h3>{t(module.title)}</h3>
-                      <p>{t(module.description)}</p>
+                      <h3>{module.title}</h3>
+                      <p>{module.description}</p>
                     </div>
                     <ChevronRightIcon aria-hidden="true" />
                   </Link>
