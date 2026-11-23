@@ -3,9 +3,7 @@ export function clearLogoutStorage() {
   try {
     const storage = window.localStorage;
     const keys = Array.from({ length: storage.length }, (_, index) => storage.key(index));
-    // Language is a device preference, not account data.
-    const keep = (key: string) => key === "samvaad-language";
-    for (const key of keys) if (key && !keep(key)) storage.removeItem(key);
+    for (const key of keys) if (key) storage.removeItem(key);
   } catch {
     /* Storage may be disabled; continue clearing other client state. */
   }

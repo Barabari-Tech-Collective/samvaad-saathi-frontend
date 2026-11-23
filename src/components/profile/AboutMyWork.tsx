@@ -3,7 +3,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { apiClient } from "@/lib/api-config";
-import { useLanguage } from "@/lib/i18n/language";
 
 type Item = {
   id: number;
@@ -25,7 +24,6 @@ const empty: Draft = { kind: "project", title: "", summary: "" };
 
 /** Projects and work the learner wants practice questions to draw on. */
 export default function AboutMyWork() {
-  const { t } = useLanguage();
   const query = apiClient.useQuery<{ items: Item[]; limit: number }>({
     key: ["my-profile-context"],
     url: "v2/profile-context/me",
@@ -38,11 +36,11 @@ export default function AboutMyWork() {
     setBusy(true);
     try {
       await fn();
-      toast.success(t(ok));
+      toast.success(ok);
       setDraft(null);
       await query.refetch();
     } catch {
-      toast.error(t("That didn't save. Try again."));
+      toast.error("That didn't save. Try again.");
     } finally {
       setBusy(false);
     }
@@ -51,12 +49,12 @@ export default function AboutMyWork() {
   return (
     <section className="studio-profile-card space-y-3" aria-labelledby="work-title">
       <h2 id="work-title" className="text-lg font-semibold">
-        {t("Your projects and work")}
+        {"Your projects and work"}
       </h2>
       <p className="text-sm text-gray-600">
-        {t("Add these and your practice questions can be about your own work.")}
+        {"Add these and your practice questions can be about your own work."}
       </p>
-      {query.isError && <p role="alert">{t("We couldn't load this. Try again.")}</p>}
+      {query.isError && <p role="alert">{"We couldn't load this. Try again."}</p>}
       {items.length > 0 && (
         <ul className="divide-y divide-brand-line">
           {items.map((item) => (
@@ -79,7 +77,7 @@ export default function AboutMyWork() {
                       )
                     }
                   >
-                    {t("Use this in practice")}
+                    {"Use this in practice"}
                   </button>
                 )}
                 <button
@@ -96,7 +94,7 @@ export default function AboutMyWork() {
                     })
                   }
                 >
-                  {t("Edit")}
+                  {"Edit"}
                 </button>
                 <button
                   type="button"
@@ -109,7 +107,7 @@ export default function AboutMyWork() {
                     )
                   }
                 >
-                  {t("Remove")}
+                  {"Remove"}
                 </button>
               </div>
             </li>
@@ -119,7 +117,7 @@ export default function AboutMyWork() {
       {draft ? (
         <div className="space-y-2">
           {!draft.id && (
-            <div className="flex gap-2" role="group" aria-label={t("Type")}>
+            <div className="flex gap-2" role="group" aria-label={"Type"}>
               {(["project", "experience"] as const).map((k) => (
                 <button
                   key={k}
@@ -128,13 +126,13 @@ export default function AboutMyWork() {
                   className={draft.kind === k ? "ws-button ws-button-primary" : "ws-button"}
                   onClick={() => setDraft({ ...draft, kind: k })}
                 >
-                  {t(k === "project" ? "Project" : "Work experience")}
+                  {k === "project" ? "Project" : "Work experience"}
                 </button>
               ))}
             </div>
           )}
           <label htmlFor="work-name" className="block font-semibold">
-            {t("Name")}
+            {"Name"}
           </label>
           <input
             id="work-name"
@@ -144,7 +142,7 @@ export default function AboutMyWork() {
             onChange={(e) => setDraft({ ...draft, title: e.target.value })}
           />
           <label htmlFor="work-summary" className="block font-semibold">
-            {t("What did you do?")}
+            {"What did you do?"}
           </label>
           <textarea
             id="work-summary"
@@ -177,17 +175,17 @@ export default function AboutMyWork() {
                 )
               }
             >
-              {t("Save")}
+              {"Save"}
             </button>
             <button type="button" className="ws-button" onClick={() => setDraft(null)}>
-              {t("Cancel")}
+              {"Cancel"}
             </button>
           </div>
         </div>
       ) : (
         items.length < (query.data?.limit ?? 10) && (
           <button type="button" className="ws-button" onClick={() => setDraft({ ...empty })}>
-            {t("Add a project or job")}
+            {"Add a project or job"}
           </button>
         )
       )}

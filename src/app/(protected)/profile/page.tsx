@@ -1,6 +1,5 @@
 "use client";
 
-import { useLanguage } from "@/lib/i18n/language";
 import { assertAuthRevision, getAuthRevision } from "@/lib/auth-session";
 
 import {
@@ -60,7 +59,6 @@ type ProfileFormData = z.infer<typeof profileSchema>;
 type EditableField = keyof ProfileFormData | "resume";
 
 export default function ProfilePage() {
-  const { t } = useLanguage();
   const ownerRevision = useRef(getAuthRevision()).current;
   const uploadOperation = useRef("");
   const { user, signOut } = useAuth();
@@ -379,13 +377,13 @@ export default function ProfilePage() {
         {/* Profile Information */}
         <div className="space-y-4 my-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-brand-navy">{t("Profile information")}</h2>
+            <h2 className="text-xl font-semibold text-brand-navy">{"Profile information"}</h2>
           </div>
 
           <div className="grid gap-x-8 md:grid-cols-2">
             <ProfileFieldRow
               label="Target position"
-              value={<>{user.authorizedUser.targetPosition || t("Not specified")}</>}
+              value={<>{user.authorizedUser.targetPosition || "Not specified"}</>}
               locked={editingField !== null && editingField !== "targetPosition"}
               onSave={() => handleFieldSave("targetPosition")}
               saving={
@@ -430,10 +428,10 @@ export default function ProfilePage() {
               value={
                 <>
                   {user.authorizedUser.yearsExperience == null
-                    ? t("Not specified")
+                    ? "Not specified"
                     : user.authorizedUser.yearsExperience === 0
-                      ? t("Fresher")
-                      : `${user.authorizedUser.yearsExperience} ${t(user.authorizedUser.yearsExperience === 1 ? "year" : "years")}`}
+                      ? "Fresher"
+                      : `${user.authorizedUser.yearsExperience} ${user.authorizedUser.yearsExperience === 1 ? "year" : "years"}`}
                 </>
               }
               locked={editingField !== null && editingField !== "yearsExperience"}
@@ -477,7 +475,7 @@ export default function ProfilePage() {
 
             <ProfileFieldRow
               label="Degree"
-              value={<>{user.authorizedUser.degree || t("Not specified")}</>}
+              value={<>{user.authorizedUser.degree || "Not specified"}</>}
               locked={editingField !== null && editingField !== "degree"}
               onSave={() => handleFieldSave("degree")}
               saving={
@@ -515,7 +513,7 @@ export default function ProfilePage() {
 
             <ProfileFieldRow
               label="University"
-              value={<>{user.authorizedUser.university || t("Not specified")}</>}
+              value={<>{user.authorizedUser.university || "Not specified"}</>}
               locked={editingField !== null && editingField !== "university"}
               onSave={() => handleFieldSave("university")}
               saving={
@@ -573,7 +571,7 @@ export default function ProfilePage() {
               value={
                 <>
                   {user.authorizedUser.onboardingResumeFilename ||
-                    t(user.authorizedUser.hasResume ? "Resume uploaded" : "No resume uploaded")}
+                    (user.authorizedUser.hasResume ? "Resume uploaded" : "No resume uploaded")}
                 </>
               }
               locked={editingField !== null && editingField !== "resume"}
@@ -687,12 +685,12 @@ export default function ProfilePage() {
 
             {/* The ATS resume is made in the resume tool, so this row has no Edit. */}
             <div className="min-w-0 border-t border-brand-line py-4">
-              <p className="text-sm font-semibold text-brand-muted">{t("ATS resume (final)")}</p>
+              <p className="text-sm font-semibold text-brand-muted">{"ATS resume (final)"}</p>
               <p className="mt-1 flex items-center gap-2 break-words text-base font-medium text-brand-navy">
                 <DocumentTextIcon className="size-5 shrink-0 text-brand-muted" aria-hidden="true" />
                 {user.authorizedUser.atsResumeFilename ||
                   (user.authorizedUser as { ats_resume_filename?: string }).ats_resume_filename ||
-                  t("No ATS resume yet")}
+                  "No ATS resume yet"}
               </p>
             </div>
 

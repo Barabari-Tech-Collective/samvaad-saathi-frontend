@@ -7,7 +7,6 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import { useEffect, useRef, useState } from "react";
-import { useLanguage } from "@/lib/i18n/language";
 import { trackEvent } from "@/lib/posthog/tracking.utils";
 
 type CheckStatus = "idle" | "checking" | "passed" | "warning" | "failed";
@@ -87,7 +86,6 @@ export default function PracticePreflight({
   onBack,
   onStart,
 }: PracticePreflightProps) {
-  const { t } = useLanguage();
   const [network, setNetwork] = useState<CheckStatus>("idle");
   const [storage, setStorage] = useState<CheckStatus>("idle");
   const [microphone, setMicrophone] = useState<CheckStatus>("idle");
@@ -220,15 +218,15 @@ export default function PracticePreflight({
         onClick={onBack}
         className="mb-5 inline-flex min-h-11 items-center gap-2 rounded-lg font-semibold text-brand-blue focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
       >
-        <ArrowLeftIcon className="size-5" aria-hidden="true" /> {t("Change setup")}
+        <ArrowLeftIcon className="size-5" aria-hidden="true" /> {"Change setup"}
       </button>
 
       <PageHeading
-        eyebrow={t("Before you begin")}
-        title={t("Get ready")}
-        description={t(
+        eyebrow={"Before you begin"}
+        title={"Get ready"}
+        description={
           "Check your internet, microphone and speaker. Your answers stay safe if the internet goes off."
-        )}
+        }
       />
 
       <section className="mt-6 rounded-2xl bg-brand-canvas p-5" aria-label="Interview preview">
@@ -252,31 +250,31 @@ export default function PracticePreflight({
 
       <section className="mt-6 space-y-3" aria-label="Device checks" aria-live="polite">
         <CheckRow
-          title={t("Internet")}
+          title={"Internet"}
           detail={
             network === "passed"
-              ? t("Your internet is working. If it goes off, your saved answers are kept.")
+              ? "Your internet is working. If it goes off, your saved answers are kept."
               : "You appear to be offline. Reconnect before starting the interview."
           }
           status={network}
-          action={{ label: t("Check again"), onClick: runBasicChecks }}
+          action={{ label: "Check again", onClick: runBasicChecks }}
         />
         <CheckRow
-          title={t("Saving on this phone")}
+          title={"Saving on this phone"}
           detail={
             storage === "passed"
-              ? t("Your phone can keep a copy of your answers.")
-              : t("Saving is blocked. Close private mode, then check again.")
+              ? "Your phone can keep a copy of your answers."
+              : "Saving is blocked. Close private mode, then check again."
           }
           status={storage}
-          action={{ label: t("Check again"), onClick: runBasicChecks }}
+          action={{ label: "Check again", onClick: runBasicChecks }}
         />
         <CheckRow
-          title={t("Microphone")}
-          detail={t(microphoneDetail)}
+          title={"Microphone"}
+          detail={microphoneDetail}
           status={microphone}
           action={{
-            label: microphone === "checking" ? "Checking…" : t("Check microphone"),
+            label: microphone === "checking" ? "Checking…" : "Check microphone",
             onClick: () => void testMicrophone(),
             disabled: microphone === "checking",
           }}
@@ -287,29 +285,29 @@ export default function PracticePreflight({
             role="alert"
             className="rounded-2xl border border-brand-orange-line bg-brand-paper p-4 text-sm leading-6"
           >
-            <p className="font-semibold">{t("How to turn the microphone on")}</p>
+            <p className="font-semibold">{"How to turn the microphone on"}</p>
             <ol className="mt-2 list-decimal space-y-1 pl-5">
               <li>
-                {t("Touch the small lock or settings icon next to the web address, at the top.")}
+                {"Touch the small lock or settings icon next to the web address, at the top."}
               </li>
-              <li>{t("Touch Permissions, then Microphone, then Allow.")}</li>
-              <li>{t("Come back here and touch Check microphone again.")}</li>
+              <li>{"Touch Permissions, then Microphone, then Allow."}</li>
+              <li>{"Come back here and touch Check microphone again."}</li>
             </ol>
-            <p className="mt-2">{t("Still stuck? Ask your teacher for help.")}</p>
+            <p className="mt-2">{"Still stuck? Ask your teacher for help."}</p>
           </div>
         )}
         <CheckRow
-          title={t("Speaker")}
+          title={"Speaker"}
           detail={
             playback === "passed"
-              ? t("Did you hear the sound? Good. Questions are also written on the screen.")
+              ? "Did you hear the sound? Good. Questions are also written on the screen."
               : playback === "failed"
-                ? t("No sound. Turn the volume up, then try again.")
-                : t("Play a sound to check you can hear.")
+                ? "No sound. Turn the volume up, then try again."
+                : "Play a sound to check you can hear."
           }
           status={playback}
           action={{
-            label: playback === "checking" ? "Playing…" : t("Play test sound"),
+            label: playback === "checking" ? "Playing…" : "Play test sound",
             onClick: () => void testPlayback(),
             disabled: playback === "checking",
           }}
@@ -317,11 +315,11 @@ export default function PracticePreflight({
       </section>
 
       <section className="mt-6 rounded-2xl bg-brand-yellow-wash p-5">
-        <h2 className="font-bold">{t("Before you begin")}</h2>
+        <h2 className="font-bold">{"Before you begin"}</h2>
         <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-gray-800">
-          <li>{t("This mock interview is for rehearsal. It is not an assessment.")}</li>
-          <li>{t("Nothing bad happens if you refresh, get a call or change pages.")}</li>
-          <li>{t("You can stop and come back. Saved answers stay on your account.")}</li>
+          <li>{"This mock interview is for rehearsal. It is not an assessment."}</li>
+          <li>{"Nothing bad happens if you refresh, get a call or change pages."}</li>
+          <li>{"You can stop and come back. Saved answers stay on your account."}</li>
           <li>Your voice is saved safely so we can give you feedback. It is deleted later.</li>
           <li>Your teacher can see a short summary.</li>
         </ul>
@@ -342,12 +340,10 @@ export default function PracticePreflight({
           disabled={!ready || isStarting}
           className="min-h-12 w-full rounded-xl bg-brand-yellow px-6 text-base font-bold text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-500"
         >
-          {isStarting ? "Creating your interview…" : t("Start mock interview")}
+          {isStarting ? "Creating your interview…" : "Start mock interview"}
         </button>
         {!ready && (
-          <p className="mt-3 text-center text-sm text-gray-600">
-            {t("First do the checks above.")}
-          </p>
+          <p className="mt-3 text-center text-sm text-gray-600">{"First do the checks above."}</p>
         )}
       </div>
     </div>

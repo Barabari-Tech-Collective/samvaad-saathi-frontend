@@ -4,7 +4,6 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { apiClient } from "@/lib/api-config";
 import { friendlyDate, statusWord } from "@/lib/dates";
-import { useLanguage } from "@/lib/i18n/language";
 
 type Item = {
   id: number;
@@ -19,7 +18,6 @@ type Item = {
 
 /** Ask for extra time or other support in assessments, and follow what was decided. */
 export default function ExtraSupport() {
-  const { t } = useLanguage();
   const query = apiClient.useQuery<{ items: Item[] }>({
     key: ["my-accommodations"],
     url: "v2/accommodations/me",
@@ -40,11 +38,11 @@ export default function ExtraSupport() {
         expected_version: item.version,
       });
       toast.success(
-        t(kind === "confirm" ? "Thanks. This is now active." : "Your request is withdrawn.")
+        kind === "confirm" ? "Thanks. This is now active." : "Your request is withdrawn."
       );
       await query.refetch();
     } catch {
-      toast.error(t("That didn't save. Try again."));
+      toast.error("That didn't save. Try again.");
     } finally {
       setBusy(0);
     }
@@ -57,28 +55,26 @@ export default function ExtraSupport() {
       aria-labelledby="support-title"
     >
       <h2 id="support-title" className="text-lg font-semibold">
-        {t("Extra time and support")}
+        {"Extra time and support"}
       </h2>
       <p className="text-sm text-gray-600">
-        {t(
+        {
           "If you need extra time or other help in assessments, tell us here. Your request goes to the team that arranges this."
-        )}
+        }
       </p>
-      {query.isError && <p role="alert">{t("We couldn't load this. Try again.")}</p>}
+      {query.isError && <p role="alert">{"We couldn't load this. Try again."}</p>}
       {items.length > 0 && (
         <ul className="divide-y divide-brand-line">
           {items.map((item) => (
             <li key={item.id} className="space-y-2 py-3">
               <p className="font-semibold">
-                {t(
-                  item.status === "requested"
-                    ? "Waiting for a decision"
-                    : item.status === "approved"
-                      ? "Approved"
-                      : item.status === "declined"
-                        ? "Not approved"
-                        : statusWord(item.status)
-                )}
+                {item.status === "requested"
+                  ? "Waiting for a decision"
+                  : item.status === "approved"
+                    ? "Approved"
+                    : item.status === "declined"
+                      ? "Not approved"
+                      : statusWord(item.status)}
                 <span className="font-normal text-gray-600">
                   {" "}
                   · {friendlyDate(item.created_at)}
@@ -101,7 +97,7 @@ export default function ExtraSupport() {
                     disabled={busy === item.id}
                     onClick={() => void act(item, "confirm")}
                   >
-                    {t("Yes, use this")}
+                    {"Yes, use this"}
                   </button>
                 )}
                 {(item.status === "requested" || item.status === "approved") && (
@@ -111,7 +107,7 @@ export default function ExtraSupport() {
                     disabled={busy === item.id}
                     onClick={() => void act(item, "withdraw")}
                   >
-                    {t("Withdraw")}
+                    {"Withdraw"}
                   </button>
                 )}
               </div>
@@ -122,7 +118,7 @@ export default function ExtraSupport() {
       {open ? (
         <div className="space-y-2">
           <label htmlFor="support-text" className="block font-semibold">
-            {t("What would help you?")}
+            {"What would help you?"}
           </label>
           <textarea
             id="support-text"
@@ -143,25 +139,25 @@ export default function ExtraSupport() {
                     request_key: crypto.randomUUID(),
                     description: text.trim(),
                   });
-                  toast.success(t("Your request is sent."));
+                  toast.success("Your request is sent.");
                   setText("");
                   setOpen(false);
                   await query.refetch();
                 } catch {
-                  toast.error(t("That didn't save. Try again."));
+                  toast.error("That didn't save. Try again.");
                 }
               }}
             >
-              {t("Send request")}
+              {"Send request"}
             </button>
             <button type="button" className="ws-button" onClick={() => setOpen(false)}>
-              {t("Cancel")}
+              {"Cancel"}
             </button>
           </div>
         </div>
       ) : (
         <button type="button" className="ws-button" onClick={() => setOpen(true)}>
-          {t("Ask for support")}
+          {"Ask for support"}
         </button>
       )}
     </section>

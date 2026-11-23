@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { PencilIcon } from "@heroicons/react/24/solid";
-import { useLanguage } from "@/lib/i18n/language";
 
 interface ProfileFieldRowProps {
   label: string;
@@ -34,7 +33,6 @@ export function ProfileFieldRow({
   error,
   children,
 }: ProfileFieldRowProps) {
-  const { t } = useLanguage();
   const content = useRef<HTMLDivElement>(null);
   const edit = useRef<HTMLButtonElement>(null);
   const previous = useRef(false);
@@ -49,7 +47,7 @@ export function ProfileFieldRow({
     <div className="min-w-0 border-t border-brand-line py-4 first-of-type:border-t-0">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-brand-muted">{t(label)}</p>
+          <p className="text-sm font-semibold text-brand-muted">{label}</p>
           {!isEditing && (
             <p className="mt-1 break-words text-base font-medium text-brand-navy">{value}</p>
           )}
@@ -58,13 +56,13 @@ export function ProfileFieldRow({
           <button
             ref={edit}
             type="button"
-            aria-label={`${t("Edit")} ${t(label)}`}
+            aria-label={`${"Edit"} ${label}`}
             onClick={onEdit}
             disabled={locked}
             className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl px-3 text-sm font-semibold text-brand-blue hover:bg-brand-blue-wash focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue disabled:opacity-40"
           >
             <PencilIcon className="size-4" aria-hidden="true" />
-            <span>{t("Edit")}</span>
+            <span>{"Edit"}</span>
           </button>
         )}
       </div>
@@ -84,7 +82,7 @@ export function ProfileFieldRow({
                 disabled={saving}
                 className="ws-button min-h-11"
               >
-                {saving ? t("Saving…") : t("Save")}
+                {saving ? "Saving…" : "Save"}
               </button>
             )}
             <button
@@ -93,7 +91,7 @@ export function ProfileFieldRow({
               disabled={saving}
               className="inline-flex min-h-11 items-center rounded-xl px-4 text-sm font-semibold text-brand-blue hover:bg-brand-blue-wash"
             >
-              {t("Cancel")}
+              {"Cancel"}
             </button>
           </div>
         </div>

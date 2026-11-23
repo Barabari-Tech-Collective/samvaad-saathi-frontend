@@ -9,7 +9,6 @@ import {
 } from "@heroicons/react/24/outline";
 import { workspaceSection } from "@/lib/workspace-navigation";
 import Link from "next/link";
-import { useLanguage } from "@/lib/i18n/language";
 import { usePathname } from "next/navigation";
 const items = [
   { href: "/home", label: "Home", icon: HomeIcon },
@@ -30,7 +29,6 @@ export default function BottomNav({
   menuOpen?: boolean;
   showAssessments?: boolean;
 }) {
-  const { t } = useLanguage();
   const path = workspaceSection(usePathname());
   const shown = items.filter((item) => !item.assigned || showAssessments);
   const moreActive = !shown.some(({ href }) => path === href || path.startsWith(`${href}/`));
@@ -45,7 +43,7 @@ export default function BottomNav({
           onClick={() => trackBottomNavClick(label.toLowerCase())}
         >
           <Icon aria-hidden="true" />
-          <span>{t(label)}</span>
+          <span>{label}</span>
         </Link>
       ))}
       <button
@@ -61,7 +59,7 @@ export default function BottomNav({
         }}
       >
         <Squares2X2Icon aria-hidden="true" />
-        <span>{t("More")}</span>
+        <span>{"More"}</span>
       </button>
     </nav>
   );
